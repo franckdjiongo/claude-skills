@@ -1,0 +1,826 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             targetNamespace="http://bpmn.io/schema/bpmn"
+             id="Definitions_1">
+  
+  <collaboration id="Collaboration_TempsChantier">
+    <participant id="Participant_Technicians" name="Techniciens chantier" processRef="Process_TimeEntry"/>
+    <participant id="Participant_Supervisors" name="Contremaîtres" processRef="Process_Verification"/>
+    <participant id="Participant_ProjectManagers" name="Chargés de projet" processRef="Process_ProjectReview"/>
+    <participant id="Participant_Payroll" name="Paie" processRef="Process_PayrollExport"/>
+    <participant id="Participant_System" name="Système (Power Automate)" processRef="Process_Synchronization"/>
+    <participant id="Participant_Dayforce" name="Dayforce API"/>
+    <participant id="Participant_MIR" name="MIR SQL View"/>
+    <participant id="Participant_AS400" name="AS400 CSV/API"/>
+    
+    <messageFlow id="Flow_ToDataverse1" sourceRef="Activity_EnterTime" targetRef="Participant_System"/>
+    <messageFlow id="Flow_ToDataverse2" sourceRef="Activity_ValidateTime" targetRef="Participant_System"/>
+    <messageFlow id="Flow_ToDataverse3" sourceRef="Activity_ApproveTime" targetRef="Participant_System"/>
+    <messageFlow id="Flow_TriggerExport" sourceRef="Activity_InitiateExport" targetRef="Participant_System"/>
+    <messageFlow id="Flow_SyncDayforce" sourceRef="Participant_System" targetRef="Participant_Dayforce"/>
+    <messageFlow id="Flow_SyncMIR" sourceRef="Participant_MIR" targetRef="Participant_System"/>
+    <messageFlow id="Flow_SyncAS400" sourceRef="Participant_System" targetRef="Participant_AS400"/>
+    <messageFlow id="Flow_ExportPayroll" sourceRef="Participant_System" targetRef="Participant_Dayforce"/>
+  </collaboration>
+
+  <!-- Process: Time Entry by Technicians -->
+  <process id="Process_TimeEntry" name="Saisie des temps" isExecutable="false">
+    <laneSet id="LaneSet_TimeEntry">
+      <lane id="Lane_Technician" name="Technicien">
+        <flowNodeRef>StartEvent_TimeEntry</flowNodeRef>
+        <flowNodeRef>Activity_OpenPowerApp</flowNodeRef>
+        <flowNodeRef>Activity_EnterTime</flowNodeRef>
+        <flowNodeRef>Activity_SelectSite</flowNodeRef>
+        <flowNodeRef>Activity_SelectEquipment</flowNodeRef>
+        <flowNodeRef>Activity_EnterHours</flowNodeRef>
+        <flowNodeRef>Activity_SubmitTime</flowNodeRef>
+        <flowNodeRef>EndEvent_TimeSubmitted</flowNodeRef>
+      </lane>
+    </laneSet>
+
+    <startEvent id="StartEvent_TimeEntry" name="Début de journée">
+      <outgoing>Flow_1</outgoing>
+    </startEvent>
+    
+    <userTask id="Activity_OpenPowerApp" name="Ouvrir Power Apps">
+      <incoming>Flow_1</incoming>
+      <outgoing>Flow_2</outgoing>
+    </userTask>
+
+    <userTask id="Activity_EnterTime" name="Saisir temps">
+      <incoming>Flow_2</incoming>
+      <outgoing>Flow_3</outgoing>
+    </userTask>
+
+    <userTask id="Activity_SelectSite" name="Sélectionner site">
+      <incoming>Flow_3</incoming>
+      <outgoing>Flow_4</outgoing>
+    </userTask>
+
+    <userTask id="Activity_SelectEquipment" name="Sélectionner équipement">
+      <incoming>Flow_4</incoming>
+      <outgoing>Flow_5</outgoing>
+    </userTask>
+
+    <userTask id="Activity_EnterHours" name="Entrer heures travaillées">
+      <incoming>Flow_5</incoming>
+      <outgoing>Flow_6</outgoing>
+    </userTask>
+
+    <userTask id="Activity_SubmitTime" name="Soumettre temps">
+      <incoming>Flow_6</incoming>
+      <outgoing>Flow_7</outgoing>
+    </userTask>
+
+    <endEvent id="EndEvent_TimeSubmitted" name="Temps soumis">
+      <incoming>Flow_7</incoming>
+    </endEvent>
+
+    <sequenceFlow id="Flow_1" sourceRef="StartEvent_TimeEntry" targetRef="Activity_OpenPowerApp"/>
+    <sequenceFlow id="Flow_2" sourceRef="Activity_OpenPowerApp" targetRef="Activity_EnterTime"/>
+    <sequenceFlow id="Flow_3" sourceRef="Activity_EnterTime" targetRef="Activity_SelectSite"/>
+    <sequenceFlow id="Flow_4" sourceRef="Activity_SelectSite" targetRef="Activity_SelectEquipment"/>
+    <sequenceFlow id="Flow_5" sourceRef="Activity_SelectEquipment" targetRef="Activity_EnterHours"/>
+    <sequenceFlow id="Flow_6" sourceRef="Activity_EnterHours" targetRef="Activity_SubmitTime"/>
+    <sequenceFlow id="Flow_7" sourceRef="Activity_SubmitTime" targetRef="EndEvent_TimeSubmitted"/>
+  </process>
+
+  <!-- Process: Verification by Supervisors -->
+  <process id="Process_Verification" name="Vérification des temps" isExecutable="false">
+    <laneSet id="LaneSet_Verification">
+      <lane id="Lane_Supervisor" name="Contremaître">
+        <flowNodeRef>StartEvent_Verification</flowNodeRef>
+        <flowNodeRef>Activity_ReviewTime</flowNodeRef>
+        <flowNodeRef>Gateway_TimeCorrect</flowNodeRef>
+        <flowNodeRef>Activity_ValidateTime</flowNodeRef>
+        <flowNodeRef>Activity_RequestCorrection</flowNodeRef>
+        <flowNodeRef>EndEvent_TimeValidated</flowNodeRef>
+        <flowNodeRef>EndEvent_CorrectionRequested</flowNodeRef>
+      </lane>
+    </laneSet>
+
+    <startEvent id="StartEvent_Verification" name="Notification temps soumis">
+      <outgoing>Flow_V1</outgoing>
+    </startEvent>
+
+    <userTask id="Activity_ReviewTime" name="Vérifier temps saisis">
+      <incoming>Flow_V1</incoming>
+      <outgoing>Flow_V2</outgoing>
+    </userTask>
+
+    <exclusiveGateway id="Gateway_TimeCorrect" name="Temps correct?">
+      <incoming>Flow_V2</incoming>
+      <outgoing>Flow_V3</outgoing>
+      <outgoing>Flow_V4</outgoing>
+    </exclusiveGateway>
+
+    <userTask id="Activity_ValidateTime" name="Valider temps">
+      <incoming>Flow_V3</incoming>
+      <outgoing>Flow_V5</outgoing>
+    </userTask>
+
+    <userTask id="Activity_RequestCorrection" name="Demander correction">
+      <incoming>Flow_V4</incoming>
+      <outgoing>Flow_V6</outgoing>
+    </userTask>
+
+    <endEvent id="EndEvent_TimeValidated" name="Temps validé">
+      <incoming>Flow_V5</incoming>
+    </endEvent>
+
+    <endEvent id="EndEvent_CorrectionRequested" name="Correction demandée">
+      <incoming>Flow_V6</incoming>
+    </endEvent>
+
+    <sequenceFlow id="Flow_V1" sourceRef="StartEvent_Verification" targetRef="Activity_ReviewTime"/>
+    <sequenceFlow id="Flow_V2" sourceRef="Activity_ReviewTime" targetRef="Gateway_TimeCorrect"/>
+    <sequenceFlow id="Flow_V3" name="Oui" sourceRef="Gateway_TimeCorrect" targetRef="Activity_ValidateTime"/>
+    <sequenceFlow id="Flow_V4" name="Non" sourceRef="Gateway_TimeCorrect" targetRef="Activity_RequestCorrection"/>
+    <sequenceFlow id="Flow_V5" sourceRef="Activity_ValidateTime" targetRef="EndEvent_TimeValidated"/>
+    <sequenceFlow id="Flow_V6" sourceRef="Activity_RequestCorrection" targetRef="EndEvent_CorrectionRequested"/>
+  </process>
+
+  <!-- Process: Project Review -->
+  <process id="Process_ProjectReview" name="Revue projet" isExecutable="false">
+    <laneSet id="LaneSet_ProjectReview">
+      <lane id="Lane_ProjectManager" name="Chargé de projet">
+        <flowNodeRef>StartEvent_ProjectReview</flowNodeRef>
+        <flowNodeRef>Activity_ReviewProjectTime</flowNodeRef>
+        <flowNodeRef>Gateway_NeedApproval</flowNodeRef>
+        <flowNodeRef>Activity_ApproveTime</flowNodeRef>
+        <flowNodeRef>EndEvent_TimeApproved</flowNodeRef>
+        <flowNodeRef>EndEvent_NoApprovalNeeded</flowNodeRef>
+      </lane>
+    </laneSet>
+
+    <startEvent id="StartEvent_ProjectReview" name="Temps validé">
+      <outgoing>Flow_P1</outgoing>
+    </startEvent>
+
+    <userTask id="Activity_ReviewProjectTime" name="Réviser temps projet">
+      <incoming>Flow_P1</incoming>
+      <outgoing>Flow_P2</outgoing>
+    </userTask>
+
+    <exclusiveGateway id="Gateway_NeedApproval" name="Approbation requise?">
+      <incoming>Flow_P2</incoming>
+      <outgoing>Flow_P3</outgoing>
+      <outgoing>Flow_P4</outgoing>
+    </exclusiveGateway>
+
+    <userTask id="Activity_ApproveTime" name="Approuver temps">
+      <incoming>Flow_P3</incoming>
+      <outgoing>Flow_P5</outgoing>
+    </userTask>
+
+    <endEvent id="EndEvent_TimeApproved" name="Temps approuvé">
+      <incoming>Flow_P5</incoming>
+    </endEvent>
+
+    <endEvent id="EndEvent_NoApprovalNeeded" name="Pas d'approbation nécessaire">
+      <incoming>Flow_P4</incoming>
+    </endEvent>
+
+    <sequenceFlow id="Flow_P1" sourceRef="StartEvent_ProjectReview" targetRef="Activity_ReviewProjectTime"/>
+    <sequenceFlow id="Flow_P2" sourceRef="Activity_ReviewProjectTime" targetRef="Gateway_NeedApproval"/>
+    <sequenceFlow id="Flow_P3" name="Oui" sourceRef="Gateway_NeedApproval" targetRef="Activity_ApproveTime"/>
+    <sequenceFlow id="Flow_P4" name="Non" sourceRef="Gateway_NeedApproval" targetRef="EndEvent_NoApprovalNeeded"/>
+    <sequenceFlow id="Flow_P5" sourceRef="Activity_ApproveTime" targetRef="EndEvent_TimeApproved"/>
+  </process>
+
+  <!-- Process: Payroll Export -->
+  <process id="Process_PayrollExport" name="Export paie" isExecutable="false">
+    <laneSet id="LaneSet_PayrollExport">
+      <lane id="Lane_Payroll" name="Paie">
+        <flowNodeRef>StartEvent_PayrollExport</flowNodeRef>
+        <flowNodeRef>Activity_InitiateExport</flowNodeRef>
+        <flowNodeRef>Activity_ReviewExport</flowNodeRef>
+        <flowNodeRef>Gateway_ExportValid</flowNodeRef>
+        <flowNodeRef>Activity_ConfirmExport</flowNodeRef>
+        <flowNodeRef>Activity_CorrectErrors</flowNodeRef>
+        <flowNodeRef>EndEvent_ExportConfirmed</flowNodeRef>
+      </lane>
+    </laneSet>
+
+    <startEvent id="StartEvent_PayrollExport" name="Période paie complétée">
+      <outgoing>Flow_E1</outgoing>
+    </startEvent>
+
+    <userTask id="Activity_InitiateExport" name="Initier export Dayforce">
+      <incoming>Flow_E1</incoming>
+      <outgoing>Flow_E2</outgoing>
+    </userTask>
+
+    <userTask id="Activity_ReviewExport" name="Réviser export">
+      <incoming>Flow_E2</incoming>
+      <incoming>Flow_E6</incoming>
+      <outgoing>Flow_E3</outgoing>
+    </userTask>
+
+    <exclusiveGateway id="Gateway_ExportValid" name="Export valide?">
+      <incoming>Flow_E3</incoming>
+      <outgoing>Flow_E4</outgoing>
+      <outgoing>Flow_E5</outgoing>
+    </exclusiveGateway>
+
+    <userTask id="Activity_ConfirmExport" name="Confirmer export">
+      <incoming>Flow_E4</incoming>
+      <outgoing>Flow_E7</outgoing>
+    </userTask>
+
+    <userTask id="Activity_CorrectErrors" name="Corriger erreurs">
+      <incoming>Flow_E5</incoming>
+      <outgoing>Flow_E6</outgoing>
+    </userTask>
+
+    <endEvent id="EndEvent_ExportConfirmed" name="Export confirmé vers Dayforce">
+      <incoming>Flow_E7</incoming>
+    </endEvent>
+
+    <sequenceFlow id="Flow_E1" sourceRef="StartEvent_PayrollExport" targetRef="Activity_InitiateExport"/>
+    <sequenceFlow id="Flow_E2" sourceRef="Activity_InitiateExport" targetRef="Activity_ReviewExport"/>
+    <sequenceFlow id="Flow_E3" sourceRef="Activity_ReviewExport" targetRef="Gateway_ExportValid"/>
+    <sequenceFlow id="Flow_E4" name="Oui" sourceRef="Gateway_ExportValid" targetRef="Activity_ConfirmExport"/>
+    <sequenceFlow id="Flow_E5" name="Non" sourceRef="Gateway_ExportValid" targetRef="Activity_CorrectErrors"/>
+    <sequenceFlow id="Flow_E6" sourceRef="Activity_CorrectErrors" targetRef="Activity_ReviewExport"/>
+    <sequenceFlow id="Flow_E7" sourceRef="Activity_ConfirmExport" targetRef="EndEvent_ExportConfirmed"/>
+  </process>
+
+  <!-- Process: System Synchronization -->
+  <process id="Process_Synchronization" name="Synchronisation système" isExecutable="false">
+    <laneSet id="LaneSet_Synchronization">
+      <lane id="Lane_System" name="Power Automate">
+        <flowNodeRef>StartEvent_DailySync</flowNodeRef>
+        <flowNodeRef>StartEvent_WeeklySync</flowNodeRef>
+        <flowNodeRef>StartEvent_RealtimeSync</flowNodeRef>
+        <flowNodeRef>Activity_SyncDayforce</flowNodeRef>
+        <flowNodeRef>Activity_SyncAS400</flowNodeRef>
+        <flowNodeRef>Activity_SyncMIR</flowNodeRef>
+        <flowNodeRef>Activity_UpdateDataverse</flowNodeRef>
+        <flowNodeRef>Activity_SendNotification</flowNodeRef>
+        <flowNodeRef>Gateway_SyncSuccess</flowNodeRef>
+        <flowNodeRef>Activity_ExportPayrollAdjustment</flowNodeRef>
+        <flowNodeRef>EndEvent_SyncComplete</flowNodeRef>
+        <flowNodeRef>EndEvent_ErrorNotified</flowNodeRef>
+      </lane>
+    </laneSet>
+
+    <startEvent id="StartEvent_DailySync" name="Sync quotidien (Timer)">
+      <timerEventDefinition/>
+      <outgoing>Flow_S1</outgoing>
+    </startEvent>
+
+    <startEvent id="StartEvent_WeeklySync" name="Sync hebdomadaire (Timer)">
+      <timerEventDefinition/>
+      <outgoing>Flow_S2</outgoing>
+    </startEvent>
+
+    <startEvent id="StartEvent_RealtimeSync" name="Trigger temps réel MIR (SQL)">
+      <messageEventDefinition/>
+      <outgoing>Flow_S3</outgoing>
+    </startEvent>
+
+    <serviceTask id="Activity_SyncDayforce" name="Synchroniser Dayforce (Employés, Affectations)">
+      <incoming>Flow_S1</incoming>
+      <outgoing>Flow_S4</outgoing>
+    </serviceTask>
+
+    <serviceTask id="Activity_SyncAS400" name="Synchroniser AS400 (Codes gestion, Projets)">
+      <incoming>Flow_S2</incoming>
+      <outgoing>Flow_S5</outgoing>
+    </serviceTask>
+
+    <serviceTask id="Activity_SyncMIR" name="Synchroniser MIR (Équipements, Sites)">
+      <incoming>Flow_S3</incoming>
+      <outgoing>Flow_S6</outgoing>
+    </serviceTask>
+
+    <serviceTask id="Activity_UpdateDataverse" name="Mettre à jour Dataverse">
+      <incoming>Flow_S4</incoming>
+      <incoming>Flow_S5</incoming>
+      <incoming>Flow_S6</incoming>
+      <outgoing>Flow_S7</outgoing>
+    </serviceTask>
+
+    <exclusiveGateway id="Gateway_SyncSuccess" name="Sync réussie?">
+      <incoming>Flow_S7</incoming>
+      <outgoing>Flow_S8</outgoing>
+      <outgoing>Flow_S9</outgoing>
+    </exclusiveGateway>
+
+    <serviceTask id="Activity_ExportPayrollAdjustment" name="Export PayAdjustment Dayforce (hebdomadaire)">
+      <incoming>Flow_S8</incoming>
+      <outgoing>Flow_S10</outgoing>
+    </serviceTask>
+
+    <serviceTask id="Activity_SendNotification" name="Envoyer notification erreur">
+      <incoming>Flow_S9</incoming>
+      <outgoing>Flow_S11</outgoing>
+    </serviceTask>
+
+    <endEvent id="EndEvent_SyncComplete" name="Synchronisation complétée">
+      <incoming>Flow_S10</incoming>
+    </endEvent>
+
+    <endEvent id="EndEvent_ErrorNotified" name="Erreur notifiée">
+      <incoming>Flow_S11</incoming>
+    </endEvent>
+
+    <sequenceFlow id="Flow_S1" sourceRef="StartEvent_DailySync" targetRef="Activity_SyncDayforce"/>
+    <sequenceFlow id="Flow_S2" sourceRef="StartEvent_WeeklySync" targetRef="Activity_SyncAS400"/>
+    <sequenceFlow id="Flow_S3" sourceRef="StartEvent_RealtimeSync" targetRef="Activity_SyncMIR"/>
+    <sequenceFlow id="Flow_S4" sourceRef="Activity_SyncDayforce" targetRef="Activity_UpdateDataverse"/>
+    <sequenceFlow id="Flow_S5" sourceRef="Activity_SyncAS400" targetRef="Activity_UpdateDataverse"/>
+    <sequenceFlow id="Flow_S6" sourceRef="Activity_SyncMIR" targetRef="Activity_UpdateDataverse"/>
+    <sequenceFlow id="Flow_S7" sourceRef="Activity_UpdateDataverse" targetRef="Gateway_SyncSuccess"/>
+    <sequenceFlow id="Flow_S8" name="Oui" sourceRef="Gateway_SyncSuccess" targetRef="Activity_ExportPayrollAdjustment"/>
+    <sequenceFlow id="Flow_S9" name="Non" sourceRef="Gateway_SyncSuccess" targetRef="Activity_SendNotification"/>
+    <sequenceFlow id="Flow_S10" sourceRef="Activity_ExportPayrollAdjustment" targetRef="EndEvent_SyncComplete"/>
+    <sequenceFlow id="Flow_S11" sourceRef="Activity_SendNotification" targetRef="EndEvent_ErrorNotified"/>
+  </process>
+
+  <!-- BPMN Diagram Interchange -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_TempsChantier">
+      
+      <!-- Participants (Pools) -->
+      <bpmndi:BPMNShape id="Participant_Technicians_di" bpmnElement="Participant_Technicians" isHorizontal="true">
+        <omgdc:Bounds x="160" y="80" width="900" height="250"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Participant_Supervisors_di" bpmnElement="Participant_Supervisors" isHorizontal="true">
+        <omgdc:Bounds x="160" y="350" width="900" height="200"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Participant_ProjectManagers_di" bpmnElement="Participant_ProjectManagers" isHorizontal="true">
+        <omgdc:Bounds x="160" y="570" width="900" height="200"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Participant_Payroll_di" bpmnElement="Participant_Payroll" isHorizontal="true">
+        <omgdc:Bounds x="160" y="790" width="900" height="250"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Participant_System_di" bpmnElement="Participant_System" isHorizontal="true">
+        <omgdc:Bounds x="160" y="1060" width="900" height="300"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Participant_Dayforce_di" bpmnElement="Participant_Dayforce" isHorizontal="true">
+        <omgdc:Bounds x="160" y="1380" width="250" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Participant_MIR_di" bpmnElement="Participant_MIR" isHorizontal="true">
+        <omgdc:Bounds x="460" y="1380" width="250" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Participant_AS400_di" bpmnElement="Participant_AS400" isHorizontal="true">
+        <omgdc:Bounds x="760" y="1380" width="250" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Lane Technician -->
+      <bpmndi:BPMNShape id="Lane_Technician_di" bpmnElement="Lane_Technician" isHorizontal="true">
+        <omgdc:Bounds x="190" y="80" width="870" height="250"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Time Entry Process Elements -->
+      <bpmndi:BPMNShape id="StartEvent_TimeEntry_di" bpmnElement="StartEvent_TimeEntry">
+        <omgdc:Bounds x="242" y="187" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_OpenPowerApp_di" bpmnElement="Activity_OpenPowerApp">
+        <omgdc:Bounds x="320" y="165" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_EnterTime_di" bpmnElement="Activity_EnterTime">
+        <omgdc:Bounds x="460" y="165" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_SelectSite_di" bpmnElement="Activity_SelectSite">
+        <omgdc:Bounds x="600" y="165" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_SelectEquipment_di" bpmnElement="Activity_SelectEquipment">
+        <omgdc:Bounds x="740" y="165" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_EnterHours_di" bpmnElement="Activity_EnterHours">
+        <omgdc:Bounds x="320" y="265" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_SubmitTime_di" bpmnElement="Activity_SubmitTime">
+        <omgdc:Bounds x="880" y="165" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="EndEvent_TimeSubmitted_di" bpmnElement="EndEvent_TimeSubmitted">
+        <omgdc:Bounds x="1012" y="187" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Time Entry Process Flows -->
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <omgdi:waypoint x="278" y="205"/>
+        <omgdi:waypoint x="320" y="205"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <omgdi:waypoint x="420" y="205"/>
+        <omgdi:waypoint x="460" y="205"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <omgdi:waypoint x="560" y="205"/>
+        <omgdi:waypoint x="600" y="205"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <omgdi:waypoint x="700" y="205"/>
+        <omgdi:waypoint x="740" y="205"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <omgdi:waypoint x="790" y="245"/>
+        <omgdi:waypoint x="790" y="305"/>
+        <omgdi:waypoint x="420" y="305"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <omgdi:waypoint x="370" y="265"/>
+        <omgdi:waypoint x="370" y="140"/>
+        <omgdi:waypoint x="930" y="140"/>
+        <omgdi:waypoint x="930" y="165"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
+        <omgdi:waypoint x="980" y="205"/>
+        <omgdi:waypoint x="1012" y="205"/>
+      </bpmndi:BPMNEdge>
+
+      <!-- Lane Supervisor -->
+      <bpmndi:BPMNShape id="Lane_Supervisor_di" bpmnElement="Lane_Supervisor" isHorizontal="true">
+        <omgdc:Bounds x="190" y="350" width="870" height="200"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Verification Process Elements -->
+      <bpmndi:BPMNShape id="StartEvent_Verification_di" bpmnElement="StartEvent_Verification">
+        <omgdc:Bounds x="242" y="432" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_ReviewTime_di" bpmnElement="Activity_ReviewTime">
+        <omgdc:Bounds x="320" y="410" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Gateway_TimeCorrect_di" bpmnElement="Gateway_TimeCorrect" isMarkerVisible="true">
+        <omgdc:Bounds x="475" y="425" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_ValidateTime_di" bpmnElement="Activity_ValidateTime">
+        <omgdc:Bounds x="600" y="410" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_RequestCorrection_di" bpmnElement="Activity_RequestCorrection">
+        <omgdc:Bounds x="600" y="500" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="EndEvent_TimeValidated_di" bpmnElement="EndEvent_TimeValidated">
+        <omgdc:Bounds x="752" y="432" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="EndEvent_CorrectionRequested_di" bpmnElement="EndEvent_CorrectionRequested">
+        <omgdc:Bounds x="752" y="522" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Verification Process Flows -->
+      <bpmndi:BPMNEdge id="Flow_V1_di" bpmnElement="Flow_V1">
+        <omgdi:waypoint x="278" y="450"/>
+        <omgdi:waypoint x="320" y="450"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_V2_di" bpmnElement="Flow_V2">
+        <omgdi:waypoint x="420" y="450"/>
+        <omgdi:waypoint x="475" y="450"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_V3_di" bpmnElement="Flow_V3">
+        <omgdi:waypoint x="525" y="450"/>
+        <omgdi:waypoint x="600" y="450"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_V4_di" bpmnElement="Flow_V4">
+        <omgdi:waypoint x="500" y="475"/>
+        <omgdi:waypoint x="500" y="540"/>
+        <omgdi:waypoint x="600" y="540"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_V5_di" bpmnElement="Flow_V5">
+        <omgdi:waypoint x="700" y="450"/>
+        <omgdi:waypoint x="752" y="450"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_V6_di" bpmnElement="Flow_V6">
+        <omgdi:waypoint x="700" y="540"/>
+        <omgdi:waypoint x="752" y="540"/>
+      </bpmndi:BPMNEdge>
+
+      <!-- Lane Project Manager -->
+      <bpmndi:BPMNShape id="Lane_ProjectManager_di" bpmnElement="Lane_ProjectManager" isHorizontal="true">
+        <omgdc:Bounds x="190" y="570" width="870" height="200"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Project Review Process Elements -->
+      <bpmndi:BPMNShape id="StartEvent_ProjectReview_di" bpmnElement="StartEvent_ProjectReview">
+        <omgdc:Bounds x="242" y="652" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_ReviewProjectTime_di" bpmnElement="Activity_ReviewProjectTime">
+        <omgdc:Bounds x="320" y="630" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Gateway_NeedApproval_di" bpmnElement="Gateway_NeedApproval" isMarkerVisible="true">
+        <omgdc:Bounds x="475" y="645" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_ApproveTime_di" bpmnElement="Activity_ApproveTime">
+        <omgdc:Bounds x="600" y="630" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="EndEvent_TimeApproved_di" bpmnElement="EndEvent_TimeApproved">
+        <omgdc:Bounds x="752" y="652" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="EndEvent_NoApprovalNeeded_di" bpmnElement="EndEvent_NoApprovalNeeded">
+        <omgdc:Bounds x="482" y="732" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Project Review Process Flows -->
+      <bpmndi:BPMNEdge id="Flow_P1_di" bpmnElement="Flow_P1">
+        <omgdi:waypoint x="278" y="670"/>
+        <omgdi:waypoint x="320" y="670"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_P2_di" bpmnElement="Flow_P2">
+        <omgdi:waypoint x="420" y="670"/>
+        <omgdi:waypoint x="475" y="670"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_P3_di" bpmnElement="Flow_P3">
+        <omgdi:waypoint x="525" y="670"/>
+        <omgdi:waypoint x="600" y="670"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_P4_di" bpmnElement="Flow_P4">
+        <omgdi:waypoint x="500" y="695"/>
+        <omgdi:waypoint x="500" y="732"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_P5_di" bpmnElement="Flow_P5">
+        <omgdi:waypoint x="700" y="670"/>
+        <omgdi:waypoint x="752" y="670"/>
+      </bpmndi:BPMNEdge>
+
+      <!-- Lane Payroll -->
+      <bpmndi:BPMNShape id="Lane_Payroll_di" bpmnElement="Lane_Payroll" isHorizontal="true">
+        <omgdc:Bounds x="190" y="790" width="870" height="250"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Payroll Export Process Elements -->
+      <bpmndi:BPMNShape id="StartEvent_PayrollExport_di" bpmnElement="StartEvent_PayrollExport">
+        <omgdc:Bounds x="242" y="897" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_InitiateExport_di" bpmnElement="Activity_InitiateExport">
+        <omgdc:Bounds x="320" y="875" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_ReviewExport_di" bpmnElement="Activity_ReviewExport">
+        <omgdc:Bounds x="460" y="875" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Gateway_ExportValid_di" bpmnElement="Gateway_ExportValid" isMarkerVisible="true">
+        <omgdc:Bounds x="615" y="890" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_ConfirmExport_di" bpmnElement="Activity_ConfirmExport">
+        <omgdc:Bounds x="740" y="875" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_CorrectErrors_di" bpmnElement="Activity_CorrectErrors">
+        <omgdc:Bounds x="590" y="965" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="EndEvent_ExportConfirmed_di" bpmnElement="EndEvent_ExportConfirmed">
+        <omgdc:Bounds x="892" y="897" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Payroll Export Process Flows -->
+      <bpmndi:BPMNEdge id="Flow_E1_di" bpmnElement="Flow_E1">
+        <omgdi:waypoint x="278" y="915"/>
+        <omgdi:waypoint x="320" y="915"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_E2_di" bpmnElement="Flow_E2">
+        <omgdi:waypoint x="420" y="915"/>
+        <omgdi:waypoint x="460" y="915"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_E3_di" bpmnElement="Flow_E3">
+        <omgdi:waypoint x="560" y="915"/>
+        <omgdi:waypoint x="615" y="915"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_E4_di" bpmnElement="Flow_E4">
+        <omgdi:waypoint x="665" y="915"/>
+        <omgdi:waypoint x="740" y="915"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_E5_di" bpmnElement="Flow_E5">
+        <omgdi:waypoint x="640" y="940"/>
+        <omgdi:waypoint x="640" y="965"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_E6_di" bpmnElement="Flow_E6">
+        <omgdi:waypoint x="590" y="1005"/>
+        <omgdi:waypoint x="510" y="1005"/>
+        <omgdi:waypoint x="510" y="955"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_E7_di" bpmnElement="Flow_E7">
+        <omgdi:waypoint x="840" y="915"/>
+        <omgdi:waypoint x="892" y="915"/>
+      </bpmndi:BPMNEdge>
+
+      <!-- Lane System -->
+      <bpmndi:BPMNShape id="Lane_System_di" bpmnElement="Lane_System" isHorizontal="true">
+        <omgdc:Bounds x="190" y="1060" width="870" height="300"/>
+      </bpmndi:BPMNShape>
+
+      <!-- System Synchronization Process Elements -->
+      <bpmndi:BPMNShape id="StartEvent_DailySync_di" bpmnElement="StartEvent_DailySync">
+        <omgdc:Bounds x="242" y="1142" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="StartEvent_WeeklySync_di" bpmnElement="StartEvent_WeeklySync">
+        <omgdc:Bounds x="242" y="1202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="StartEvent_RealtimeSync_di" bpmnElement="StartEvent_RealtimeSync">
+        <omgdc:Bounds x="242" y="1262" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_SyncDayforce_di" bpmnElement="Activity_SyncDayforce">
+        <omgdc:Bounds x="320" y="1120" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_SyncAS400_di" bpmnElement="Activity_SyncAS400">
+        <omgdc:Bounds x="320" y="1180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_SyncMIR_di" bpmnElement="Activity_SyncMIR">
+        <omgdc:Bounds x="320" y="1240" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_UpdateDataverse_di" bpmnElement="Activity_UpdateDataverse">
+        <omgdc:Bounds x="460" y="1180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Gateway_SyncSuccess_di" bpmnElement="Gateway_SyncSuccess" isMarkerVisible="true">
+        <omgdc:Bounds x="615" y="1195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_ExportPayrollAdjustment_di" bpmnElement="Activity_ExportPayrollAdjustment">
+        <omgdc:Bounds x="740" y="1180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Activity_SendNotification_di" bpmnElement="Activity_SendNotification">
+        <omgdc:Bounds x="740" y="1270" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="EndEvent_SyncComplete_di" bpmnElement="EndEvent_SyncComplete">
+        <omgdc:Bounds x="892" y="1202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="EndEvent_ErrorNotified_di" bpmnElement="EndEvent_ErrorNotified">
+        <omgdc:Bounds x="892" y="1292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <!-- System Synchronization Process Flows -->
+      <bpmndi:BPMNEdge id="Flow_S1_di" bpmnElement="Flow_S1">
+        <omgdi:waypoint x="278" y="1160"/>
+        <omgdi:waypoint x="320" y="1160"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_S2_di" bpmnElement="Flow_S2">
+        <omgdi:waypoint x="278" y="1220"/>
+        <omgdi:waypoint x="320" y="1220"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_S3_di" bpmnElement="Flow_S3">
+        <omgdi:waypoint x="278" y="1280"/>
+        <omgdi:waypoint x="320" y="1280"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_S4_di" bpmnElement="Flow_S4">
+        <omgdi:waypoint x="420" y="1160"/>
+        <omgdi:waypoint x="440" y="1160"/>
+        <omgdi:waypoint x="440" y="1220"/>
+        <omgdi:waypoint x="460" y="1220"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_S5_di" bpmnElement="Flow_S5">
+        <omgdi:waypoint x="420" y="1220"/>
+        <omgdi:waypoint x="460" y="1220"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_S6_di" bpmnElement="Flow_S6">
+        <omgdi:waypoint x="420" y="1280"/>
+        <omgdi:waypoint x="440" y="1280"/>
+        <omgdi:waypoint x="440" y="1220"/>
+        <omgdi:waypoint x="460" y="1220"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_S7_di" bpmnElement="Flow_S7">
+        <omgdi:waypoint x="560" y="1220"/>
+        <omgdi:waypoint x="615" y="1220"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_S8_di" bpmnElement="Flow_S8">
+        <omgdi:waypoint x="665" y="1220"/>
+        <omgdi:waypoint x="740" y="1220"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_S9_di" bpmnElement="Flow_S9">
+        <omgdi:waypoint x="640" y="1245"/>
+        <omgdi:waypoint x="640" y="1310"/>
+        <omgdi:waypoint x="740" y="1310"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_S10_di" bpmnElement="Flow_S10">
+        <omgdi:waypoint x="840" y="1220"/>
+        <omgdi:waypoint x="892" y="1220"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_S11_di" bpmnElement="Flow_S11">
+        <omgdi:waypoint x="840" y="1310"/>
+        <omgdi:waypoint x="892" y="1310"/>
+      </bpmndi:BPMNEdge>
+
+      <!-- Message Flows between Participants -->
+      <bpmndi:BPMNEdge id="Flow_ToDataverse1_di" bpmnElement="Flow_ToDataverse1">
+        <omgdi:waypoint x="510" y="245"/>
+        <omgdi:waypoint x="510" y="1180"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_ToDataverse2_di" bpmnElement="Flow_ToDataverse2">
+        <omgdi:waypoint x="650" y="490"/>
+        <omgdi:waypoint x="650" y="625"/>
+        <omgdi:waypoint x="510" y="625"/>
+        <omgdi:waypoint x="510" y="1180"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_ToDataverse3_di" bpmnElement="Flow_ToDataverse3">
+        <omgdi:waypoint x="650" y="710"/>
+        <omgdi:waypoint x="650" y="845"/>
+        <omgdi:waypoint x="510" y="845"/>
+        <omgdi:waypoint x="510" y="1180"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_TriggerExport_di" bpmnElement="Flow_TriggerExport">
+        <omgdi:waypoint x="370" y="955"/>
+        <omgdi:waypoint x="370" y="1080"/>
+        <omgdi:waypoint x="510" y="1080"/>
+        <omgdi:waypoint x="510" y="1180"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_SyncDayforce_di" bpmnElement="Flow_SyncDayforce">
+        <omgdi:waypoint x="370" y="1200"/>
+        <omgdi:waypoint x="370" y="1420"/>
+        <omgdi:waypoint x="285" y="1420"/>
+        <omgdi:waypoint x="285" y="1380"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_SyncMIR_di" bpmnElement="Flow_SyncMIR">
+        <omgdi:waypoint x="585" y="1380"/>
+        <omgdi:waypoint x="585" y="1420"/>
+        <omgdi:waypoint x="370" y="1420"/>
+        <omgdi:waypoint x="370" y="1320"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_SyncAS400_di" bpmnElement="Flow_SyncAS400">
+        <omgdi:waypoint x="370" y="1260"/>
+        <omgdi:waypoint x="370" y="1420"/>
+        <omgdi:waypoint x="885" y="1420"/>
+        <omgdi:waypoint x="885" y="1380"/>
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_ExportPayroll_di" bpmnElement="Flow_ExportPayroll">
+        <omgdi:waypoint x="790" y="1260"/>
+        <omgdi:waypoint x="790" y="1420"/>
+        <omgdi:waypoint x="285" y="1420"/>
+        <omgdi:waypoint x="285" y="1380"/>
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</definitions>

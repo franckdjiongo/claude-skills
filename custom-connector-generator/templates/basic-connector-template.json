@@ -1,0 +1,352 @@
+{
+  "apiDefinition": {
+    "swagger": "2.0",
+    "info": {
+      "title": "My Custom Connector",
+      "version": "1.0.0",
+      "description": "Description of your connector",
+      "contact": {
+        "name": "Your Company",
+        "url": "https://example.com",
+        "email": "support@example.com"
+      }
+    },
+    "host": "api.example.com",
+    "basePath": "/v1",
+    "schemes": ["https"],
+    "consumes": ["application/json"],
+    "produces": ["application/json"],
+    "security": [
+      {
+        "api_key": []
+      }
+    ],
+    "paths": {
+      "/items": {
+        "get": {
+          "summary": "List all items",
+          "x-ms-summary": "List Items",
+          "description": "Retrieves a list of all items",
+          "operationId": "ListItems",
+          "x-ms-visibility": "important",
+          "parameters": [
+            {
+              "name": "limit",
+              "in": "query",
+              "description": "Maximum number of items to return",
+              "x-ms-summary": "Limit",
+              "type": "integer",
+              "default": 20,
+              "x-ms-visibility": "advanced"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Item"
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          }
+        },
+        "post": {
+          "summary": "Create a new item",
+          "x-ms-summary": "Create Item",
+          "description": "Creates a new item",
+          "operationId": "CreateItem",
+          "x-ms-visibility": "important",
+          "parameters": [
+            {
+              "name": "body",
+              "in": "body",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/CreateItemRequest"
+              }
+            }
+          ],
+          "responses": {
+            "201": {
+              "description": "Item created successfully",
+              "schema": {
+                "$ref": "#/definitions/Item"
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          }
+        }
+      },
+      "/items/{itemId}": {
+        "get": {
+          "summary": "Get item by ID",
+          "x-ms-summary": "Get Item",
+          "description": "Retrieves a specific item by its ID",
+          "operationId": "GetItem",
+          "x-ms-visibility": "important",
+          "parameters": [
+            {
+              "name": "itemId",
+              "in": "path",
+              "required": true,
+              "description": "Unique identifier of the item",
+              "x-ms-summary": "Item ID",
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success",
+              "schema": {
+                "$ref": "#/definitions/Item"
+              }
+            },
+            "404": {
+              "description": "Item not found"
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          }
+        },
+        "put": {
+          "summary": "Update an item",
+          "x-ms-summary": "Update Item",
+          "description": "Updates an existing item",
+          "operationId": "UpdateItem",
+          "x-ms-visibility": "important",
+          "parameters": [
+            {
+              "name": "itemId",
+              "in": "path",
+              "required": true,
+              "description": "Unique identifier of the item",
+              "x-ms-summary": "Item ID",
+              "type": "string"
+            },
+            {
+              "name": "body",
+              "in": "body",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/UpdateItemRequest"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Item updated successfully",
+              "schema": {
+                "$ref": "#/definitions/Item"
+              }
+            },
+            "404": {
+              "description": "Item not found"
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          }
+        },
+        "delete": {
+          "summary": "Delete an item",
+          "x-ms-summary": "Delete Item",
+          "description": "Deletes a specific item",
+          "operationId": "DeleteItem",
+          "x-ms-visibility": "advanced",
+          "parameters": [
+            {
+              "name": "itemId",
+              "in": "path",
+              "required": true,
+              "description": "Unique identifier of the item",
+              "x-ms-summary": "Item ID",
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Item deleted successfully"
+            },
+            "404": {
+              "description": "Item not found"
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "Item": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier",
+            "x-ms-summary": "ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the item",
+            "x-ms-summary": "Name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description",
+            "x-ms-summary": "Description"
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status",
+            "x-ms-summary": "Status",
+            "enum": ["active", "inactive", "pending"]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp",
+            "x-ms-summary": "Created At",
+            "x-ms-visibility": "advanced"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last update timestamp",
+            "x-ms-summary": "Updated At",
+            "x-ms-visibility": "advanced"
+          }
+        }
+      },
+      "CreateItemRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the item",
+            "x-ms-summary": "Name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description",
+            "x-ms-summary": "Description"
+          },
+          "status": {
+            "type": "string",
+            "description": "Initial status",
+            "x-ms-summary": "Status",
+            "default": "active",
+            "enum": ["active", "inactive", "pending"],
+            "x-ms-visibility": "advanced"
+          }
+        }
+      },
+      "UpdateItemRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the item",
+            "x-ms-summary": "Name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description",
+            "x-ms-summary": "Description"
+          },
+          "status": {
+            "type": "string",
+            "description": "New status",
+            "x-ms-summary": "Status",
+            "enum": ["active", "inactive", "pending"]
+          }
+        }
+      }
+    },
+    "securityDefinitions": {
+      "api_key": {
+        "type": "apiKey",
+        "name": "X-API-Key",
+        "in": "header"
+      }
+    }
+  },
+  "apiProperties": {
+    "$schema": "https://raw.githubusercontent.com/microsoft/PowerPlatformConnectors/master/schemas/paconn-apiProperties.schema.json#",
+    "properties": {
+      "iconBrandColor": "#007ee5",
+      "capabilities": [],
+      "publisher": "Your Company",
+      "connectionParameters": {
+        "api_key": {
+          "type": "securestring",
+          "uiDefinition": {
+            "displayName": "API Key",
+            "description": "Enter your API key",
+            "tooltip": "Get your API key from the developer portal",
+            "constraints": {
+              "tabIndex": 2,
+              "clearText": false,
+              "required": "true"
+            }
+          }
+        }
+      }
+    }
+  },
+  "deploymentInstructions": {
+    "prerequisites": [
+      "Install PAC CLI: dotnet tool install --global Microsoft.PowerApps.CLI.Tool",
+      "Have a Power Platform environment",
+      "Get environment ID from Power Platform Admin Center"
+    ],
+    "steps": [
+      "1. Save apiDefinition to: apiDefinition.swagger.json",
+      "2. Save apiProperties to: apiProperties.json",
+      "3. (Optional) Add icon: icon.png (32x32 or 64x64)",
+      "4. Authenticate: pac auth create --url YOUR_ENVIRONMENT_URL",
+      "5. Create connector: pac connector create --api-definition-file ./apiDefinition.swagger.json --api-properties-file ./apiProperties.json --environment YOUR_ENVIRONMENT_ID",
+      "6. Test connection in Power Automate"
+    ],
+    "updateConnector": [
+      "pac connector update --api-definition-file ./apiDefinition.swagger.json --api-properties-file ./apiProperties.json --connector-id YOUR_CONNECTOR_ID --environment YOUR_ENVIRONMENT_ID"
+    ],
+    "validation": [
+      "paconn validate --api-def ./apiDefinition.swagger.json"
+    ]
+  },
+  "customizationInstructions": {
+    "apiDefinition": {
+      "info": "Update title, version, description, host, basePath",
+      "paths": "Add your API operations (GET, POST, PUT, DELETE)",
+      "definitions": "Define your data models",
+      "security": "Match security scheme name to apiProperties"
+    },
+    "apiProperties": {
+      "iconBrandColor": "Change to your brand color (hex)",
+      "publisher": "Your company name",
+      "connectionParameters": "Configure authentication type",
+      "authenticationTypes": [
+        "API Key (current template)",
+        "OAuth 2.0 (see apiproperties-guide.md)",
+        "Basic Auth (see apiproperties-guide.md)",
+        "Certificate (see apiproperties-guide.md)"
+      ]
+    }
+  }
+}

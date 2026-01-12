@@ -1,0 +1,33 @@
+# Claude Code local settings
+.claude/settings.local.json
+
+# OS generated files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+.env
+
+# Node.js (if any scripts use it)
+node_modules/
+npm-debug.log*
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
