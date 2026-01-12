@@ -50,6 +50,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `power-platform-docs` - Power Platform documentation standards
 
 **Claude Code Extensibility**
+- `skill-creator` - Guide for creating new skills with proper structure and patterns
 - `subagent-architect` - Design and create Claude Code sub-agents
 - `slash-command` - Create custom Claude Code slash commands
 - `prompt-engineer` - Claude prompting best practices
