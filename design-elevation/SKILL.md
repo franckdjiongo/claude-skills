@@ -24,9 +24,10 @@ Before starting any visual output, read the relevant reference files:
 
 - **Always read**: [references/interrogation-checklist.md](references/interrogation-checklist.md) — Questions to ask before delivering
 - **For technique selection**: [references/technique-catalog.md](references/technique-catalog.md) — Specific visual techniques by problem
-- **For inspiration**: [references/reference-library.md](references/reference-library.md) — Design exemplars and principles
+- **For inspiration**: [references/reference-library.md](references/reference-library.md) — Design exemplars, trends, and principles
 - **For systematic refinement**: [references/elevation-protocol.md](references/elevation-protocol.md) — Step-by-step elevation process
 - **For balance decisions**: [references/philosophy.md](references/philosophy.md) — Bold vs. restrained choices
+- **For multi-device design**: [references/responsive-design.md](references/responsive-design.md) — Mobile, tablet, and desktop strategies
 
 ### 2. Apply the Elevation Protocol
 Follow the six-phase process from `elevation-protocol.md`:

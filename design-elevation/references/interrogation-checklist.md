@@ -48,6 +48,37 @@ Questions to ask before delivering any visual output. Work through systematicall
 - [ ] Does it have a memorable characteristic?
 - [ ] Would you be proud to show this to a client?
 
+## 6. Responsive & Device Adaptation
+
+- [ ] Does the design work on mobile (320-480px)?
+- [ ] Does the design work on tablet (640-1024px)?
+- [ ] Does the design work on desktop (1024px+)?
+- [ ] Is navigation adapted per device? (hamburger mobile, full nav desktop)
+- [ ] Are touch targets at least 44×44px on touch devices?
+- [ ] Does typography scale appropriately across devices?
+- [ ] Are images responsive and optimized for each device?
+- [ ] Does content hierarchy change sensibly between breakpoints?
+
+## 7. Accessibility (WCAG 2.2)
+
+- [ ] Does text meet contrast ratio? (4.5:1 normal, 3:1 large)
+- [ ] Do UI components meet contrast ratio? (3:1 against adjacent colors)
+- [ ] Are focus indicators visible? (2px outline, 3:1 contrast)
+- [ ] Is information conveyed without relying on color alone?
+- [ ] Are interactive elements keyboard accessible?
+- [ ] Do form inputs have associated labels?
+- [ ] Is there sufficient spacing between touch targets? (6px minimum)
+- [ ] Are animations respectful of prefers-reduced-motion?
+
+## 8. Modern Standards (2025-2026)
+
+- [ ] Are design tokens/CSS variables used for consistency?
+- [ ] Is fluid typography implemented (clamp) where appropriate?
+- [ ] Are modern layout techniques used? (CSS Grid, Container Queries)
+- [ ] Is dark mode supported (if applicable)?
+- [ ] Is the design performant? (appropriate image formats, lazy loading)
+- [ ] Does it avoid current "AI aesthetic" patterns?
+
 ## Red Flags (Fix Immediately)
 
 - Default fonts without explicit selection
@@ -57,3 +88,8 @@ Questions to ask before delivering any visual output. Work through systematicall
 - Shadows on everything or nothing
 - Inconsistent spacing values
 - Decorative elements without purpose
+- Touch targets under 44×44px on mobile
+- Text contrast below 4.5:1
+- No focus indicators for keyboard navigation
+- Horizontal scroll on mobile devices
+- Desktop-only hover interactions without touch alternatives
