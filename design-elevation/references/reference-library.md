@@ -197,3 +197,271 @@ Exemplars and principles to draw from. Not to copy—to understand and adapt.
 - **Prefer**: transform, opacity (GPU-accelerated)
 - **Avoid**: width, height, top, left (trigger layout)
 - **Consider**: filter (moderate performance cost)
+
+---
+
+## 2025-2026 Design Trends
+
+### Liquid Glass / Glassmorphism 2.0
+**Definition**: Translucent surfaces with depth, light refraction, and fluid motion—inspired by Apple's evolved design language.
+
+**Key Characteristics**:
+- Surfaces appear dynamic, reflecting light as users interact
+- Layered translucent elements create depth and atmosphere
+- Subtle motion and blur effects
+- Works best on vibrant or gradient backgrounds
+
+**Implementation**:
+```css
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+```
+
+**When to Use**: Premium products, immersive experiences, modern apps. Avoid on low-contrast backgrounds or when accessibility is paramount.
+
+### Bento Grid Layouts
+**Definition**: Modular grid systems inspired by Japanese bento boxes—organizing content into distinct rectangular compartments of varying sizes.
+
+**Why It Works**:
+- Research shows carousel banners get <1% clicks, with 89% going to the first slide
+- Bento grids display multiple content pieces simultaneously
+- Creates visual hierarchy through size variation
+- Perfect for dashboards, portfolios, feature showcases
+
+**Best Practices**:
+- Use CSS Grid with `grid-template-columns` and `grid-template-rows`
+- Create visual hierarchy with larger "hero" cells
+- Maintain consistent gaps (16-24px typically)
+- Make responsive: stack cells vertically on mobile
+
+**Implementation**:
+```css
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: var(--space-lg);
+}
+.bento-hero {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+```
+
+### Material Expressive / Sensory Design
+**Definition**: Google's Material Design evolution focusing on dynamic motion, tactile feedback, and interfaces that feel "alive."
+
+**Key Characteristics**:
+- Motion responds to user input with physics-based animation
+- Surfaces react with depth changes and haptic-like visual feedback
+- Expressive color and type that adapts to context
+- Bold personality while maintaining usability
+
+### AI-Adaptive Interfaces
+**Definition**: UIs that learn and adapt based on user behavior, context, and preferences.
+
+**Design Considerations**:
+- Show AI reasoning transparently (explainable AI)
+- Allow users to override AI decisions
+- Design "agentic" experiences where the UI anticipates needs
+- Personalize layouts, not just content
+- 80% of users prefer tailored experiences
+
+### Voice & Multimodal Interfaces
+**Definition**: Interfaces blending voice, touch, and visual interaction depending on context.
+
+**Design Considerations**:
+- Design for hands-busy scenarios (cooking, driving, carrying items)
+- Provide visual feedback for voice commands
+- Support both input methods interchangeably
+- Nearly 50% of US population expected to use voice assistants by 2026
+
+---
+
+## Accessibility Standards (WCAG 2.2)
+
+### Color Contrast Requirements
+
+| Element Type | Minimum Ratio (AA) | Enhanced (AAA) |
+|--------------|-------------------|----------------|
+| Normal text (<18pt) | 4.5:1 | 7:1 |
+| Large text (≥18pt or ≥14pt bold) | 3:1 | 4.5:1 |
+| UI components & graphics | 3:1 | 3:1 |
+| Focus indicators | 3:1 | 3:1 |
+
+### Touch Target Requirements
+
+| Guideline | Minimum Size | Recommended |
+|-----------|--------------|-------------|
+| WCAG 2.2 AA | 24×24 px | 44×44 px |
+| Apple HIG | 44×44 pt | 44×44 pt |
+| Material Design | 48×48 dp | 48×48 dp |
+| Best Practice | 44×44 px | 48×48 px + 8px spacing |
+
+**Key Rules**:
+- Minimum 6px inactive space between actionable elements
+- Touch targets can extend beyond visible boundaries
+- Inline links exempt if text is sentence-sized
+- Always test with real devices, not just simulators
+
+### Focus Visibility (WCAG 2.2 Updates)
+- Focus indicators must be clearly visible (2.4.7)
+- Cannot be fully obscured from viewport
+- Minimum 2px outline thickness recommended
+- 3:1 contrast ratio against adjacent colors
+
+### Don't Rely on Color Alone
+- Error states need text/icons, not just red
+- Success messages need indicators beyond green
+- Active tabs need more than color change
+- Links should have underlines or other visual cues
+
+---
+
+## Design Tokens
+
+### Token Architecture (Three-Tier)
+
+**1. Global Tokens (Primitives)**
+Raw values without context—your palette:
+```json
+{
+  "color": {
+    "blue-500": "#3b82f6",
+    "blue-600": "#2563eb",
+    "gray-100": "#f3f4f6"
+  }
+}
+```
+
+**2. Alias Tokens (Semantic)**
+Contextual meaning:
+```json
+{
+  "color": {
+    "brand-primary": "{color.blue-600}",
+    "background-default": "{color.gray-100}",
+    "text-primary": "{color.gray-900}"
+  }
+}
+```
+
+**3. Component Tokens (Specific)**
+Component-level decisions:
+```json
+{
+  "button": {
+    "primary-background": "{color.brand-primary}",
+    "primary-text": "{color.white}",
+    "border-radius": "{radius.md}"
+  }
+}
+```
+
+### Benefits
+- Single source of truth across platforms
+- Theme switching becomes trivial
+- Design-dev handoff is explicit
+- Same token generates CSS, iOS Swift, Android XML
+
+### Implementation with CSS Variables
+```css
+:root {
+  /* Global */
+  --color-blue-600: #2563eb;
+
+  /* Semantic */
+  --color-brand-primary: var(--color-blue-600);
+
+  /* Component */
+  --button-primary-bg: var(--color-brand-primary);
+}
+
+[data-theme="dark"] {
+  --color-brand-primary: #60a5fa;
+}
+```
+
+---
+
+## Modern Typography (2025 Updates)
+
+### Variable Fonts
+**Benefits**: Single file, infinite weights/widths, smaller file sizes, dynamic adjustments.
+
+**Recommended Variable Fonts**:
+- **Inter**: wght 100-900, comprehensive language support
+- **Plus Jakarta Sans**: wght 200-800, modern geometric
+- **Manrope**: wght 200-800, distinctive personality
+- **Space Grotesk**: wght 300-700, technical aesthetic
+- **Outfit**: wght 100-900, clean geometric
+
+**Usage**:
+```css
+@font-face {
+  font-family: 'Inter';
+  src: url('Inter-VariableFont.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+h1 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-variation-settings: 'wght' 700;
+}
+```
+
+### Fluid Typography with Clamp
+Replace fixed breakpoints with smooth scaling:
+```css
+h1 {
+  /* Min: 32px, Preferred: 5vw, Max: 64px */
+  font-size: clamp(2rem, 5vw, 4rem);
+}
+
+body {
+  /* Min: 16px, Preferred: 1.5vw, Max: 20px */
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+}
+```
+
+### Bold Typography Trend
+2025-2026 sees a move toward:
+- Oversized display headlines (80-120px+)
+- Extreme weight contrasts (100 vs 900)
+- Tighter letter-spacing for impact (-0.03em)
+- Custom/distinctive font choices over system fonts
+
+---
+
+## Sustainable & Performant Design
+
+### Why It Matters
+- Users increasingly aware of digital environmental impact
+- 39% stop engaging if loading takes too long
+- Energy-efficient design = better UX = better business
+
+### Green Design Principles
+1. **Fewer unnecessary animations**: Use motion purposefully
+2. **Lighter file sizes**: Optimize images, use modern formats (WebP, AVIF)
+3. **Fast-loading pages**: Lazy load below-fold content
+4. **Reduced data transfer**: Cache aggressively, compress assets
+5. **Dark mode**: OLED screens consume less power with dark UIs
+
+### Performance Budget Examples
+| Asset Type | Budget (per page) |
+|------------|-------------------|
+| Total page weight | <1.5MB |
+| Images | <500KB |
+| JavaScript | <300KB |
+| Fonts | <100KB |
+| CSS | <50KB |

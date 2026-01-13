@@ -161,3 +161,226 @@ Alternate section styles: full-bleed image → contained text → asymmetric lay
 
 ### Elevation in Dark Mode
 Higher elevation = lighter surface (not more shadow). Shadows are barely visible; rely on surface color.
+
+---
+
+## Modern Layout Techniques (2025-2026)
+
+### Bento Grid Layouts
+Modular grid inspired by Japanese bento boxes—varying cell sizes create visual hierarchy.
+
+```css
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* Hero cell spanning 2×2 */
+.bento-hero {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+/* Wide cell */
+.bento-wide {
+  grid-column: span 2;
+}
+
+/* Tall cell */
+.bento-tall {
+  grid-row: span 2;
+}
+```
+
+**Best For**: Dashboards, portfolios, feature showcases, landing pages.
+
+### Container Queries
+Let components respond to their container size, not just viewport:
+
+```css
+.card-wrapper {
+  container-type: inline-size;
+}
+
+@container (min-width: 400px) {
+  .card {
+    display: flex;
+    flex-direction: row;
+  }
+}
+```
+
+**Best For**: Reusable components, design systems, widget-based layouts.
+
+### Fluid Everything (No Breakpoint Approach)
+Replace fixed breakpoints with smooth scaling:
+
+```css
+:root {
+  /* Fluid typography */
+  --text-body: clamp(1rem, 0.5vw + 0.9rem, 1.125rem);
+  --text-h1: clamp(2rem, 5vw + 1rem, 4rem);
+
+  /* Fluid spacing */
+  --space-section: clamp(3rem, 8vw, 8rem);
+  --space-component: clamp(1rem, 3vw, 3rem);
+}
+```
+
+---
+
+## Modern Visual Effects
+
+### Liquid Glass Effect
+Apple-inspired translucent surfaces with depth:
+
+```css
+.glass-surface {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 16px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+```
+
+**Caution**: Test accessibility—ensure text contrast remains sufficient.
+
+### Gradient Mesh / Aurora Backgrounds
+Multi-color gradient backgrounds with organic shapes:
+
+```css
+.aurora-bg {
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(120, 80, 255, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, rgba(255, 100, 150, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(80, 200, 255, 0.2) 0%, transparent 60%),
+    #0f0f1a;
+}
+```
+
+### Noise/Grain Texture
+Adds warmth and analog feel to digital surfaces:
+
+```css
+.grain-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.04;
+  pointer-events: none;
+}
+```
+
+---
+
+## Accessibility-First Techniques
+
+### Focus Indicators (WCAG 2.2 Compliant)
+```css
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* High contrast for dark backgrounds */
+[data-theme="dark"] :focus-visible {
+  outline-color: #60a5fa;
+}
+```
+
+### Reduced Motion Support
+```css
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+### Touch Target Sizing
+```css
+/* Minimum 44×44px for all interactive elements */
+button,
+a,
+input[type="checkbox"],
+input[type="radio"] {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Expand clickable area without changing visual size */
+.small-icon-button {
+  position: relative;
+  padding: 0;
+}
+
+.small-icon-button::after {
+  content: '';
+  position: absolute;
+  inset: -8px; /* Expands hit area by 8px in all directions */
+}
+```
+
+---
+
+## Performance-Conscious Design
+
+### Efficient Shadows
+Avoid multiple layered shadows for frequently animated elements:
+
+```css
+/* Heavy - avoid on animated elements */
+.heavy-shadow {
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.1),
+    0 4px 8px rgba(0,0,0,0.1),
+    0 16px 32px rgba(0,0,0,0.1);
+}
+
+/* Light - better for interactive elements */
+.light-shadow {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+```
+
+### GPU-Optimized Animations
+```css
+/* Good - GPU accelerated */
+.animate-good {
+  transform: translateY(-4px) scale(1.02);
+  opacity: 0.9;
+}
+
+/* Avoid - triggers layout recalculation */
+.animate-avoid {
+  top: -4px;
+  width: 102%;
+  height: 102%;
+}
+```
+
+### Lazy Visual Effects
+```css
+/* Apply expensive effects only when visible */
+@media (prefers-reduced-motion: no-preference) {
+  .glass-effect {
+    backdrop-filter: blur(20px);
+  }
+}
+
+/* Disable blur on low-end devices (via JS class) */
+.low-performance .glass-effect {
+  backdrop-filter: none;
+  background: rgba(0, 0, 0, 0.8);
+}
