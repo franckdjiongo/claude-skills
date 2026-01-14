@@ -10,7 +10,7 @@ Create a downloadable .zip file of the specified skill folder.
 
 !python scripts/zip_skill.py $ARGUMENTS
 
-The zip file will be created in the `dist/` directory at the repository root.
+The zip file will be created in the `Zipped/` folder at the repository root.
 
 After the command completes, provide the user with:
 1. The path to the created zip file

@@ -33,6 +33,6 @@ npm-debug.log*
 *.temp
 
 # Build output
-dist/
+Zipped/
 *.skill
 *.zip

@@ -58,7 +58,7 @@ def zip_skill(skill_name: str, output_dir: str = None, base_path: Path = None) -
         output_path = Path(output_dir).resolve()
         output_path.mkdir(parents=True, exist_ok=True)
     else:
-        output_path = base_path / "dist"
+        output_path = base_path / "Zipped"
         output_path.mkdir(parents=True, exist_ok=True)
 
     zip_filename = output_path / f"{skill_name}.zip"
