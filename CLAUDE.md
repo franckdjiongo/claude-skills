@@ -100,6 +100,73 @@ The `description` field is critical - it determines when Claude Code should invo
 - **Reference Integration**: Read reference files before generating complex outputs
 - **Validation**: Include quality checklists where appropriate
 
+## Multi-Repository Skills Registry
+
+This repository maintains a **skills registry** (`skills-registry.yaml`) that catalogs skills across multiple repositories. This allows you to discover and reference skills without duplicating them.
+
+### Registry Structure
+
+The registry tracks:
+- **Local skills**: Skills in this repository (claude-skills)
+- **External skills**: Skills in other repositories (e.g., obra/superpowers)
+
+### Registered External Repositories
+
+| Repository | Description |
+|------------|-------------|
+| [obra/superpowers](https://github.com/obra/superpowers) | Composable skills for coding agents - TDD, debugging, collaboration |
+
+### Using the Registry
+
+**For Claude**: When the user needs a skill, first check the registry to see if it exists locally or externally:
+1. Check `skills-registry.yaml` for the skill
+2. If local, use the skill directly from this repo
+3. If external, inform the user which repository contains it and provide the URL
+
+**For Humans**: Use the registry manager script:
+```bash
+# List all skills
+python scripts/registry-manager.py list
+
+# Search for skills
+python scripts/registry-manager.py search "tdd"
+python scripts/registry-manager.py search "debugging"
+
+# Get info about a specific skill
+python scripts/registry-manager.py info test-driven-development
+
+# List by repository
+python scripts/registry-manager.py list --repo superpowers
+
+# List categories
+python scripts/registry-manager.py categories
+
+# Scan for new local skills
+python scripts/registry-manager.py scan
+```
+
+### Adding External Repositories
+
+To add a new external repository to the registry:
+
+1. Edit `skills-registry.yaml`
+2. Add the repository under the `repositories:` section
+3. Add its skills under the appropriate category in `categories:`
+4. Update the `skill_index:` quick reference section
+
+### External Skills Quick Reference
+
+**From obra/superpowers:**
+- `test-driven-development` - RED-GREEN-REFACTOR cycle for TDD
+- `systematic-debugging` - 4-phase root cause analysis
+- `verification-before-completion` - Verify work before marking complete
+- `brainstorming` - Structured brainstorming sessions
+- `writing-plans` / `executing-plans` - Plan creation and execution
+- `dispatching-parallel-agents` - Coordinate parallel agents
+- `requesting-code-review` / `receiving-code-review` - Code review workflow
+- `using-git-worktrees` - Git worktrees for parallel work
+- `subagent-driven-development` - Development with coordinated subagents
+
 ## Working with Skills
 
 When modifying skills:
