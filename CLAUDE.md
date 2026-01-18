@@ -115,6 +115,7 @@ The registry tracks:
 | Repository | Description |
 |------------|-------------|
 | [obra/superpowers](https://github.com/obra/superpowers) | Composable skills for coding agents - TDD, debugging, collaboration |
+| [anthropics/skills](https://github.com/anthropics/skills) | Official Anthropic skills - documents, creative design, MCP, and enterprise workflows |
 
 ### Using the Registry
 
@@ -166,6 +167,21 @@ To add a new external repository to the registry:
 - `requesting-code-review` / `receiving-code-review` - Code review workflow
 - `using-git-worktrees` - Git worktrees for parallel work
 - `subagent-driven-development` - Development with coordinated subagents
+
+**From anthropics/skills:**
+- `pdf` - PDF manipulation, extraction, creation, merging, splitting
+- `docx` - Word document creation, editing, tracked changes
+- `pptx` - Presentation creation, editing, layouts
+- `xlsx` - Spreadsheet creation, formulas, data analysis
+- `algorithmic-art` - Generative art with p5.js
+- `canvas-design` - Visual art creation in PNG/PDF
+- `frontend-design` - Production-grade frontend interfaces
+- `theme-factory` - Styling artifacts with preset themes
+- `mcp-builder` - Build MCP servers for LLM tool integration
+- `webapp-testing` - Test web apps with Playwright
+- `web-artifacts-builder` - Multi-component HTML artifacts
+- `doc-coauthoring` - Structured documentation co-authoring
+- `internal-comms` - Internal communications templates
 
 ## Working with Skills
 
