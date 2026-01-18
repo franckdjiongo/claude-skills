@@ -183,6 +183,67 @@ To add a new external repository to the registry:
 - `doc-coauthoring` - Structured documentation co-authoring
 - `internal-comms` - Internal communications templates
 
+## Skills Library Web Application
+
+The repository includes a **mobile-first web application** (`skills-app/`) for browsing and discovering skills.
+
+### Tech Stack
+
+- **Vite + React + TypeScript** - Fast development and production builds
+- **Motion (Framer Motion)** - Spring animations and transitions
+- **Lucide React** - Icon library
+- **CSS Custom Properties** - Theming system
+
+### Running the App
+
+```bash
+cd skills-app
+npm install
+npm run dev     # Development server
+npm run build   # Production build
+```
+
+### Design System
+
+The app uses a **Neo-Terminal / Cyberpunk** aesthetic:
+- Dark theme with deep blacks (`#0a0a0f`)
+- Electric accents: cyan (`#00f0ff`), magenta (`#ff00d4`), gold (`#ffd700`)
+- JetBrains Mono (code) + Outfit (display) fonts
+- Holographic card effects with mouse-tracking glow
+- Scanline overlay and grid background
+
+### App Structure
+
+```
+skills-app/
+├── src/
+│   ├── components/     # React components (Header, SkillCard, etc.)
+│   ├── data/           # Skills data layer (skills.ts)
+│   ├── styles/         # Global CSS and design tokens
+│   └── types/          # TypeScript type definitions
+├── index.html
+└── package.json
+```
+
+### Adding Skills to the App
+
+Skills data is centralized in `src/data/skills.ts`. To add new skills:
+
+1. Add the skill object to the `skills` array
+2. Update category counts if needed
+3. The app will automatically pick up the changes
+
+### Key Components
+
+| Component | Purpose |
+|-----------|---------|
+| `Header` | Logo, search bar with terminal-style cursor |
+| `CategoryChips` | Horizontal scrolling category filter |
+| `SkillCard` | Holographic skill card with glow effects |
+| `SkillGrid` | Responsive grid (1/2/3 columns) |
+| `SkillDetail` | Bottom sheet (mobile) / modal (desktop) |
+| `Sidebar` | Repository browser and source filtering |
+
 ## Working with Skills
 
 When modifying skills:
