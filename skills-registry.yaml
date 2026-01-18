@@ -25,6 +25,13 @@ repositories:
     is_local: false
     skills_path: skills/  # Path prefix for skills in this repo
 
+  anthropic-skills:
+    url: https://github.com/anthropics/skills
+    local_path: null
+    description: Official Anthropic skills - documents, creative design, MCP, and enterprise workflows
+    is_local: false
+    skills_path: skills/  # Path prefix for skills in this repo
+
 # =============================================================================
 # SKILL CATEGORIES
 # =============================================================================
@@ -435,6 +442,133 @@ categories:
         tags: [meta, usage, framework]
         external_url: https://github.com/obra/superpowers/tree/main/skills/using-superpowers
 
+  # ---------------------------------------------------------------------------
+  # EXTERNAL: ANTHROPIC SKILLS (anthropics/skills)
+  # ---------------------------------------------------------------------------
+  anthropic-documents:
+    name: "Anthropic: Document Processing"
+    skills:
+      - name: pdf
+        repository: anthropic-skills
+        path: skills/pdf/SKILL.md
+        description: PDF manipulation - extraction, creation, merging, splitting, and form handling
+        tags: [documents, pdf, extraction, processing]
+        external_url: https://github.com/anthropics/skills/tree/main/skills/pdf
+
+      - name: docx
+        repository: anthropic-skills
+        path: skills/docx/SKILL.md
+        description: Word document creation, editing, analysis with tracked changes and comments
+        tags: [documents, word, docx, editing]
+        external_url: https://github.com/anthropics/skills/tree/main/skills/docx
+
+      - name: pptx
+        repository: anthropic-skills
+        path: skills/pptx/SKILL.md
+        description: Presentation creation, editing, layouts, and speaker notes
+        tags: [documents, powerpoint, pptx, presentations]
+        external_url: https://github.com/anthropics/skills/tree/main/skills/pptx
+
+      - name: xlsx
+        repository: anthropic-skills
+        path: skills/xlsx/SKILL.md
+        description: Spreadsheet creation, formulas, formatting, data analysis, and visualization
+        tags: [documents, excel, xlsx, spreadsheets, data]
+        external_url: https://github.com/anthropics/skills/tree/main/skills/xlsx
+
+  anthropic-creative:
+    name: "Anthropic: Creative & Design"
+    skills:
+      - name: algorithmic-art
+        repository: anthropic-skills
+        path: skills/algorithmic-art/SKILL.md
+        description: Generative art with p5.js - flow fields, particle systems, procedural aesthetics
+        tags: [creative, art, generative, p5js]
+        external_url: https://github.com/anthropics/skills/tree/main/skills/algorithmic-art
+
+      - name: canvas-design
+        repository: anthropic-skills
+        path: skills/canvas-design/SKILL.md
+        description: Visual art creation in PNG/PDF through design philosophy principles
+        tags: [creative, design, canvas, art]
+        external_url: https://github.com/anthropics/skills/tree/main/skills/canvas-design
+
+      - name: frontend-design
+        repository: anthropic-skills
+        path: skills/frontend-design/SKILL.md
+        description: Production-grade frontend interfaces with high design quality
+        tags: [frontend, design, ui, web]
+        external_url: https://github.com/anthropics/skills/tree/main/skills/frontend-design
+
+      - name: theme-factory
+        repository: anthropic-skills
+        path: skills/theme-factory/SKILL.md
+        description: Styling artifacts with 10 preset themes or custom theme generation
+        tags: [design, themes, styling, artifacts]
+        external_url: https://github.com/anthropics/skills/tree/main/skills/theme-factory
+
+      - name: brand-guidelines
+        repository: anthropic-skills
+        path: skills/brand-guidelines/SKILL.md
+        description: Apply Anthropic brand colors and typography to artifacts
+        tags: [branding, design, colors, typography]
+        external_url: https://github.com/anthropics/skills/tree/main/skills/brand-guidelines
+
+      - name: slack-gif-creator
+        repository: anthropic-skills
+        path: skills/slack-gif-creator/SKILL.md
+        description: Animated GIFs optimized for Slack with validation tools
+        tags: [creative, gif, slack, animation]
+        external_url: https://github.com/anthropics/skills/tree/main/skills/slack-gif-creator
+
+  anthropic-development:
+    name: "Anthropic: Development & Technical"
+    skills:
+      - name: mcp-builder
+        repository: anthropic-skills
+        path: skills/mcp-builder/SKILL.md
+        description: Build MCP servers in Python/TypeScript for LLM tool integration
+        tags: [mcp, development, api, llm]
+        external_url: https://github.com/anthropics/skills/tree/main/skills/mcp-builder
+
+      - name: webapp-testing
+        repository: anthropic-skills
+        path: skills/webapp-testing/SKILL.md
+        description: Test web apps with Playwright - screenshots, logs, UI verification
+        tags: [testing, playwright, web, automation]
+        external_url: https://github.com/anthropics/skills/tree/main/skills/webapp-testing
+
+      - name: web-artifacts-builder
+        repository: anthropic-skills
+        path: skills/web-artifacts-builder/SKILL.md
+        description: Multi-component HTML artifacts with React, Tailwind, shadcn/ui
+        tags: [web, artifacts, react, tailwind]
+        external_url: https://github.com/anthropics/skills/tree/main/skills/web-artifacts-builder
+
+      - name: skill-creator
+        repository: anthropic-skills
+        path: skills/skill-creator/SKILL.md
+        description: Guide for creating effective Claude skills
+        tags: [meta, skills, development]
+        external_url: https://github.com/anthropics/skills/tree/main/skills/skill-creator
+
+  anthropic-enterprise:
+    name: "Anthropic: Enterprise & Communication"
+    skills:
+      - name: doc-coauthoring
+        repository: anthropic-skills
+        path: skills/doc-coauthoring/SKILL.md
+        description: Structured workflow for co-authoring documentation and proposals
+        tags: [documentation, collaboration, writing]
+        external_url: https://github.com/anthropics/skills/tree/main/skills/doc-coauthoring
+
+      - name: internal-comms
+        repository: anthropic-skills
+        path: skills/internal-comms/SKILL.md
+        description: Internal communications - status reports, updates, newsletters, FAQs
+        tags: [communications, enterprise, writing]
+        external_url: https://github.com/anthropics/skills/tree/main/skills/internal-comms
+
 # =============================================================================
 # QUICK REFERENCE INDEX
 # =============================================================================
@@ -499,3 +633,20 @@ skill_index:
   subagent-driven-development: { repo: superpowers, category: superpowers-collaboration }
   writing-skills: { repo: superpowers, category: superpowers-meta }
   using-superpowers: { repo: superpowers, category: superpowers-meta }
+  # External skills (anthropic-skills)
+  pdf: { repo: anthropic-skills, category: anthropic-documents }
+  docx: { repo: anthropic-skills, category: anthropic-documents }
+  pptx: { repo: anthropic-skills, category: anthropic-documents }
+  xlsx: { repo: anthropic-skills, category: anthropic-documents }
+  algorithmic-art: { repo: anthropic-skills, category: anthropic-creative }
+  canvas-design: { repo: anthropic-skills, category: anthropic-creative }
+  frontend-design: { repo: anthropic-skills, category: anthropic-creative }
+  theme-factory: { repo: anthropic-skills, category: anthropic-creative }
+  brand-guidelines: { repo: anthropic-skills, category: anthropic-creative }
+  slack-gif-creator: { repo: anthropic-skills, category: anthropic-creative }
+  mcp-builder: { repo: anthropic-skills, category: anthropic-development }
+  webapp-testing: { repo: anthropic-skills, category: anthropic-development }
+  web-artifacts-builder: { repo: anthropic-skills, category: anthropic-development }
+  skill-creator-anthropic: { repo: anthropic-skills, category: anthropic-development }
+  doc-coauthoring: { repo: anthropic-skills, category: anthropic-enterprise }
+  internal-comms: { repo: anthropic-skills, category: anthropic-enterprise }
