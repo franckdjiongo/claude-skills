@@ -1,0 +1,501 @@
+# Skills Registry - Multi-Repository Skills Index
+# This file catalogs skills across multiple repositories for easy discovery.
+# Use `python scripts/registry-manager.py` to manage and search the registry.
+
+version: "1.0"
+last_updated: "2026-01-18"
+
+# =============================================================================
+# REPOSITORIES
+# =============================================================================
+# Define all repositories containing skills. Local repos have a local_path,
+# external repos only have a URL for reference.
+
+repositories:
+  claude-skills:
+    url: https://github.com/franckdjiongo/claude-skills
+    local_path: "."
+    description: Main skills library - Power Platform, Claude Code, text processing, and more
+    is_local: true
+
+  superpowers:
+    url: https://github.com/obra/superpowers
+    local_path: null
+    description: Composable skills for coding agents - TDD, debugging, collaboration
+    is_local: false
+    skills_path: skills/  # Path prefix for skills in this repo
+
+# =============================================================================
+# SKILL CATEGORIES
+# =============================================================================
+# Organized list of all skills across repositories
+
+categories:
+  # ---------------------------------------------------------------------------
+  # POWER PLATFORM & MICROSOFT
+  # ---------------------------------------------------------------------------
+  power-platform:
+    name: Power Platform & Microsoft
+    skills:
+      - name: power-automate-flow-builder
+        repository: claude-skills
+        path: power-automate-flow-builder/SKILL.md
+        description: Generate production-ready Power Automate flows as JSON
+        tags: [power-automate, json, workflow, automation]
+
+      - name: power-automate-expert
+        repository: claude-skills
+        path: power-automate-expert/SKILL.md
+        description: Power Automate consulting and enterprise patterns
+        tags: [power-automate, consulting, patterns]
+
+      - name: power-automate-worktree-manager
+        repository: claude-skills
+        path: power-automate-worktree-manager/SKILL.md
+        description: Manage git worktrees for Power Automate development
+        tags: [power-automate, git, worktrees]
+
+      - name: custom-connector-generator
+        repository: claude-skills
+        path: custom-connector-generator/SKILL.md
+        description: Create Power Automate connectors from OpenAPI/Swagger specs
+        tags: [connectors, openapi, swagger, api]
+
+      - name: dataverse-query-optimizer
+        repository: claude-skills
+        path: dataverse-query-optimizer/SKILL.md
+        description: Optimize FetchXML and OData queries for Dataverse
+        tags: [dataverse, fetchxml, odata, performance]
+
+      - name: governance-script-generator
+        repository: claude-skills
+        path: governance-script-generator/SKILL.md
+        description: Generate PAC CLI and PowerShell governance scripts
+        tags: [pac-cli, powershell, governance, admin]
+
+      - name: power-platform-docs
+        repository: claude-skills
+        path: power-platform-docs/SKILL.md
+        description: Documentation standards for Power Platform
+        tags: [documentation, standards]
+
+      - name: teams-message-polisher
+        repository: claude-skills
+        path: teams-message-polisher/SKILL.md
+        description: Polish messages for Microsoft Teams
+        tags: [teams, messaging, formatting]
+
+  # ---------------------------------------------------------------------------
+  # CLAUDE CODE & AI EXTENSIBILITY
+  # ---------------------------------------------------------------------------
+  claude-code:
+    name: Claude Code & AI Extensibility
+    skills:
+      - name: skill-creator
+        repository: claude-skills
+        path: skill-creator/SKILL.md
+        description: Guide for creating new skills with proper structure and patterns
+        tags: [meta, skill-development, templates]
+
+      - name: subagent-architect
+        repository: claude-skills
+        path: subagent-architect/SKILL.md
+        description: Design and create Claude Code sub-agents
+        tags: [agents, architecture, design]
+
+      - name: slash-command
+        repository: claude-skills
+        path: slash-command/SKILL.md
+        description: Create custom Claude Code slash commands
+        tags: [commands, cli, customization]
+
+      - name: prompt-engineer
+        repository: claude-skills
+        path: prompt-engineer/SKILL.md
+        description: Claude prompting best practices
+        tags: [prompting, best-practices, claude]
+
+      - name: nano-banana-prompt-engineer
+        repository: claude-skills
+        path: nano-banana-prompt-engineer/SKILL.md
+        description: Nano Banana prompting technique for Claude
+        tags: [prompting, technique, claude]
+
+      - name: gpt5-prompt-architect
+        repository: claude-skills
+        path: gpt5-prompt-architect/SKILL.md
+        description: GPT-5 prompt engineering patterns
+        tags: [prompting, gpt5, patterns]
+
+      - name: registry-repo-add
+        repository: claude-skills
+        path: registry-repo-add/SKILL.md
+        description: Add external skill repositories to the skills registry
+        tags: [registry, meta, repositories, integration]
+
+  # ---------------------------------------------------------------------------
+  # CONVEX DATABASE
+  # ---------------------------------------------------------------------------
+  convex:
+    name: Convex Database
+    skills:
+      - name: convex-queries
+        repository: claude-skills
+        path: convex-queries/SKILL.md
+        description: Convex query patterns and best practices
+        tags: [convex, queries, database]
+
+      - name: convex-mutations
+        repository: claude-skills
+        path: convex-mutations/SKILL.md
+        description: Convex mutation patterns and guidelines
+        tags: [convex, mutations, database]
+
+      - name: convex-actions-general
+        repository: claude-skills
+        path: convex-actions-general/SKILL.md
+        description: Convex actions and general patterns
+        tags: [convex, actions, database]
+
+      - name: convex-agents-files
+        repository: claude-skills
+        path: convex-agents-files/SKILL.md
+        description: Convex agents file handling
+        tags: [convex, agents, files]
+
+      - name: convex-agents-rate-limiting
+        repository: claude-skills
+        path: convex-agents-rate-limiting/SKILL.md
+        description: Rate limiting patterns for Convex agents
+        tags: [convex, agents, rate-limiting]
+
+      - name: convex-agents-debugging
+        repository: claude-skills
+        path: convex-agents-debugging/SKILL.md
+        description: Debugging techniques for Convex agents
+        tags: [convex, agents, debugging]
+
+  # ---------------------------------------------------------------------------
+  # TEXT & DOCUMENT PROCESSING
+  # ---------------------------------------------------------------------------
+  text-processing:
+    name: Text & Document Processing
+    skills:
+      - name: whatsapp-formatter
+        repository: claude-skills
+        path: whatsapp-formatter/SKILL.md
+        description: Format text with WhatsApp syntax (bold, lists, emojis)
+        tags: [whatsapp, formatting, messaging]
+
+      - name: text-refiner
+        repository: claude-skills
+        path: text-refiner/SKILL.md
+        description: General text refinement and improvement
+        tags: [text, editing, refinement]
+
+      - name: doc-converter
+        repository: claude-skills
+        path: doc-converter/SKILL.md
+        description: Convert between document formats
+        tags: [documents, conversion, formats]
+
+      - name: doc-consolidator
+        repository: claude-skills
+        path: doc-consolidator/SKILL.md
+        description: Merge and consolidate multiple documents
+        tags: [documents, merge, consolidation]
+
+  # ---------------------------------------------------------------------------
+  # MEETING & TRANSCRIPT ANALYSIS
+  # ---------------------------------------------------------------------------
+  meetings:
+    name: Meeting & Transcript Analysis
+    skills:
+      - name: meeting-transcript-analyzer
+        repository: claude-skills
+        path: meeting-transcript-analyzer/SKILL.md
+        description: Analyze meeting transcripts comprehensively
+        tags: [meetings, transcripts, analysis]
+
+      - name: meeting-followup-extractor
+        repository: claude-skills
+        path: meeting-followup-extractor/SKILL.md
+        description: Extract action items from meetings
+        tags: [meetings, action-items, followup]
+
+      - name: cobacam-meeting-minutes-creator
+        repository: claude-skills
+        path: cobacam-meeting-minutes-creator/SKILL.md
+        description: French Canadian meeting minutes (proces-verbaux)
+        tags: [meetings, french, minutes, cobacam]
+
+      - name: rotation-responsabilites
+        repository: claude-skills
+        path: rotation-responsabilites/SKILL.md
+        description: Manage responsibility rotation schedules
+        tags: [meetings, rotation, scheduling]
+
+  # ---------------------------------------------------------------------------
+  # DEVELOPMENT & DEVOPS
+  # ---------------------------------------------------------------------------
+  development:
+    name: Development & DevOps
+    skills:
+      - name: vercel-expert-developer
+        repository: claude-skills
+        path: vercel-expert-developer/SKILL.md
+        description: Vercel serverless functions and deployment
+        tags: [vercel, serverless, deployment]
+
+      - name: bun-migration
+        repository: claude-skills
+        path: bun-migration/SKILL.md
+        description: Migrate Node.js projects to Bun runtime
+        tags: [bun, nodejs, migration]
+
+      - name: vite-react-ts-setup
+        repository: claude-skills
+        path: vite-react-ts-setup/SKILL.md
+        description: Vite + React + TypeScript project setup
+        tags: [vite, react, typescript, setup]
+
+      - name: firestore-mastery
+        repository: claude-skills
+        path: firestore-mastery/SKILL.md
+        description: Firebase Firestore patterns and best practices
+        tags: [firebase, firestore, nosql]
+
+      - name: i18n-web-localizer
+        repository: claude-skills
+        path: i18n-web-localizer/SKILL.md
+        description: Web internationalization (React, Next.js)
+        tags: [i18n, localization, react, nextjs]
+
+      - name: api-test-script-generator
+        repository: claude-skills
+        path: api-test-script-generator/SKILL.md
+        description: Generate API test scripts
+        tags: [api, testing, automation]
+
+      - name: github-issue-creator
+        repository: claude-skills
+        path: github-issue-creator/SKILL.md
+        description: Create GitHub issues programmatically
+        tags: [github, issues, automation]
+
+      - name: frontend-design
+        repository: claude-skills
+        path: frontend-design/SKILL.md
+        description: Frontend design patterns and implementation
+        tags: [frontend, design, ui]
+
+  # ---------------------------------------------------------------------------
+  # SPECIALIZED WORKFLOWS
+  # ---------------------------------------------------------------------------
+  specialized:
+    name: Specialized Workflows
+    skills:
+      - name: bpmn-creator
+        repository: claude-skills
+        path: bpmn-creator/SKILL.md
+        description: Create BPMN 2.0 process diagrams
+        tags: [bpmn, process, diagrams]
+
+      - name: google-forms-builder
+        repository: claude-skills
+        path: google-forms-builder/SKILL.md
+        description: Generate Google Forms via Apps Script
+        tags: [google, forms, apps-script]
+
+      - name: obsidian-vault-architect
+        repository: claude-skills
+        path: obsidian-vault-architect/SKILL.md
+        description: Design Obsidian vault structures
+        tags: [obsidian, notes, knowledge-management]
+
+      - name: dtsx-workflow-analyzer
+        repository: claude-skills
+        path: dtsx-workflow-analyzer/SKILL.md
+        description: Analyze SSIS DTSX packages
+        tags: [ssis, dtsx, etl, analysis]
+
+      - name: design-elevation
+        repository: claude-skills
+        path: design-elevation/SKILL.md
+        description: Elevate design quality through systematic questioning
+        tags: [design, ux, questioning]
+
+  # ---------------------------------------------------------------------------
+  # EXTERNAL: SUPERPOWERS (obra/superpowers)
+  # ---------------------------------------------------------------------------
+  superpowers-testing:
+    name: "Superpowers: Testing & Debugging"
+    skills:
+      - name: test-driven-development
+        repository: superpowers
+        path: skills/test-driven-development/SKILL.md
+        description: RED-GREEN-REFACTOR cycle for test-driven development
+        tags: [testing, tdd, methodology]
+        external_url: https://github.com/obra/superpowers/tree/main/skills/test-driven-development
+
+      - name: systematic-debugging
+        repository: superpowers
+        path: skills/systematic-debugging/SKILL.md
+        description: 4-phase root cause analysis process
+        tags: [debugging, analysis, methodology]
+        external_url: https://github.com/obra/superpowers/tree/main/skills/systematic-debugging
+
+      - name: verification-before-completion
+        repository: superpowers
+        path: skills/verification-before-completion/SKILL.md
+        description: Verify work before marking complete
+        tags: [verification, quality, methodology]
+        external_url: https://github.com/obra/superpowers/tree/main/skills/verification-before-completion
+
+  superpowers-collaboration:
+    name: "Superpowers: Collaboration"
+    skills:
+      - name: brainstorming
+        repository: superpowers
+        path: skills/brainstorming/SKILL.md
+        description: Structured brainstorming sessions
+        tags: [collaboration, ideation, planning]
+        external_url: https://github.com/obra/superpowers/tree/main/skills/brainstorming
+
+      - name: writing-plans
+        repository: superpowers
+        path: skills/writing-plans/SKILL.md
+        description: Create detailed implementation plans
+        tags: [planning, documentation, strategy]
+        external_url: https://github.com/obra/superpowers/tree/main/skills/writing-plans
+
+      - name: executing-plans
+        repository: superpowers
+        path: skills/executing-plans/SKILL.md
+        description: Execute plans systematically
+        tags: [execution, implementation, workflow]
+        external_url: https://github.com/obra/superpowers/tree/main/skills/executing-plans
+
+      - name: dispatching-parallel-agents
+        repository: superpowers
+        path: skills/dispatching-parallel-agents/SKILL.md
+        description: Coordinate multiple parallel agents
+        tags: [agents, parallelism, coordination]
+        external_url: https://github.com/obra/superpowers/tree/main/skills/dispatching-parallel-agents
+
+      - name: requesting-code-review
+        repository: superpowers
+        path: skills/requesting-code-review/SKILL.md
+        description: Request effective code reviews
+        tags: [code-review, collaboration, quality]
+        external_url: https://github.com/obra/superpowers/tree/main/skills/requesting-code-review
+
+      - name: receiving-code-review
+        repository: superpowers
+        path: skills/receiving-code-review/SKILL.md
+        description: Process and apply code review feedback
+        tags: [code-review, collaboration, improvement]
+        external_url: https://github.com/obra/superpowers/tree/main/skills/receiving-code-review
+
+      - name: using-git-worktrees
+        repository: superpowers
+        path: skills/using-git-worktrees/SKILL.md
+        description: Leverage git worktrees for parallel work
+        tags: [git, worktrees, workflow]
+        external_url: https://github.com/obra/superpowers/tree/main/skills/using-git-worktrees
+
+      - name: finishing-a-development-branch
+        repository: superpowers
+        path: skills/finishing-a-development-branch/SKILL.md
+        description: Complete and merge development branches
+        tags: [git, branches, workflow]
+        external_url: https://github.com/obra/superpowers/tree/main/skills/finishing-a-development-branch
+
+      - name: subagent-driven-development
+        repository: superpowers
+        path: skills/subagent-driven-development/SKILL.md
+        description: Development using coordinated subagents
+        tags: [agents, development, coordination]
+        external_url: https://github.com/obra/superpowers/tree/main/skills/subagent-driven-development
+
+  superpowers-meta:
+    name: "Superpowers: Meta Skills"
+    skills:
+      - name: writing-skills
+        repository: superpowers
+        path: skills/writing-skills/SKILL.md
+        description: Guide for creating new skills in superpowers
+        tags: [meta, skill-development, documentation]
+        external_url: https://github.com/obra/superpowers/tree/main/skills/writing-skills
+
+      - name: using-superpowers
+        repository: superpowers
+        path: skills/using-superpowers/SKILL.md
+        description: How to effectively use the superpowers framework
+        tags: [meta, usage, framework]
+        external_url: https://github.com/obra/superpowers/tree/main/skills/using-superpowers
+
+# =============================================================================
+# QUICK REFERENCE INDEX
+# =============================================================================
+# Flat list for quick lookups - auto-generated, do not edit manually
+
+skill_index:
+  # Local skills (claude-skills)
+  power-automate-flow-builder: { repo: claude-skills, category: power-platform }
+  power-automate-expert: { repo: claude-skills, category: power-platform }
+  power-automate-worktree-manager: { repo: claude-skills, category: power-platform }
+  custom-connector-generator: { repo: claude-skills, category: power-platform }
+  dataverse-query-optimizer: { repo: claude-skills, category: power-platform }
+  governance-script-generator: { repo: claude-skills, category: power-platform }
+  power-platform-docs: { repo: claude-skills, category: power-platform }
+  teams-message-polisher: { repo: claude-skills, category: power-platform }
+  skill-creator: { repo: claude-skills, category: claude-code }
+  subagent-architect: { repo: claude-skills, category: claude-code }
+  slash-command: { repo: claude-skills, category: claude-code }
+  prompt-engineer: { repo: claude-skills, category: claude-code }
+  nano-banana-prompt-engineer: { repo: claude-skills, category: claude-code }
+  gpt5-prompt-architect: { repo: claude-skills, category: claude-code }
+  registry-repo-add: { repo: claude-skills, category: claude-code }
+  convex-queries: { repo: claude-skills, category: convex }
+  convex-mutations: { repo: claude-skills, category: convex }
+  convex-actions-general: { repo: claude-skills, category: convex }
+  convex-agents-files: { repo: claude-skills, category: convex }
+  convex-agents-rate-limiting: { repo: claude-skills, category: convex }
+  convex-agents-debugging: { repo: claude-skills, category: convex }
+  whatsapp-formatter: { repo: claude-skills, category: text-processing }
+  text-refiner: { repo: claude-skills, category: text-processing }
+  doc-converter: { repo: claude-skills, category: text-processing }
+  doc-consolidator: { repo: claude-skills, category: text-processing }
+  meeting-transcript-analyzer: { repo: claude-skills, category: meetings }
+  meeting-followup-extractor: { repo: claude-skills, category: meetings }
+  cobacam-meeting-minutes-creator: { repo: claude-skills, category: meetings }
+  rotation-responsabilites: { repo: claude-skills, category: meetings }
+  vercel-expert-developer: { repo: claude-skills, category: development }
+  bun-migration: { repo: claude-skills, category: development }
+  vite-react-ts-setup: { repo: claude-skills, category: development }
+  firestore-mastery: { repo: claude-skills, category: development }
+  i18n-web-localizer: { repo: claude-skills, category: development }
+  api-test-script-generator: { repo: claude-skills, category: development }
+  github-issue-creator: { repo: claude-skills, category: development }
+  frontend-design: { repo: claude-skills, category: development }
+  bpmn-creator: { repo: claude-skills, category: specialized }
+  google-forms-builder: { repo: claude-skills, category: specialized }
+  obsidian-vault-architect: { repo: claude-skills, category: specialized }
+  dtsx-workflow-analyzer: { repo: claude-skills, category: specialized }
+  design-elevation: { repo: claude-skills, category: specialized }
+  # External skills (superpowers)
+  test-driven-development: { repo: superpowers, category: superpowers-testing }
+  systematic-debugging: { repo: superpowers, category: superpowers-testing }
+  verification-before-completion: { repo: superpowers, category: superpowers-testing }
+  brainstorming: { repo: superpowers, category: superpowers-collaboration }
+  writing-plans: { repo: superpowers, category: superpowers-collaboration }
+  executing-plans: { repo: superpowers, category: superpowers-collaboration }
+  dispatching-parallel-agents: { repo: superpowers, category: superpowers-collaboration }
+  requesting-code-review: { repo: superpowers, category: superpowers-collaboration }
+  receiving-code-review: { repo: superpowers, category: superpowers-collaboration }
+  using-git-worktrees: { repo: superpowers, category: superpowers-collaboration }
+  finishing-a-development-branch: { repo: superpowers, category: superpowers-collaboration }
+  subagent-driven-development: { repo: superpowers, category: superpowers-collaboration }
+  writing-skills: { repo: superpowers, category: superpowers-meta }
+  using-superpowers: { repo: superpowers, category: superpowers-meta }
