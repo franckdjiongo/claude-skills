@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-01-17"
+last_updated: "2026-01-18"
 
 # =============================================================================
 # REPOSITORIES
@@ -126,6 +126,12 @@ categories:
         path: gpt5-prompt-architect/SKILL.md
         description: GPT-5 prompt engineering patterns
         tags: [prompting, gpt5, patterns]
+
+      - name: registry-repo-add
+        repository: claude-skills
+        path: registry-repo-add/SKILL.md
+        description: Add external skill repositories to the skills registry
+        tags: [registry, meta, repositories, integration]
 
   # ---------------------------------------------------------------------------
   # CONVEX DATABASE
@@ -450,6 +456,7 @@ skill_index:
   prompt-engineer: { repo: claude-skills, category: claude-code }
   nano-banana-prompt-engineer: { repo: claude-skills, category: claude-code }
   gpt5-prompt-architect: { repo: claude-skills, category: claude-code }
+  registry-repo-add: { repo: claude-skills, category: claude-code }
   convex-queries: { repo: claude-skills, category: convex }
   convex-mutations: { repo: claude-skills, category: convex }
   convex-actions-general: { repo: claude-skills, category: convex }
