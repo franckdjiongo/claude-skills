@@ -109,6 +109,48 @@
   color: var(--bg-deep);
 }
 
+.card-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.favorite-button {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+  position: relative;
+  z-index: 10;
+}
+
+.favorite-button:hover {
+  color: #ff6482;
+  background: rgba(255, 100, 130, 0.1);
+  transform: scale(1.1);
+}
+
+.favorite-button.is-favorite {
+  color: #ff6482;
+  animation: heartPop 0.3s ease-out;
+}
+
+@keyframes heartPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .card-arrow {
   color: var(--text-muted);
   transition: all var(--transition-fast);
@@ -117,6 +159,32 @@
 .skill-card:hover .card-arrow {
   color: var(--repo-color);
   transform: translateX(4px);
+}
+
+/* Keyboard focus styles */
+.skill-card.keyboard-focused {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+  transform: translateY(-4px);
+}
+
+.skill-card.keyboard-focused .card-border {
+  background: linear-gradient(
+    135deg,
+    var(--accent-cyan) 0%,
+    var(--accent-magenta) 50%,
+    var(--accent-cyan) 100%
+  );
+  animation: borderGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes borderGlow {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .card-title {

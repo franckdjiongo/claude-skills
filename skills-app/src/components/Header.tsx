@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { Search, X, Sparkles, Menu } from 'lucide-react';
+import { useState, useEffect, type RefObject } from 'react';
+import { Search, X, Sparkles, Menu, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import './Header.css';
 
@@ -8,12 +8,20 @@ interface HeaderProps {
   onSearchChange: (query: string) => void;
   totalSkills: number;
   onMenuClick: () => void;
+  searchInputRef?: RefObject<HTMLInputElement | null>;
+  favoritesCount?: number;
 }
 
-export function Header({ searchQuery, onSearchChange, totalSkills, onMenuClick }: HeaderProps) {
+export function Header({
+  searchQuery,
+  onSearchChange,
+  totalSkills,
+  onMenuClick,
+  searchInputRef,
+  favoritesCount = 0,
+}: HeaderProps) {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [displayText, setDisplayText] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
   const fullTitle = 'CLAUDE SKILLS';
 
   useEffect(() => {
@@ -31,7 +39,7 @@ export function Header({ searchQuery, onSearchChange, totalSkills, onMenuClick }
 
   const handleClear = () => {
     onSearchChange('');
-    inputRef.current?.focus();
+    searchInputRef?.current?.focus();
   };
 
   return (
@@ -40,6 +48,11 @@ export function Header({ searchQuery, onSearchChange, totalSkills, onMenuClick }
         <div className="header-top">
           <button className="menu-button" onClick={onMenuClick} aria-label="Menu">
             <Menu size={22} />
+            {favoritesCount > 0 && (
+              <span className="menu-badge">
+                <Heart size={8} fill="currentColor" />
+              </span>
+            )}
           </button>
 
           <div className="logo-section">
@@ -65,10 +78,10 @@ export function Header({ searchQuery, onSearchChange, totalSkills, onMenuClick }
             <Search size={18} />
           </div>
           <input
-            ref={inputRef}
+            ref={searchInputRef}
             type="text"
             className="search-input mono"
-            placeholder="Search skills..."
+            placeholder="Search skills... (press /)"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             onFocus={() => setIsSearchFocused(true)}

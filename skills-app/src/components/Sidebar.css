@@ -173,6 +173,110 @@
   color: var(--bg-deep);
 }
 
+/* Favorites styles */
+.filter-icon.favorites {
+  background: rgba(255, 100, 130, 0.15);
+  color: #ff6482;
+}
+
+.favorites-option.active {
+  border-color: #ff6482;
+}
+
+.favorites-option.active .filter-count {
+  background: #ff6482;
+  color: var(--bg-deep);
+}
+
+/* Recent views section */
+.recent-section {
+  margin-bottom: var(--space-xl);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.section-header .section-title {
+  margin-bottom: 0;
+}
+
+.clear-recent-button {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+}
+
+.clear-recent-button:hover {
+  background: rgba(255, 100, 130, 0.1);
+  color: #ff6482;
+}
+
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.recent-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-secondary);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+
+.recent-item:hover {
+  background: var(--bg-tertiary);
+  border-color: rgba(136, 136, 160, 0.1);
+}
+
+.recent-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.recent-item-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recent-item-time {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.recent-item-arrow {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.recent-item:hover .recent-item-arrow {
+  color: var(--accent-cyan);
+  transform: translateX(2px);
+}
+
 .repos-section {
   margin-bottom: var(--space-lg);
 }
