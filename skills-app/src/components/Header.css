@@ -1,39 +1,76 @@
+/* ============================================
+   Header - Signature Aurora Design
+   ============================================ */
 .header {
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
-  background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-deep) 80%, transparent 100%);
-  padding: var(--space-md) var(--space-md) var(--space-lg);
+  padding: var(--space-lg) var(--space-md) var(--space-xl);
+  background: linear-gradient(
+    180deg,
+    var(--bg-deep) 0%,
+    var(--bg-deep) 60%,
+    rgba(5, 5, 8, 0.95) 80%,
+    transparent 100%
+  );
+}
+
+/* Aurora glow behind header */
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140%;
+  height: 200%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 50% 40% at 50% 0%, rgba(0, 232, 255, 0.12), transparent 60%),
+    radial-gradient(ellipse 40% 30% at 70% 20%, rgba(240, 0, 208, 0.08), transparent 50%);
+  z-index: -1;
+  opacity: 0.8;
 }
 
 .header-content {
-  max-width: 600px;
+  max-width: 680px;
   margin: 0 auto;
 }
 
+/* ============================================
+   Header top row
+   ============================================ */
 .header-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-lg);
 }
 
+/* ============================================
+   Menu button
+   ============================================ */
 .menu-button {
   position: relative;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-md);
-  background: var(--bg-tertiary);
+  border-radius: var(--radius-lg);
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: var(--border-glass);
   color: var(--text-secondary);
   transition: all var(--transition-fast);
 }
 
 .menu-button:hover {
-  background: var(--bg-elevated);
+  background: var(--bg-glass-elevated);
   color: var(--accent-cyan);
+  border-color: rgba(0, 232, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 232, 255, 0.15);
 }
 
 .menu-button:active {
@@ -42,48 +79,79 @@
 
 .menu-badge {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 14px;
-  height: 14px;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ff6482;
+  background: linear-gradient(135deg, #ff6090, #ff3870);
   border-radius: var(--radius-full);
   color: white;
+  font-size: 10px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(255, 96, 144, 0.4);
   animation: heartPulse 2s ease-in-out infinite;
 }
 
 @keyframes heartPulse {
   0%, 100% {
     transform: scale(1);
+    box-shadow: 0 2px 8px rgba(255, 96, 144, 0.4);
   }
   50% {
-    transform: scale(1.1);
+    transform: scale(1.15);
+    box-shadow: 0 4px 16px rgba(255, 96, 144, 0.6);
   }
 }
 
 .header-spacer {
-  width: 44px;
+  width: 48px;
 }
 
+/* ============================================
+   Logo section - Signature element
+   ============================================ */
 .logo-section {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: var(--space-md);
 }
 
 .logo-icon {
-  width: 36px;
-  height: 36px;
+  position: relative;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--gradient-primary);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   color: var(--bg-deep);
-  animation: pulse-glow 3s ease-in-out infinite;
+  box-shadow: var(--shadow-glow-cyan);
+  animation: logoGlow 4s ease-in-out infinite;
+}
+
+.logo-icon::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(var(--radius-lg) + 2px);
+  background: var(--gradient-primary);
+  opacity: 0.5;
+  filter: blur(8px);
+  z-index: -1;
+  animation: logoGlow 4s ease-in-out infinite;
+}
+
+@keyframes logoGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(0, 232, 255, 0.4), 0 0 40px rgba(0, 232, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(240, 0, 208, 0.4), 0 0 60px rgba(240, 0, 208, 0.2);
+  }
 }
 
 .logo-text {
@@ -91,107 +159,68 @@
 }
 
 .title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 0.15em;
+  font-size: var(--text-xl);
+  font-weight: 800;
+  letter-spacing: 0.12em;
   color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
+  text-transform: uppercase;
 }
 
 .cursor {
   display: inline-block;
   color: var(--accent-cyan);
   animation: blink 1s step-end infinite;
-  margin-left: 2px;
+  margin-left: 3px;
+  text-shadow: 0 0 8px var(--accent-cyan);
 }
 
 .subtitle {
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-top: 2px;
+  letter-spacing: 0.15em;
+  margin-top: 4px;
 }
 
 .subtitle .accent {
   color: var(--accent-cyan);
   font-weight: 600;
+  text-shadow: 0 0 10px rgba(0, 232, 255, 0.3);
 }
 
-/* Search Row */
+/* ============================================
+   Search Row
+   ============================================ */
 .search-row {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
 }
 
-/* Search */
+/* ============================================
+   Search container - Glass design
+   ============================================ */
 .search-container {
   position: relative;
   display: flex;
   align-items: center;
   flex: 1;
-  background: var(--bg-tertiary);
-  border: 1px solid transparent;
-  border-radius: var(--radius-lg);
-  padding: 0 var(--space-md);
-  height: 48px;
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-xl);
+  padding: 0 var(--space-lg);
+  height: 52px;
   transition: all var(--transition-base);
   overflow: hidden;
 }
 
-.search-container.focused {
-  border-color: var(--accent-cyan);
-  background: var(--bg-elevated);
-  box-shadow: var(--shadow-glow-cyan);
-}
-
-.search-icon {
-  color: var(--text-tertiary);
-  display: flex;
-  align-items: center;
-  margin-right: var(--space-sm);
-  transition: color var(--transition-fast);
-}
-
-.search-container.focused .search-icon {
-  color: var(--accent-cyan);
-}
-
-.search-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  font-size: 0.9rem;
-  outline: none;
-  width: 100%;
-}
-
-.search-input::placeholder {
-  color: var(--text-muted);
-}
-
-.clear-button {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-secondary);
-  border-radius: var(--radius-sm);
-  color: var(--text-tertiary);
-  transition: all var(--transition-fast);
-}
-
-.clear-button:hover {
-  background: var(--accent-cyan);
-  color: var(--bg-deep);
-}
-
-.search-glow {
+.search-container::before {
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -200,7 +229,75 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    var(--accent-cyan) 50%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+}
+
+.search-container.focused {
+  border-color: var(--accent-cyan);
+  background: var(--bg-glass-elevated);
+  box-shadow: var(--shadow-glow-cyan);
+}
+
+.search-icon {
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  margin-right: var(--space-md);
+  transition: all var(--transition-fast);
+}
+
+.search-container.focused .search-icon {
+  color: var(--accent-cyan);
+  filter: drop-shadow(0 0 4px var(--accent-cyan));
+}
+
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: var(--text-base);
+  font-weight: 500;
+  outline: none;
+  width: 100%;
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.clear-button {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-md);
+  color: var(--text-tertiary);
+  transition: all var(--transition-fast);
+}
+
+.clear-button:hover {
+  background: var(--accent-cyan);
+  color: var(--bg-deep);
+  box-shadow: 0 0 12px rgba(0, 232, 255, 0.4);
+}
+
+.search-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--accent-cyan) 30%,
+    var(--accent-magenta) 70%,
     transparent 100%
   );
   opacity: 0;
@@ -209,9 +306,21 @@
 
 .search-container.focused .search-glow {
   opacity: 1;
+  animation: searchGlowPulse 2s ease-in-out infinite;
 }
 
-/* Header Controls */
+@keyframes searchGlowPulse {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   Header Controls
+   ============================================ */
 .header-controls {
   display: flex;
   align-items: center;
@@ -220,42 +329,109 @@
 }
 
 .help-button {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-tertiary);
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: var(--border-glass);
   border-radius: var(--radius-md);
   color: var(--text-tertiary);
   transition: all var(--transition-fast);
 }
 
 .help-button:hover {
-  background: var(--bg-elevated);
+  background: var(--bg-glass-elevated);
   color: var(--accent-cyan);
+  border-color: rgba(0, 232, 255, 0.2);
 }
 
 .help-button:active {
   transform: scale(0.95);
 }
 
+/* ============================================
+   Responsive adjustments
+   ============================================ */
 @media (max-width: 480px) {
   .header-controls {
     display: none;
+  }
+
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .search-container {
+    height: 48px;
+    padding: 0 var(--space-md);
   }
 }
 
 @media (min-width: 640px) {
   .header {
-    padding: var(--space-lg) var(--space-xl) var(--space-xl);
+    padding: var(--space-xl) var(--space-2xl) var(--space-2xl);
+  }
+
+  .header-content {
+    max-width: 800px;
   }
 
   .title {
-    font-size: 1.25rem;
+    font-size: var(--text-2xl);
+  }
+
+  .logo-icon {
+    width: 48px;
+    height: 48px;
   }
 
   .search-container {
-    height: 52px;
+    height: 56px;
   }
+}
+
+@media (min-width: 1024px) {
+  .header-content {
+    max-width: 1000px;
+  }
+}
+
+/* ============================================
+   Light theme adjustments
+   ============================================ */
+[data-theme="light"] .header {
+  background: linear-gradient(
+    180deg,
+    var(--bg-deep) 0%,
+    var(--bg-deep) 60%,
+    rgba(245, 245, 250, 0.95) 80%,
+    transparent 100%
+  );
+}
+
+[data-theme="light"] .header::before {
+  background:
+    radial-gradient(ellipse 50% 40% at 50% 0%, rgba(0, 144, 160, 0.08), transparent 60%),
+    radial-gradient(ellipse 40% 30% at 70% 20%, rgba(184, 0, 160, 0.05), transparent 50%);
+}
+
+[data-theme="light"] .menu-button,
+[data-theme="light"] .search-container,
+[data-theme="light"] .help-button {
+  background: var(--bg-glass);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .search-container::before {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.04) 50%,
+    transparent 100%
+  );
 }
