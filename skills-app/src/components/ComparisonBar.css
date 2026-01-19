@@ -1,10 +1,10 @@
 .comparison-bar {
   position: fixed;
   bottom: var(--space-lg);
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 32px);
+  left: var(--space-md);
+  right: var(--space-md);
   max-width: 600px;
+  margin: 0 auto;
   background: var(--bg-elevated);
   border-radius: var(--radius-xl);
   z-index: var(--z-sticky);
@@ -84,10 +84,9 @@
 
 .comparison-skills {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-sm);
   margin-bottom: var(--space-md);
-  overflow-x: auto;
-  padding-bottom: var(--space-xs);
 }
 
 .comparison-skill-chip {
@@ -98,7 +97,8 @@
   background: var(--bg-tertiary);
   border-radius: var(--radius-full);
   border-left: 3px solid var(--repo-color);
-  flex-shrink: 0;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .comparison-skill-name {
@@ -128,13 +128,7 @@
 }
 
 .comparison-skill-slot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-xs) var(--space-md);
-  border: 1px dashed rgba(136, 136, 160, 0.3);
-  border-radius: var(--radius-full);
-  flex-shrink: 0;
+  display: none;
 }
 
 .comparison-skill-slot span {
@@ -200,14 +194,32 @@
 @media (max-width: 640px) {
   .comparison-bar {
     bottom: var(--space-md);
-    width: calc(100% - 24px);
+    left: var(--space-sm);
+    right: var(--space-sm);
+  }
+
+  .comparison-bar-content {
+    padding: var(--space-sm);
+  }
+
+  .comparison-bar-header {
+    margin-bottom: var(--space-xs);
+  }
+
+  .comparison-skills {
+    margin-bottom: var(--space-sm);
   }
 
   .comparison-skill-name {
-    max-width: 100px;
+    max-width: 120px;
+  }
+
+  .comparison-bar-actions {
+    gap: var(--space-xs);
   }
 
   .comparison-action {
+    padding: var(--space-xs) var(--space-sm);
     font-size: 0.75rem;
   }
 }

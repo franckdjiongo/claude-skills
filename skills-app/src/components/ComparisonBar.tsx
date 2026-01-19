@@ -20,7 +20,6 @@ export function ComparisonBar({
   maxComparison,
 }: ComparisonBarProps) {
   const canCompare = skills.length >= 2;
-  const slotsRemaining = maxComparison - skills.length;
 
   return (
     <AnimatePresence>
@@ -65,13 +64,6 @@ export function ComparisonBar({
                     <X size={12} />
                   </button>
                 </motion.div>
-              ))}
-
-              {/* Empty slots */}
-              {Array.from({ length: slotsRemaining }).map((_, i) => (
-                <div key={`empty-${i}`} className="comparison-skill-slot">
-                  <span>Select a skill</span>
-                </div>
               ))}
             </div>
 
