@@ -11,14 +11,12 @@ import {
   Box,
   Briefcase,
   MoreVertical,
-  Edit2,
   Trash2,
   Copy,
   Download,
   Upload,
   ChevronDown,
   ChevronUp,
-  X,
 } from 'lucide-react';
 import type { Collection } from '../hooks/useCollections';
 import './CollectionsPanel.css';

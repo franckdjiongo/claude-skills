@@ -23,9 +23,8 @@ interface ComparisonModalProps {
 export function ComparisonModal({ isOpen, skills, onClose }: ComparisonModalProps) {
   // Find common and unique tags
   const tagAnalysis = useMemo(() => {
-    if (skills.length < 2) return { common: [], unique: new Map() };
+    if (skills.length < 2) return { common: [] as string[], unique: new Map<string, string[]>() };
 
-    const tagSets = skills.map((s) => new Set(s.tags));
     const allTags = new Set(skills.flatMap((s) => s.tags));
 
     const common: string[] = [];
@@ -40,7 +39,7 @@ export function ComparisonModal({ isOpen, skills, onClose }: ComparisonModalProp
 
     skills.forEach((skill) => {
       const uniqueTags = skill.tags.filter(
-        (tag) => !common.includes(tag) && skills.filter((s) => s.tags.includes(tag)).length === 1
+        (tag: string) => !common.includes(tag) && skills.filter((s) => s.tags.includes(tag)).length === 1
       );
       unique.set(skill.id, uniqueTags);
     });

@@ -65,7 +65,7 @@ function App() {
   const [suggestionIndex, setSuggestionIndex] = useState(-1);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const previewTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const previewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Theme hook
   const { theme, toggleTheme } = useTheme();
@@ -103,7 +103,6 @@ function App() {
 
   // New feature hooks
   const {
-    history: searchHistory,
     addToHistory,
     clearHistory,
     removeFromHistory,
@@ -117,7 +116,6 @@ function App() {
     removeFromComparison,
     isInComparison,
     canAddMore: canAddToComparison,
-    hasComparison,
     canCompare,
     maxComparison,
   } = useComparison();
@@ -127,11 +125,8 @@ function App() {
     createCollection,
     deleteCollection,
     duplicateCollection,
-    addSkillToCollection,
-    removeSkillFromCollection,
     exportCollection,
     importCollection,
-    collectionsCount,
     defaultColors,
     defaultIcons,
   } = useCollections();
@@ -661,12 +656,6 @@ function App() {
         onToggleFavorite={handleToggleFavorite}
         onSkillClick={handleSimilarSkillClick}
         onShare={handleShare}
-        isInComparison={selectedSkill ? isInComparison(selectedSkill.id) : false}
-        onToggleComparison={handleToggleComparison}
-        canAddToComparison={canAddToComparison}
-        collections={collections}
-        onAddToCollection={addSkillToCollection}
-        onRemoveFromCollection={removeSkillFromCollection}
       />
 
       <SkillPreview
@@ -708,7 +697,7 @@ function App() {
         collectionsComponent={
           <CollectionsPanel
             collections={collections}
-            selectedCollectionId={selectedCollectionId}
+            selectedCollectionId={selectedCollectionId ?? undefined}
             onSelectCollection={handleSelectCollection}
             onCreateCollection={handleCreateCollection}
             onDeleteCollection={handleDeleteCollection}
