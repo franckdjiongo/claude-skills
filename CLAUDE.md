@@ -116,6 +116,7 @@ The registry tracks:
 |------------|-------------|
 | [obra/superpowers](https://github.com/obra/superpowers) | Composable skills for coding agents - TDD, debugging, collaboration |
 | [anthropics/skills](https://github.com/anthropics/skills) | Official Anthropic skills - documents, creative design, MCP, and enterprise workflows |
+| [vudovn/antigravity-kit](https://github.com/vudovn/antigravity-kit) | Modular AI agent skills - 40 skills covering frontend, backend, testing, security, and architecture |
 
 ### Using the Registry
 
@@ -182,6 +183,18 @@ To add a new external repository to the registry:
 - `web-artifacts-builder` - Multi-component HTML artifacts
 - `doc-coauthoring` - Structured documentation co-authoring
 - `internal-comms` - Internal communications templates
+
+**From vudovn/antigravity-kit:**
+- **Frontend & UI**: `frontend-design`, `react-patterns`, `nextjs-best-practices`, `tailwind-patterns`, `mobile-design`, `ui-ux-pro-max`
+- **Backend & API**: `api-patterns`, `nestjs-expert`, `nodejs-best-practices`, `prisma-expert`
+- **Database**: `database-design`
+- **TypeScript**: `typescript-expert`
+- **Cloud & DevOps**: `docker-expert`, `deployment-procedures`, `server-management`
+- **Testing & Quality**: `tdd-workflow`, `testing-patterns`, `webapp-testing`, `lint-and-validate`, `systematic-debugging`
+- **Security**: `vulnerability-scanner`, `red-team-tactics`
+- **Architecture**: `architecture`, `app-builder`, `plan-writing`, `brainstorming`, `parallel-agents`
+- **Dev Tools**: `clean-code`, `code-review-checklist`, `mcp-builder`, `documentation-templates`, `bash-linux`, `powershell-windows`, `behavioral-modes`, `python-patterns`
+- **Specialized**: `game-development`, `geo-fundamentals`, `i18n-localization`, `seo-fundamentals`, `performance-profiling`
 
 ## Skills Library Web Application
 
