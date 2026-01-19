@@ -98,6 +98,7 @@ export const SkillGrid = forwardRef<HTMLDivElement, SkillGridProps>(
                     onToggleFavorite={onToggleFavorite}
                     isFocused={focusedIndex === index}
                     onTagClick={onTagClick}
+                    searchQuery={searchQuery}
                   />
                 ))
               : skills.map((skill, index) => (
@@ -109,6 +110,7 @@ export const SkillGrid = forwardRef<HTMLDivElement, SkillGridProps>(
                     isFavorite={isFavorite?.(skill.id)}
                     onToggleFavorite={onToggleFavorite}
                     isFocused={focusedIndex === index}
+                    searchQuery={searchQuery}
                   />
                 ))}
           </AnimatePresence>

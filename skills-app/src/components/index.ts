@@ -11,3 +11,6 @@ export { SkillListItem } from './SkillListItem';
 export { SortDropdown } from './SortDropdown';
 export { TagFilter } from './TagFilter';
 export { FloatingActionButton } from './FloatingActionButton';
+export { SimilarSkills } from './SimilarSkills';
+export { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
+export { ThemeToggle } from './ThemeToggle';

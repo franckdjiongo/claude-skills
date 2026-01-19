@@ -12,3 +12,5 @@ export { useSortSkills, sortOptions } from './useSortSkills';
 export type { SortOption, SortConfig } from './useSortSkills';
 export { useTagFilter } from './useTagFilter';
 export { useScrollPosition } from './useScrollPosition';
+export { useTheme } from './useTheme';
+export type { Theme } from './useTheme';

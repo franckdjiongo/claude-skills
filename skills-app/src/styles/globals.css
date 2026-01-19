@@ -4,7 +4,7 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Core Colors */
+  /* Core Colors - Default Dark Theme */
   --bg-deep: #0a0a0f;
   --bg-primary: #0d0d14;
   --bg-secondary: #12121a;
@@ -79,6 +79,86 @@
   --z-sticky: 100;
   --z-modal: 1000;
   --z-toast: 2000;
+}
+
+/* Light Theme - Neo-Terminal Light Edition */
+[data-theme="light"] {
+  /* Core Colors */
+  --bg-deep: #f0f0f5;
+  --bg-primary: #f8f8fc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e8e8f0;
+  --bg-elevated: #f5f5fa;
+  --bg-glass: rgba(248, 248, 252, 0.9);
+
+  /* Text Colors */
+  --text-primary: #1a1a24;
+  --text-secondary: #4a4a5a;
+  --text-tertiary: #7a7a8a;
+  --text-muted: #9a9aaa;
+
+  /* Accent Colors - More saturated for light theme */
+  --accent-cyan: #0095a0;
+  --accent-cyan-dim: #007580;
+  --accent-cyan-glow: rgba(0, 149, 160, 0.12);
+  --accent-magenta: #c000a5;
+  --accent-magenta-dim: #900080;
+  --accent-magenta-glow: rgba(192, 0, 165, 0.12);
+  --accent-gold: #b89000;
+  --accent-gold-dim: #8a6c00;
+  --accent-gold-glow: rgba(184, 144, 0, 0.12);
+  --accent-green: #00a855;
+  --accent-green-dim: #008040;
+
+  /* Borders */
+  --border-subtle: 1px solid rgba(26, 26, 36, 0.08);
+  --border-glow-cyan: 1px solid rgba(0, 149, 160, 0.3);
+  --border-glow-magenta: 1px solid rgba(192, 0, 165, 0.3);
+
+  /* Shadows - Softer for light theme */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow-glow-cyan: 0 0 20px rgba(0, 149, 160, 0.15), 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-glow-magenta: 0 0 20px rgba(192, 0, 165, 0.15), 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Light theme body adjustments */
+[data-theme="light"] body::before {
+  /* Lighter scanline effect */
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.01) 2px,
+    rgba(0, 0, 0, 0.01) 4px
+  );
+}
+
+[data-theme="light"] body::after {
+  /* Subtle grid for light theme */
+  background-image:
+    linear-gradient(rgba(0, 149, 160, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 149, 160, 0.03) 1px, transparent 1px);
+}
+
+/* Light theme selection */
+[data-theme="light"] ::selection {
+  background: var(--accent-cyan);
+  color: white;
+}
+
+/* Light theme scrollbar */
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
 }
 
 /* Reset & Base */

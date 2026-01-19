@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { ExternalLink, Folder, ChevronRight, Heart, Tag } from 'lucide-react';
 import type { Skill } from '../types';
 import { getRepositoryColor } from '../data/skills';
+import { HighlightedText } from '../utils';
 import './SkillListItem.css';
 
 interface SkillListItemProps {
@@ -12,6 +13,7 @@ interface SkillListItemProps {
   onToggleFavorite?: (skillId: string) => void;
   isFocused?: boolean;
   onTagClick?: (tag: string) => void;
+  searchQuery?: string;
 }
 
 export function SkillListItem({
@@ -22,6 +24,7 @@ export function SkillListItem({
   onToggleFavorite,
   isFocused = false,
   onTagClick,
+  searchQuery = '',
 }: SkillListItemProps) {
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -70,7 +73,9 @@ export function SkillListItem({
 
       <div className="list-item-content">
         <div className="list-item-header">
-          <h3 className="list-item-title">{skill.name}</h3>
+          <h3 className="list-item-title">
+            <HighlightedText text={skill.name} query={searchQuery} />
+          </h3>
           <div className="list-item-meta">
             <span className="list-item-repo" style={{ color: repoColor }}>
               {skill.isLocal ? <Folder size={12} /> : <ExternalLink size={12} />}
@@ -79,7 +84,9 @@ export function SkillListItem({
           </div>
         </div>
 
-        <p className="list-item-description">{skill.description}</p>
+        <p className="list-item-description">
+          <HighlightedText text={skill.description} query={searchQuery} />
+        </p>
 
         <div className="list-item-tags">
           <Tag size={10} className="tag-icon" />
