@@ -1,5 +1,5 @@
-import { useState, useEffect, type RefObject } from 'react';
-import { Search, X, Sparkles, Menu, Heart, HelpCircle } from 'lucide-react';
+import { useState, useEffect, type RefObject, type ReactNode } from 'react';
+import { Search, X, Sparkles, Menu, Heart, HelpCircle, BarChart3, GitCompare } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ViewModeToggle } from './ViewModeToggle';
 import { SortDropdown } from './SortDropdown';
@@ -12,6 +12,9 @@ import './Header.css';
 interface HeaderProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  onSearchFocus?: () => void;
+  onSearchBlur?: () => void;
+  onSearchSubmit?: () => void;
   totalSkills: number;
   onMenuClick: () => void;
   searchInputRef?: RefObject<HTMLInputElement | null>;
@@ -23,11 +26,18 @@ interface HeaderProps {
   theme?: Theme;
   onThemeToggle?: () => void;
   onHelpClick?: () => void;
+  onStatsClick?: () => void;
+  comparisonCount?: number;
+  onCompareClick?: () => void;
+  searchSuggestions?: ReactNode;
 }
 
 export function Header({
   searchQuery,
   onSearchChange,
+  onSearchFocus,
+  onSearchBlur,
+  onSearchSubmit,
   totalSkills,
   onMenuClick,
   searchInputRef,
@@ -39,6 +49,10 @@ export function Header({
   theme = 'dark',
   onThemeToggle,
   onHelpClick,
+  onStatsClick,
+  comparisonCount = 0,
+  onCompareClick,
+  searchSuggestions,
 }: HeaderProps) {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [displayText, setDisplayText] = useState('');
@@ -60,6 +74,22 @@ export function Header({
   const handleClear = () => {
     onSearchChange('');
     searchInputRef?.current?.focus();
+  };
+
+  const handleFocus = () => {
+    setIsSearchFocused(true);
+    onSearchFocus?.();
+  };
+
+  const handleBlur = () => {
+    setIsSearchFocused(false);
+    onSearchBlur?.();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      onSearchSubmit?.();
+    }
   };
 
   return (
@@ -105,8 +135,9 @@ export function Header({
               placeholder="Search skills... (press /)"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setIsSearchFocused(false)}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              onKeyDown={handleKeyDown}
             />
             <AnimatePresence>
               {searchQuery && (
@@ -124,9 +155,33 @@ export function Header({
               )}
             </AnimatePresence>
             <div className="search-glow" />
+
+            {/* Search Suggestions */}
+            {searchSuggestions}
           </div>
 
           <div className="header-controls">
+            {onStatsClick && (
+              <button
+                className="header-icon-button"
+                onClick={onStatsClick}
+                aria-label="View statistics"
+                title="Statistics (S)"
+              >
+                <BarChart3 size={18} />
+              </button>
+            )}
+            {onCompareClick && comparisonCount >= 2 && (
+              <button
+                className="header-icon-button compare-button"
+                onClick={onCompareClick}
+                aria-label={`Compare ${comparisonCount} skills`}
+                title={`Compare ${comparisonCount} skills (C)`}
+              >
+                <GitCompare size={18} />
+                <span className="compare-badge">{comparisonCount}</span>
+              </button>
+            )}
             {onSortChange && (
               <SortDropdown value={sortBy} onChange={onSortChange} />
             )}
@@ -138,7 +193,7 @@ export function Header({
             )}
             {onHelpClick && (
               <button
-                className="help-button"
+                className="header-icon-button"
                 onClick={onHelpClick}
                 aria-label="Keyboard shortcuts"
                 title="Keyboard shortcuts (?)"

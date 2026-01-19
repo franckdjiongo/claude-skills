@@ -14,3 +14,10 @@ export { useTagFilter } from './useTagFilter';
 export { useScrollPosition } from './useScrollPosition';
 export { useTheme } from './useTheme';
 export type { Theme } from './useTheme';
+
+// New Feature Hooks
+export { useSearchHistory } from './useSearchHistory';
+export type { Suggestion } from './useSearchHistory';
+export { useComparison } from './useComparison';
+export { useCollections } from './useCollections';
+export type { Collection } from './useCollections';

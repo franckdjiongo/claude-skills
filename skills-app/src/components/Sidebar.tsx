@@ -34,6 +34,8 @@ interface SidebarProps {
   formatTimestamp: (timestamp: number) => string;
   // Tag filter component
   tagFilterComponent?: ReactNode;
+  // Collections component
+  collectionsComponent?: ReactNode;
 }
 
 export function Sidebar({
@@ -51,6 +53,7 @@ export function Sidebar({
   onClearRecentViews,
   formatTimestamp,
   tagFilterComponent,
+  collectionsComponent,
 }: SidebarProps) {
   const handleFilterSelect = (filter: FilterType) => {
     onFilterChange(filter);
@@ -117,6 +120,13 @@ export function Sidebar({
                   <span className="filter-count">{favoritesCount}</span>
                 </button>
               </div>
+
+              {/* Collections Section */}
+              {collectionsComponent && (
+                <div className="collections-section">
+                  {collectionsComponent}
+                </div>
+              )}
 
               {/* Recent Views Section */}
               {recentViews.length > 0 && (

@@ -151,6 +151,56 @@
   }
 }
 
+/* Compare button */
+.compare-button {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+  position: relative;
+  z-index: 10;
+}
+
+.compare-button:hover {
+  color: var(--accent-magenta);
+  background: rgba(255, 0, 212, 0.1);
+  transform: scale(1.1);
+}
+
+.compare-button.is-comparing {
+  color: var(--accent-magenta);
+  background: rgba(255, 0, 212, 0.15);
+}
+
+.compare-button.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.compare-button.disabled:hover {
+  transform: none;
+  background: none;
+}
+
+/* Card in comparison state */
+.skill-card.in-comparison {
+  outline: 2px solid var(--accent-magenta);
+  outline-offset: 2px;
+}
+
+.skill-card.in-comparison .card-border {
+  background: linear-gradient(
+    135deg,
+    var(--accent-magenta) 0%,
+    rgba(255, 0, 212, 0.3) 50%,
+    var(--accent-magenta) 100%
+  );
+}
+
 .card-arrow {
   color: var(--text-muted);
   transition: all var(--transition-fast);

@@ -128,6 +128,15 @@
   background: var(--accent-gold-glow);
 }
 
+.filter-pill.collection {
+  border-color: rgba(0, 255, 136, 0.3);
+  color: var(--accent-green);
+}
+
+.filter-pill.collection:hover {
+  background: rgba(0, 255, 136, 0.1);
+}
+
 .clear-all-button {
   padding: 4px 12px;
   font-size: 0.65rem;

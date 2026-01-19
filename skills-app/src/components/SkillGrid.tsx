@@ -17,6 +17,11 @@ interface SkillGridProps {
   showFavorites?: boolean;
   viewMode?: ViewMode;
   onTagClick?: (tag: string) => void;
+  onSkillHover?: (skill: Skill, event: React.MouseEvent) => void;
+  onSkillHoverEnd?: () => void;
+  isInComparison?: (skillId: string) => boolean;
+  onToggleComparison?: (skill: Skill) => void;
+  canAddToComparison?: boolean;
 }
 
 export const SkillGrid = forwardRef<HTMLDivElement, SkillGridProps>(
@@ -31,6 +36,11 @@ export const SkillGrid = forwardRef<HTMLDivElement, SkillGridProps>(
       showFavorites = false,
       viewMode = 'grid',
       onTagClick,
+      onSkillHover,
+      onSkillHoverEnd,
+      isInComparison,
+      onToggleComparison,
+      canAddToComparison,
     },
     ref
   ) {
@@ -99,6 +109,9 @@ export const SkillGrid = forwardRef<HTMLDivElement, SkillGridProps>(
                     isFocused={focusedIndex === index}
                     onTagClick={onTagClick}
                     searchQuery={searchQuery}
+                    isInComparison={isInComparison?.(skill.id)}
+                    onToggleComparison={onToggleComparison ? () => onToggleComparison(skill) : undefined}
+                    canAddToComparison={canAddToComparison}
                   />
                 ))
               : skills.map((skill, index) => (
@@ -111,6 +124,11 @@ export const SkillGrid = forwardRef<HTMLDivElement, SkillGridProps>(
                     onToggleFavorite={onToggleFavorite}
                     isFocused={focusedIndex === index}
                     searchQuery={searchQuery}
+                    onHover={onSkillHover}
+                    onHoverEnd={onSkillHoverEnd}
+                    isInComparison={isInComparison?.(skill.id)}
+                    onToggleComparison={onToggleComparison ? () => onToggleComparison(skill) : undefined}
+                    canAddToComparison={canAddToComparison}
                   />
                 ))}
           </AnimatePresence>

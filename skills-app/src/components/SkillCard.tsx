@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion } from 'motion/react';
-import { ExternalLink, Folder, Tag, ChevronRight, Heart } from 'lucide-react';
+import { ExternalLink, Folder, Tag, ChevronRight, Heart, GitCompare } from 'lucide-react';
 import type { Skill } from '../types';
 import { getRepositoryColor } from '../data/skills';
 import { HighlightedText } from '../utils';
@@ -14,6 +14,11 @@ interface SkillCardProps {
   onToggleFavorite?: (skillId: string) => void;
   isFocused?: boolean;
   searchQuery?: string;
+  onHover?: (skill: Skill, event: React.MouseEvent) => void;
+  onHoverEnd?: () => void;
+  isInComparison?: boolean;
+  onToggleComparison?: () => void;
+  canAddToComparison?: boolean;
 }
 
 export function SkillCard({
@@ -24,6 +29,11 @@ export function SkillCard({
   onToggleFavorite,
   isFocused = false,
   searchQuery = '',
+  onHover,
+  onHoverEnd,
+  isInComparison = false,
+  onToggleComparison,
+  canAddToComparison = true,
 }: SkillCardProps) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const cardRef = useRef<HTMLDivElement>(null);
@@ -40,6 +50,19 @@ export function SkillCard({
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onToggleFavorite?.(skill.id);
+  };
+
+  const handleComparisonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleComparison?.();
+  };
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    onHover?.(skill, e);
+  };
+
+  const handleMouseLeave = () => {
+    onHoverEnd?.();
   };
 
   const repoColor = getRepositoryColor(skill.repository);
@@ -60,7 +83,7 @@ export function SkillCard({
   return (
     <motion.div
       ref={cardRef}
-      className={`skill-card ${isFocused ? 'keyboard-focused' : ''}`}
+      className={`skill-card ${isFocused ? 'keyboard-focused' : ''} ${isInComparison ? 'in-comparison' : ''}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -71,6 +94,8 @@ export function SkillCard({
       whileHover={{ y: -4 }}
       whileTap={{ scale: 0.98 }}
       onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       onClick={() => onClick(skill)}
       tabIndex={0}
       role="button"
@@ -92,6 +117,16 @@ export function SkillCard({
             <span>{getRepoLabel()}</span>
           </div>
           <div className="card-header-actions">
+            {onToggleComparison && (
+              <button
+                className={`compare-button ${isInComparison ? 'is-comparing' : ''} ${!canAddToComparison && !isInComparison ? 'disabled' : ''}`}
+                onClick={handleComparisonClick}
+                disabled={!canAddToComparison && !isInComparison}
+                aria-label={isInComparison ? 'Remove from comparison' : 'Add to comparison'}
+              >
+                <GitCompare size={14} />
+              </button>
+            )}
             {onToggleFavorite && (
               <button
                 className={`favorite-button ${isFavorite ? 'is-favorite' : ''}`}

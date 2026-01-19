@@ -14,3 +14,11 @@ export { FloatingActionButton } from './FloatingActionButton';
 export { SimilarSkills } from './SimilarSkills';
 export { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
 export { ThemeToggle } from './ThemeToggle';
+
+// New Feature Components
+export { SearchSuggestions } from './SearchSuggestions';
+export { SkillPreview } from './SkillPreview';
+export { StatsDashboard } from './StatsDashboard';
+export { ComparisonBar } from './ComparisonBar';
+export { ComparisonModal } from './ComparisonModal';
+export { CollectionsPanel } from './CollectionsPanel';

@@ -164,8 +164,46 @@
 }
 
 .list-favorite-button.is-favorite {
+  color: #ff6482;
+  filter: drop-shadow(0 0 6px rgba(255, 100, 130, 0.5));
+}
+
+/* Compare Button */
+.list-compare-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  color: var(--text-tertiary);
+  transition: all var(--transition-fast);
+}
+
+.list-compare-button:hover {
   color: var(--accent-magenta);
-  filter: drop-shadow(0 0 6px rgba(255, 0, 212, 0.5));
+  background: rgba(255, 0, 212, 0.1);
+}
+
+.list-compare-button.is-comparing {
+  color: var(--accent-magenta);
+  background: rgba(255, 0, 212, 0.15);
+}
+
+.list-compare-button.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* In Comparison State */
+.skill-list-item.in-comparison {
+  border-color: var(--accent-magenta);
+  box-shadow: 0 0 0 1px var(--accent-magenta);
+}
+
+.skill-list-item.in-comparison .list-item-indicator {
+  opacity: 1;
+  background: var(--accent-magenta);
 }
 
 .list-arrow {

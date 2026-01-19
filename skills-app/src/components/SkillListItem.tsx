@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { ExternalLink, Folder, ChevronRight, Heart, Tag } from 'lucide-react';
+import { ExternalLink, Folder, ChevronRight, Heart, Tag, GitCompare } from 'lucide-react';
 import type { Skill } from '../types';
 import { getRepositoryColor } from '../data/skills';
 import { HighlightedText } from '../utils';
@@ -14,6 +14,9 @@ interface SkillListItemProps {
   isFocused?: boolean;
   onTagClick?: (tag: string) => void;
   searchQuery?: string;
+  isInComparison?: boolean;
+  onToggleComparison?: () => void;
+  canAddToComparison?: boolean;
 }
 
 export function SkillListItem({
@@ -25,10 +28,18 @@ export function SkillListItem({
   isFocused = false,
   onTagClick,
   searchQuery = '',
+  isInComparison = false,
+  onToggleComparison,
+  canAddToComparison = true,
 }: SkillListItemProps) {
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onToggleFavorite?.(skill.id);
+  };
+
+  const handleComparisonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleComparison?.();
   };
 
   const handleTagClick = (e: React.MouseEvent, tag: string) => {
@@ -53,7 +64,7 @@ export function SkillListItem({
 
   return (
     <motion.div
-      className={`skill-list-item ${isFocused ? 'keyboard-focused' : ''}`}
+      className={`skill-list-item ${isFocused ? 'keyboard-focused' : ''} ${isInComparison ? 'in-comparison' : ''}`}
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{
@@ -106,6 +117,16 @@ export function SkillListItem({
       </div>
 
       <div className="list-item-actions">
+        {onToggleComparison && (
+          <button
+            className={`list-compare-button ${isInComparison ? 'is-comparing' : ''} ${!canAddToComparison && !isInComparison ? 'disabled' : ''}`}
+            onClick={handleComparisonClick}
+            disabled={!canAddToComparison && !isInComparison}
+            aria-label={isInComparison ? 'Remove from comparison' : 'Add to comparison'}
+          >
+            <GitCompare size={14} />
+          </button>
+        )}
         {onToggleFavorite && (
           <button
             className={`list-favorite-button ${isFavorite ? 'is-favorite' : ''}`}
