@@ -4,3 +4,4 @@ export { SkillCard } from './SkillCard';
 export { SkillGrid } from './SkillGrid';
 export { SkillDetail } from './SkillDetail';
 export { Sidebar } from './Sidebar';
+export { ActiveFilters } from './ActiveFilters';

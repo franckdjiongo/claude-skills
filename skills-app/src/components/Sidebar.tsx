@@ -1,6 +1,18 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Github, Folder, ExternalLink, Sparkles, Database } from 'lucide-react';
-import type { Repository, FilterType } from '../types';
+import {
+  X,
+  Github,
+  Folder,
+  ExternalLink,
+  Sparkles,
+  Database,
+  Heart,
+  Clock,
+  Trash2,
+  ChevronRight,
+} from 'lucide-react';
+import type { Repository, FilterType, Skill } from '../types';
+import type { RecentView } from '../hooks';
 import './Sidebar.css';
 
 interface SidebarProps {
@@ -9,6 +21,16 @@ interface SidebarProps {
   repositories: Repository[];
   activeFilter: FilterType;
   onFilterChange: (filter: FilterType) => void;
+  // Favorites
+  showFavorites: boolean;
+  onToggleFavorites: () => void;
+  favoritesCount: number;
+  // Recent views
+  recentViews: RecentView[];
+  recentSkills: Skill[];
+  onRecentSkillClick: (skill: Skill) => void;
+  onClearRecentViews: () => void;
+  formatTimestamp: (timestamp: number) => string;
 }
 
 export function Sidebar({
@@ -17,9 +39,22 @@ export function Sidebar({
   repositories,
   activeFilter,
   onFilterChange,
+  showFavorites,
+  onToggleFavorites,
+  favoritesCount,
+  recentViews,
+  recentSkills,
+  onRecentSkillClick,
+  onClearRecentViews,
+  formatTimestamp,
 }: SidebarProps) {
   const handleFilterSelect = (filter: FilterType) => {
     onFilterChange(filter);
+    onClose();
+  };
+
+  const handleFavoritesClick = () => {
+    onToggleFavorites();
     onClose();
   };
 
@@ -61,6 +96,67 @@ export function Sidebar({
             </div>
 
             <div className="sidebar-content">
+              {/* Favorites Section */}
+              <div className="filter-section">
+                <h3 className="section-title mono">
+                  <Heart size={14} />
+                  Favorites
+                </h3>
+                <button
+                  className={`filter-option favorites-option ${showFavorites ? 'active' : ''}`}
+                  onClick={handleFavoritesClick}
+                >
+                  <span className="filter-icon favorites">
+                    <Heart size={16} fill={showFavorites ? 'currentColor' : 'none'} />
+                  </span>
+                  <span className="filter-label">My Favorites</span>
+                  <span className="filter-count">{favoritesCount}</span>
+                </button>
+              </div>
+
+              {/* Recent Views Section */}
+              {recentViews.length > 0 && (
+                <div className="recent-section">
+                  <div className="section-header">
+                    <h3 className="section-title mono">
+                      <Clock size={14} />
+                      Recently Viewed
+                    </h3>
+                    <button
+                      className="clear-recent-button"
+                      onClick={onClearRecentViews}
+                      aria-label="Clear recent views"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                  <div className="recent-list">
+                    {recentSkills.slice(0, 5).map((skill) => {
+                      const recentView = recentViews.find((v) => v.skillId === skill.id);
+                      return (
+                        <button
+                          key={skill.id}
+                          className="recent-item"
+                          onClick={() => {
+                            onRecentSkillClick(skill);
+                            onClose();
+                          }}
+                        >
+                          <div className="recent-item-content">
+                            <span className="recent-item-name">{skill.name}</span>
+                            <span className="recent-item-time mono">
+                              {recentView ? formatTimestamp(recentView.timestamp) : ''}
+                            </span>
+                          </div>
+                          <ChevronRight size={14} className="recent-item-arrow" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Source Filter Section */}
               <div className="filter-section">
                 <h3 className="section-title mono">
                   <Database size={14} />
@@ -68,7 +164,7 @@ export function Sidebar({
                 </h3>
                 <div className="filter-options">
                   <button
-                    className={`filter-option ${activeFilter === 'all' ? 'active' : ''}`}
+                    className={`filter-option ${activeFilter === 'all' && !showFavorites ? 'active' : ''}`}
                     onClick={() => handleFilterSelect('all')}
                   >
                     <span className="filter-icon all">
@@ -78,7 +174,7 @@ export function Sidebar({
                     <span className="filter-count">{totalSkills}</span>
                   </button>
                   <button
-                    className={`filter-option ${activeFilter === 'local' ? 'active' : ''}`}
+                    className={`filter-option ${activeFilter === 'local' && !showFavorites ? 'active' : ''}`}
                     onClick={() => handleFilterSelect('local')}
                   >
                     <span className="filter-icon local">
@@ -88,7 +184,7 @@ export function Sidebar({
                     <span className="filter-count">{localSkills}</span>
                   </button>
                   <button
-                    className={`filter-option ${activeFilter === 'external' ? 'active' : ''}`}
+                    className={`filter-option ${activeFilter === 'external' && !showFavorites ? 'active' : ''}`}
                     onClick={() => handleFilterSelect('external')}
                   >
                     <span className="filter-icon external">
@@ -100,6 +196,7 @@ export function Sidebar({
                 </div>
               </div>
 
+              {/* Repositories Section */}
               <div className="repos-section">
                 <h3 className="section-title mono">
                   <Github size={14} />

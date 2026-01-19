@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion } from 'motion/react';
-import { ExternalLink, Folder, Tag, ChevronRight } from 'lucide-react';
+import { ExternalLink, Folder, Tag, ChevronRight, Heart } from 'lucide-react';
 import type { Skill } from '../types';
 import { getRepositoryColor } from '../data/skills';
 import './SkillCard.css';
@@ -9,9 +9,19 @@ interface SkillCardProps {
   skill: Skill;
   index: number;
   onClick: (skill: Skill) => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: (skillId: string) => void;
+  isFocused?: boolean;
 }
 
-export function SkillCard({ skill, index, onClick }: SkillCardProps) {
+export function SkillCard({
+  skill,
+  index,
+  onClick,
+  isFavorite = false,
+  onToggleFavorite,
+  isFocused = false,
+}: SkillCardProps) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -22,6 +32,11 @@ export function SkillCard({ skill, index, onClick }: SkillCardProps) {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
     });
+  };
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleFavorite?.(skill.id);
   };
 
   const repoColor = getRepositoryColor(skill.repository);
@@ -42,7 +57,7 @@ export function SkillCard({ skill, index, onClick }: SkillCardProps) {
   return (
     <motion.div
       ref={cardRef}
-      className="skill-card"
+      className={`skill-card ${isFocused ? 'keyboard-focused' : ''}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -54,6 +69,9 @@ export function SkillCard({ skill, index, onClick }: SkillCardProps) {
       whileTap={{ scale: 0.98 }}
       onMouseMove={handleMouseMove}
       onClick={() => onClick(skill)}
+      tabIndex={0}
+      role="button"
+      aria-label={`${skill.name}. ${skill.description}`}
       style={
         {
           '--mouse-x': `${mousePosition.x}px`,
@@ -70,7 +88,22 @@ export function SkillCard({ skill, index, onClick }: SkillCardProps) {
             {skill.isLocal ? <Folder size={10} /> : <ExternalLink size={10} />}
             <span>{getRepoLabel()}</span>
           </div>
-          <ChevronRight size={18} className="card-arrow" />
+          <div className="card-header-actions">
+            {onToggleFavorite && (
+              <button
+                className={`favorite-button ${isFavorite ? 'is-favorite' : ''}`}
+                onClick={handleFavoriteClick}
+                aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+              >
+                <Heart
+                  size={16}
+                  fill={isFavorite ? 'currentColor' : 'none'}
+                  strokeWidth={isFavorite ? 0 : 2}
+                />
+              </button>
+            )}
+            <ChevronRight size={18} className="card-arrow" />
+          </div>
         </div>
 
         <h3 className="card-title">{skill.name}</h3>

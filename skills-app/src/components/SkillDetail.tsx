@@ -10,6 +10,7 @@ import {
   GitBranch,
   FileCode,
   ArrowRight,
+  Heart,
 } from 'lucide-react';
 import { useState } from 'react';
 import type { Skill } from '../types';
@@ -19,9 +20,16 @@ import './SkillDetail.css';
 interface SkillDetailProps {
   skill: Skill | null;
   onClose: () => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: (skillId: string) => void;
 }
 
-export function SkillDetail({ skill, onClose }: SkillDetailProps) {
+export function SkillDetail({
+  skill,
+  onClose,
+  isFavorite = false,
+  onToggleFavorite,
+}: SkillDetailProps) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -51,6 +59,12 @@ export function SkillDetail({ skill, onClose }: SkillDetailProps) {
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleFavoriteClick = () => {
+    if (skill && onToggleFavorite) {
+      onToggleFavorite(skill.id);
+    }
   };
 
   const repo = skill
@@ -85,13 +99,28 @@ export function SkillDetail({ skill, onClose }: SkillDetailProps) {
                 <div className="handle-bar" />
               </div>
 
-              <button
-                className="detail-close"
-                onClick={onClose}
-                aria-label="Close"
-              >
-                <X size={20} />
-              </button>
+              <div className="detail-header-actions">
+                {onToggleFavorite && (
+                  <button
+                    className={`detail-favorite-button ${isFavorite ? 'is-favorite' : ''}`}
+                    onClick={handleFavoriteClick}
+                    aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    <Heart
+                      size={20}
+                      fill={isFavorite ? 'currentColor' : 'none'}
+                      strokeWidth={isFavorite ? 0 : 2}
+                    />
+                  </button>
+                )}
+                <button
+                  className="detail-close"
+                  onClick={onClose}
+                  aria-label="Close"
+                >
+                  <X size={20} />
+                </button>
+              </div>
 
               <div className="detail-content hide-scrollbar">
                 <div
