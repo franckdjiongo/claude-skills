@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Filter, Heart, Search, Folder, ExternalLink, Layers, Tag } from 'lucide-react';
+import { X, Filter, Heart, Search, Folder, ExternalLink, Layers, Tag, FolderOpen } from 'lucide-react';
 import type { FilterType } from '../types';
 import './ActiveFilters.css';
 
@@ -12,11 +12,13 @@ interface ActiveFiltersProps {
   favoritesCount: number;
   resultCount: number;
   selectedTags?: string[];
+  collectionName?: string | null;
   onClearSearch: () => void;
   onClearCategory: () => void;
   onClearFilter: () => void;
   onClearFavorites: () => void;
   onClearTag?: (tag: string) => void;
+  onClearCollection?: () => void;
   onClearAll: () => void;
 }
 
@@ -29,11 +31,13 @@ export function ActiveFilters({
   favoritesCount,
   resultCount,
   selectedTags = [],
+  collectionName,
   onClearSearch,
   onClearCategory,
   onClearFilter,
   onClearFavorites,
   onClearTag,
+  onClearCollection,
   onClearAll,
 }: ActiveFiltersProps) {
   const hasFilters =
@@ -41,7 +45,8 @@ export function ActiveFilters({
     activeCategory !== 'all' ||
     activeFilter !== 'all' ||
     showFavorites ||
-    selectedTags.length > 0;
+    selectedTags.length > 0 ||
+    collectionName;
 
   if (!hasFilters) return null;
 
@@ -50,6 +55,7 @@ export function ActiveFilters({
     activeCategory !== 'all' ? 1 : 0,
     activeFilter !== 'all' ? 1 : 0,
     showFavorites ? 1 : 0,
+    collectionName ? 1 : 0,
     selectedTags.length,
   ].reduce((a, b) => a + b, 0);
 
@@ -130,6 +136,22 @@ export function ActiveFilters({
             >
               <Heart size={12} fill="currentColor" />
               <span className="pill-text">Favorites ({favoritesCount})</span>
+              <X size={12} className="pill-close" />
+            </motion.button>
+          )}
+
+          {collectionName && (
+            <motion.button
+              key="collection"
+              className="filter-pill collection"
+              onClick={onClearCollection}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.15 }}
+            >
+              <FolderOpen size={12} />
+              <span className="pill-text">{collectionName}</span>
               <X size={12} className="pill-close" />
             </motion.button>
           )}
