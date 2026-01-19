@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { ExternalLink, Folder, Tag, ChevronRight, Heart } from 'lucide-react';
 import type { Skill } from '../types';
 import { getRepositoryColor } from '../data/skills';
+import { HighlightedText } from '../utils';
 import './SkillCard.css';
 
 interface SkillCardProps {
@@ -12,6 +13,7 @@ interface SkillCardProps {
   isFavorite?: boolean;
   onToggleFavorite?: (skillId: string) => void;
   isFocused?: boolean;
+  searchQuery?: string;
 }
 
 export function SkillCard({
@@ -21,6 +23,7 @@ export function SkillCard({
   isFavorite = false,
   onToggleFavorite,
   isFocused = false,
+  searchQuery = '',
 }: SkillCardProps) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const cardRef = useRef<HTMLDivElement>(null);
@@ -106,8 +109,12 @@ export function SkillCard({
           </div>
         </div>
 
-        <h3 className="card-title">{skill.name}</h3>
-        <p className="card-description">{skill.description}</p>
+        <h3 className="card-title">
+          <HighlightedText text={skill.name} query={searchQuery} />
+        </h3>
+        <p className="card-description">
+          <HighlightedText text={skill.description} query={searchQuery} />
+        </p>
 
         <div className="card-footer">
           <div className="card-tags">

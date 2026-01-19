@@ -1,0 +1,121 @@
+.similar-skills {
+  margin-top: var(--space-md);
+}
+
+.similar-skills-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-md);
+}
+
+.similar-skills-title svg {
+  color: var(--accent-magenta);
+}
+
+.similar-skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.similar-skill-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.similar-skill-item:hover {
+  background: var(--bg-elevated);
+  border-color: var(--repo-color);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2),
+              inset 0 0 20px rgba(var(--repo-color-rgb, 0, 240, 255), 0.05);
+}
+
+.similar-skill-indicator {
+  width: 3px;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: var(--repo-color);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.similar-skill-item:hover .similar-skill-indicator {
+  opacity: 1;
+}
+
+.similar-skill-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.similar-skill-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.similar-skill-repo {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  color: var(--repo-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.similar-skill-arrow {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.similar-skill-item:hover .similar-skill-arrow {
+  color: var(--repo-color);
+  transform: translateX(2px);
+}
+
+/* Glow effect on hover */
+.similar-skill-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 50%,
+    var(--repo-color),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  pointer-events: none;
+}
+
+.similar-skill-item:hover::before {
+  opacity: 0.05;
+}

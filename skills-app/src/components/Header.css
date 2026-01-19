@@ -219,6 +219,27 @@
   flex-shrink: 0;
 }
 
+.help-button {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  color: var(--text-tertiary);
+  transition: all var(--transition-fast);
+}
+
+.help-button:hover {
+  background: var(--bg-elevated);
+  color: var(--accent-cyan);
+}
+
+.help-button:active {
+  transform: scale(0.95);
+}
+
 @media (max-width: 480px) {
   .header-controls {
     display: none;

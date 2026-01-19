@@ -11,10 +11,12 @@ import {
   FileCode,
   ArrowRight,
   Heart,
+  Share2,
 } from 'lucide-react';
 import { useState } from 'react';
 import type { Skill } from '../types';
 import { getRepositoryColor, repositories } from '../data/skills';
+import { SimilarSkills } from './SimilarSkills';
 import './SkillDetail.css';
 
 interface SkillDetailProps {
@@ -22,6 +24,8 @@ interface SkillDetailProps {
   onClose: () => void;
   isFavorite?: boolean;
   onToggleFavorite?: (skillId: string) => void;
+  onSkillClick?: (skill: Skill) => void;
+  onShare?: (message: string) => void;
 }
 
 export function SkillDetail({
@@ -29,8 +33,11 @@ export function SkillDetail({
   onClose,
   isFavorite = false,
   onToggleFavorite,
+  onSkillClick,
+  onShare,
 }: SkillDetailProps) {
   const [copied, setCopied] = useState(false);
+  const [shared, setShared] = useState(false);
 
   useEffect(() => {
     if (skill) {
@@ -61,9 +68,47 @@ export function SkillDetail({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleShare = async () => {
+    if (!skill) return;
+
+    const shareUrl = `${window.location.origin}${window.location.pathname}?skill=${skill.id}`;
+    const shareData = {
+      title: skill.name,
+      text: skill.description,
+      url: shareUrl,
+    };
+
+    try {
+      if (navigator.share && navigator.canShare?.(shareData)) {
+        await navigator.share(shareData);
+        onShare?.(`Shared "${skill.name}"`);
+      } else {
+        // Fallback: copy URL to clipboard
+        await navigator.clipboard.writeText(shareUrl);
+        setShared(true);
+        setTimeout(() => setShared(false), 2000);
+        onShare?.(`Link copied to clipboard`);
+      }
+    } catch (err) {
+      // User cancelled or error - try clipboard fallback
+      if ((err as Error).name !== 'AbortError') {
+        await navigator.clipboard.writeText(shareUrl);
+        setShared(true);
+        setTimeout(() => setShared(false), 2000);
+        onShare?.(`Link copied to clipboard`);
+      }
+    }
+  };
+
   const handleFavoriteClick = () => {
     if (skill && onToggleFavorite) {
       onToggleFavorite(skill.id);
+    }
+  };
+
+  const handleSimilarSkillClick = (similarSkill: Skill) => {
+    if (onSkillClick) {
+      onSkillClick(similarSkill);
     }
   };
 
@@ -100,6 +145,13 @@ export function SkillDetail({
               </div>
 
               <div className="detail-header-actions">
+                <button
+                  className={`detail-share-button ${shared ? 'is-shared' : ''}`}
+                  onClick={handleShare}
+                  aria-label="Share skill"
+                >
+                  {shared ? <Check size={20} /> : <Share2 size={20} />}
+                </button>
                 {onToggleFavorite && (
                   <button
                     className={`detail-favorite-button ${isFavorite ? 'is-favorite' : ''}`}
@@ -191,6 +243,10 @@ export function SkillDetail({
                       {copied ? <Check size={16} /> : <Copy size={16} />}
                     </button>
                   </div>
+                </div>
+
+                <div className="detail-section">
+                  <SimilarSkills skill={skill} onSkillClick={handleSimilarSkillClick} />
                 </div>
 
                 <div className="detail-actions">

@@ -58,6 +58,42 @@
   z-index: 10;
 }
 
+.detail-share-button {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.detail-share-button:hover {
+  background: rgba(0, 240, 255, 0.15);
+  color: var(--accent-cyan);
+  transform: scale(1.05);
+}
+
+.detail-share-button.is-shared {
+  background: rgba(0, 255, 136, 0.2);
+  color: var(--accent-green);
+  animation: shareSuccess 0.3s ease-out;
+}
+
+@keyframes shareSuccess {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .detail-favorite-button {
   width: 36px;
   height: 36px;

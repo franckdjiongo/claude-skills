@@ -1,10 +1,12 @@
 import { useState, useEffect, type RefObject } from 'react';
-import { Search, X, Sparkles, Menu, Heart } from 'lucide-react';
+import { Search, X, Sparkles, Menu, Heart, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ViewModeToggle } from './ViewModeToggle';
 import { SortDropdown } from './SortDropdown';
+import { ThemeToggle } from './ThemeToggle';
 import type { ViewMode } from '../hooks/useViewMode';
 import type { SortOption } from '../hooks/useSortSkills';
+import type { Theme } from '../hooks/useTheme';
 import './Header.css';
 
 interface HeaderProps {
@@ -18,6 +20,9 @@ interface HeaderProps {
   onViewModeToggle?: () => void;
   sortBy?: SortOption;
   onSortChange?: (sort: SortOption) => void;
+  theme?: Theme;
+  onThemeToggle?: () => void;
+  onHelpClick?: () => void;
 }
 
 export function Header({
@@ -31,6 +36,9 @@ export function Header({
   onViewModeToggle,
   sortBy = 'default',
   onSortChange,
+  theme = 'dark',
+  onThemeToggle,
+  onHelpClick,
 }: HeaderProps) {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [displayText, setDisplayText] = useState('');
@@ -124,6 +132,19 @@ export function Header({
             )}
             {onViewModeToggle && (
               <ViewModeToggle viewMode={viewMode} onToggle={onViewModeToggle} />
+            )}
+            {onThemeToggle && (
+              <ThemeToggle theme={theme} onToggle={onThemeToggle} />
+            )}
+            {onHelpClick && (
+              <button
+                className="help-button"
+                onClick={onHelpClick}
+                aria-label="Keyboard shortcuts"
+                title="Keyboard shortcuts (?)"
+              >
+                <HelpCircle size={18} />
+              </button>
             )}
           </div>
         </div>

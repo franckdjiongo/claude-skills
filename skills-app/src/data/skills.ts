@@ -1424,3 +1424,36 @@ export const getRepositoryColor = (repo: string): string => {
       return 'var(--accent-cyan)';
   }
 };
+
+/**
+ * Get similar skills based on tag overlap and category
+ * Scoring: +2 for each shared tag, +1 for same category, +0.5 for same repository
+ */
+export const getSimilarSkills = (skill: Skill, limit: number = 5): Skill[] => {
+  const scores = skills
+    .filter((s) => s.id !== skill.id)
+    .map((s) => {
+      let score = 0;
+
+      // Tag overlap scoring (most important)
+      const sharedTags = s.tags.filter((tag) => skill.tags.includes(tag));
+      score += sharedTags.length * 2;
+
+      // Category match
+      if (s.category === skill.category) {
+        score += 1;
+      }
+
+      // Repository match (slight bonus)
+      if (s.repository === skill.repository) {
+        score += 0.5;
+      }
+
+      return { skill: s, score, sharedTags };
+    })
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit);
+
+  return scores.map(({ skill }) => skill);
+};

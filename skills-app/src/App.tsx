@@ -9,6 +9,7 @@ import {
   Toast,
   TagFilter,
   FloatingActionButton,
+  KeyboardShortcutsModal,
 } from './components';
 import {
   skills,
@@ -29,6 +30,7 @@ import {
   useSortSkills,
   useTagFilter,
   useScrollPosition,
+  useTheme,
 } from './hooks';
 import type { Skill, FilterType } from './types';
 import './styles/globals.css';
@@ -41,8 +43,12 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Theme hook
+  const { theme, toggleTheme } = useTheme();
 
   // Custom hooks
   const {
@@ -112,6 +118,24 @@ function App() {
       showFavorites,
     });
   }, [searchQuery, activeCategory, activeFilter, selectedSkill, showFavorites, isInitialized, updateUrl]);
+
+  // Keyboard shortcuts listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if typing in input
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
+
+      // ? key for shortcuts modal
+      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+        e.preventDefault();
+        setIsShortcutsModalOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Filter skills based on all active filters
   const filteredSkills = useMemo(() => {
@@ -301,6 +325,17 @@ function App() {
     toggleTag(tag);
   }, [toggleTag]);
 
+  // Share handler for skill detail
+  const handleShare = useCallback((message: string) => {
+    info(message);
+  }, [info]);
+
+  // Similar skill click handler (navigates to another skill within detail modal)
+  const handleSimilarSkillClick = useCallback((skill: Skill) => {
+    setSelectedSkill(skill);
+    addRecentView(skill.id);
+  }, [addRecentView]);
+
   return (
     <div className="app">
       <Header
@@ -314,6 +349,9 @@ function App() {
         onViewModeToggle={toggleViewMode}
         sortBy={sortBy}
         onSortChange={setSortBy}
+        theme={theme}
+        onThemeToggle={toggleTheme}
+        onHelpClick={() => setIsShortcutsModalOpen(true)}
       />
 
       <CategoryChips
@@ -359,6 +397,8 @@ function App() {
         onClose={handleCloseDetail}
         isFavorite={selectedSkill ? isFavorite(selectedSkill.id) : false}
         onToggleFavorite={handleToggleFavorite}
+        onSkillClick={handleSimilarSkillClick}
+        onShare={handleShare}
       />
 
       <Sidebar
@@ -395,6 +435,11 @@ function App() {
         onRandomSkill={handleRandomSkill}
         onClearFilters={handleClearAll}
         hasActiveFilters={hasActiveFilters}
+      />
+
+      <KeyboardShortcutsModal
+        isOpen={isShortcutsModalOpen}
+        onClose={() => setIsShortcutsModalOpen(false)}
       />
     </div>
   );
