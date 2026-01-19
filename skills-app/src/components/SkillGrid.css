@@ -82,3 +82,18 @@
     max-width: 1200px;
   }
 }
+
+/* List View */
+.skill-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .skill-list {
+    gap: var(--space-md);
+  }
+}

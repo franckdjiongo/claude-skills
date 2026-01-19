@@ -1,3 +1,4 @@
+import { type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X,
@@ -31,6 +32,8 @@ interface SidebarProps {
   onRecentSkillClick: (skill: Skill) => void;
   onClearRecentViews: () => void;
   formatTimestamp: (timestamp: number) => string;
+  // Tag filter component
+  tagFilterComponent?: ReactNode;
 }
 
 export function Sidebar({
@@ -47,6 +50,7 @@ export function Sidebar({
   onRecentSkillClick,
   onClearRecentViews,
   formatTimestamp,
+  tagFilterComponent,
 }: SidebarProps) {
   const handleFilterSelect = (filter: FilterType) => {
     onFilterChange(filter);
@@ -153,6 +157,13 @@ export function Sidebar({
                       );
                     })}
                   </div>
+                </div>
+              )}
+
+              {/* Tag Filter Section */}
+              {tagFilterComponent && (
+                <div className="tag-filter-section">
+                  {tagFilterComponent}
                 </div>
               )}
 

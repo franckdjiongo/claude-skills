@@ -2,7 +2,9 @@ import { forwardRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { SearchX, Sparkles, Heart } from 'lucide-react';
 import type { Skill } from '../types';
+import type { ViewMode } from '../hooks/useViewMode';
 import { SkillCard } from './SkillCard';
+import { SkillListItem } from './SkillListItem';
 import './SkillGrid.css';
 
 interface SkillGridProps {
@@ -13,6 +15,8 @@ interface SkillGridProps {
   onToggleFavorite?: (skillId: string) => void;
   focusedIndex?: number;
   showFavorites?: boolean;
+  viewMode?: ViewMode;
+  onTagClick?: (tag: string) => void;
 }
 
 export const SkillGrid = forwardRef<HTMLDivElement, SkillGridProps>(
@@ -25,6 +29,8 @@ export const SkillGrid = forwardRef<HTMLDivElement, SkillGridProps>(
       onToggleFavorite,
       focusedIndex = -1,
       showFavorites = false,
+      viewMode = 'grid',
+      onTagClick,
     },
     ref
   ) {
@@ -63,33 +69,48 @@ export const SkillGrid = forwardRef<HTMLDivElement, SkillGridProps>(
       );
     }
 
+    const isListView = viewMode === 'list';
+
     return (
       <div className="skill-grid-container">
         <motion.div
           ref={ref}
-          className="skill-grid"
+          className={isListView ? 'skill-list' : 'skill-grid'}
           initial="hidden"
           animate="visible"
           variants={{
             hidden: { opacity: 0 },
             visible: {
               opacity: 1,
-              transition: { staggerChildren: 0.05 },
+              transition: { staggerChildren: isListView ? 0.03 : 0.05 },
             },
           }}
         >
           <AnimatePresence mode="popLayout">
-            {skills.map((skill, index) => (
-              <SkillCard
-                key={skill.id}
-                skill={skill}
-                index={index}
-                onClick={onSkillClick}
-                isFavorite={isFavorite?.(skill.id)}
-                onToggleFavorite={onToggleFavorite}
-                isFocused={focusedIndex === index}
-              />
-            ))}
+            {isListView
+              ? skills.map((skill, index) => (
+                  <SkillListItem
+                    key={skill.id}
+                    skill={skill}
+                    index={index}
+                    onClick={onSkillClick}
+                    isFavorite={isFavorite?.(skill.id)}
+                    onToggleFavorite={onToggleFavorite}
+                    isFocused={focusedIndex === index}
+                    onTagClick={onTagClick}
+                  />
+                ))
+              : skills.map((skill, index) => (
+                  <SkillCard
+                    key={skill.id}
+                    skill={skill}
+                    index={index}
+                    onClick={onSkillClick}
+                    isFavorite={isFavorite?.(skill.id)}
+                    onToggleFavorite={onToggleFavorite}
+                    isFocused={focusedIndex === index}
+                  />
+                ))}
           </AnimatePresence>
         </motion.div>
 

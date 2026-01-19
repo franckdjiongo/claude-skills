@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Filter, Heart, Search, Folder, ExternalLink, Layers } from 'lucide-react';
+import { X, Filter, Heart, Search, Folder, ExternalLink, Layers, Tag } from 'lucide-react';
 import type { FilterType } from '../types';
 import './ActiveFilters.css';
 
@@ -11,10 +11,12 @@ interface ActiveFiltersProps {
   showFavorites: boolean;
   favoritesCount: number;
   resultCount: number;
+  selectedTags?: string[];
   onClearSearch: () => void;
   onClearCategory: () => void;
   onClearFilter: () => void;
   onClearFavorites: () => void;
+  onClearTag?: (tag: string) => void;
   onClearAll: () => void;
 }
 
@@ -26,17 +28,20 @@ export function ActiveFilters({
   showFavorites,
   favoritesCount,
   resultCount,
+  selectedTags = [],
   onClearSearch,
   onClearCategory,
   onClearFilter,
   onClearFavorites,
+  onClearTag,
   onClearAll,
 }: ActiveFiltersProps) {
   const hasFilters =
     searchQuery ||
     activeCategory !== 'all' ||
     activeFilter !== 'all' ||
-    showFavorites;
+    showFavorites ||
+    selectedTags.length > 0;
 
   if (!hasFilters) return null;
 
@@ -45,6 +50,7 @@ export function ActiveFilters({
     activeCategory !== 'all' ? 1 : 0,
     activeFilter !== 'all' ? 1 : 0,
     showFavorites ? 1 : 0,
+    selectedTags.length,
   ].reduce((a, b) => a + b, 0);
 
   return (
@@ -127,6 +133,22 @@ export function ActiveFilters({
               <X size={12} className="pill-close" />
             </motion.button>
           )}
+
+          {selectedTags.map((tag) => (
+            <motion.button
+              key={`tag-${tag}`}
+              className="filter-pill tag"
+              onClick={() => onClearTag?.(tag)}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.15 }}
+            >
+              <Tag size={12} />
+              <span className="pill-text">{tag}</span>
+              <X size={12} className="pill-close" />
+            </motion.button>
+          ))}
         </AnimatePresence>
 
         {filterCount > 1 && (

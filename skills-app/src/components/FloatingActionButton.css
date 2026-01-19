@@ -1,0 +1,171 @@
+/* FAB Container */
+.fab-container {
+  position: fixed;
+  bottom: calc(var(--space-xl) + env(safe-area-inset-bottom, 0px));
+  right: var(--space-lg);
+  z-index: var(--z-sticky);
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: var(--space-sm);
+}
+
+/* Backdrop when expanded */
+.fab-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 15, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: -1;
+}
+
+/* Main FAB Button */
+.fab-main {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: var(--gradient-primary);
+  border-radius: var(--radius-full);
+  color: var(--bg-deep);
+  box-shadow: var(--shadow-lg), 0 0 20px rgba(0, 240, 255, 0.3);
+  transition: all var(--transition-fast);
+  overflow: hidden;
+}
+
+.fab-main:hover {
+  box-shadow: var(--shadow-lg), 0 0 30px rgba(0, 240, 255, 0.5);
+}
+
+.fab-main.expanded {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.fab-main.scroll-top {
+  background: var(--accent-cyan);
+  box-shadow: var(--shadow-lg), var(--shadow-glow-cyan);
+}
+
+/* Glow effect */
+.fab-glow {
+  position: absolute;
+  inset: -2px;
+  background: var(--gradient-primary);
+  border-radius: var(--radius-full);
+  filter: blur(12px);
+  opacity: 0.4;
+  z-index: -1;
+  transition: opacity var(--transition-fast);
+}
+
+.fab-main:hover .fab-glow {
+  opacity: 0.6;
+}
+
+.fab-main.expanded .fab-glow {
+  opacity: 0;
+}
+
+/* Icon animations */
+.fab-main > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Quick Actions */
+.fab-actions {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.fab-action {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  padding-left: var(--space-sm);
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(136, 136, 160, 0.2);
+  border-radius: var(--radius-full);
+  color: var(--text-primary);
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-fast);
+}
+
+.fab-action:hover {
+  background: var(--bg-elevated);
+  border-color: var(--action-color, var(--accent-cyan));
+  box-shadow: var(--shadow-lg), 0 0 12px var(--action-color, rgba(0, 240, 255, 0.3));
+}
+
+.fab-action-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-full);
+  color: var(--action-color, var(--accent-cyan));
+}
+
+.fab-action:hover .fab-action-icon {
+  background: var(--action-color, var(--accent-cyan));
+  color: var(--bg-deep);
+}
+
+.fab-action-label {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding-right: var(--space-xs);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .fab-container {
+    bottom: calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
+    right: var(--space-md);
+  }
+
+  .fab-main {
+    width: 52px;
+    height: 52px;
+  }
+
+  .fab-action {
+    padding: var(--space-xs) var(--space-sm);
+    padding-left: var(--space-xs);
+  }
+
+  .fab-action-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .fab-action-label {
+    font-size: 0.8rem;
+  }
+}
+
+/* Hide on larger screens when not needed */
+@media (min-width: 1024px) {
+  .fab-container:not(:has(.fab-main.scroll-top)):not(:has(.fab-main.expanded)) {
+    opacity: 0.7;
+  }
+
+  .fab-container:not(:has(.fab-main.scroll-top)):not(:has(.fab-main.expanded)):hover {
+    opacity: 1;
+  }
+}
