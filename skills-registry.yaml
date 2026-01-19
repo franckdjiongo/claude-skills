@@ -32,6 +32,13 @@ repositories:
     is_local: false
     skills_path: skills/  # Path prefix for skills in this repo
 
+  antigravity-kit:
+    url: https://github.com/vudovn/antigravity-kit
+    local_path: null
+    description: Modular AI agent skills - 40 skills covering frontend, backend, testing, security, and architecture
+    is_local: false
+    skills_path: .agent/skills/  # Path prefix for skills in this repo
+
 # =============================================================================
 # SKILL CATEGORIES
 # =============================================================================
@@ -569,6 +576,319 @@ categories:
         tags: [communications, enterprise, writing]
         external_url: https://github.com/anthropics/skills/tree/main/skills/internal-comms
 
+  # ---------------------------------------------------------------------------
+  # EXTERNAL: ANTIGRAVITY KIT (vudovn/antigravity-kit)
+  # ---------------------------------------------------------------------------
+  antigravity-frontend:
+    name: "Antigravity: Frontend & UI"
+    skills:
+      - name: frontend-design
+        repository: antigravity-kit
+        path: .agent/skills/frontend-design/SKILL.md
+        description: Design thinking and decision-making for web UI components, layouts, and aesthetics
+        tags: [frontend, design, ui, css]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/frontend-design
+
+      - name: react-patterns
+        repository: antigravity-kit
+        path: .agent/skills/react-patterns/SKILL.md
+        description: React component patterns and best practices
+        tags: [react, patterns, components]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/react-patterns
+
+      - name: nextjs-best-practices
+        repository: antigravity-kit
+        path: .agent/skills/nextjs-best-practices/SKILL.md
+        description: Next.js application patterns and optimizations
+        tags: [nextjs, react, ssr, patterns]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/nextjs-best-practices
+
+      - name: tailwind-patterns
+        repository: antigravity-kit
+        path: .agent/skills/tailwind-patterns/SKILL.md
+        description: Tailwind CSS patterns and utility-first styling
+        tags: [tailwind, css, styling]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/tailwind-patterns
+
+      - name: mobile-design
+        repository: antigravity-kit
+        path: .agent/skills/mobile-design/SKILL.md
+        description: Mobile-first design patterns and responsive layouts
+        tags: [mobile, design, responsive]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/mobile-design
+
+      - name: ui-ux-pro-max
+        repository: antigravity-kit
+        path: .agent/skills/ui-ux-pro-max/SKILL.md
+        description: Advanced UI/UX design principles and patterns
+        tags: [ui, ux, design, advanced]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/ui-ux-pro-max
+
+  antigravity-backend:
+    name: "Antigravity: Backend & API"
+    skills:
+      - name: api-patterns
+        repository: antigravity-kit
+        path: .agent/skills/api-patterns/SKILL.md
+        description: REST and GraphQL API design patterns
+        tags: [api, rest, graphql, patterns]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/api-patterns
+
+      - name: nestjs-expert
+        repository: antigravity-kit
+        path: .agent/skills/nestjs-expert/SKILL.md
+        description: NestJS enterprise architecture, DI, guards, interceptors, and testing
+        tags: [nestjs, nodejs, typescript, enterprise]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/nestjs-expert
+
+      - name: nodejs-best-practices
+        repository: antigravity-kit
+        path: .agent/skills/nodejs-best-practices/SKILL.md
+        description: Node.js application patterns and performance optimization
+        tags: [nodejs, javascript, backend]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/nodejs-best-practices
+
+      - name: prisma-expert
+        repository: antigravity-kit
+        path: .agent/skills/prisma-expert/SKILL.md
+        description: Prisma ORM patterns, migrations, and query optimization
+        tags: [prisma, orm, database, typescript]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/prisma-expert
+
+  antigravity-database:
+    name: "Antigravity: Database"
+    skills:
+      - name: database-design
+        repository: antigravity-kit
+        path: .agent/skills/database-design/SKILL.md
+        description: Database schema design, normalization, and optimization
+        tags: [database, schema, sql, design]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/database-design
+
+  antigravity-typescript:
+    name: "Antigravity: TypeScript"
+    skills:
+      - name: typescript-expert
+        repository: antigravity-kit
+        path: .agent/skills/typescript-expert/SKILL.md
+        description: Advanced TypeScript type-level programming and patterns
+        tags: [typescript, types, advanced]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/typescript-expert
+
+  antigravity-infrastructure:
+    name: "Antigravity: Cloud & DevOps"
+    skills:
+      - name: docker-expert
+        repository: antigravity-kit
+        path: .agent/skills/docker-expert/SKILL.md
+        description: Docker containerization, multi-stage builds, security, and orchestration
+        tags: [docker, containers, devops, security]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/docker-expert
+
+      - name: deployment-procedures
+        repository: antigravity-kit
+        path: .agent/skills/deployment-procedures/SKILL.md
+        description: CI/CD pipelines and deployment automation
+        tags: [deployment, cicd, automation]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/deployment-procedures
+
+      - name: server-management
+        repository: antigravity-kit
+        path: .agent/skills/server-management/SKILL.md
+        description: Server administration and infrastructure management
+        tags: [servers, infrastructure, devops]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/server-management
+
+  antigravity-testing:
+    name: "Antigravity: Testing & Quality"
+    skills:
+      - name: tdd-workflow
+        repository: antigravity-kit
+        path: .agent/skills/tdd-workflow/SKILL.md
+        description: Test-Driven Development with RED-GREEN-REFACTOR cycle
+        tags: [tdd, testing, methodology]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/tdd-workflow
+
+      - name: testing-patterns
+        repository: antigravity-kit
+        path: .agent/skills/testing-patterns/SKILL.md
+        description: Unit, integration, and E2E testing patterns
+        tags: [testing, jest, patterns]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/testing-patterns
+
+      - name: webapp-testing
+        repository: antigravity-kit
+        path: .agent/skills/webapp-testing/SKILL.md
+        description: Web application testing with Playwright and E2E strategies
+        tags: [testing, playwright, e2e, web]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/webapp-testing
+
+      - name: lint-and-validate
+        repository: antigravity-kit
+        path: .agent/skills/lint-and-validate/SKILL.md
+        description: Code linting, validation, and quality enforcement
+        tags: [linting, validation, quality]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/lint-and-validate
+
+      - name: systematic-debugging
+        repository: antigravity-kit
+        path: .agent/skills/systematic-debugging/SKILL.md
+        description: 4-phase systematic debugging with root cause analysis
+        tags: [debugging, analysis, methodology]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/systematic-debugging
+
+  antigravity-security:
+    name: "Antigravity: Security"
+    skills:
+      - name: vulnerability-scanner
+        repository: antigravity-kit
+        path: .agent/skills/vulnerability-scanner/SKILL.md
+        description: Security vulnerability scanning and assessment
+        tags: [security, vulnerabilities, scanning]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/vulnerability-scanner
+
+      - name: red-team-tactics
+        repository: antigravity-kit
+        path: .agent/skills/red-team-tactics/SKILL.md
+        description: Offensive security tactics and penetration testing
+        tags: [security, red-team, pentesting]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/red-team-tactics
+
+  antigravity-architecture:
+    name: "Antigravity: Architecture & Planning"
+    skills:
+      - name: architecture
+        repository: antigravity-kit
+        path: .agent/skills/architecture/SKILL.md
+        description: System architecture design and patterns
+        tags: [architecture, design, systems]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/architecture
+
+      - name: app-builder
+        repository: antigravity-kit
+        path: .agent/skills/app-builder/SKILL.md
+        description: Full-stack application scaffolding and setup
+        tags: [scaffolding, setup, fullstack]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/app-builder
+
+      - name: plan-writing
+        repository: antigravity-kit
+        path: .agent/skills/plan-writing/SKILL.md
+        description: Task breakdown and implementation planning
+        tags: [planning, tasks, methodology]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/plan-writing
+
+      - name: brainstorming
+        repository: antigravity-kit
+        path: .agent/skills/brainstorming/SKILL.md
+        description: Structured ideation and brainstorming sessions
+        tags: [brainstorming, ideation, planning]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/brainstorming
+
+      - name: parallel-agents
+        repository: antigravity-kit
+        path: .agent/skills/parallel-agents/SKILL.md
+        description: Coordinate and dispatch parallel agent workflows
+        tags: [agents, parallel, coordination]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/parallel-agents
+
+  antigravity-devtools:
+    name: "Antigravity: Development Tools"
+    skills:
+      - name: clean-code
+        repository: antigravity-kit
+        path: .agent/skills/clean-code/SKILL.md
+        description: Clean code principles and refactoring patterns
+        tags: [clean-code, refactoring, quality]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/clean-code
+
+      - name: code-review-checklist
+        repository: antigravity-kit
+        path: .agent/skills/code-review-checklist/SKILL.md
+        description: Code review best practices and checklists
+        tags: [code-review, quality, checklist]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/code-review-checklist
+
+      - name: mcp-builder
+        repository: antigravity-kit
+        path: .agent/skills/mcp-builder/SKILL.md
+        description: MCP server building - tool design, resources, and best practices
+        tags: [mcp, tools, llm, integration]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/mcp-builder
+
+      - name: documentation-templates
+        repository: antigravity-kit
+        path: .agent/skills/documentation-templates/SKILL.md
+        description: Documentation templates and standards
+        tags: [documentation, templates, standards]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/documentation-templates
+
+      - name: bash-linux
+        repository: antigravity-kit
+        path: .agent/skills/bash-linux/SKILL.md
+        description: Bash scripting and Linux command-line expertise
+        tags: [bash, linux, shell, scripting]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/bash-linux
+
+      - name: powershell-windows
+        repository: antigravity-kit
+        path: .agent/skills/powershell-windows/SKILL.md
+        description: PowerShell scripting and Windows automation
+        tags: [powershell, windows, scripting]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/powershell-windows
+
+      - name: behavioral-modes
+        repository: antigravity-kit
+        path: .agent/skills/behavioral-modes/SKILL.md
+        description: Agent behavioral modes and interaction patterns
+        tags: [agents, behavior, modes]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/behavioral-modes
+
+      - name: python-patterns
+        repository: antigravity-kit
+        path: .agent/skills/python-patterns/SKILL.md
+        description: Python programming patterns and best practices
+        tags: [python, patterns, best-practices]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/python-patterns
+
+  antigravity-specialized:
+    name: "Antigravity: Specialized Domains"
+    skills:
+      - name: game-development
+        repository: antigravity-kit
+        path: .agent/skills/game-development/SKILL.md
+        description: Game development patterns and engines
+        tags: [games, development, gamedev]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/game-development
+
+      - name: geo-fundamentals
+        repository: antigravity-kit
+        path: .agent/skills/geo-fundamentals/SKILL.md
+        description: Geospatial data handling and mapping
+        tags: [geo, maps, spatial]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/geo-fundamentals
+
+      - name: i18n-localization
+        repository: antigravity-kit
+        path: .agent/skills/i18n-localization/SKILL.md
+        description: Internationalization and localization patterns
+        tags: [i18n, localization, translation]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/i18n-localization
+
+      - name: seo-fundamentals
+        repository: antigravity-kit
+        path: .agent/skills/seo-fundamentals/SKILL.md
+        description: SEO optimization and best practices
+        tags: [seo, optimization, web]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/seo-fundamentals
+
+      - name: performance-profiling
+        repository: antigravity-kit
+        path: .agent/skills/performance-profiling/SKILL.md
+        description: Performance profiling and optimization techniques
+        tags: [performance, profiling, optimization]
+        external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/performance-profiling
+
 # =============================================================================
 # QUICK REFERENCE INDEX
 # =============================================================================
@@ -650,3 +970,44 @@ skill_index:
   skill-creator-anthropic: { repo: anthropic-skills, category: anthropic-development }
   doc-coauthoring: { repo: anthropic-skills, category: anthropic-enterprise }
   internal-comms: { repo: anthropic-skills, category: anthropic-enterprise }
+  # External skills (antigravity-kit)
+  antigravity-frontend-design: { repo: antigravity-kit, category: antigravity-frontend }
+  react-patterns: { repo: antigravity-kit, category: antigravity-frontend }
+  nextjs-best-practices: { repo: antigravity-kit, category: antigravity-frontend }
+  tailwind-patterns: { repo: antigravity-kit, category: antigravity-frontend }
+  mobile-design: { repo: antigravity-kit, category: antigravity-frontend }
+  ui-ux-pro-max: { repo: antigravity-kit, category: antigravity-frontend }
+  api-patterns: { repo: antigravity-kit, category: antigravity-backend }
+  nestjs-expert: { repo: antigravity-kit, category: antigravity-backend }
+  nodejs-best-practices: { repo: antigravity-kit, category: antigravity-backend }
+  prisma-expert: { repo: antigravity-kit, category: antigravity-backend }
+  database-design: { repo: antigravity-kit, category: antigravity-database }
+  typescript-expert: { repo: antigravity-kit, category: antigravity-typescript }
+  docker-expert: { repo: antigravity-kit, category: antigravity-infrastructure }
+  deployment-procedures: { repo: antigravity-kit, category: antigravity-infrastructure }
+  server-management: { repo: antigravity-kit, category: antigravity-infrastructure }
+  tdd-workflow: { repo: antigravity-kit, category: antigravity-testing }
+  testing-patterns: { repo: antigravity-kit, category: antigravity-testing }
+  antigravity-webapp-testing: { repo: antigravity-kit, category: antigravity-testing }
+  lint-and-validate: { repo: antigravity-kit, category: antigravity-testing }
+  antigravity-systematic-debugging: { repo: antigravity-kit, category: antigravity-testing }
+  vulnerability-scanner: { repo: antigravity-kit, category: antigravity-security }
+  red-team-tactics: { repo: antigravity-kit, category: antigravity-security }
+  architecture: { repo: antigravity-kit, category: antigravity-architecture }
+  app-builder: { repo: antigravity-kit, category: antigravity-architecture }
+  plan-writing: { repo: antigravity-kit, category: antigravity-architecture }
+  antigravity-brainstorming: { repo: antigravity-kit, category: antigravity-architecture }
+  parallel-agents: { repo: antigravity-kit, category: antigravity-architecture }
+  clean-code: { repo: antigravity-kit, category: antigravity-devtools }
+  code-review-checklist: { repo: antigravity-kit, category: antigravity-devtools }
+  antigravity-mcp-builder: { repo: antigravity-kit, category: antigravity-devtools }
+  documentation-templates: { repo: antigravity-kit, category: antigravity-devtools }
+  bash-linux: { repo: antigravity-kit, category: antigravity-devtools }
+  powershell-windows: { repo: antigravity-kit, category: antigravity-devtools }
+  behavioral-modes: { repo: antigravity-kit, category: antigravity-devtools }
+  python-patterns: { repo: antigravity-kit, category: antigravity-devtools }
+  game-development: { repo: antigravity-kit, category: antigravity-specialized }
+  geo-fundamentals: { repo: antigravity-kit, category: antigravity-specialized }
+  antigravity-i18n-localization: { repo: antigravity-kit, category: antigravity-specialized }
+  seo-fundamentals: { repo: antigravity-kit, category: antigravity-specialized }
+  performance-profiling: { repo: antigravity-kit, category: antigravity-specialized }
