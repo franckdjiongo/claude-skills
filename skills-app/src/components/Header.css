@@ -40,6 +40,10 @@
   transform: scale(0.95);
 }
 
+.mobile-menu-button {
+  display: none;
+}
+
 .menu-badge {
   position: absolute;
   top: 6px;
@@ -292,6 +296,26 @@
 @media (max-width: 480px) {
   .header-controls {
     display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: var(--space-md) var(--space-md) var(--space-sm);
+  }
+
+  .header-top {
+    display: none;
+  }
+
+  .mobile-menu-button {
+    display: flex;
+    margin-right: var(--space-xs);
+    flex-shrink: 0;
+  }
+
+  .search-container {
+    height: 44px;
   }
 }
 

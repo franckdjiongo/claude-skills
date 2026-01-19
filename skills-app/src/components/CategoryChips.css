@@ -107,6 +107,21 @@
   z-index: -1;
 }
 
+@media (max-width: 640px) {
+  .category-chips-wrapper {
+    margin-bottom: var(--space-md);
+  }
+
+  .category-chips {
+    gap: 8px;
+  }
+
+  .chip {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+  }
+}
+
 @media (min-width: 640px) {
   .category-chips {
     padding: 0 var(--space-xl);

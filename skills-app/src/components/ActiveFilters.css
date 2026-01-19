@@ -152,6 +152,23 @@
   background: var(--bg-tertiary);
 }
 
+@media (max-width: 640px) {
+  .active-filters-container {
+    padding: 4px var(--space-md);
+    background: transparent;
+    border-bottom: none;
+  }
+
+  .active-filters-header {
+    margin-bottom: 4px;
+  }
+
+  .filter-pill {
+    padding: 2px 8px;
+    font-size: 0.65rem;
+  }
+}
+
 @media (min-width: 640px) {
   .active-filters-container {
     padding: var(--space-sm) var(--space-xl);

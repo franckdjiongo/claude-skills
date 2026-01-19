@@ -124,6 +124,15 @@ export function Header({
         </div>
 
         <div className="search-row">
+          <button className="menu-button mobile-menu-button" onClick={onMenuClick} aria-label="Menu">
+            <Menu size={22} />
+            {favoritesCount > 0 && (
+              <span className="menu-badge">
+                <Heart size={8} fill="currentColor" />
+              </span>
+            )}
+          </button>
+
           <div className={`search-container ${isSearchFocused ? 'focused' : ''}`}>
             <div className="search-icon">
               <Search size={18} />
