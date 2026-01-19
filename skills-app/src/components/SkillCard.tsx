@@ -32,6 +32,8 @@ export function SkillCard({ skill, index, onClick }: SkillCardProps) {
         return 'SUPERPOWERS';
       case 'anthropic-skills':
         return 'ANTHROPIC';
+      case 'antigravity-kit':
+        return 'ANTIGRAVITY KIT';
       default:
         return 'LOCAL';
     }
