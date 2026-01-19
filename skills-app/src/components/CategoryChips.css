@@ -1,23 +1,28 @@
+/* Category Chips - Mobile-First Breathable Design */
+/* Lighter, more spacious horizontal scroll filter */
+
 .category-chips-wrapper {
   position: relative;
-  margin-bottom: var(--space-lg);
+  margin: var(--space-xs) 0 var(--space-md);
 }
 
 .category-chips {
   display: flex;
-  gap: var(--space-sm);
-  padding: 0 var(--space-md);
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
+  scroll-padding: 0 var(--space-md);
 }
 
+/* Subtle fade edges */
 .chips-fade-left,
 .chips-fade-right {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 32px;
+  width: 24px;
   pointer-events: none;
   z-index: 2;
 }
@@ -32,94 +37,167 @@
   background: linear-gradient(-90deg, var(--bg-deep) 0%, transparent 100%);
 }
 
+/* Chip Base - Light & Minimal */
 .chip {
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-sm) var(--space-md);
-  background: var(--bg-tertiary);
-  border: 1px solid transparent;
+  gap: 6px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-color: rgba(136, 136, 160, 0.15);
   border-radius: var(--radius-full);
-  color: var(--text-secondary);
-  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
   font-weight: 500;
   white-space: nowrap;
-  scroll-snap-align: center;
+  scroll-snap-align: start;
   transition: all var(--transition-fast);
   flex-shrink: 0;
 }
 
 .chip:hover {
-  background: var(--bg-elevated);
-  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border-color: rgba(136, 136, 160, 0.25);
 }
 
+.chip:active {
+  transform: scale(0.97);
+}
+
+/* Active States - Colored but subtle */
 .chip.active {
-  color: var(--bg-deep);
+  background: var(--accent-cyan-glow);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
 }
 
 .chip.active.repo-local {
-  background: var(--accent-cyan);
+  background: var(--accent-cyan-glow);
   border-color: var(--accent-cyan);
-  box-shadow: var(--shadow-glow-cyan);
+  color: var(--accent-cyan);
 }
 
 .chip.active.repo-superpowers {
-  background: var(--accent-magenta);
+  background: var(--accent-magenta-glow);
   border-color: var(--accent-magenta);
-  box-shadow: var(--shadow-glow-magenta);
+  color: var(--accent-magenta);
 }
 
 .chip.active.repo-anthropic {
-  background: var(--accent-gold);
+  background: var(--accent-gold-glow);
   border-color: var(--accent-gold);
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+  color: var(--accent-gold);
 }
 
+/* Chip Icon - Smaller */
 .chip-icon {
   display: flex;
   align-items: center;
+  opacity: 0.7;
 }
 
+.chip.active .chip-icon {
+  opacity: 1;
+}
+
+/* Chip Label */
 .chip-label {
-  max-width: 120px;
+  max-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* Chip Count - Very subtle */
 .chip-count {
-  padding: 2px 6px;
-  background: rgba(0, 0, 0, 0.2);
+  padding: 1px 5px;
+  background: rgba(255, 255, 255, 0.06);
   border-radius: var(--radius-sm);
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 600;
+  opacity: 0.6;
 }
 
 .chip.active .chip-count {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.15);
+  opacity: 1;
 }
 
+/* Active indicator - subtle glow */
 .chip-indicator {
   position: absolute;
-  inset: 0;
+  inset: -1px;
   border-radius: var(--radius-full);
   z-index: -1;
+  opacity: 0.3;
 }
 
+.chip.active.repo-local .chip-indicator {
+  box-shadow: 0 0 12px var(--accent-cyan);
+}
+
+.chip.active.repo-superpowers .chip-indicator {
+  box-shadow: 0 0 12px var(--accent-magenta);
+}
+
+.chip.active.repo-anthropic .chip-indicator {
+  box-shadow: 0 0 12px var(--accent-gold);
+}
+
+/* Tablet and Desktop */
 @media (min-width: 640px) {
+  .category-chips-wrapper {
+    margin: var(--space-sm) 0 var(--space-lg);
+  }
+
   .category-chips {
-    padding: 0 var(--space-xl);
+    padding: var(--space-sm) var(--space-lg);
     gap: var(--space-sm);
   }
 
   .chip {
-    padding: var(--space-sm) var(--space-lg);
-    font-size: 0.85rem;
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    gap: 8px;
+  }
+
+  .chip-label {
+    max-width: 140px;
+  }
+
+  .chip-count {
+    font-size: 0.7rem;
+    padding: 2px 6px;
   }
 
   .chips-fade-left,
   .chips-fade-right {
-    width: 48px;
+    width: 40px;
+  }
+}
+
+/* Large Desktop */
+@media (min-width: 900px) {
+  .category-chips {
+    padding: var(--space-sm) var(--space-xl);
+    justify-content: center;
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+
+  .chips-fade-left,
+  .chips-fade-right {
+    display: none;
+  }
+
+  .chip {
+    padding: 8px 18px;
+    font-size: 0.85rem;
+  }
+
+  .chip-label {
+    max-width: none;
   }
 }

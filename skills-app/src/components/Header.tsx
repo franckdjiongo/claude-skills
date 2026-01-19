@@ -1,5 +1,5 @@
-import { useState, useEffect, type RefObject, type ReactNode } from 'react';
-import { Search, X, Sparkles, Menu, Heart, HelpCircle, BarChart3, GitCompare } from 'lucide-react';
+import { useState, useEffect, useRef, type RefObject, type ReactNode } from 'react';
+import { Search, X, Sparkles, Menu, Heart, HelpCircle, BarChart3, GitCompare, MoreVertical, Grid3X3, List, SortAsc, Moon, Sun } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ViewModeToggle } from './ViewModeToggle';
 import { SortDropdown } from './SortDropdown';
@@ -55,7 +55,10 @@ export function Header({
   searchSuggestions,
 }: HeaderProps) {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
   const [displayText, setDisplayText] = useState('');
+  const quickActionsRef = useRef<HTMLDivElement>(null);
   const fullTitle = 'CLAUDE SKILLS';
 
   useEffect(() => {
@@ -71,6 +74,17 @@ export function Header({
     return () => clearInterval(timer);
   }, []);
 
+  // Close quick actions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (quickActionsRef.current && !quickActionsRef.current.contains(event.target as Node)) {
+        setIsQuickActionsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleClear = () => {
     onSearchChange('');
     searchInputRef?.current?.focus();
@@ -78,11 +92,15 @@ export function Header({
 
   const handleFocus = () => {
     setIsSearchFocused(true);
+    setIsSearchExpanded(true);
     onSearchFocus?.();
   };
 
   const handleBlur = () => {
     setIsSearchFocused(false);
+    if (!searchQuery) {
+      setIsSearchExpanded(false);
+    }
     onSearchBlur?.();
   };
 
@@ -90,14 +108,25 @@ export function Header({
     if (e.key === 'Enter') {
       onSearchSubmit?.();
     }
+    if (e.key === 'Escape') {
+      setIsSearchExpanded(false);
+      searchInputRef?.current?.blur();
+    }
+  };
+
+  const handleQuickAction = (action: () => void) => {
+    action();
+    setIsQuickActionsOpen(false);
   };
 
   return (
-    <header className="header safe-area-top">
+    <header className={`header safe-area-top ${isSearchExpanded ? 'search-expanded' : ''}`}>
       <div className="header-content">
-        <div className="header-top">
+        {/* Mobile: Single unified row */}
+        <div className="header-row">
+          {/* Menu button */}
           <button className="menu-button" onClick={onMenuClick} aria-label="Menu">
-            <Menu size={22} />
+            <Menu size={20} />
             {favoritesCount > 0 && (
               <span className="menu-badge">
                 <Heart size={8} fill="currentColor" />
@@ -105,26 +134,33 @@ export function Header({
             )}
           </button>
 
-          <div className="logo-section">
-            <div className="logo-icon">
-              <Sparkles size={20} />
-            </div>
-            <div className="logo-text">
-              <h1 className="title mono">
-                {displayText}
-                <span className="cursor">_</span>
-              </h1>
-              <p className="subtitle">
-                <span className="accent">{totalSkills}</span> skills loaded
-              </p>
-            </div>
-          </div>
+          {/* Logo - collapses on mobile when search is expanded */}
+          <AnimatePresence mode="wait">
+            {!isSearchExpanded && (
+              <motion.div
+                className="logo-section"
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: 'auto' }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="logo-icon">
+                  <Sparkles size={18} />
+                </div>
+                <div className="logo-text">
+                  <h1 className="title mono">{displayText}<span className="cursor">_</span></h1>
+                  <p className="subtitle"><span className="accent">{totalSkills}</span> skills</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          <div className="header-spacer" />
-        </div>
-
-        <div className="search-row">
-          <div className={`search-container ${isSearchFocused ? 'focused' : ''}`}>
+          {/* Search container - expands on mobile */}
+          <motion.div
+            className={`search-container ${isSearchFocused ? 'focused' : ''}`}
+            layout
+            transition={{ duration: 0.2 }}
+          >
             <div className="search-icon">
               <Search size={18} />
             </div>
@@ -132,7 +168,7 @@ export function Header({
               ref={searchInputRef}
               type="text"
               className="search-input mono"
-              placeholder="Search skills... (press /)"
+              placeholder="Search..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               onFocus={handleFocus}
@@ -155,12 +191,11 @@ export function Header({
               )}
             </AnimatePresence>
             <div className="search-glow" />
-
-            {/* Search Suggestions */}
             {searchSuggestions}
-          </div>
+          </motion.div>
 
-          <div className="header-controls">
+          {/* Desktop controls */}
+          <div className="header-controls desktop-only">
             {onStatsClick && (
               <button
                 className="header-icon-button"
@@ -201,6 +236,76 @@ export function Header({
                 <HelpCircle size={18} />
               </button>
             )}
+          </div>
+
+          {/* Mobile quick actions */}
+          <div className="quick-actions-wrapper mobile-only" ref={quickActionsRef}>
+            <button
+              className={`quick-actions-trigger ${isQuickActionsOpen ? 'active' : ''}`}
+              onClick={() => setIsQuickActionsOpen(!isQuickActionsOpen)}
+              aria-label="Quick actions"
+              aria-expanded={isQuickActionsOpen}
+            >
+              <MoreVertical size={20} />
+            </button>
+
+            <AnimatePresence>
+              {isQuickActionsOpen && (
+                <motion.div
+                  className="quick-actions-menu"
+                  initial={{ opacity: 0, scale: 0.9, y: -8 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: -8 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  {onViewModeToggle && (
+                    <button
+                      className="quick-action-item"
+                      onClick={() => handleQuickAction(onViewModeToggle)}
+                    >
+                      {viewMode === 'grid' ? <List size={18} /> : <Grid3X3 size={18} />}
+                      <span>{viewMode === 'grid' ? 'List view' : 'Grid view'}</span>
+                    </button>
+                  )}
+                  {onSortChange && (
+                    <button
+                      className="quick-action-item"
+                      onClick={() => handleQuickAction(() => onSortChange(sortBy === 'name-asc' ? 'default' : 'name-asc'))}
+                    >
+                      <SortAsc size={18} />
+                      <span>Sort by {sortBy === 'name-asc' ? 'Default' : 'Name'}</span>
+                    </button>
+                  )}
+                  {onThemeToggle && (
+                    <button
+                      className="quick-action-item"
+                      onClick={() => handleQuickAction(onThemeToggle)}
+                    >
+                      {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                      <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
+                    </button>
+                  )}
+                  {onStatsClick && (
+                    <button
+                      className="quick-action-item"
+                      onClick={() => handleQuickAction(onStatsClick)}
+                    >
+                      <BarChart3 size={18} />
+                      <span>Statistics</span>
+                    </button>
+                  )}
+                  {onHelpClick && (
+                    <button
+                      className="quick-action-item"
+                      onClick={() => handleQuickAction(onHelpClick)}
+                    >
+                      <HelpCircle size={18} />
+                      <span>Help</span>
+                    </button>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
