@@ -6,6 +6,9 @@ import {
   SkillDetail,
   Sidebar,
   ActiveFilters,
+  Toast,
+  TagFilter,
+  FloatingActionButton,
 } from './components';
 import {
   skills,
@@ -21,6 +24,11 @@ import {
   useUrlState,
   parseUrlState,
   useKeyboardNavigation,
+  useToast,
+  useViewMode,
+  useSortSkills,
+  useTagFilter,
+  useScrollPosition,
 } from './hooks';
 import type { Skill, FilterType } from './types';
 import './styles/globals.css';
@@ -50,6 +58,22 @@ function App() {
     clearRecentViews,
     formatTimestamp,
   } = useRecentViews();
+
+  // New hooks for enhanced features
+  const { toasts, removeToast, success, info } = useToast();
+  const { viewMode, toggleViewMode } = useViewMode();
+  const { sortBy, setSortBy, sortSkills } = useSortSkills();
+  const {
+    popularTags,
+    allTags,
+    tagCounts,
+    selectedTagsArray,
+    hasSelectedTags,
+    toggleTag,
+    clearTags,
+    filterByTags,
+  } = useTagFilter();
+  const { showScrollTop, scrollToTop } = useScrollPosition();
 
   // URL state management
   const { updateUrl } = useUrlState({
@@ -109,8 +133,14 @@ function App() {
       result = result.filter((skill) => !skill.isLocal);
     }
 
+    // Apply tag filter
+    result = filterByTags(result);
+
+    // Apply sorting
+    result = sortSkills(result);
+
     return result;
-  }, [searchQuery, activeCategory, activeFilter, showFavorites, favorites]);
+  }, [searchQuery, activeCategory, activeFilter, showFavorites, favorites, filterByTags, sortSkills]);
 
   // Get recent skills for sidebar
   const recentSkills = useMemo(() => {
@@ -148,6 +178,17 @@ function App() {
     }
     return skills.length;
   }, [activeFilter]);
+
+  // Check if any filters are active
+  const hasActiveFilters = useMemo(() => {
+    return (
+      searchQuery !== '' ||
+      activeCategory !== 'all' ||
+      activeFilter !== 'all' ||
+      showFavorites ||
+      hasSelectedTags
+    );
+  }, [searchQuery, activeCategory, activeFilter, showFavorites, hasSelectedTags]);
 
   // Keyboard navigation
   const {
@@ -203,6 +244,20 @@ function App() {
     }
   }, []);
 
+  // Enhanced favorite toggle with toast
+  const handleToggleFavorite = useCallback((skillId: string) => {
+    const wasFavorite = isFavorite(skillId);
+    toggleFavorite(skillId);
+    const skill = getSkillById(skillId);
+    if (skill) {
+      if (wasFavorite) {
+        info(`Removed "${skill.name}" from favorites`);
+      } else {
+        success(`Added "${skill.name}" to favorites`);
+      }
+    }
+  }, [toggleFavorite, isFavorite, success, info]);
+
   // Clear handlers for ActiveFilters
   const handleClearSearch = useCallback(() => {
     setSearchQuery('');
@@ -225,7 +280,26 @@ function App() {
     setActiveCategory('all');
     setActiveFilter('all');
     setShowFavorites(false);
-  }, []);
+    clearTags();
+    info('All filters cleared');
+  }, [clearTags, info]);
+
+  // Random skill selection
+  const handleRandomSkill = useCallback(() => {
+    const availableSkills = filteredSkills.length > 0 ? filteredSkills : skills;
+    const randomIndex = Math.floor(Math.random() * availableSkills.length);
+    const randomSkill = availableSkills[randomIndex];
+    if (randomSkill) {
+      setSelectedSkill(randomSkill);
+      addRecentView(randomSkill.id);
+      success(`Found "${randomSkill.name}"!`);
+    }
+  }, [filteredSkills, addRecentView, success]);
+
+  // Tag click handler from list items
+  const handleTagClick = useCallback((tag: string) => {
+    toggleTag(tag);
+  }, [toggleTag]);
 
   return (
     <div className="app">
@@ -236,6 +310,10 @@ function App() {
         onMenuClick={() => setIsSidebarOpen(true)}
         searchInputRef={searchInputRef}
         favoritesCount={favoritesCount}
+        viewMode={viewMode}
+        onViewModeToggle={toggleViewMode}
+        sortBy={sortBy}
+        onSortChange={setSortBy}
       />
 
       <CategoryChips
@@ -252,10 +330,12 @@ function App() {
         showFavorites={showFavorites}
         favoritesCount={favoritesCount}
         resultCount={filteredSkills.length}
+        selectedTags={selectedTagsArray}
         onClearSearch={handleClearSearch}
         onClearCategory={handleClearCategory}
         onClearFilter={handleClearFilter}
         onClearFavorites={handleClearFavorites}
+        onClearTag={toggleTag}
         onClearAll={handleClearAll}
       />
 
@@ -266,9 +346,11 @@ function App() {
           searchQuery={searchQuery}
           onSkillClick={handleSkillClick}
           isFavorite={isFavorite}
-          onToggleFavorite={toggleFavorite}
+          onToggleFavorite={handleToggleFavorite}
           focusedIndex={focusedIndex}
           showFavorites={showFavorites}
+          viewMode={viewMode}
+          onTagClick={handleTagClick}
         />
       </main>
 
@@ -276,7 +358,7 @@ function App() {
         skill={selectedSkill}
         onClose={handleCloseDetail}
         isFavorite={selectedSkill ? isFavorite(selectedSkill.id) : false}
-        onToggleFavorite={toggleFavorite}
+        onToggleFavorite={handleToggleFavorite}
       />
 
       <Sidebar
@@ -293,6 +375,26 @@ function App() {
         onRecentSkillClick={handleSkillClick}
         onClearRecentViews={clearRecentViews}
         formatTimestamp={formatTimestamp}
+        tagFilterComponent={
+          <TagFilter
+            popularTags={popularTags}
+            allTags={allTags}
+            tagCounts={tagCounts}
+            selectedTags={selectedTagsArray}
+            onToggleTag={toggleTag}
+            onClearTags={clearTags}
+          />
+        }
+      />
+
+      <Toast toasts={toasts} onRemove={removeToast} />
+
+      <FloatingActionButton
+        showScrollTop={showScrollTop}
+        onScrollTop={scrollToTop}
+        onRandomSkill={handleRandomSkill}
+        onClearFilters={handleClearAll}
+        hasActiveFilters={hasActiveFilters}
       />
     </div>
   );

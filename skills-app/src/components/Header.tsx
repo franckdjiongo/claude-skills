@@ -1,6 +1,10 @@
 import { useState, useEffect, type RefObject } from 'react';
 import { Search, X, Sparkles, Menu, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { ViewModeToggle } from './ViewModeToggle';
+import { SortDropdown } from './SortDropdown';
+import type { ViewMode } from '../hooks/useViewMode';
+import type { SortOption } from '../hooks/useSortSkills';
 import './Header.css';
 
 interface HeaderProps {
@@ -10,6 +14,10 @@ interface HeaderProps {
   onMenuClick: () => void;
   searchInputRef?: RefObject<HTMLInputElement | null>;
   favoritesCount?: number;
+  viewMode?: ViewMode;
+  onViewModeToggle?: () => void;
+  sortBy?: SortOption;
+  onSortChange?: (sort: SortOption) => void;
 }
 
 export function Header({
@@ -19,6 +27,10 @@ export function Header({
   onMenuClick,
   searchInputRef,
   favoritesCount = 0,
+  viewMode = 'grid',
+  onViewModeToggle,
+  sortBy = 'default',
+  onSortChange,
 }: HeaderProps) {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [displayText, setDisplayText] = useState('');
@@ -73,36 +85,47 @@ export function Header({
           <div className="header-spacer" />
         </div>
 
-        <div className={`search-container ${isSearchFocused ? 'focused' : ''}`}>
-          <div className="search-icon">
-            <Search size={18} />
+        <div className="search-row">
+          <div className={`search-container ${isSearchFocused ? 'focused' : ''}`}>
+            <div className="search-icon">
+              <Search size={18} />
+            </div>
+            <input
+              ref={searchInputRef}
+              type="text"
+              className="search-input mono"
+              placeholder="Search skills... (press /)"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setIsSearchFocused(false)}
+            />
+            <AnimatePresence>
+              {searchQuery && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.15 }}
+                  className="clear-button"
+                  onClick={handleClear}
+                  aria-label="Clear search"
+                >
+                  <X size={16} />
+                </motion.button>
+              )}
+            </AnimatePresence>
+            <div className="search-glow" />
           </div>
-          <input
-            ref={searchInputRef}
-            type="text"
-            className="search-input mono"
-            placeholder="Search skills... (press /)"
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            onFocus={() => setIsSearchFocused(true)}
-            onBlur={() => setIsSearchFocused(false)}
-          />
-          <AnimatePresence>
-            {searchQuery && (
-              <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.15 }}
-                className="clear-button"
-                onClick={handleClear}
-                aria-label="Clear search"
-              >
-                <X size={16} />
-              </motion.button>
+
+          <div className="header-controls">
+            {onSortChange && (
+              <SortDropdown value={sortBy} onChange={onSortChange} />
             )}
-          </AnimatePresence>
-          <div className="search-glow" />
+            {onViewModeToggle && (
+              <ViewModeToggle viewMode={viewMode} onToggle={onViewModeToggle} />
+            )}
+          </div>
         </div>
       </div>
     </header>

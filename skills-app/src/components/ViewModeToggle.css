@@ -1,0 +1,76 @@
+/* View Mode Toggle */
+.view-mode-toggle {
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  background: var(--bg-tertiary);
+  border: 1px solid rgba(136, 136, 160, 0.15);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+
+.view-mode-toggle:hover {
+  border-color: rgba(0, 240, 255, 0.3);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
+}
+
+.view-mode-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.view-mode-indicator {
+  position: absolute;
+  left: 0;
+  width: 28px;
+  height: 28px;
+  background: var(--accent-cyan);
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+}
+
+.view-mode-option {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--text-tertiary);
+  transition: color var(--transition-fast);
+}
+
+.view-mode-option.active {
+  color: var(--bg-deep);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .view-mode-toggle {
+    padding: 1px;
+  }
+
+  .view-mode-indicator {
+    width: 24px;
+    height: 24px;
+  }
+
+  .view-mode-option {
+    width: 24px;
+    height: 24px;
+  }
+
+  .view-mode-indicator {
+    left: 0;
+  }
+
+  .view-mode-toggle .view-mode-indicator {
+    transform: translateX(0);
+  }
+
+  .view-mode-toggle[data-view="list"] .view-mode-indicator {
+    transform: translateX(24px);
+  }
+}
