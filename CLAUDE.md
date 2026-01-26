@@ -54,6 +54,25 @@ The `description` field is critical - it determines when Claude Code should invo
 - `subagent-architect` - Design and create Claude Code sub-agents
 - `slash-command` - Create custom Claude Code slash commands
 - `prompt-engineer` - Claude prompting best practices
+- `ralph-prompt-generator` - Generate auto-compact-resilient Ralph Wiggum loop prompts
+
+**Convex Database**
+- `convex-queries` - Convex query patterns and best practices
+- `convex-mutations` - Convex mutation patterns and guidelines
+- `convex-actions-general` - Convex actions and general patterns
+- `convex-agents-files` - Convex agents file handling
+- `convex-agents-rate-limiting` - Rate limiting patterns for Convex agents
+- `convex-agents-debugging` - Debugging techniques for Convex agents
+- `convex-agents-context` - Customize LLM context with RAG injection and cross-thread search
+- `convex-agents-fundamentals` - Core setup and configuration for Convex agents
+- `convex-agents-human-agents` - Human-in-the-loop integration for hybrid workflows
+- `convex-agents-messages` - Message handling and UIMessages for conversation display
+- `convex-agents-rag` - Retrieval-Augmented Generation patterns for knowledge bases
+- `convex-agents-streaming` - Real-time response streaming for chat UIs
+- `convex-agents-threads` - Conversation thread management
+- `convex-agents-tools` - Tool definitions for external APIs and database operations
+- `convex-agents-usage-tracking` - Token consumption tracking for billing
+- `convex-agents-workflows` - Durable multi-step agent workflows
 
 **Text & Document Processing**
 - `whatsapp-formatter` - Format text for WhatsApp with proper syntax
@@ -91,6 +110,24 @@ The `description` field is critical - it determines when Claude Code should invo
 4. Add `references/` for domain-specific documentation
 5. Include `templates/` for any structured output formats
 6. Add helper `scripts/` if automation is needed
+7. **Update BOTH data sources** (see below)
+
+### IMPORTANT: Updating Skill Data in Two Places
+
+When adding new skills, you MUST update TWO separate files:
+
+1. **`skills-registry.yaml`** - The master registry for CLI/programmatic access
+   - Add skill to the appropriate category under `categories:`
+   - Add entry to `skill_index:` at the bottom
+   - Update `last_updated` date
+
+2. **`skills-app/src/data/skills.ts`** - The web app's data source
+   - Add skill object to the `skills` array
+   - Update `skillCount` in the matching category
+   - Update `skillCount` in the 'all' category
+   - Update `skillCount` in the repository entry
+
+The registry and the app have separate data files. Updating one does NOT automatically update the other.
 
 ### Key Skill Design Principles
 
