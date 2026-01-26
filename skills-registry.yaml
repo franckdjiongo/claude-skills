@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-01-18"
+last_updated: "2026-01-26"
 
 # =============================================================================
 # REPOSITORIES
@@ -147,6 +147,12 @@ categories:
         description: Add external skill repositories to the skills registry
         tags: [registry, meta, repositories, integration]
 
+      - name: ralph-prompt-generator
+        repository: claude-skills
+        path: ralph-prompt-generator/SKILL.md
+        description: Generate auto-compact-resilient Ralph Wiggum loop prompts for Claude Code
+        tags: [prompting, ralph-loop, automation, claude-code]
+
   # ---------------------------------------------------------------------------
   # CONVEX DATABASE
   # ---------------------------------------------------------------------------
@@ -188,6 +194,66 @@ categories:
         path: convex-agents-debugging/SKILL.md
         description: Debugging techniques for Convex agents
         tags: [convex, agents, debugging]
+
+      - name: convex-agents-context
+        repository: claude-skills
+        path: convex-agents-context/SKILL.md
+        description: Customize LLM context with message history, RAG injection, and cross-thread search
+        tags: [convex, agents, context, rag]
+
+      - name: convex-agents-fundamentals
+        repository: claude-skills
+        path: convex-agents-fundamentals/SKILL.md
+        description: Core setup and configuration for Convex agents and conversation threads
+        tags: [convex, agents, fundamentals, setup]
+
+      - name: convex-agents-human-agents
+        repository: claude-skills
+        path: convex-agents-human-agents/SKILL.md
+        description: Human-in-the-loop integration for hybrid AI-human workflows
+        tags: [convex, agents, human-in-the-loop]
+
+      - name: convex-agents-messages
+        repository: claude-skills
+        path: convex-agents-messages/SKILL.md
+        description: Message handling, retrieval, and UIMessages for conversation display
+        tags: [convex, agents, messages, ui]
+
+      - name: convex-agents-rag
+        repository: claude-skills
+        path: convex-agents-rag/SKILL.md
+        description: Retrieval-Augmented Generation patterns for knowledge bases
+        tags: [convex, agents, rag, knowledge-base]
+
+      - name: convex-agents-streaming
+        repository: claude-skills
+        path: convex-agents-streaming/SKILL.md
+        description: Real-time response streaming for responsive chat UIs
+        tags: [convex, agents, streaming, real-time]
+
+      - name: convex-agents-threads
+        repository: claude-skills
+        path: convex-agents-threads/SKILL.md
+        description: Conversation thread management and message history organization
+        tags: [convex, agents, threads, conversations]
+
+      - name: convex-agents-tools
+        repository: claude-skills
+        path: convex-agents-tools/SKILL.md
+        description: Tool definitions for agents to call functions, APIs, and database operations
+        tags: [convex, agents, tools, api]
+
+      - name: convex-agents-usage-tracking
+        repository: claude-skills
+        path: convex-agents-usage-tracking/SKILL.md
+        description: Token consumption tracking for billing, monitoring, and cost optimization
+        tags: [convex, agents, usage, billing]
+
+      - name: convex-agents-workflows
+        repository: claude-skills
+        path: convex-agents-workflows/SKILL.md
+        description: Durable multi-step agent workflows with automatic retries and recovery
+        tags: [convex, agents, workflows, orchestration]
 
   # ---------------------------------------------------------------------------
   # TEXT & DOCUMENT PROCESSING
@@ -911,12 +977,23 @@ skill_index:
   nano-banana-prompt-engineer: { repo: claude-skills, category: claude-code }
   gpt5-prompt-architect: { repo: claude-skills, category: claude-code }
   registry-repo-add: { repo: claude-skills, category: claude-code }
+  ralph-prompt-generator: { repo: claude-skills, category: claude-code }
   convex-queries: { repo: claude-skills, category: convex }
   convex-mutations: { repo: claude-skills, category: convex }
   convex-actions-general: { repo: claude-skills, category: convex }
   convex-agents-files: { repo: claude-skills, category: convex }
   convex-agents-rate-limiting: { repo: claude-skills, category: convex }
   convex-agents-debugging: { repo: claude-skills, category: convex }
+  convex-agents-context: { repo: claude-skills, category: convex }
+  convex-agents-fundamentals: { repo: claude-skills, category: convex }
+  convex-agents-human-agents: { repo: claude-skills, category: convex }
+  convex-agents-messages: { repo: claude-skills, category: convex }
+  convex-agents-rag: { repo: claude-skills, category: convex }
+  convex-agents-streaming: { repo: claude-skills, category: convex }
+  convex-agents-threads: { repo: claude-skills, category: convex }
+  convex-agents-tools: { repo: claude-skills, category: convex }
+  convex-agents-usage-tracking: { repo: claude-skills, category: convex }
+  convex-agents-workflows: { repo: claude-skills, category: convex }
   whatsapp-formatter: { repo: claude-skills, category: text-processing }
   text-refiner: { repo: claude-skills, category: text-processing }
   doc-converter: { repo: claude-skills, category: text-processing }

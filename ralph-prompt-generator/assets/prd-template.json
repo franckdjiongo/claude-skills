@@ -1,0 +1,32 @@
+{
+  "featureName": "TODO: Feature name",
+  "branchName": "feature/todo-branch-name",
+  "description": "TODO: One-line description of the feature",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "TODO: First story title",
+      "description": "TODO: What this story accomplishes",
+      "priority": 1,
+      "dependsOn": [],
+      "acceptanceCriteria": [
+        "TODO: First acceptance criterion",
+        "TODO: Second acceptance criterion"
+      ],
+      "verificationCommand": "npm test",
+      "passes": false
+    },
+    {
+      "id": "US-002",
+      "title": "TODO: Second story title",
+      "description": "TODO: What this story accomplishes",
+      "priority": 2,
+      "dependsOn": ["US-001"],
+      "acceptanceCriteria": [
+        "TODO: First acceptance criterion"
+      ],
+      "verificationCommand": "npm test",
+      "passes": false
+    }
+  ]
+}

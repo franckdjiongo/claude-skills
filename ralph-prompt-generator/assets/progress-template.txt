@@ -1,0 +1,33 @@
+# Progress Log
+
+## Feature: [FEATURE_NAME]
+## Branch: [BRANCH_NAME]
+## Started: [DATE]
+
+---
+
+## Codebase Patterns
+<!-- Add learnings about the codebase that future iterations should know -->
+<!-- Example: "API routes follow RESTful conventions in /routes" -->
+<!-- Example: "Tests use Jest with fixtures in /tests/fixtures" -->
+
+---
+
+## Completed Stories
+
+<!-- Format: - [US-XXX]: Brief note on implementation -->
+
+---
+
+## Current Blockers
+<!-- Any issues preventing progress on remaining stories -->
+
+---
+
+## Session Notes
+<!-- Format: [YYYY-MM-DD HH:MM] - What was accomplished -->
+
+---
+
+## Error Patterns
+<!-- Recurring errors and their solutions for future reference -->
