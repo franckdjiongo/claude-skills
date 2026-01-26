@@ -3,20 +3,20 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(4px);
-  z-index: calc(var(--z-modal) - 1);
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
 }
 
 .stats-dashboard {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: calc(100% - 32px);
+  position: relative;
+  width: 100%;
   max-width: 700px;
   max-height: calc(100vh - 64px);
   background: var(--bg-primary);
   border-radius: var(--radius-xl);
-  z-index: var(--z-modal);
   overflow: hidden;
   isolation: isolate;
 }
@@ -387,12 +387,12 @@
 
 /* Mobile adjustments */
 @media (max-width: 640px) {
+  .stats-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
   .stats-dashboard {
-    top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    transform: none;
     width: 100%;
     max-width: none;
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
