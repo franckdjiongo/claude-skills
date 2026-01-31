@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-01-26"
+last_updated: "2026-01-31"
 
 # =============================================================================
 # REPOSITORIES
@@ -38,6 +38,13 @@ repositories:
     description: Modular AI agent skills - 40 skills covering frontend, backend, testing, security, and architecture
     is_local: false
     skills_path: .agent/skills/  # Path prefix for skills in this repo
+
+  resend-email:
+    url: https://github.com/resend
+    local_path: null
+    description: Email skills for AI agents - best practices, React Email templates, and Resend API integration
+    is_local: false
+    skills_path: ""  # Skills are in separate repos under resend org
 
 # =============================================================================
 # SKILL CATEGORIES
@@ -955,6 +962,33 @@ categories:
         tags: [performance, profiling, optimization]
         external_url: https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/performance-profiling
 
+  # ---------------------------------------------------------------------------
+  # EXTERNAL: RESEND EMAIL SKILLS (resend)
+  # ---------------------------------------------------------------------------
+  resend-email:
+    name: "Resend: Email Skills"
+    skills:
+      - name: email-best-practices
+        repository: resend-email
+        path: SKILL.md
+        description: Expert knowledge to build email systems that reach the inbox - SPF, DKIM, DMARC, compliance
+        tags: [email, deliverability, authentication, compliance, best-practices]
+        external_url: https://github.com/resend/email-best-practices
+
+      - name: react-email
+        repository: resend-email
+        path: skills/react-email/SKILL.md
+        description: Build production-ready HTML emails using React components with Tailwind CSS
+        tags: [email, react, templates, html, tailwind]
+        external_url: https://github.com/resend/react-email/tree/canary/skills/react-email
+
+      - name: resend-api
+        repository: resend-email
+        path: SKILL.md
+        description: Send emails through the Resend API with retries, idempotency, and batch support
+        tags: [email, api, resend, sending, transactional]
+        external_url: https://github.com/resend/resend-skills
+
 # =============================================================================
 # QUICK REFERENCE INDEX
 # =============================================================================
@@ -1088,3 +1122,7 @@ skill_index:
   antigravity-i18n-localization: { repo: antigravity-kit, category: antigravity-specialized }
   seo-fundamentals: { repo: antigravity-kit, category: antigravity-specialized }
   performance-profiling: { repo: antigravity-kit, category: antigravity-specialized }
+  # External skills (resend-email)
+  email-best-practices: { repo: resend-email, category: resend-email }
+  react-email: { repo: resend-email, category: resend-email }
+  resend-api: { repo: resend-email, category: resend-email }

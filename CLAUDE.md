@@ -154,6 +154,7 @@ The registry tracks:
 | [obra/superpowers](https://github.com/obra/superpowers) | Composable skills for coding agents - TDD, debugging, collaboration |
 | [anthropics/skills](https://github.com/anthropics/skills) | Official Anthropic skills - documents, creative design, MCP, and enterprise workflows |
 | [vudovn/antigravity-kit](https://github.com/vudovn/antigravity-kit) | Modular AI agent skills - 40 skills covering frontend, backend, testing, security, and architecture |
+| [resend](https://github.com/resend) | Email skills for AI agents - best practices, React Email templates, and Resend API integration |
 
 ### Using the Registry
 
@@ -232,6 +233,11 @@ To add a new external repository to the registry:
 - **Architecture**: `architecture`, `app-builder`, `plan-writing`, `brainstorming`, `parallel-agents`
 - **Dev Tools**: `clean-code`, `code-review-checklist`, `mcp-builder`, `documentation-templates`, `bash-linux`, `powershell-windows`, `behavioral-modes`, `python-patterns`
 - **Specialized**: `game-development`, `geo-fundamentals`, `i18n-localization`, `seo-fundamentals`, `performance-profiling`
+
+**From resend:**
+- `email-best-practices` - Expert knowledge for SPF, DKIM, DMARC, and email deliverability
+- `react-email` - Build production-ready HTML emails using React components
+- `resend-api` - Send emails through the Resend API with retries and batch support
 
 ## Skills Library Web Application
 

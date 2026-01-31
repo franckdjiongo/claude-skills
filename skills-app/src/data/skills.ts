@@ -33,10 +33,18 @@ export const repositories: Repository[] = [
     isLocal: false,
     skillCount: 40,
   },
+  {
+    id: 'resend-email',
+    name: 'Resend Email',
+    url: 'https://github.com/resend',
+    description: 'Email skills for AI agents - best practices, React Email templates, and Resend API integration',
+    isLocal: false,
+    skillCount: 3,
+  },
 ];
 
 export const categories: Category[] = [
-  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 119, repository: 'claude-skills' },
+  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 122, repository: 'claude-skills' },
   { id: 'power-platform', name: 'Power Platform', icon: 'Zap', skillCount: 8, repository: 'claude-skills' },
   { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 8, repository: 'claude-skills' },
   { id: 'convex', name: 'Convex Database', icon: 'Database', skillCount: 16, repository: 'claude-skills' },
@@ -61,6 +69,7 @@ export const categories: Category[] = [
   { id: 'antigravity-architecture', name: 'Architecture', icon: 'Network', skillCount: 5, repository: 'antigravity-kit' },
   { id: 'antigravity-devtools', name: 'Dev Tools', icon: 'Wrench', skillCount: 8, repository: 'antigravity-kit' },
   { id: 'antigravity-specialized', name: 'Specialized', icon: 'Sparkles', skillCount: 5, repository: 'antigravity-kit' },
+  { id: 'resend-email', name: 'Email Skills', icon: 'Mail', skillCount: 3, repository: 'resend-email' },
 ];
 
 export const skills: Skill[] = [
@@ -1511,6 +1520,43 @@ export const skills: Skill[] = [
     externalUrl: 'https://github.com/vudovn/antigravity-kit/tree/main/.agent/skills/performance-profiling',
     isLocal: false,
   },
+  // Resend: Email Skills
+  {
+    id: 'email-best-practices',
+    name: 'Email Best Practices',
+    description: 'Expert knowledge to build email systems that reach the inbox - SPF, DKIM, DMARC, compliance',
+    repository: 'resend-email',
+    category: 'resend-email',
+    categoryName: 'Resend: Email Skills',
+    tags: ['email', 'deliverability', 'authentication', 'compliance', 'best-practices'],
+    path: 'SKILL.md',
+    externalUrl: 'https://github.com/resend/email-best-practices',
+    isLocal: false,
+  },
+  {
+    id: 'react-email',
+    name: 'React Email',
+    description: 'Build production-ready HTML emails using React components with Tailwind CSS',
+    repository: 'resend-email',
+    category: 'resend-email',
+    categoryName: 'Resend: Email Skills',
+    tags: ['email', 'react', 'templates', 'html', 'tailwind'],
+    path: 'skills/react-email/SKILL.md',
+    externalUrl: 'https://github.com/resend/react-email/tree/canary/skills/react-email',
+    isLocal: false,
+  },
+  {
+    id: 'resend-api',
+    name: 'Resend API',
+    description: 'Send emails through the Resend API with retries, idempotency, and batch support',
+    repository: 'resend-email',
+    category: 'resend-email',
+    categoryName: 'Resend: Email Skills',
+    tags: ['email', 'api', 'resend', 'sending', 'transactional'],
+    path: 'SKILL.md',
+    externalUrl: 'https://github.com/resend/resend-skills',
+    isLocal: false,
+  },
 ];
 
 export const getSkillsByCategory = (categoryId: string): Skill[] => {
@@ -1541,6 +1587,8 @@ export const getRepositoryColor = (repo: string): string => {
       return 'var(--accent-gold)';
     case 'antigravity-kit':
       return 'var(--accent-green, #00ff88)';
+    case 'resend-email':
+      return 'var(--accent-purple, #8b5cf6)';
     default:
       return 'var(--accent-cyan)';
   }
