@@ -160,6 +160,12 @@ categories:
         description: Generate auto-compact-resilient Ralph Wiggum loop prompts for Claude Code
         tags: [prompting, ralph-loop, automation, claude-code]
 
+      - name: docs-workflow-generator
+        repository: claude-skills
+        path: docs-workflow-generator/SKILL.md
+        description: Generate a full documentation package for new feature work including PRD, task breakdown, roadmap, and documentation workflow
+        tags: [documentation, prd, planning, workflow, templates]
+
   # ---------------------------------------------------------------------------
   # CONVEX DATABASE
   # ---------------------------------------------------------------------------

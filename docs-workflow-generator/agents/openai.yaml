@@ -1,0 +1,4 @@
+interface:
+  display_name: "Docs Workflow Generator"
+  short_description: "Generate PRD, tasks, roadmap for features"
+  default_prompt: "Use $docs-workflow-generator to create a PRD, task breakdown, and roadmap for a new feature."

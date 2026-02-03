@@ -44,9 +44,9 @@ export const repositories: Repository[] = [
 ];
 
 export const categories: Category[] = [
-  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 122, repository: 'claude-skills' },
+  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 123, repository: 'claude-skills' },
   { id: 'power-platform', name: 'Power Platform', icon: 'Zap', skillCount: 8, repository: 'claude-skills' },
-  { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 8, repository: 'claude-skills' },
+  { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 9, repository: 'claude-skills' },
   { id: 'convex', name: 'Convex Database', icon: 'Database', skillCount: 16, repository: 'claude-skills' },
   { id: 'text-processing', name: 'Text & Documents', icon: 'FileText', skillCount: 4, repository: 'claude-skills' },
   { id: 'meetings', name: 'Meetings', icon: 'Users', skillCount: 4, repository: 'claude-skills' },
@@ -249,6 +249,17 @@ export const skills: Skill[] = [
     categoryName: 'Claude Code & AI Extensibility',
     tags: ['prompting', 'ralph-loop', 'automation', 'claude-code'],
     path: 'ralph-prompt-generator/SKILL.md',
+    isLocal: true,
+  },
+  {
+    id: 'docs-workflow-generator',
+    name: 'Docs Workflow Generator',
+    description: 'Generate a full documentation package for new feature work including PRD, task breakdown, roadmap, and documentation workflow',
+    repository: 'claude-skills',
+    category: 'claude-code',
+    categoryName: 'Claude Code & AI Extensibility',
+    tags: ['documentation', 'prd', 'planning', 'workflow', 'templates'],
+    path: 'docs-workflow-generator/SKILL.md',
     isLocal: true,
   },
   // Convex Database
