@@ -1,6 +1,6 @@
 # Claude Code Skills Library
 
-A curated collection of specialized skills that extend Claude Code's capabilities for specific domains and workflows.
+A curated collection of specialized skills that extend Claude Code's capabilities for specific domains and workflows
 
 ## What are Skills?
 
