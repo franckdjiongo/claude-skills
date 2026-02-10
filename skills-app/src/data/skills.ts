@@ -7,7 +7,7 @@ export const repositories: Repository[] = [
     url: 'https://github.com/franckdjiongo/claude-skills',
     description: 'Main skills library - Power Platform, Claude Code, text processing, and more',
     isLocal: true,
-    skillCount: 50,
+    skillCount: 51,
   },
   {
     id: 'superpowers',
@@ -44,14 +44,14 @@ export const repositories: Repository[] = [
 ];
 
 export const categories: Category[] = [
-  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 123, repository: 'claude-skills' },
+  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 124, repository: 'claude-skills' },
   { id: 'power-platform', name: 'Power Platform', icon: 'Zap', skillCount: 8, repository: 'claude-skills' },
   { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 9, repository: 'claude-skills' },
   { id: 'convex', name: 'Convex Database', icon: 'Database', skillCount: 16, repository: 'claude-skills' },
   { id: 'text-processing', name: 'Text & Documents', icon: 'FileText', skillCount: 4, repository: 'claude-skills' },
   { id: 'meetings', name: 'Meetings', icon: 'Users', skillCount: 4, repository: 'claude-skills' },
   { id: 'development', name: 'Development', icon: 'Code', skillCount: 8, repository: 'claude-skills' },
-  { id: 'specialized', name: 'Specialized', icon: 'Sparkles', skillCount: 5, repository: 'claude-skills' },
+  { id: 'specialized', name: 'Specialized', icon: 'Sparkles', skillCount: 6, repository: 'claude-skills' },
   { id: 'superpowers-testing', name: 'Testing & Debug', icon: 'Bug', skillCount: 3, repository: 'superpowers' },
   { id: 'superpowers-collaboration', name: 'Collaboration', icon: 'GitBranch', skillCount: 9, repository: 'superpowers' },
   { id: 'superpowers-meta', name: 'Meta Skills', icon: 'BookOpen', skillCount: 2, repository: 'superpowers' },
@@ -672,6 +672,17 @@ export const skills: Skill[] = [
     categoryName: 'Specialized Workflows',
     tags: ['design', 'ux', 'questioning'],
     path: 'design-elevation/SKILL.md',
+    isLocal: true,
+  },
+  {
+    id: 'app-blueprint',
+    name: 'Application Blueprint',
+    description: 'Reverse-engineer a codebase to produce a comprehensive Application Blueprint document in English and French',
+    repository: 'claude-skills',
+    category: 'specialized',
+    categoryName: 'Specialized Workflows',
+    tags: ['documentation', 'blueprint', 'reverse-engineering', 'bilingual'],
+    path: 'application-blueprint-skill/SKILL.md',
     isLocal: true,
   },
   // Superpowers: Testing & Debugging

@@ -101,6 +101,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `obsidian-vault-architect` - Design Obsidian vault structures
 - `dtsx-workflow-analyzer` - Analyze SSIS DTSX packages
 - `design-elevation` - Elevate design quality through systematic questioning
+- `app-blueprint` - Reverse-engineer a codebase into a comprehensive Application Blueprint (EN/FR)
 
 ## Creating New Skills
 

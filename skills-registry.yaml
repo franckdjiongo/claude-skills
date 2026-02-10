@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-01-31"
+last_updated: "2026-02-10"
 
 # =============================================================================
 # REPOSITORIES
@@ -417,6 +417,12 @@ categories:
         path: design-elevation/SKILL.md
         description: Elevate design quality through systematic questioning
         tags: [design, ux, questioning]
+
+      - name: app-blueprint
+        repository: claude-skills
+        path: application-blueprint-skill/SKILL.md
+        description: Reverse-engineer a codebase to produce a comprehensive Application Blueprint document in English and French
+        tags: [documentation, blueprint, reverse-engineering, bilingual]
 
   # ---------------------------------------------------------------------------
   # EXTERNAL: SUPERPOWERS (obra/superpowers)
@@ -1055,6 +1061,7 @@ skill_index:
   obsidian-vault-architect: { repo: claude-skills, category: specialized }
   dtsx-workflow-analyzer: { repo: claude-skills, category: specialized }
   design-elevation: { repo: claude-skills, category: specialized }
+  app-blueprint: { repo: claude-skills, category: specialized }
   # External skills (superpowers)
   test-driven-development: { repo: superpowers, category: superpowers-testing }
   systematic-debugging: { repo: superpowers, category: superpowers-testing }
