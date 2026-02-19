@@ -1,0 +1,1716 @@
+{
+  "generated_at": "2026-02-19T04:46:03.734242+00:00",
+  "docs": [
+    {
+      "id": "advanced-dataverse-plug-in-engineering-for-power-platform-model",
+      "title": "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+      "source": "dataverse-csharp-plugin-engineer/references/raw-sources/Advanced Dataverse plug-in engineering for Power Platform model-driven apps.md",
+      "sha256": "f37847eaa1b9e18ffd2f8185aa8056c07ac23f32b4b57330358bdbce13a41ecd",
+      "line_count": 654,
+      "section_count": 40,
+      "snippet_count": 4,
+      "chunks_dir": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model",
+      "sections": [
+        {
+          "index": 1,
+          "title": "Executive summary",
+          "level": 2,
+          "line_start": 3,
+          "line_end": 6,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/001-executive-summary.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 2,
+          "title": "Advanced plug-in patterns",
+          "level": 2,
+          "line_start": 7,
+          "line_end": 8,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/002-advanced-plug-in-patterns.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 3,
+          "title": "Pipeline mental model, chains, and deterministic ordering",
+          "level": 3,
+          "line_start": 9,
+          "line_end": 20,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "Advanced plug-in patterns"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/003-pipeline-mental-model-chains-and-deterministic-ordering.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 4,
+          "title": "Passing data between steps via SharedVariables",
+          "level": 3,
+          "line_start": 21,
+          "line_end": 85,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "Advanced plug-in patterns"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/004-passing-data-between-steps-via-sharedvariables.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 5,
+          "title": "Deep-clone pattern for entity manipulation",
+          "level": 3,
+          "line_start": 86,
+          "line_end": 147,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "Advanced plug-in patterns"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/005-deep-clone-pattern-for-entity-manipulation.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 6,
+          "title": "Rollback strategies in synchronous pipelines",
+          "level": 3,
+          "line_start": 148,
+          "line_end": 158,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "Advanced plug-in patterns"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/006-rollback-strategies-in-synchronous-pipelines.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 7,
+          "title": "Custom API reference",
+          "level": 2,
+          "line_start": 159,
+          "line_end": 160,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/007-custom-api-reference.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 8,
+          "title": "How Custom APIs differ from classic plug-in messages",
+          "level": 3,
+          "line_start": 161,
+          "line_end": 175,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "Custom API reference"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/008-how-custom-apis-differ-from-classic-plug-in-messages.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 9,
+          "title": "Registration-to-implementation guide",
+          "level": 3,
+          "line_start": 176,
+          "line_end": 194,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "Custom API reference"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/009-registration-to-implementation-guide.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 10,
+          "title": "Full SDK pattern for implementing a Custom API handler",
+          "level": 3,
+          "line_start": 195,
+          "line_end": 265,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "Custom API reference"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/010-full-sdk-pattern-for-implementing-a-custom-api-handler.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 11,
+          "title": "Debugging workflow",
+          "level": 2,
+          "line_start": 266,
+          "line_end": 267,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/011-debugging-workflow.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 12,
+          "title": "Standard prerequisites: enable tracing safely",
+          "level": 3,
+          "line_start": 268,
+          "line_end": 277,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "Debugging workflow"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/012-standard-prerequisites-enable-tracing-safely.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 13,
+          "title": "Plug-in profiler: capture + replay",
+          "level": 3,
+          "line_start": 278,
+          "line_end": 292,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "Debugging workflow"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/013-plug-in-profiler-capture-replay.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 14,
+          "title": "Attaching Visual Studio debugger to Plugin Registration Tool",
+          "level": 3,
+          "line_start": 293,
+          "line_end": 301,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "Debugging workflow"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/014-attaching-visual-studio-debugger-to-plugin-registration-tool.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 15,
+          "title": "Remote debugging via captured logs / command prompt profiler mode",
+          "level": 3,
+          "line_start": 302,
+          "line_end": 310,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "Debugging workflow"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/015-remote-debugging-via-captured-logs-command-prompt-profiler-mode.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 16,
+          "title": "Debugging asynchronous plug-ins",
+          "level": 3,
+          "line_start": 311,
+          "line_end": 321,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "Debugging workflow"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/016-debugging-asynchronous-plug-ins.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 17,
+          "title": "ALM and solution structure guide",
+          "level": 2,
+          "line_start": 322,
+          "line_end": 323,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/017-alm-and-solution-structure-guide.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 18,
+          "title": "Solution-aware registration rules",
+          "level": 3,
+          "line_start": 324,
+          "line_end": 331,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "ALM and solution structure guide"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/018-solution-aware-registration-rules.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 19,
+          "title": "Managed vs unmanaged decision logic",
+          "level": 3,
+          "line_start": 332,
+          "line_end": 339,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "ALM and solution structure guide"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/019-managed-vs-unmanaged-decision-logic.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 20,
+          "title": "Upgrade vs update strategy (solutions and plug-in assemblies)",
+          "level": 3,
+          "line_start": 340,
+          "line_end": 348,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "ALM and solution structure guide"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/020-upgrade-vs-update-strategy-solutions-and-plug-in-assemblies.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 21,
+          "title": "Connection references and environment variables from plug-ins",
+          "level": 3,
+          "line_start": 349,
+          "line_end": 358,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "ALM and solution structure guide"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/021-connection-references-and-environment-variables-from-plug-ins.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 22,
+          "title": "Operational hardening: statelessness and shared instances",
+          "level": 3,
+          "line_start": 359,
+          "line_end": 362,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "ALM and solution structure guide"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/022-operational-hardening-statelessness-and-shared-instances.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 23,
+          "title": "CI/CD pipeline reference",
+          "level": 2,
+          "line_start": 363,
+          "line_end": 364,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/023-ci-cd-pipeline-reference.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 24,
+          "title": "Core deployment primitives (official tools only)",
+          "level": 3,
+          "line_start": 365,
+          "line_end": 374,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "CI/CD pipeline reference"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/024-core-deployment-primitives-official-tools-only.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 25,
+          "title": "GitHub Actions YAML template (build, pack, deploy)",
+          "level": 3,
+          "line_start": 375,
+          "line_end": 464,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "CI/CD pipeline reference"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/025-github-actions-yaml-template-build-pack-deploy.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 26,
+          "title": "Azure DevOps pipeline template (Build Tools tasks)",
+          "level": 3,
+          "line_start": 465,
+          "line_end": 478,
+          "parents": [
+            "Advanced Dataverse plug-in engineering for Power Platform model-driven apps",
+            "CI/CD pipeline reference"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/026-azure-devops-pipeline-template-build-tools-tasks.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 27,
+          "title": "Versioning strategies compatible with solution layering",
+          "level": 3,
+          "line_start": 513,
+          "line_end": 517,
+          "parents": [
+            "Import to prod as managed with deployment settings for env vars / conn refs. \ue200cite\ue202turn19search3\ue202turn22search6\ue201"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/027-versioning-strategies-compatible-with-solution-layering.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 28,
+          "title": "Legacy code refactoring guide",
+          "level": 2,
+          "line_start": 518,
+          "line_end": 519,
+          "parents": [
+            "Import to prod as managed with deployment settings for env vars / conn refs. \ue200cite\ue202turn19search3\ue202turn22search6\ue201"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/028-legacy-code-refactoring-guide.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 29,
+          "title": "Anti-pattern checklist (Microsoft-sourced items first)",
+          "level": 3,
+          "line_start": 520,
+          "line_end": 533,
+          "parents": [
+            "Import to prod as managed with deployment settings for env vars / conn refs. \ue200cite\ue202turn19search3\ue202turn22search6\ue201",
+            "Legacy code refactoring guide"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/029-anti-pattern-checklist-microsoft-sourced-items-first.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 30,
+          "title": "Safe refactoring sequence (agent-operational)",
+          "level": 3,
+          "line_start": 534,
+          "line_end": 542,
+          "parents": [
+            "Import to prod as managed with deployment settings for env vars / conn refs. \ue200cite\ue202turn19search3\ue202turn22search6\ue201",
+            "Legacy code refactoring guide"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/030-safe-refactoring-sequence-agent-operational.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 31,
+          "title": "Regression testing strategy without third-party frameworks",
+          "level": 3,
+          "line_start": 543,
+          "line_end": 549,
+          "parents": [
+            "Import to prod as managed with deployment settings for env vars / conn refs. \ue200cite\ue202turn19search3\ue202turn22search6\ue201",
+            "Legacy code refactoring guide"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/031-regression-testing-strategy-without-third-party-frameworks.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 32,
+          "title": "Production monitoring guide",
+          "level": 2,
+          "line_start": 550,
+          "line_end": 551,
+          "parents": [
+            "Import to prod as managed with deployment settings for env vars / conn refs. \ue200cite\ue202turn19search3\ue202turn22search6\ue201"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/032-production-monitoring-guide.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 33,
+          "title": "Telemetry with Application Insights and plug-in custom telemetry",
+          "level": 3,
+          "line_start": 552,
+          "line_end": 562,
+          "parents": [
+            "Import to prod as managed with deployment settings for env vars / conn refs. \ue200cite\ue202turn19search3\ue202turn22search6\ue201",
+            "Production monitoring guide"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/033-telemetry-with-application-insights-and-plug-in-custom-telemetry.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 34,
+          "title": "Plug-in failure alerting via Power Automate",
+          "level": 3,
+          "line_start": 563,
+          "line_end": 573,
+          "parents": [
+            "Import to prod as managed with deployment settings for env vars / conn refs. \ue200cite\ue202turn19search3\ue202turn22search6\ue201",
+            "Production monitoring guide"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/034-plug-in-failure-alerting-via-power-automate.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 35,
+          "title": "Async failure triage and recovery",
+          "level": 3,
+          "line_start": 574,
+          "line_end": 583,
+          "parents": [
+            "Import to prod as managed with deployment settings for env vars / conn refs. \ue200cite\ue202turn19search3\ue202turn22search6\ue201",
+            "Production monitoring guide"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/035-async-failure-triage-and-recovery.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 36,
+          "title": "SLA impact analysis for synchronous failures",
+          "level": 3,
+          "line_start": 584,
+          "line_end": 587,
+          "parents": [
+            "Import to prod as managed with deployment settings for env vars / conn refs. \ue200cite\ue202turn19search3\ue202turn22search6\ue201",
+            "Production monitoring guide"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/036-sla-impact-analysis-for-synchronous-failures.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 37,
+          "title": "Breaking changes log for 2022\u20132025 and advanced troubleshooting decision tree",
+          "level": 2,
+          "line_start": 588,
+          "line_end": 589,
+          "parents": [
+            "Import to prod as managed with deployment settings for env vars / conn refs. \ue200cite\ue202turn19search3\ue202turn22search6\ue201"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/037-breaking-changes-log-for-2022-2025-and-advanced-troubleshooting.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 38,
+          "title": "Breaking changes log for 2022\u20132025",
+          "level": 3,
+          "line_start": 590,
+          "line_end": 602,
+          "parents": [
+            "Import to prod as managed with deployment settings for env vars / conn refs. \ue200cite\ue202turn19search3\ue202turn22search6\ue201",
+            "Breaking changes log for 2022\u20132025 and advanced troubleshooting decision tree"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/038-breaking-changes-log-for-2022-2025.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 39,
+          "title": "Advanced troubleshooting decision tree",
+          "level": 3,
+          "line_start": 603,
+          "line_end": 636,
+          "parents": [
+            "Import to prod as managed with deployment settings for env vars / conn refs. \ue200cite\ue202turn19search3\ue202turn22search6\ue201",
+            "Breaking changes log for 2022\u20132025 and advanced troubleshooting decision tree"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/039-advanced-troubleshooting-decision-tree.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 40,
+          "title": "Cited sources",
+          "level": 3,
+          "line_start": 637,
+          "line_end": 654,
+          "parents": [
+            "Import to prod as managed with deployment settings for env vars / conn refs. \ue200cite\ue202turn19search3\ue202turn22search6\ue201",
+            "Breaking changes log for 2022\u20132025 and advanced troubleshooting decision tree"
+          ],
+          "chunk_relpath": "references/source-chunks/advanced-dataverse-plug-in-engineering-for-power-platform-model/040-cited-sources.md",
+          "snippet_count": 0
+        }
+      ]
+    },
+    {
+      "id": "c-plugin-development-for-dataverse-exhaustive-technical-referenc",
+      "title": "C# plugin development for Dataverse: exhaustive technical reference",
+      "source": "dataverse-csharp-plugin-engineer/references/raw-sources/C# plugin development for Dataverse - exhaustive technical reference.md",
+      "sha256": "2c74d2c5bb77bff550ea3100c35e444732f75a1ddd1cf3465c8f6546ffeb0ee3",
+      "line_count": 469,
+      "section_count": 33,
+      "snippet_count": 7,
+      "chunks_dir": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc",
+      "sections": [
+        {
+          "index": 1,
+          "title": "1. Executive summary",
+          "level": 2,
+          "line_start": 3,
+          "line_end": 8,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/001-1-executive-summary.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 2,
+          "title": "2. The plugin execution pipeline processes every Dataverse operation in four stages",
+          "level": 2,
+          "line_start": 9,
+          "line_end": 54,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/002-2-the-plugin-execution-pipeline-processes-every-dataverse-operat.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 3,
+          "title": "Stage-by-stage data availability matrix",
+          "level": 3,
+          "line_start": 55,
+          "line_end": 69,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "2. The plugin execution pipeline processes every Dataverse operation in four stages"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/003-stage-by-stage-data-availability-matrix.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 4,
+          "title": "Transaction boundary rules",
+          "level": 3,
+          "line_start": 70,
+          "line_end": 75,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "2. The plugin execution pipeline processes every Dataverse operation in four stages"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/004-transaction-boundary-rules.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 5,
+          "title": "3. Core interfaces reference",
+          "level": 2,
+          "line_start": 76,
+          "line_end": 77,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/005-3-core-interfaces-reference.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 6,
+          "title": "IPlugin \u2014 the sole entry point",
+          "level": 3,
+          "line_start": 78,
+          "line_end": 89,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "3. Core interfaces reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/006-iplugin-the-sole-entry-point.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 7,
+          "title": "Services available from IServiceProvider",
+          "level": 3,
+          "line_start": 90,
+          "line_end": 101,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "3. Core interfaces reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/007-services-available-from-iserviceprovider.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 8,
+          "title": "IOrganizationServiceFactory.CreateOrganizationService behavior",
+          "level": 3,
+          "line_start": 102,
+          "line_end": 109,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "3. Core interfaces reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/008-iorganizationservicefactory-createorganizationservice-behavior.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 9,
+          "title": "IOrganizationService \u2014 exactly 8 methods",
+          "level": 3,
+          "line_start": 110,
+          "line_end": 124,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "3. Core interfaces reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/009-iorganizationservice-exactly-8-methods.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 10,
+          "title": "IPluginExecutionContext version progression (v1\u2013v7)",
+          "level": 3,
+          "line_start": 125,
+          "line_end": 138,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "3. Core interfaces reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/010-ipluginexecutioncontext-version-progression-v1-v7.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 11,
+          "title": "Complete IPluginExecutionContext property table (v1 base)",
+          "level": 3,
+          "line_start": 139,
+          "line_end": 170,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "3. Core interfaces reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/011-complete-ipluginexecutioncontext-property-table-v1-base.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 12,
+          "title": "4. Plugin registration reference",
+          "level": 2,
+          "line_start": 171,
+          "line_end": 172,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/012-4-plugin-registration-reference.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 13,
+          "title": "Step registration parameter matrix",
+          "level": 3,
+          "line_start": 173,
+          "line_end": 186,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "4. Plugin registration reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/013-step-registration-parameter-matrix.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 14,
+          "title": "Entity image registration rules",
+          "level": 3,
+          "line_start": 187,
+          "line_end": 199,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "4. Plugin registration reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/014-entity-image-registration-rules.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 15,
+          "title": "Secure vs. unsecure configuration",
+          "level": 3,
+          "line_start": 200,
+          "line_end": 210,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "4. Plugin registration reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/015-secure-vs-unsecure-configuration.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 16,
+          "title": "5. Context objects reference \u2014 exact keys per message",
+          "level": 2,
+          "line_start": 211,
+          "line_end": 212,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/016-5-context-objects-reference-exact-keys-per-message.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 17,
+          "title": "InputParameters key-value table",
+          "level": 3,
+          "line_start": 213,
+          "line_end": 233,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "5. Context objects reference \u2014 exact keys per message"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/017-inputparameters-key-value-table.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 18,
+          "title": "OutputParameters key-value table (PostOperation only)",
+          "level": 3,
+          "line_start": 234,
+          "line_end": 247,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "5. Context objects reference \u2014 exact keys per message"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/018-outputparameters-key-value-table-postoperation-only.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 19,
+          "title": "SharedVariables cross-stage behavior",
+          "level": 3,
+          "line_start": 248,
+          "line_end": 255,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "5. Context objects reference \u2014 exact keys per message"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/019-sharedvariables-cross-stage-behavior.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 20,
+          "title": "6. Sandbox rules for Dataverse online plugins",
+          "level": 2,
+          "line_start": 256,
+          "line_end": 259,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/020-6-sandbox-rules-for-dataverse-online-plugins.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 21,
+          "title": "Hard resource constraints",
+          "level": 3,
+          "line_start": 260,
+          "line_end": 273,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "6. Sandbox rules for Dataverse online plugins"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/021-hard-resource-constraints.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 22,
+          "title": "Permitted vs. blocked operations",
+          "level": 3,
+          "line_start": 274,
+          "line_end": 288,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "6. Sandbox rules for Dataverse online plugins"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/022-permitted-vs-blocked-operations.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 23,
+          "title": "External web call requirements",
+          "level": 3,
+          "line_start": 289,
+          "line_end": 294,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "6. Sandbox rules for Dataverse online plugins"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/023-external-web-call-requirements.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 24,
+          "title": "7. Entity model patterns and the type conversion cheatsheet",
+          "level": 2,
+          "line_start": 295,
+          "line_end": 296,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/024-7-entity-model-patterns-and-the-type-conversion-cheatsheet.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 25,
+          "title": "Late-bound vs. early-bound decision tree",
+          "level": 3,
+          "line_start": 297,
+          "line_end": 310,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "7. Entity model patterns and the type conversion cheatsheet"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/025-late-bound-vs-early-bound-decision-tree.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 26,
+          "title": "Dataverse type mapping cheatsheet",
+          "level": 3,
+          "line_start": 311,
+          "line_end": 333,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "7. Entity model patterns and the type conversion cheatsheet"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/026-dataverse-type-mapping-cheatsheet.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 27,
+          "title": "Assembly versioning and plugin packages",
+          "level": 3,
+          "line_start": 334,
+          "line_end": 348,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "7. Entity model patterns and the type conversion cheatsheet"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/027-assembly-versioning-and-plugin-packages.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 28,
+          "title": "8. Architectural decision trees",
+          "level": 2,
+          "line_start": 349,
+          "line_end": 350,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/028-8-architectural-decision-trees.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 29,
+          "title": "Sync vs. async execution mode",
+          "level": 3,
+          "line_start": 351,
+          "line_end": 367,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "8. Architectural decision trees"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/029-sync-vs-async-execution-mode.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 30,
+          "title": "Pre vs. post operation stage selection",
+          "level": 3,
+          "line_start": 368,
+          "line_end": 385,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "8. Architectural decision trees"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/030-pre-vs-post-operation-stage-selection.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 31,
+          "title": "Filtering attributes usage decision",
+          "level": 3,
+          "line_start": 386,
+          "line_end": 398,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference",
+            "8. Architectural decision trees"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/031-filtering-attributes-usage-decision.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 32,
+          "title": "9. Ten common architectural mistakes with root causes",
+          "level": 2,
+          "line_start": 399,
+          "line_end": 422,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/032-9-ten-common-architectural-mistakes-with-root-causes.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 33,
+          "title": "10. Cited sources",
+          "level": 2,
+          "line_start": 423,
+          "line_end": 469,
+          "parents": [
+            "C# plugin development for Dataverse: exhaustive technical reference"
+          ],
+          "chunk_relpath": "references/source-chunks/c-plugin-development-for-dataverse-exhaustive-technical-referenc/033-10-cited-sources.md",
+          "snippet_count": 0
+        }
+      ]
+    },
+    {
+      "id": "power-platform-plugin-development-reference",
+      "title": "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+      "source": "dataverse-csharp-plugin-engineer/references/raw-sources/Power Platform Plugin Development Reference.md",
+      "sha256": "d912d3ae1d13425aa2428ba32d2b923a8a18388a54ccbff5143b0e36817af254",
+      "line_count": 745,
+      "section_count": 28,
+      "snippet_count": 0,
+      "chunks_dir": "references/source-chunks/power-platform-plugin-development-reference",
+      "sections": [
+        {
+          "index": 1,
+          "title": "1\\. Executive Summary",
+          "level": 2,
+          "line_start": 3,
+          "line_end": 16,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/001-1-executive-summary.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 2,
+          "title": "2.1 The Stateless Paradigm and Class Design",
+          "level": 3,
+          "line_start": 23,
+          "line_end": 28,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/002-2-1-the-stateless-paradigm-and-class-design.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 3,
+          "title": "Constructor Restrictions",
+          "level": 4,
+          "line_start": 29,
+          "line_end": 35,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---",
+            "2.1 The Stateless Paradigm and Class Design"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/003-constructor-restrictions.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 4,
+          "title": "2.2 The Service Provider and Context",
+          "level": 3,
+          "line_start": 36,
+          "line_end": 44,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/004-2-2-the-service-provider-and-context.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 5,
+          "title": "2.3 Context Validation",
+          "level": 3,
+          "line_start": 45,
+          "line_end": 52,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/005-2-3-context-validation.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 6,
+          "title": "2.4 Canonical Code Template",
+          "level": 3,
+          "line_start": 53,
+          "line_end": 181,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/006-2-4-canonical-code-template.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 7,
+          "title": "3.1 Exception Type Matrix",
+          "level": 3,
+          "line_start": 188,
+          "line_end": 197,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/007-3-1-exception-type-matrix.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 8,
+          "title": "3.2 Stage-by-Stage Propagation Rules",
+          "level": 3,
+          "line_start": 198,
+          "line_end": 214,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/008-3-2-stage-by-stage-propagation-rules.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 9,
+          "title": "3.3 Tracing Strategy and ITracingService",
+          "level": 3,
+          "line_start": 215,
+          "line_end": 238,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/009-3-3-tracing-strategy-and-itracingservice.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 10,
+          "title": "4.1 Running Context: SYSTEM vs. Calling User",
+          "level": 3,
+          "line_start": 245,
+          "line_end": 263,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/010-4-1-running-context-system-vs-calling-user.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 11,
+          "title": "4.2 Injection Risks",
+          "level": 3,
+          "line_start": 264,
+          "line_end": 277,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/011-4-2-injection-risks.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 12,
+          "title": "4.3 Handling Sensitive Data",
+          "level": 3,
+          "line_start": 278,
+          "line_end": 282,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/012-4-3-handling-sensitive-data.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 13,
+          "title": "5.1 Comparison: QueryExpression vs. FetchXML vs. LINQ",
+          "level": 3,
+          "line_start": 289,
+          "line_end": 301,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/013-5-1-comparison-queryexpression-vs-fetchxml-vs-linq.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 14,
+          "title": "5.2 Anti-Patterns Table",
+          "level": 3,
+          "line_start": 302,
+          "line_end": 310,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/014-5-2-anti-patterns-table.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 15,
+          "title": "5.3 Code Example: QueryExpression with Joins (Solving N+1)",
+          "level": 3,
+          "line_start": 311,
+          "line_end": 343,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/015-5-3-code-example-queryexpression-with-joins-solving-n-1.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 16,
+          "title": "6.1 Optimization Hierarchy (Ordered by Impact)",
+          "level": 3,
+          "line_start": 350,
+          "line_end": 366,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/016-6-1-optimization-hierarchy-ordered-by-impact.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 17,
+          "title": "6.2 Before/After Code Snippet",
+          "level": 3,
+          "line_start": 367,
+          "line_end": 407,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/017-6-2-before-after-code-snippet.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 18,
+          "title": "7.1 Unit Testing with FakeXrmEasy",
+          "level": 3,
+          "line_start": 414,
+          "line_end": 468,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/018-7-1-unit-testing-with-fakexrmeasy.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 19,
+          "title": "7.2 Integration Testing with Dataverse.Client",
+          "level": 3,
+          "line_start": 469,
+          "line_end": 484,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/019-7-2-integration-testing-with-dataverse-client.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 20,
+          "title": "8.1 Sandbox Constraints",
+          "level": 3,
+          "line_start": 491,
+          "line_end": 497,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/020-8-1-sandbox-constraints.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 21,
+          "title": "8.2 HttpClient Pattern (Synchronous)",
+          "level": 3,
+          "line_start": 498,
+          "line_end": 538,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/021-8-2-httpclient-pattern-synchronous.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 22,
+          "title": "8.3 Fallback to Messaging",
+          "level": 3,
+          "line_start": 539,
+          "line_end": 545,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/022-8-3-fallback-to-messaging.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 23,
+          "title": "9.1 Legacy: ILMerge",
+          "level": 3,
+          "line_start": 552,
+          "line_end": 558,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/023-9-1-legacy-ilmerge.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 24,
+          "title": "9.2 Modern: Dependent Assemblies",
+          "level": 3,
+          "line_start": 559,
+          "line_end": 569,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/024-9-2-modern-dependent-assemblies.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 25,
+          "title": "10.1 Money and Multi-Currency",
+          "level": 3,
+          "line_start": 576,
+          "line_end": 583,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/025-10-1-money-and-multi-currency.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 26,
+          "title": "10.2 Timezone Handling",
+          "level": 3,
+          "line_start": 584,
+          "line_end": 593,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/026-10-2-timezone-handling.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 27,
+          "title": "11.1 Azure Application Insights Integration",
+          "level": 3,
+          "line_start": 600,
+          "line_end": 607,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/027-11-1-azure-application-insights-integration.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 28,
+          "title": "Works cited",
+          "level": 4,
+          "line_start": 691,
+          "line_end": 745,
+          "parents": [
+            "Technical Reference: C\\# Plugin Development for Power Platform Model-Driven Apps",
+            "---"
+          ],
+          "chunk_relpath": "references/source-chunks/power-platform-plugin-development-reference/028-works-cited.md",
+          "snippet_count": 0
+        }
+      ]
+    },
+    {
+      "id": "practical-c-plugin-code-reference-for-power-platform-model-drive",
+      "title": "Practical C# plugin code reference for Power Platform model-driven apps for early 2026",
+      "source": "dataverse-csharp-plugin-engineer/references/raw-sources/Practical C# plugin code reference for Power Platform model-driven apps for early 2026.md",
+      "sha256": "173e42351c7051fb12b60101d3352e4f691c2f2813d6490464577eafcb76e4fe",
+      "line_count": 1584,
+      "section_count": 29,
+      "snippet_count": 15,
+      "chunks_dir": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive",
+      "sections": [
+        {
+          "index": 1,
+          "title": "Executive summary",
+          "level": 2,
+          "line_start": 3,
+          "line_end": 6,
+          "parents": [
+            "Practical C# plugin code reference for Power Platform model-driven apps for early 2026"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/001-executive-summary.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 2,
+          "title": "Project setup reference",
+          "level": 2,
+          "line_start": 7,
+          "line_end": 8,
+          "parents": [
+            "Practical C# plugin code reference for Power Platform model-driven apps for early 2026"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/002-project-setup-reference.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 3,
+          "title": "Current packages and versions for Q1 2026",
+          "level": 3,
+          "line_start": 9,
+          "line_end": 23,
+          "parents": [
+            "Practical C# plugin code reference for Power Platform model-driven apps for early 2026",
+            "Project setup reference"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/003-current-packages-and-versions-for-q1-2026.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 4,
+          "title": "Target framework and packaging strategy",
+          "level": 3,
+          "line_start": 24,
+          "line_end": 29,
+          "parents": [
+            "Practical C# plugin code reference for Power Platform model-driven apps for early 2026",
+            "Project setup reference"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/004-target-framework-and-packaging-strategy.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 5,
+          "title": "Directory structure",
+          "level": 3,
+          "line_start": 30,
+          "line_end": 62,
+          "parents": [
+            "Practical C# plugin code reference for Power Platform model-driven apps for early 2026",
+            "Project setup reference"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/005-directory-structure.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 6,
+          "title": "Strong-name key generation",
+          "level": 3,
+          "line_start": 63,
+          "line_end": 67,
+          "parents": [
+            "Practical C# plugin code reference for Power Platform model-driven apps for early 2026",
+            "Project setup reference"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/006-strong-name-key-generation.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 7,
+          "title": "Full .csproj template",
+          "level": 3,
+          "line_start": 74,
+          "line_end": 167,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/007-full-csproj-template.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 8,
+          "title": "Test project .csproj template (FakeXrmEasy v3+)",
+          "level": 3,
+          "line_start": 168,
+          "line_end": 201,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/008-test-project-csproj-template-fakexrmeasy-v3.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 9,
+          "title": "Plugin patterns library",
+          "level": 2,
+          "line_start": 202,
+          "line_end": 203,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/009-plugin-patterns-library.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 10,
+          "title": "Canonical plug-in template",
+          "level": 3,
+          "line_start": 204,
+          "line_end": 403,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)",
+            "Plugin patterns library"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/010-canonical-plug-in-template.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 11,
+          "title": "Production-ready plug-in example class",
+          "level": 3,
+          "line_start": 404,
+          "line_end": 478,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)",
+            "Plugin patterns library"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/011-production-ready-plug-in-example-class.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 12,
+          "title": "Custom API implementation",
+          "level": 2,
+          "line_start": 479,
+          "line_end": 480,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/012-custom-api-implementation.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 13,
+          "title": "Custom API plug-in class (end-to-end)",
+          "level": 3,
+          "line_start": 481,
+          "line_end": 555,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)",
+            "Custom API implementation"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/013-custom-api-plug-in-class-end-to-end.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 14,
+          "title": "Registration configuration (pac + spkl)",
+          "level": 3,
+          "line_start": 556,
+          "line_end": 574,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)",
+            "Custom API implementation"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/014-registration-configuration-pac-spkl.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 15,
+          "title": "Unit test reference with FakeXrmEasy v3+",
+          "level": 2,
+          "line_start": 575,
+          "line_end": 578,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/015-unit-test-reference-with-fakexrmeasy-v3.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 16,
+          "title": "Complete test file with scenarios",
+          "level": 3,
+          "line_start": 579,
+          "line_end": 855,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)",
+            "Unit test reference with FakeXrmEasy v3+"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/016-complete-test-file-with-scenarios.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 17,
+          "title": "Data access and integration patterns",
+          "level": 2,
+          "line_start": 856,
+          "line_end": 857,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/017-data-access-and-integration-patterns.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 18,
+          "title": "QueryExpression patterns + FetchXML equivalents",
+          "level": 3,
+          "line_start": 858,
+          "line_end": 1025,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)",
+            "Data access and integration patterns"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/018-queryexpression-patterns-fetchxml-equivalents.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 19,
+          "title": "External call and chaining patterns",
+          "level": 2,
+          "line_start": 1026,
+          "line_end": 1027,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/019-external-call-and-chaining-patterns.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 20,
+          "title": "External HTTP call pattern (sandbox-compliant)",
+          "level": 3,
+          "line_start": 1028,
+          "line_end": 1148,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)",
+            "External call and chaining patterns"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/020-external-http-call-pattern-sandbox-compliant.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 21,
+          "title": "Shared variables plug-in chain (producer + consumer)",
+          "level": 3,
+          "line_start": 1149,
+          "line_end": 1227,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)",
+            "External call and chaining patterns"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/021-shared-variables-plug-in-chain-producer-consumer.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 22,
+          "title": "CI/CD code reference",
+          "level": 2,
+          "line_start": 1228,
+          "line_end": 1229,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/022-ci-cd-code-reference.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 23,
+          "title": "Tooling primitives",
+          "level": 3,
+          "line_start": 1230,
+          "line_end": 1235,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)",
+            "CI/CD code reference"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/023-tooling-primitives.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 24,
+          "title": "GitHub Actions workflow (build \u2192 test \u2192 solution import \u2192 plug-in push)",
+          "level": 3,
+          "line_start": 1236,
+          "line_end": 1313,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)",
+            "CI/CD code reference"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/024-github-actions-workflow-build-test-solution-import-plug-in-push.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 25,
+          "title": "spkl configuration (reference)",
+          "level": 3,
+          "line_start": 1314,
+          "line_end": 1317,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)",
+            "CI/CD code reference"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/025-spkl-configuration-reference.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 26,
+          "title": "Real-world scenario implementations",
+          "level": 2,
+          "line_start": 1318,
+          "line_end": 1522,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/026-real-world-scenario-implementations.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 27,
+          "title": "Coding standards cheatsheet and cited sources",
+          "level": 2,
+          "line_start": 1523,
+          "line_end": 1524,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/027-coding-standards-cheatsheet-and-cited-sources.md",
+          "snippet_count": 0
+        },
+        {
+          "index": 28,
+          "title": "Dataverse plug-in coding standards for 2025/2026",
+          "level": 3,
+          "line_start": 1525,
+          "line_end": 1550,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)",
+            "Coding standards cheatsheet and cited sources"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/028-dataverse-plug-in-coding-standards-for-2025-2026.md",
+          "snippet_count": 1
+        },
+        {
+          "index": 29,
+          "title": "Cited sources",
+          "level": 3,
+          "line_start": 1551,
+          "line_end": 1584,
+          "parents": [
+            "Generate strong-name key (sn.exe is part of the Strong Name Tool)",
+            "Coding standards cheatsheet and cited sources"
+          ],
+          "chunk_relpath": "references/source-chunks/practical-c-plugin-code-reference-for-power-platform-model-drive/029-cited-sources.md",
+          "snippet_count": 1
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "doc_count": 4,
+    "section_count": 130,
+    "snippet_count": 26
+  }
+}

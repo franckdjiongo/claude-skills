@@ -7,7 +7,7 @@ export const repositories: Repository[] = [
     url: 'https://github.com/franckdjiongo/claude-skills',
     description: 'Main skills library - Power Platform, Claude Code, text processing, and more',
     isLocal: true,
-    skillCount: 51,
+    skillCount: 52,
   },
   {
     id: 'superpowers',
@@ -44,8 +44,8 @@ export const repositories: Repository[] = [
 ];
 
 export const categories: Category[] = [
-  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 124, repository: 'claude-skills' },
-  { id: 'power-platform', name: 'Power Platform', icon: 'Zap', skillCount: 8, repository: 'claude-skills' },
+  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 125, repository: 'claude-skills' },
+  { id: 'power-platform', name: 'Power Platform', icon: 'Zap', skillCount: 9, repository: 'claude-skills' },
   { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 9, repository: 'claude-skills' },
   { id: 'convex', name: 'Convex Database', icon: 'Database', skillCount: 16, repository: 'claude-skills' },
   { id: 'text-processing', name: 'Text & Documents', icon: 'FileText', skillCount: 4, repository: 'claude-skills' },
@@ -127,6 +127,17 @@ export const skills: Skill[] = [
     categoryName: 'Power Platform & Microsoft',
     tags: ['dataverse', 'fetchxml', 'odata', 'performance'],
     path: 'dataverse-query-optimizer/SKILL.md',
+    isLocal: true,
+  },
+  {
+    id: 'dataverse-csharp-plugin-engineer',
+    name: 'Dataverse C# Plugin Engineer',
+    description: 'End-to-end Dataverse C# plugin build, debug, test, and deploy workflow grounded in source docs',
+    repository: 'claude-skills',
+    category: 'power-platform',
+    categoryName: 'Power Platform & Microsoft',
+    tags: ['dataverse', 'csharp', 'plugins', 'debugging', 'ci-cd'],
+    path: 'dataverse-csharp-plugin-engineer/SKILL.md',
     isLocal: true,
   },
   {

@@ -1,0 +1,6 @@
+Is the plugin registered on the Update message?
+├── YES → ALWAYS set filtering attributes
+│         ├── List ONLY the columns your logic depends on
+│         ├── NEVER include the primary key (always present, negates filter)
+│         └── Note: triggers on attribute PRESENCE, not value change
+└── NO → Filtering attributes do not apply (only Update-related messages)

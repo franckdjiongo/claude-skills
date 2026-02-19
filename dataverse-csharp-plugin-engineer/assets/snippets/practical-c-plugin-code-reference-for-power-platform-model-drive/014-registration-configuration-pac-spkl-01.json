@@ -1,0 +1,8 @@
+{
+  "plugins": [
+    {
+      "profile": "default,release",
+      "assemblypath": "src\\Contoso.Plugins\\bin\\Release"
+    }
+  ]
+}
