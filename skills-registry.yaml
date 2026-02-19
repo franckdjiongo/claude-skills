@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-02-10"
+last_updated: "2026-02-19"
 
 # =============================================================================
 # REPOSITORIES
@@ -87,6 +87,12 @@ categories:
         path: dataverse-query-optimizer/SKILL.md
         description: Optimize FetchXML and OData queries for Dataverse
         tags: [dataverse, fetchxml, odata, performance]
+
+      - name: dataverse-csharp-plugin-engineer
+        repository: claude-skills
+        path: dataverse-csharp-plugin-engineer/SKILL.md
+        description: End-to-end Dataverse C# plugin build, debug, and hardening workflow grounded in source docs
+        tags: [dataverse, csharp, plugins, debugging, ci-cd]
 
       - name: governance-script-generator
         repository: claude-skills
@@ -1013,6 +1019,7 @@ skill_index:
   power-automate-worktree-manager: { repo: claude-skills, category: power-platform }
   custom-connector-generator: { repo: claude-skills, category: power-platform }
   dataverse-query-optimizer: { repo: claude-skills, category: power-platform }
+  dataverse-csharp-plugin-engineer: { repo: claude-skills, category: power-platform }
   governance-script-generator: { repo: claude-skills, category: power-platform }
   power-platform-docs: { repo: claude-skills, category: power-platform }
   teams-message-polisher: { repo: claude-skills, category: power-platform }

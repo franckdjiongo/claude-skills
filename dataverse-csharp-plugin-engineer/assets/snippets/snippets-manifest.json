@@ -1,0 +1,188 @@
+{
+  "generated_at": "2026-02-19T04:46:03.734242+00:00",
+  "docs": [
+    {
+      "id": "advanced-dataverse-plug-in-engineering-for-power-platform-model",
+      "source": "dataverse-csharp-plugin-engineer/references/raw-sources/Advanced Dataverse plug-in engineering for Power Platform model-driven apps.md",
+      "snippet_count": 4,
+      "snippets": [
+        {
+          "section_index": 4,
+          "section_title": "Passing data between steps via SharedVariables",
+          "language": "csharp",
+          "snippet_relpath": "assets/snippets/advanced-dataverse-plug-in-engineering-for-power-platform-model/004-passing-data-between-steps-via-sharedvariables-01.cs"
+        },
+        {
+          "section_index": 5,
+          "section_title": "Deep-clone pattern for entity manipulation",
+          "language": "csharp",
+          "snippet_relpath": "assets/snippets/advanced-dataverse-plug-in-engineering-for-power-platform-model/005-deep-clone-pattern-for-entity-manipulation-01.cs"
+        },
+        {
+          "section_index": 10,
+          "section_title": "Full SDK pattern for implementing a Custom API handler",
+          "language": "csharp",
+          "snippet_relpath": "assets/snippets/advanced-dataverse-plug-in-engineering-for-power-platform-model/010-full-sdk-pattern-for-implementing-a-custom-api-h-01.cs"
+        },
+        {
+          "section_index": 25,
+          "section_title": "GitHub Actions YAML template (build, pack, deploy)",
+          "language": "yaml",
+          "snippet_relpath": "assets/snippets/advanced-dataverse-plug-in-engineering-for-power-platform-model/025-github-actions-yaml-template-build-pack-deploy-01.yml"
+        }
+      ]
+    },
+    {
+      "id": "c-plugin-development-for-dataverse-exhaustive-technical-referenc",
+      "source": "dataverse-csharp-plugin-engineer/references/raw-sources/C# plugin development for Dataverse - exhaustive technical reference.md",
+      "snippet_count": 7,
+      "snippets": [
+        {
+          "section_index": 2,
+          "section_title": "2. The plugin execution pipeline processes every Dataverse operation in four stages",
+          "language": "text",
+          "snippet_relpath": "assets/snippets/c-plugin-development-for-dataverse-exhaustive-technical-referenc/002-2-the-plugin-execution-pipeline-processes-every-01.txt"
+        },
+        {
+          "section_index": 6,
+          "section_title": "IPlugin \u2014 the sole entry point",
+          "language": "csharp",
+          "snippet_relpath": "assets/snippets/c-plugin-development-for-dataverse-exhaustive-technical-referenc/006-iplugin-the-sole-entry-point-01.cs"
+        },
+        {
+          "section_index": 9,
+          "section_title": "IOrganizationService \u2014 exactly 8 methods",
+          "language": "csharp",
+          "snippet_relpath": "assets/snippets/c-plugin-development-for-dataverse-exhaustive-technical-referenc/009-iorganizationservice-exactly-8-methods-01.cs"
+        },
+        {
+          "section_index": 25,
+          "section_title": "Late-bound vs. early-bound decision tree",
+          "language": "text",
+          "snippet_relpath": "assets/snippets/c-plugin-development-for-dataverse-exhaustive-technical-referenc/025-late-bound-vs-early-bound-decision-tree-01.txt"
+        },
+        {
+          "section_index": 29,
+          "section_title": "Sync vs. async execution mode",
+          "language": "text",
+          "snippet_relpath": "assets/snippets/c-plugin-development-for-dataverse-exhaustive-technical-referenc/029-sync-vs-async-execution-mode-01.txt"
+        },
+        {
+          "section_index": 30,
+          "section_title": "Pre vs. post operation stage selection",
+          "language": "text",
+          "snippet_relpath": "assets/snippets/c-plugin-development-for-dataverse-exhaustive-technical-referenc/030-pre-vs-post-operation-stage-selection-01.txt"
+        },
+        {
+          "section_index": 31,
+          "section_title": "Filtering attributes usage decision",
+          "language": "text",
+          "snippet_relpath": "assets/snippets/c-plugin-development-for-dataverse-exhaustive-technical-referenc/031-filtering-attributes-usage-decision-01.txt"
+        }
+      ]
+    },
+    {
+      "id": "power-platform-plugin-development-reference",
+      "source": "dataverse-csharp-plugin-engineer/references/raw-sources/Power Platform Plugin Development Reference.md",
+      "snippet_count": 0,
+      "snippets": []
+    },
+    {
+      "id": "practical-c-plugin-code-reference-for-power-platform-model-drive",
+      "source": "dataverse-csharp-plugin-engineer/references/raw-sources/Practical C# plugin code reference for Power Platform model-driven apps for early 2026.md",
+      "snippet_count": 15,
+      "snippets": [
+        {
+          "section_index": 5,
+          "section_title": "Directory structure",
+          "language": "text",
+          "snippet_relpath": "assets/snippets/practical-c-plugin-code-reference-for-power-platform-model-drive/005-directory-structure-01.txt"
+        },
+        {
+          "section_index": 7,
+          "section_title": "Full .csproj template",
+          "language": "xml",
+          "snippet_relpath": "assets/snippets/practical-c-plugin-code-reference-for-power-platform-model-drive/007-full-csproj-template-01.xml"
+        },
+        {
+          "section_index": 8,
+          "section_title": "Test project .csproj template (FakeXrmEasy v3+)",
+          "language": "xml",
+          "snippet_relpath": "assets/snippets/practical-c-plugin-code-reference-for-power-platform-model-drive/008-test-project-csproj-template-fakexrmeasy-v3-01.xml"
+        },
+        {
+          "section_index": 10,
+          "section_title": "Canonical plug-in template",
+          "language": "csharp",
+          "snippet_relpath": "assets/snippets/practical-c-plugin-code-reference-for-power-platform-model-drive/010-canonical-plug-in-template-01.cs"
+        },
+        {
+          "section_index": 11,
+          "section_title": "Production-ready plug-in example class",
+          "language": "csharp",
+          "snippet_relpath": "assets/snippets/practical-c-plugin-code-reference-for-power-platform-model-drive/011-production-ready-plug-in-example-class-01.cs"
+        },
+        {
+          "section_index": 13,
+          "section_title": "Custom API plug-in class (end-to-end)",
+          "language": "csharp",
+          "snippet_relpath": "assets/snippets/practical-c-plugin-code-reference-for-power-platform-model-drive/013-custom-api-plug-in-class-end-to-end-01.cs"
+        },
+        {
+          "section_index": 14,
+          "section_title": "Registration configuration (pac + spkl)",
+          "language": "json",
+          "snippet_relpath": "assets/snippets/practical-c-plugin-code-reference-for-power-platform-model-drive/014-registration-configuration-pac-spkl-01.json"
+        },
+        {
+          "section_index": 16,
+          "section_title": "Complete test file with scenarios",
+          "language": "csharp",
+          "snippet_relpath": "assets/snippets/practical-c-plugin-code-reference-for-power-platform-model-drive/016-complete-test-file-with-scenarios-01.cs"
+        },
+        {
+          "section_index": 18,
+          "section_title": "QueryExpression patterns + FetchXML equivalents",
+          "language": "csharp",
+          "snippet_relpath": "assets/snippets/practical-c-plugin-code-reference-for-power-platform-model-drive/018-queryexpression-patterns-fetchxml-equivalents-01.cs"
+        },
+        {
+          "section_index": 20,
+          "section_title": "External HTTP call pattern (sandbox-compliant)",
+          "language": "csharp",
+          "snippet_relpath": "assets/snippets/practical-c-plugin-code-reference-for-power-platform-model-drive/020-external-http-call-pattern-sandbox-compliant-01.cs"
+        },
+        {
+          "section_index": 21,
+          "section_title": "Shared variables plug-in chain (producer + consumer)",
+          "language": "csharp",
+          "snippet_relpath": "assets/snippets/practical-c-plugin-code-reference-for-power-platform-model-drive/021-shared-variables-plug-in-chain-producer-consumer-01.cs"
+        },
+        {
+          "section_index": 24,
+          "section_title": "GitHub Actions workflow (build \u2192 test \u2192 solution import \u2192 plug-in push)",
+          "language": "yaml",
+          "snippet_relpath": "assets/snippets/practical-c-plugin-code-reference-for-power-platform-model-drive/024-github-actions-workflow-build-test-solution-impo-01.yml"
+        },
+        {
+          "section_index": 26,
+          "section_title": "Real-world scenario implementations",
+          "language": "csharp",
+          "snippet_relpath": "assets/snippets/practical-c-plugin-code-reference-for-power-platform-model-drive/026-real-world-scenario-implementations-01.cs"
+        },
+        {
+          "section_index": 28,
+          "section_title": "Dataverse plug-in coding standards for 2025/2026",
+          "language": "csharp",
+          "snippet_relpath": "assets/snippets/practical-c-plugin-code-reference-for-power-platform-model-drive/028-dataverse-plug-in-coding-standards-for-2025-2026-01.cs"
+        },
+        {
+          "section_index": 29,
+          "section_title": "Cited sources",
+          "language": "text",
+          "snippet_relpath": "assets/snippets/practical-c-plugin-code-reference-for-power-platform-model-drive/029-cited-sources-01.txt"
+        }
+      ]
+    }
+  ]
+}

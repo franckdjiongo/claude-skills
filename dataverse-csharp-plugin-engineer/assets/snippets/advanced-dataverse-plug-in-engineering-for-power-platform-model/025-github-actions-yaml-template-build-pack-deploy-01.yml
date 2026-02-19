@@ -1,0 +1,83 @@
+name: build-and-deploy-solution-with-plugins
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      # Install PAC + dependencies using official Power Platform actions tooling.
+      - name: install power platform tools
+        uses: microsoft/powerplatform-actions/actions/install@v1
+
+      # Authenticate to Dataverse (use service principal / federated creds in real pipelines).
+      - name: whoami
+        uses: microsoft/powerplatform-actions/actions/who-am-i@v1
+        with:
+          environment-url: ${{ secrets.DATAVERSE_URL }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          app-id: ${{ secrets.AZURE_CLIENT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+      # Build plug-in .dll (plug-ins target .NET Framework 4.6.2). citeturn33view0
+      - name: build plugin
+        shell: pwsh
+        run: |
+          dotnet --info
+          msbuild .\src\Plugins\Plugins.csproj /t:Build /p:Configuration=Release
+
+      # Export solution from dev as unmanaged, then pack as managed for deployment.
+      - name: export unmanaged solution
+        uses: microsoft/powerplatform-actions/actions/export-solution@v1
+        with:
+          environment-url: ${{ secrets.DATAVERSE_URL }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          app-id: ${{ secrets.AZURE_CLIENT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          solution-name: "contoso_core"
+          solution-output-file: "${{ github.workspace }}\\out\\contoso_core_unmanaged.zip"
+          managed: false
+
+      - name: pack managed solution
+        uses: microsoft/powerplatform-actions/actions/pack-solution@v1
+        with:
+          solution-file: "${{ github.workspace }}\\out\\contoso_core_unmanaged.zip"
+          solution-folder: "${{ github.workspace }}\\out\\contoso_core"
+          solution-type: "Managed"
+          output-file: "${{ github.workspace }}\\out\\contoso_core_managed.zip"
+
+      - name: upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: contoso_core_managed
+          path: "${{ github.workspace }}\\out\\contoso_core_managed.zip"
+
+  deploy:
+    needs: build
+    runs-on: windows-latest
+    environment: production
+    steps:
+      - name: download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: contoso_core_managed
+          path: .\drop
+
+      - name: install power platform tools
+        uses: microsoft/powerplatform-actions/actions/install@v1
+
+      - name: import managed solution
+        uses: microsoft/powerplatform-actions/actions/import-solution@v1
+        with:
+          environment-url: ${{ secrets.PROD_DATAVERSE_URL }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          app-id: ${{ secrets.AZURE_CLIENT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          solution-file: ".\\drop\\contoso_core_managed.zip"
+          activate-plugins: true  # aligns with pac solution import --activate-plugins citeturn23view0

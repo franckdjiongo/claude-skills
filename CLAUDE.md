@@ -44,16 +44,20 @@ The `description` field is critical - it determines when Claude Code should invo
 **Power Platform & Microsoft**
 - `power-automate-flow-builder` - Generate production-ready Power Automate flows with JSON definitions
 - `power-automate-expert` - Power Automate consulting and pattern guidance
+- `power-automate-worktree-manager` - Manage git worktrees for Power Automate development
 - `custom-connector-generator` - Create Power Automate connectors from OpenAPI specs
 - `dataverse-query-optimizer` - Optimize FetchXML and OData queries
+- `dataverse-csharp-plugin-engineer` - Build, debug, harden, test, and deploy Dataverse C# plug-ins
 - `governance-script-generator` - Generate PAC CLI and PowerShell governance scripts
 - `power-platform-docs` - Power Platform documentation standards
+- `teams-message-polisher` - Polish messages for Microsoft Teams
 
 **Claude Code Extensibility**
 - `skill-creator` - Guide for creating new skills with proper structure and patterns
 - `subagent-architect` - Design and create Claude Code sub-agents
 - `slash-command` - Create custom Claude Code slash commands
 - `prompt-engineer` - Claude prompting best practices
+- `docs-workflow-generator` - Generate PRD, task breakdown, roadmap, and documentation workflow
 - `ralph-prompt-generator` - Generate auto-compact-resilient Ralph Wiggum loop prompts
 
 **Convex Database**
@@ -76,7 +80,6 @@ The `description` field is critical - it determines when Claude Code should invo
 
 **Text & Document Processing**
 - `whatsapp-formatter` - Format text for WhatsApp with proper syntax
-- `teams-message-polisher` - Polish messages for Microsoft Teams
 - `text-refiner` - General text refinement
 - `doc-converter` - Document format conversion
 - `doc-consolidator` - Consolidate multiple documents
@@ -85,6 +88,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `meeting-transcript-analyzer` - Analyze meeting transcripts
 - `meeting-followup-extractor` - Extract action items from meetings
 - `cobacam-meeting-minutes-creator` - French Canadian meeting minutes (procès-verbaux)
+- `rotation-responsabilites` - Manage responsibility rotation schedules
 
 **Development & DevOps**
 - `vercel-expert-developer` - Vercel serverless functions
@@ -120,7 +124,7 @@ When adding new skills, you MUST update TWO separate files:
 1. **`skills-registry.yaml`** - The master registry for CLI/programmatic access
    - Add skill to the appropriate category under `categories:`
    - Add entry to `skill_index:` at the bottom
-   - Update `last_updated` date
+   - Update `last_updated` date (format: `"YYYY-MM-DD"`)
 
 2. **`skills-app/src/data/skills.ts`** - The web app's data source
    - Add skill object to the `skills` array
@@ -129,6 +133,8 @@ When adding new skills, you MUST update TWO separate files:
    - Update `skillCount` in the repository entry
 
 The registry and the app have separate data files. Updating one does NOT automatically update the other.
+
+3. **`CLAUDE.md`** (this file) - Update the Skill Categories section to list the new skill.
 
 ### Key Skill Design Principles
 
@@ -197,48 +203,14 @@ To add a new external repository to the registry:
 
 ### External Skills Quick Reference
 
-**From obra/superpowers:**
-- `test-driven-development` - RED-GREEN-REFACTOR cycle for TDD
-- `systematic-debugging` - 4-phase root cause analysis
-- `verification-before-completion` - Verify work before marking complete
-- `brainstorming` - Structured brainstorming sessions
-- `writing-plans` / `executing-plans` - Plan creation and execution
-- `dispatching-parallel-agents` - Coordinate parallel agents
-- `requesting-code-review` / `receiving-code-review` - Code review workflow
-- `using-git-worktrees` - Git worktrees for parallel work
-- `subagent-driven-development` - Development with coordinated subagents
+Use `python scripts/registry-manager.py list` or browse `skills-registry.yaml` to see all external skills. Key repositories:
 
-**From anthropics/skills:**
-- `pdf` - PDF manipulation, extraction, creation, merging, splitting
-- `docx` - Word document creation, editing, tracked changes
-- `pptx` - Presentation creation, editing, layouts
-- `xlsx` - Spreadsheet creation, formulas, data analysis
-- `algorithmic-art` - Generative art with p5.js
-- `canvas-design` - Visual art creation in PNG/PDF
-- `frontend-design` - Production-grade frontend interfaces
-- `theme-factory` - Styling artifacts with preset themes
-- `mcp-builder` - Build MCP servers for LLM tool integration
-- `webapp-testing` - Test web apps with Playwright
-- `web-artifacts-builder` - Multi-component HTML artifacts
-- `doc-coauthoring` - Structured documentation co-authoring
-- `internal-comms` - Internal communications templates
-
-**From vudovn/antigravity-kit:**
-- **Frontend & UI**: `frontend-design`, `react-patterns`, `nextjs-best-practices`, `tailwind-patterns`, `mobile-design`, `ui-ux-pro-max`
-- **Backend & API**: `api-patterns`, `nestjs-expert`, `nodejs-best-practices`, `prisma-expert`
-- **Database**: `database-design`
-- **TypeScript**: `typescript-expert`
-- **Cloud & DevOps**: `docker-expert`, `deployment-procedures`, `server-management`
-- **Testing & Quality**: `tdd-workflow`, `testing-patterns`, `webapp-testing`, `lint-and-validate`, `systematic-debugging`
-- **Security**: `vulnerability-scanner`, `red-team-tactics`
-- **Architecture**: `architecture`, `app-builder`, `plan-writing`, `brainstorming`, `parallel-agents`
-- **Dev Tools**: `clean-code`, `code-review-checklist`, `mcp-builder`, `documentation-templates`, `bash-linux`, `powershell-windows`, `behavioral-modes`, `python-patterns`
-- **Specialized**: `game-development`, `geo-fundamentals`, `i18n-localization`, `seo-fundamentals`, `performance-profiling`
-
-**From resend:**
-- `email-best-practices` - Expert knowledge for SPF, DKIM, DMARC, and email deliverability
-- `react-email` - Build production-ready HTML emails using React components
-- `resend-api` - Send emails through the Resend API with retries and batch support
+| Repository | Focus |
+|------------|-------|
+| [obra/superpowers](https://github.com/obra/superpowers) | TDD, debugging, code review, git worktrees, planning |
+| [anthropics/skills](https://github.com/anthropics/skills) | PDF/Word/Excel/PPT, generative art, MCP builder, frontend design |
+| [vudovn/antigravity-kit](https://github.com/vudovn/antigravity-kit) | 40+ skills: frontend, backend, DevOps, testing, security, architecture |
+| [resend](https://github.com/resend) | Email deliverability, React Email, Resend API |
 
 ## Skills Library Web Application
 

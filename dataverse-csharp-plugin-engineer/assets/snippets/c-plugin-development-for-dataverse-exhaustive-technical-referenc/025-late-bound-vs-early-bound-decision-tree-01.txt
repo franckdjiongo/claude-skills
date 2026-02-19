@@ -1,0 +1,5 @@
+Does the plugin operate on a KNOWN, FIXED set of entities?
+├── YES → Do you need compile-time safety and IntelliSense?
+│         ├── YES → Use EARLY-BOUND (pac modelbuilder build)
+│         └── NO  → Late-bound is acceptable
+└── NO (generic plugin, works across entities) → Use LATE-BOUND (Entity class)

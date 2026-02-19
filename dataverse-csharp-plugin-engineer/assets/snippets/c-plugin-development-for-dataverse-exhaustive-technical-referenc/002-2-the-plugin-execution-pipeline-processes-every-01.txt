@@ -1,0 +1,39 @@
+Client Request (OrganizationRequest)
+    │
+    ▼
+┌──────────────────────────────────────┐
+│  Stage 10: PreValidation             │  ← Usually OUTSIDE DB transaction
+│  • InputParameters: readable/writable│
+│  • PreEntityImages: available        │
+│  • Cancel here = cheapest rollback   │
+└──────────────┬───────────────────────┘
+               │
+    ═══════════╪═══════════════════════ DB TRANSACTION BEGINS
+               │
+┌──────────────▼───────────────────────┐
+│  Stage 20: PreOperation              │  ← INSIDE DB transaction
+│  • InputParameters: readable/writable│
+│  • PreEntityImages: available        │
+│  • Best place to modify entity values│
+└──────────────┬───────────────────────┘
+               │
+┌──────────────▼───────────────────────┐
+│  Stage 30: MainOperation             │  ← INTERNAL (Custom API only)
+│  • Platform writes to database       │
+│  • OutputParameters set here         │
+└──────────────┬───────────────────────┘
+               │
+┌──────────────▼───────────────────────┐
+│  Stage 40: PostOperation (SYNC)      │  ← INSIDE DB transaction
+│  • OutputParameters: now readable    │
+│  • PreImages + PostImages available  │
+│  • Exception = full rollback         │
+└──────────────┬───────────────────────┘
+               │
+    ═══════════╪═══════════════════════ DB TRANSACTION COMMITS
+               │
+┌──────────────▼───────────────────────┐
+│  Stage 40: PostOperation (ASYNC)     │  ← OUTSIDE DB transaction
+│  • Queued to Asynchronous Service    │
+│  • Cannot roll back original op      │
+└──────────────────────────────────────┘

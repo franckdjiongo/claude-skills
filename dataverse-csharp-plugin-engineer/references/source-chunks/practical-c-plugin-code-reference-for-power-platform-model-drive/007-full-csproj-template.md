@@ -1,0 +1,101 @@
+# Full .csproj template
+
+- Source file: `dataverse-csharp-plugin-engineer/references/raw-sources/Practical C# plugin code reference for Power Platform model-driven apps for early 2026.md`
+- Source lines: 74-167
+- Parent headings: Generate strong-name key (sn.exe is part of the Strong Name Tool)
+
+---
+
+### Full `.csproj` template
+
+This template is **SDK-style** (required for plug-in packages). citeturn9view0 It supports two deployment modes:
+
+- **Plug-in package mode** (recommended): pack into a `.nupkg` and deploy with `pac plugin push --type Nuget`. citeturn12view0turn9view0  
+- **Classic assembly registration mode** (legacy): sign and register a single DLL.
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Dataverse plug-ins must target net462 today -->
+    <TargetFramework>net462</TargetFramework> <!-- required in 2025/2026 --> 
+    <LangVersion>10.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- Required for Power Platform Tools / pac-generated projects -->
+    <PowerAppsTargetsPath>$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\PowerApps</PowerAppsTargetsPath>
+
+    <!-- Versioning -->
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.0.0</Version>
+
+    <!-- Plug-in package (NuGet) metadata -->
+    <IsPackable>true</IsPackable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Contoso.Plugins</PackageId>
+    <Authors>Contoso</Authors>
+    <Company>Contoso</Company>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Description>Dataverse plug-ins packaged for dependent assemblies.</Description>
+
+    <!-- Build outputs -->
+    <Platforms>AnyCPU</Platforms>
+    <Deterministic>true</Deterministic>
+
+    <!-- Classic assembly registration mode (set to true only if NOT using plugin packages) -->
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>Contoso.Plugins.snk</AssemblyOriginatorKeyFile>
+
+    <!-- Helps include dependencies during pack (plugin package scenario) -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Dataverse plug-in runtime references -->
+    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.60" />
+    <!-- Add only if you build custom workflow activities -->
+    <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.60" Condition="'$(IncludeWorkflow)'=='true'" />
+
+    <!-- If you use System.Text.Json in plug-in code, include it explicitly in the package -->
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+
+  <!-- Optional: ILRepack (legacy fallback; Microsoft recommends plugin packages instead of ILMerge) -->
+  <ItemGroup Condition="'$(UseILRepack)'=='true'">
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.44.1" PrivateAssets="all" />
+  </ItemGroup>
+
+  <Target Name="ILRepack" AfterTargets="Build" Condition="'$(UseILRepack)'=='true'">
+    <!-- This is a conservative example: merge plugin + selected dependencies.
+         Prefer plugin packages (dependent assemblies) for Dataverse Online. -->
+    <ItemGroup>
+      <InputAssemblies Include="$(OutputPath)$(AssemblyName).dll" />
+      <InputAssemblies Include="$(OutputPath)System.Text.Json.dll" />
+      <InputAssemblies Include="$(OutputPath)System.Memory.dll" />
+      <InputAssemblies Include="$(OutputPath)System.Buffers.dll" />
+      <InputAssemblies Include="$(OutputPath)System.Runtime.CompilerServices.Unsafe.dll" />
+    </ItemGroup>
+
+    <ILRepack
+      Parallel="true"
+      Internalize="true"
+      DebugInfo="false"
+      InputAssemblies="@(InputAssemblies)"
+      OutputFile="$(OutputPath)$(AssemblyName).merged.dll" />
+
+    <!-- Replace output with merged dll -->
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).merged.dll" DestinationFiles="$(OutputPath)$(AssemblyName).dll" OverwriteReadOnlyFiles="true" />
+    <Delete Files="$(OutputPath)$(AssemblyName).merged.dll" />
+  </Target>
+
+</Project>
+```
+
+Key points backed by Microsoft documentation:
+
+- **TargetFramework must be `net462`** for plug-ins today. citeturn9view0turn8view0  
+- **SDK-style projects** are required for plug-in packages. citeturn9view0  
+- **ILMerge is not supported**; use dependent assemblies capability (plug-in packages). citeturn9view0  
+- If using `System.Text.Json`, **include it explicitly** in dependent assemblies because sandbox version may differ. citeturn9view0
