@@ -106,6 +106,8 @@ The `description` field is critical - it determines when Claude Code should invo
 - `dtsx-workflow-analyzer` - Analyze SSIS DTSX packages
 - `design-elevation` - Elevate design quality through systematic questioning
 - `app-blueprint` - Reverse-engineer a codebase into a comprehensive Application Blueprint (EN/FR)
+- `brand-forge` - Automate end-to-end branding with naming, slogan, logo, and brand identity outputs
+- `seo-visibility` - Implement SEO, structured data, AI discoverability, and marketing visibility improvements
 
 ## Creating New Skills
 

@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-02-19"
+last_updated: "2026-02-21"
 
 # =============================================================================
 # REPOSITORIES
@@ -429,6 +429,18 @@ categories:
         path: application-blueprint-skill/SKILL.md
         description: Reverse-engineer a codebase to produce a comprehensive Application Blueprint document in English and French
         tags: [documentation, blueprint, reverse-engineering, bilingual]
+
+      - name: brand-forge
+        repository: claude-skills
+        path: brand-forge/SKILL.md
+        description: End-to-end branding workflow with naming, verification, slogans, and visual direction
+        tags: [branding, naming, slogans, logo, marketing]
+
+      - name: seo-visibility
+        repository: claude-skills
+        path: seo-visibility/SKILL.md
+        description: Comprehensive SEO and AI discoverability workflow for React and TypeScript websites
+        tags: [seo, discoverability, schema, llms-txt, marketing]
 
   # ---------------------------------------------------------------------------
   # EXTERNAL: SUPERPOWERS (obra/superpowers)
@@ -1069,6 +1081,8 @@ skill_index:
   dtsx-workflow-analyzer: { repo: claude-skills, category: specialized }
   design-elevation: { repo: claude-skills, category: specialized }
   app-blueprint: { repo: claude-skills, category: specialized }
+  brand-forge: { repo: claude-skills, category: specialized }
+  seo-visibility: { repo: claude-skills, category: specialized }
   # External skills (superpowers)
   test-driven-development: { repo: superpowers, category: superpowers-testing }
   systematic-debugging: { repo: superpowers, category: superpowers-testing }
