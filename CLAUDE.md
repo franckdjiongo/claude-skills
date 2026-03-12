@@ -89,6 +89,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `meeting-followup-extractor` - Extract action items from meetings
 - `cobacam-meeting-minutes-creator` - French Canadian meeting minutes (procès-verbaux)
 - `rotation-responsabilites` - Manage responsibility rotation schedules
+- `prep-discussion` - Prepare discussion points with a colleague from reference files (Teams message, email, discussion list, or personal notes)
 
 **Development & DevOps**
 - `vercel-expert-developer` - Vercel serverless functions

@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-02-21"
+last_updated: "2026-03-12"
 
 # =============================================================================
 # REPOSITORIES
@@ -333,6 +333,12 @@ categories:
         path: rotation-responsabilites/SKILL.md
         description: Manage responsibility rotation schedules
         tags: [meetings, rotation, scheduling]
+
+      - name: prep-discussion
+        repository: claude-skills
+        path: prep-discussion/SKILL.md
+        description: Prepare discussion points with a colleague by analyzing reference files, generating Teams messages, emails, discussion lists, or personal notes
+        tags: [meetings, preparation, communication, french, teams]
 
   # ---------------------------------------------------------------------------
   # DEVELOPMENT & DEVOPS
@@ -1067,6 +1073,7 @@ skill_index:
   meeting-followup-extractor: { repo: claude-skills, category: meetings }
   cobacam-meeting-minutes-creator: { repo: claude-skills, category: meetings }
   rotation-responsabilites: { repo: claude-skills, category: meetings }
+  prep-discussion: { repo: claude-skills, category: meetings }
   vercel-expert-developer: { repo: claude-skills, category: development }
   bun-migration: { repo: claude-skills, category: development }
   vite-react-ts-setup: { repo: claude-skills, category: development }
