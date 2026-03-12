@@ -112,6 +112,24 @@ categories:
         description: Polish messages for Microsoft Teams
         tags: [teams, messaging, formatting]
 
+      - name: code-app-create
+        repository: claude-skills
+        path: code-app-create/SKILL.md
+        description: Create, scaffold, and initialize a new Power Apps code app from scratch
+        tags: [power-apps, code-app, scaffold, pac-cli]
+
+      - name: code-app-connect
+        repository: claude-skills
+        path: code-app-connect/SKILL.md
+        description: Connect a Power Apps code app to data sources and implement CRUD operations
+        tags: [power-apps, code-app, dataverse, connectors, crud]
+
+      - name: code-app-deploy
+        repository: claude-skills
+        path: code-app-deploy/SKILL.md
+        description: Deploy a Power Apps code app, manage ALM, configure security and monitoring
+        tags: [power-apps, code-app, deployment, alm, csp, monitoring]
+
   # ---------------------------------------------------------------------------
   # CLAUDE CODE & AI EXTENSIBILITY
   # ---------------------------------------------------------------------------
@@ -339,6 +357,12 @@ categories:
         path: prep-discussion/SKILL.md
         description: Prepare discussion points with a colleague by analyzing reference files, generating Teams messages, emails, discussion lists, or personal notes
         tags: [meetings, preparation, communication, french, teams]
+
+      - name: meeting-to-tasks
+        repository: claude-skills
+        path: meeting-to-tasks/SKILL.md
+        description: Reconcile meeting synthesis with codebase state to produce a structured task tracking document
+        tags: [meetings, tasks, codebase, synthesis, tracking]
 
   # ---------------------------------------------------------------------------
   # DEVELOPMENT & DEVOPS
@@ -1041,6 +1065,9 @@ skill_index:
   governance-script-generator: { repo: claude-skills, category: power-platform }
   power-platform-docs: { repo: claude-skills, category: power-platform }
   teams-message-polisher: { repo: claude-skills, category: power-platform }
+  code-app-create: { repo: claude-skills, category: power-platform }
+  code-app-connect: { repo: claude-skills, category: power-platform }
+  code-app-deploy: { repo: claude-skills, category: power-platform }
   skill-creator: { repo: claude-skills, category: claude-code }
   subagent-architect: { repo: claude-skills, category: claude-code }
   slash-command: { repo: claude-skills, category: claude-code }
@@ -1074,6 +1101,7 @@ skill_index:
   cobacam-meeting-minutes-creator: { repo: claude-skills, category: meetings }
   rotation-responsabilites: { repo: claude-skills, category: meetings }
   prep-discussion: { repo: claude-skills, category: meetings }
+  meeting-to-tasks: { repo: claude-skills, category: meetings }
   vercel-expert-developer: { repo: claude-skills, category: development }
   bun-migration: { repo: claude-skills, category: development }
   vite-react-ts-setup: { repo: claude-skills, category: development }

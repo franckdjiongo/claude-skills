@@ -51,6 +51,9 @@ The `description` field is critical - it determines when Claude Code should invo
 - `governance-script-generator` - Generate PAC CLI and PowerShell governance scripts
 - `power-platform-docs` - Power Platform documentation standards
 - `teams-message-polisher` - Polish messages for Microsoft Teams
+- `code-app-create` - Create, scaffold, and initialize a new Power Apps code app from scratch
+- `code-app-connect` - Connect a Power Apps code app to data sources and implement CRUD operations
+- `code-app-deploy` - Deploy a Power Apps code app, manage ALM, configure security and monitoring
 
 **Claude Code Extensibility**
 - `skill-creator` - Guide for creating new skills with proper structure and patterns
@@ -90,6 +93,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `cobacam-meeting-minutes-creator` - French Canadian meeting minutes (procès-verbaux)
 - `rotation-responsabilites` - Manage responsibility rotation schedules
 - `prep-discussion` - Prepare discussion points with a colleague from reference files (Teams message, email, discussion list, or personal notes)
+- `meeting-to-tasks` - Reconcile meeting synthesis with codebase state to produce a structured task tracking document
 
 **Development & DevOps**
 - `vercel-expert-developer` - Vercel serverless functions
