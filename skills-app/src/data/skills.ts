@@ -7,7 +7,7 @@ export const repositories: Repository[] = [
     url: 'https://github.com/franckdjiongo/claude-skills',
     description: 'Main skills library - Power Platform, Claude Code, text processing, and more',
     isLocal: true,
-    skillCount: 54,
+    skillCount: 55,
   },
   {
     id: 'superpowers',
@@ -44,12 +44,12 @@ export const repositories: Repository[] = [
 ];
 
 export const categories: Category[] = [
-  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 127, repository: 'claude-skills' },
+  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 128, repository: 'claude-skills' },
   { id: 'power-platform', name: 'Power Platform', icon: 'Zap', skillCount: 9, repository: 'claude-skills' },
   { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 9, repository: 'claude-skills' },
   { id: 'convex', name: 'Convex Database', icon: 'Database', skillCount: 16, repository: 'claude-skills' },
   { id: 'text-processing', name: 'Text & Documents', icon: 'FileText', skillCount: 4, repository: 'claude-skills' },
-  { id: 'meetings', name: 'Meetings', icon: 'Users', skillCount: 4, repository: 'claude-skills' },
+  { id: 'meetings', name: 'Meetings', icon: 'Users', skillCount: 5, repository: 'claude-skills' },
   { id: 'development', name: 'Development', icon: 'Code', skillCount: 8, repository: 'claude-skills' },
   { id: 'specialized', name: 'Specialized', icon: 'Sparkles', skillCount: 8, repository: 'claude-skills' },
   { id: 'superpowers-testing', name: 'Testing & Debug', icon: 'Bug', skillCount: 3, repository: 'superpowers' },
@@ -538,6 +538,17 @@ export const skills: Skill[] = [
     categoryName: 'Meeting & Transcript Analysis',
     tags: ['meetings', 'rotation', 'scheduling'],
     path: 'rotation-responsabilites/SKILL.md',
+    isLocal: true,
+  },
+  {
+    id: 'prep-discussion',
+    name: 'Prep Discussion',
+    description: 'Prepare discussion points with a colleague by analyzing reference files — generates Teams messages, emails, discussion lists, or personal notes',
+    repository: 'claude-skills',
+    category: 'meetings',
+    categoryName: 'Meeting & Transcript Analysis',
+    tags: ['meetings', 'preparation', 'communication', 'french', 'teams'],
+    path: 'prep-discussion/SKILL.md',
     isLocal: true,
   },
   // Development & DevOps
