@@ -80,6 +80,19 @@ The `description` field is critical - it determines when Claude Code should invo
 - `convex-agents-tools` - Tool definitions for external APIs and database operations
 - `convex-agents-usage-tracking` - Token consumption tracking for billing
 - `convex-agents-workflows` - Durable multi-step agent workflows
+- `convex` - Umbrella skill for all Convex development patterns (routes to specific skills)
+- `convex-agents` - Building AI agents with thread management, tool integration, streaming, and workflows
+- `convex-best-practices` - Guidelines for production-ready Convex apps
+- `convex-component-authoring` - Create and publish self-contained Convex components
+- `convex-cron-jobs` - Scheduled function patterns for background tasks
+- `convex-file-storage` - File upload, serving, storage, and deletion
+- `convex-functions` - Writing queries, mutations, actions with validation and error handling
+- `convex-http-actions` - HTTP endpoint routing, webhooks, authentication, and CORS
+- `convex-migrations` - Schema migration strategies and zero-downtime patterns
+- `convex-realtime` - Reactive subscriptions, optimistic updates, and paginated queries
+- `convex-schema-validator` - Schema definition, typing, index configuration, and validation
+- `convex-security-audit` - Deep security review for authorization and data access boundaries
+- `convex-security-check` - Quick security audit checklist for Convex apps
 
 **Text & Document Processing**
 - `whatsapp-formatter` - Format text for WhatsApp with proper syntax
@@ -103,6 +116,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `i18n-web-localizer` - Web internationalization
 - `api-test-script-generator` - Generate API test scripts
 - `github-issue-creator` - Create GitHub issues programmatically
+- `avoid-feature-creep` - Prevent feature creep when building software and AI-powered products
 
 **Specialized Workflows**
 - `bpmn-creator` - Create BPMN 2.0 process diagrams

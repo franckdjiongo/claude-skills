@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-03-12"
+last_updated: "2026-03-13"
 
 # =============================================================================
 # REPOSITORIES
@@ -292,6 +292,84 @@ categories:
         description: Durable multi-step agent workflows with automatic retries and recovery
         tags: [convex, agents, workflows, orchestration]
 
+      - name: convex
+        repository: claude-skills
+        path: convex/SKILL.md
+        description: Umbrella skill for all Convex development patterns - routes to specific Convex skills
+        tags: [convex, umbrella, routing]
+
+      - name: convex-agents
+        repository: claude-skills
+        path: convex-agents/SKILL.md
+        description: Building AI agents with the Convex Agent component including thread management, tool integration, streaming responses, RAG patterns, and workflow orchestration
+        tags: [convex, agents, ai, orchestration]
+
+      - name: convex-best-practices
+        repository: claude-skills
+        path: convex-best-practices/SKILL.md
+        description: Guidelines for building production-ready Convex apps covering function organization, query patterns, validation, TypeScript usage, and error handling
+        tags: [convex, best-practices, production]
+
+      - name: convex-component-authoring
+        repository: claude-skills
+        path: convex-component-authoring/SKILL.md
+        description: How to create, structure, and publish self-contained Convex components with proper isolation, exports, and dependency management
+        tags: [convex, components, authoring, publishing]
+
+      - name: convex-cron-jobs
+        repository: claude-skills
+        path: convex-cron-jobs/SKILL.md
+        description: Scheduled function patterns for background tasks including interval scheduling, cron expressions, job monitoring, and retry strategies
+        tags: [convex, cron, scheduling, background-tasks]
+
+      - name: convex-file-storage
+        repository: claude-skills
+        path: convex-file-storage/SKILL.md
+        description: Complete file handling including upload flows, serving files via URL, storing generated files from actions, and deletion
+        tags: [convex, files, storage, upload]
+
+      - name: convex-functions
+        repository: claude-skills
+        path: convex-functions/SKILL.md
+        description: Writing queries, mutations, actions, and HTTP actions with proper argument validation, error handling, and runtime considerations
+        tags: [convex, functions, queries, mutations, actions]
+
+      - name: convex-http-actions
+        repository: claude-skills
+        path: convex-http-actions/SKILL.md
+        description: External API integration and webhook handling including HTTP endpoint routing, authentication, CORS, and webhook signature validation
+        tags: [convex, http, webhooks, api-integration]
+
+      - name: convex-migrations
+        repository: claude-skills
+        path: convex-migrations/SKILL.md
+        description: Schema migration strategies for evolving applications including backfilling data, removing deprecated fields, and zero-downtime migration patterns
+        tags: [convex, migrations, schema, zero-downtime]
+
+      - name: convex-realtime
+        repository: claude-skills
+        path: convex-realtime/SKILL.md
+        description: Patterns for building reactive apps including subscription management, optimistic updates, cache behavior, and paginated queries
+        tags: [convex, realtime, subscriptions, optimistic-updates]
+
+      - name: convex-schema-validator
+        repository: claude-skills
+        path: convex-schema-validator/SKILL.md
+        description: Defining and validating database schemas with proper typing, index configuration, optional fields, unions, and migration strategies
+        tags: [convex, schema, validation, types]
+
+      - name: convex-security-audit
+        repository: claude-skills
+        path: convex-security-audit/SKILL.md
+        description: Deep security review patterns for authorization logic, data access boundaries, action isolation, and rate limiting
+        tags: [convex, security, audit, authorization]
+
+      - name: convex-security-check
+        repository: claude-skills
+        path: convex-security-check/SKILL.md
+        description: Quick security audit checklist covering authentication, function exposure, argument validation, and row-level access control
+        tags: [convex, security, checklist, quick-audit]
+
   # ---------------------------------------------------------------------------
   # TEXT & DOCUMENT PROCESSING
   # ---------------------------------------------------------------------------
@@ -417,6 +495,12 @@ categories:
         path: frontend-design/SKILL.md
         description: Frontend design patterns and implementation
         tags: [frontend, design, ui]
+
+      - name: avoid-feature-creep
+        repository: claude-skills
+        path: avoid-feature-creep/SKILL.md
+        description: Prevent feature creep when building software, apps, and AI-powered products
+        tags: [development, scope, mvp, planning]
 
   # ---------------------------------------------------------------------------
   # SPECIALIZED WORKFLOWS
@@ -1092,6 +1176,19 @@ skill_index:
   convex-agents-tools: { repo: claude-skills, category: convex }
   convex-agents-usage-tracking: { repo: claude-skills, category: convex }
   convex-agents-workflows: { repo: claude-skills, category: convex }
+  convex: { repo: claude-skills, category: convex }
+  convex-agents: { repo: claude-skills, category: convex }
+  convex-best-practices: { repo: claude-skills, category: convex }
+  convex-component-authoring: { repo: claude-skills, category: convex }
+  convex-cron-jobs: { repo: claude-skills, category: convex }
+  convex-file-storage: { repo: claude-skills, category: convex }
+  convex-functions: { repo: claude-skills, category: convex }
+  convex-http-actions: { repo: claude-skills, category: convex }
+  convex-migrations: { repo: claude-skills, category: convex }
+  convex-realtime: { repo: claude-skills, category: convex }
+  convex-schema-validator: { repo: claude-skills, category: convex }
+  convex-security-audit: { repo: claude-skills, category: convex }
+  convex-security-check: { repo: claude-skills, category: convex }
   whatsapp-formatter: { repo: claude-skills, category: text-processing }
   text-refiner: { repo: claude-skills, category: text-processing }
   doc-converter: { repo: claude-skills, category: text-processing }
@@ -1110,6 +1207,7 @@ skill_index:
   api-test-script-generator: { repo: claude-skills, category: development }
   github-issue-creator: { repo: claude-skills, category: development }
   frontend-design: { repo: claude-skills, category: development }
+  avoid-feature-creep: { repo: claude-skills, category: development }
   bpmn-creator: { repo: claude-skills, category: specialized }
   google-forms-builder: { repo: claude-skills, category: specialized }
   obsidian-vault-architect: { repo: claude-skills, category: specialized }
