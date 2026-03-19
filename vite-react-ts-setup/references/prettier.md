@@ -1,96 +1,67 @@
-# Prettier & EditorConfig
+# Prettier and EditorConfig
 
-## .prettierrc
+## Table of contents
+
+- Formatting strategy
+- Minimal Prettier config
+- `.prettierignore`
+- `.editorconfig`
+- Optional Biome note
+
+## Formatting strategy
+
+Keep formatting separate from linting.
+
+Use:
+- Prettier for formatting
+- `eslint-config-prettier` to turn off conflicting ESLint formatting rules
+
+Do not duplicate style enforcement in ESLint unless the team explicitly wants that.
+
+## Minimal Prettier config
+
+Prefer a small config over a giant taste-driven one.
 
 ```json
 {
   "semi": false,
   "singleQuote": true,
-  "tabWidth": 2,
-  "trailingComma": "es5",
-  "printWidth": 80,
-  "bracketSpacing": true,
-  "arrowParens": "avoid",
-  "endOfLine": "lf"
+  "trailingComma": "all"
 }
 ```
 
-## .prettierignore
+If the repo already has a clear style convention, preserve it.
 
-```
+## `.prettierignore`
+
+```text
 dist
-node_modules
 coverage
+node_modules
 *.min.js
-pnpm-lock.yaml
-package-lock.json
 ```
 
-## .editorconfig
+Do not over-ignore. Keep it focused on generated output and vendor directories.
+
+## `.editorconfig`
 
 ```ini
 root = true
 
 [*]
+charset = utf-8
+end_of_line = lf
 indent_style = space
 indent_size = 2
-end_of_line = lf
-charset = utf-8
-trim_trailing_whitespace = true
 insert_final_newline = true
+trim_trailing_whitespace = true
 
 [*.md]
 trim_trailing_whitespace = false
-
-[Makefile]
-indent_style = tab
 ```
 
-## Dependencies
+This is enough for most repos.
 
-```bash
-pnpm add -D prettier
-```
+## Optional Biome note
 
-## VS Code Settings (Optional)
-
-Add to `.vscode/settings.json`:
-
-```json
-{
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
-  }
-}
-```
-
-## Alternative: Biome (All-in-One)
-
-For projects preferring a single tool for linting + formatting:
-
-```bash
-pnpm add -D @biomejs/biome
-pnpm exec biome init
-```
-
-`biome.json`:
-
-```json
-{
-  "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
-  "organizeImports": { "enabled": true },
-  "linter": {
-    "enabled": true,
-    "rules": { "recommended": true }
-  },
-  "formatter": {
-    "enabled": true,
-    "indentStyle": "space",
-    "indentWidth": 2
-  }
-}
-```
-
-Note: Biome replaces both ESLint and Prettier but has fewer rules. Use ESLint + Prettier for maximum coverage.
+If the user explicitly wants a single-tool formatter/linter path, mention Biome as an alternative. Do not silently replace ESLint + Prettier with Biome during a normal Vite/React audit.

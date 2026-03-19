@@ -1,0 +1,3 @@
+interface:
+  display_name: "Vite React TS Setup"
+  short_description: "Set up, audit, and modernize Vite + React + TypeScript projects"

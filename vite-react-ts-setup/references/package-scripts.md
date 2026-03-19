@@ -1,110 +1,72 @@
-# Package.json Scripts
+# Package scripts
 
-## Complete Scripts Section
+## Table of contents
+
+- Raw Vite single-package app
+- Framework starters
+- Monorepo root scripts
+- Optional manager enforcement
+
+## Raw Vite single-package app
+
+Use this as the default script shape for a plain Vite React app:
 
 ```json
 {
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
+    "typecheck": "tsc -b",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "prepare": "husky",
-    "validate": "pnpm run typecheck && pnpm run lint && pnpm run test:run"
+    "check": "pnpm lint && pnpm typecheck && pnpm test:run"
   }
 }
 ```
 
-## Script Explanations
+If Husky is used, add:
 
-| Script | When to Use |
-|--------|-------------|
-| `preinstall` | Prevents accidental npm/yarn usage |
-| `dev` | Local development server |
-| `build` | Production build (type checks first) |
-| `preview` | Preview production build locally |
-| `lint` | Check for linting errors |
-| `lint:fix` | Auto-fix linting errors |
-| `format` | Format all files with Prettier |
-| `format:check` | Check formatting without modifying |
-| `typecheck` | Run TypeScript type checking only |
-| `test` | Run tests in watch mode |
-| `test:run` | Run tests once (CI) |
-| `test:coverage` | Run tests with coverage report |
-| `prepare` | Auto-setup Husky on pnpm install |
-| `validate` | Full validation (CI pipeline) |
-
-## CI Pipeline (GitHub Actions)
-
-```yaml
-name: CI
-on: [push, pull_request]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run validate
-      - run: pnpm run build
+```json
+{
+  "scripts": {
+    "prepare": "husky"
+  }
+}
 ```
 
-## All DevDependencies
+## Framework starters
 
-Complete list for copy-paste:
+For React Router framework mode, TanStack Start, Vike, RedwoodSDK, and similar starters:
+- preserve the generated `dev`, `build`, and framework-specific scripts
+- add only missing `lint`, `typecheck`, `test`, `format`, or `check` scripts
+- do not replace the starter's build command with `vite build` unless the user explicitly wants to abandon that starter
 
-```bash
-pnpm add -D \
-  typescript \
-  @types/react \
-  @types/react-dom \
-  eslint \
-  @eslint/js \
-  typescript-eslint \
-  eslint-plugin-react-hooks \
-  eslint-plugin-react-refresh \
-  eslint-config-prettier \
-  globals \
-  jiti \
-  prettier \
-  husky \
-  lint-staged \
-  vitest \
-  @testing-library/react \
-  @testing-library/jest-dom \
-  @testing-library/user-event \
-  jsdom \
-  @vitest/coverage-v8
+## Monorepo root scripts
+
+Use root scripts only as orchestration layers:
+
+```json
+{
+  "scripts": {
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test:run": "pnpm -r --if-present test:run",
+    "build": "pnpm -r --if-present build",
+    "check": "pnpm -r --if-present lint && pnpm -r --if-present typecheck && pnpm -r --if-present test:run"
+  }
+}
 ```
 
-## .npmrc Configuration
+Use `--filter` for app-specific tasks when the user is focused on one package.
 
-Create `.npmrc` for pnpm settings:
+## Optional manager enforcement
 
-```ini
-# Use pnpm's strict mode (recommended)
-strict-peer-dependencies=false
-auto-install-peers=true
+Only add `preinstall` manager enforcement if the team explicitly wants it.
 
-# Optional: if you have compatibility issues
-# shamefully-hoist=true
-```
+Do not add it by default in mixed environments or during a migration that is not finished.

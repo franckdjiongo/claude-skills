@@ -1,98 +1,105 @@
-# Vitest Configuration
+# Vitest 4
 
-## vitest.config.ts
+## Table of contents
 
-```typescript
+- Default React setup
+- Setup file
+- Browser Mode
+- Coverage
+- Monorepos and projects
+- Guardrails
+
+## Default React setup
+
+For a raw Vite React app, start with jsdom and Testing Library.
+
+Dependencies:
+
+```bash
+pnpm add -D vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom @vitest/coverage-v8
+```
+
+Suggested config:
+
+```ts
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
-import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: './src/test/setup.ts',
-    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    setupFiles: ['./src/test/setup.ts'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      exclude: ['node_modules/', 'src/test/'],
-    },
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
+      reporter: ['text', 'html'],
     },
   },
 })
 ```
 
-## Test Setup File
+If the repo already has a `vite.config.ts`, you can keep tests there for single-app repos instead of splitting a separate `vitest.config.ts`.
 
-Create `src/test/setup.ts`:
+## Setup file
 
-```typescript
+`src/test/setup.ts`
+
+```ts
 import '@testing-library/jest-dom/vitest'
 ```
 
-## Dependencies
+If the repo uses Vitest globals, also expose the types in TS where needed.
+
+## Browser Mode
+
+Use Browser Mode when jsdom is not faithful enough for the feature being tested.
+
+Good triggers:
+- focus, layout, viewport, or navigation behavior
+- browser-only APIs
+- visual regression or real interaction fidelity
+
+Quick setup path:
 
 ```bash
-pnpm add -D vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom @vitest/coverage-v8
+pnpx vitest init browser
 ```
 
-## TypeScript Types
+Guidance:
+- `preview` is fine for a local preview of browser tests
+- for CI, prefer a real provider such as Playwright or WebdriverIO
+- if the repo does not already use one of them, Playwright is usually the easier default
 
-Add to `tsconfig.app.json` compilerOptions:
+## Coverage
 
-```json
-{
-  "types": ["vitest/globals"]
-}
+Prefer the V8 coverage provider unless the repo already uses a different one for a reason.
+
+```bash
+pnpm vitest run --coverage
 ```
 
-Or add to `src/vite-env.d.ts`:
+## Monorepos and projects
 
-```typescript
-/// <reference types="vitest/globals" />
-```
+Do **not** use deprecated `workspace` config for new work.
 
-## Example Test
+Use `test.projects` instead:
 
-`src/components/Button.test.tsx`:
+```ts
+import { defineConfig } from 'vitest/config'
 
-```typescript
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { Button } from './Button'
-
-describe('Button', () => {
-  it('renders with text', () => {
-    render(<Button>Click me</Button>)
-    expect(screen.getByRole('button')).toHaveTextContent('Click me')
-  })
-
-  it('calls onClick when clicked', async () => {
-    const user = userEvent.setup()
-    const handleClick = vi.fn()
-    render(<Button onClick={handleClick}>Click</Button>)
-    
-    await user.click(screen.getByRole('button'))
-    
-    expect(handleClick).toHaveBeenCalledOnce()
-  })
+export default defineConfig({
+  test: {
+    projects: ['apps/*', 'packages/*'],
+  },
 })
 ```
 
-## Package.json Scripts
+For bigger repos, keep package-local configs small and let the root config orchestrate.
 
-```json
-{
-  "scripts": {
-    "test": "vitest",
-    "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
-  }
-}
-```
+## Guardrails
+
+- Do not assume jsdom is always enough.
+- Do not assume Browser Mode can mock everything the same way Node mode does.
+- In Browser Mode, module export spying works differently; use the documented browser-safe mocking patterns.
+- Preserve framework-specific test helpers when auditing React Router, Vike, or other framework branches.

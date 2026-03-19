@@ -1,136 +1,124 @@
 ---
 name: vite-react-ts-setup
-description: Setup and audit tooling for Vite + React + TypeScript projects using pnpm. Use when (1) scaffolding a new Vite/React/TS project with proper tooling, (2) auditing an existing project for missing configurations, (3) migrating a project from npm to pnpm, (4) adding ESLint, Prettier, TypeScript strict mode, Husky, lint-staged, Vitest, or EditorConfig, (5) user asks about web app setup best practices, or (6) user mentions linting, type checking, pre-commit hooks, or code quality tooling for React/Vite projects.
+description: setup, audit, harden, upgrade, and migrate vite + react + typescript repositories, with pnpm as the preferred default for new repos and support for existing npm, yarn, or bun projects. use when creating a new react app, reviewing an existing vite repo, deciding between raw vite and a react framework built on vite, migrating from create react app or older vite setups, adding or fixing eslint 9 flat config, typescript config, prettier, editorconfig, husky, lint-staged, vitest 4, github actions, tailwind css 4, monorepo support, react compiler, react router framework mode, tanstack router, vike, redwoodsdk, or react server components, or when diagnosing edge cases in these setups.
 ---
 
-# Vite + React + TypeScript Project Setup
+# Vite + React + TypeScript Setup
 
-Setup production-quality tooling for Vite + React + TypeScript projects using pnpm.
+Use this skill to choose the correct Vite-based branch first, then scaffold, audit, harden, or migrate the repo with modern defaults.
 
-## Core Tooling Checklist
+## Working model
 
-| Tool | Purpose | Config File |
-|------|---------|-------------|
-| pnpm | Package manager | `pnpm-lock.yaml`, `.npmrc` |
-| TypeScript | Type safety | `tsconfig.json`, `tsconfig.app.json`, `tsconfig.node.json` |
-| ESLint 9 | Code quality | `eslint.config.ts` (flat config with defineConfig) |
-| Prettier | Formatting | `.prettierrc` |
-| Husky | Git hooks | `.husky/` |
-| lint-staged | Pre-commit checks | `package.json` |
-| EditorConfig | Editor consistency | `.editorconfig` |
-| Vitest | Unit testing | `vitest.config.ts` |
+1. Classify the request and repo.
+   - Greenfield or existing repo?
+   - Raw Vite SPA or framework/starter built on Vite?
+   - Single package or monorepo/workspace?
+   - Plain client app, or likely SSR/server functions/RSC?
 
-## Workflow
+2. Inspect before editing.
+   - Detect package manager, lockfile, and `packageManager` field.
+   - Detect Node/runtime pinning.
+   - Detect Vite/React/TypeScript shape.
+   - Detect lint/test/format/hooks/CI state.
+   - Detect framework-specific files such as `react-router.config.*`, route modules, server adapters, or `@vitejs/plugin-rsc`.
 
-### 1. Audit Existing Project
+3. Choose the branch.
+   - **Raw Vite SPA**: use `references/scaffolding-and-variants.md`, `references/tsconfig.md`, `references/eslint.md`, `references/prettier.md`, `references/husky.md`, `references/vitest.md`, `references/package-scripts.md`, and `references/ci-github-actions.md`.
+   - **Framework or advanced branch**: use `references/frameworks.md`.
+   - **Monorepo/workspace**: use `references/monorepo.md`.
+   - **Migration**: use `references/migrations.md` and `references/runtime-and-package-managers.md`.
+   - **Optional Tailwind CSS 4**: use `references/tailwind-v4.md`.
+
+4. Apply changes conservatively.
+   - Preserve working architecture unless the user explicitly wants a migration.
+   - Do not add React Compiler, Tailwind, RSC, SSR, or framework conventions during a basic lint/test/tooling audit unless the repo already uses them or the user asks for them.
+   - Do not force pnpm migration if the repo intentionally uses npm, Yarn, or Bun. Prefer pnpm for new repos.
+
+5. Verify with the smallest relevant command set.
+   - Install.
+   - Lint.
+   - Typecheck.
+   - Test.
+   - Build.
+
+## Default stance
+
+- Prefer a React framework or starter when the app needs SSR, route modules, loaders/actions, static prerender, server functions, or is likely to need them soon.
+- Prefer raw Vite for pure SPAs, internal tools, component playgrounds, and teams that want minimal conventions.
+- Prefer pnpm for new repos, but respect the repo's current package manager unless the user wants migration or the repo is inconsistent.
+- Prefer `eslint.config.js` or `eslint.config.mjs` as the safe default. Use `eslint.config.ts` only when the repo intentionally wants it and the runtime/setup supports it.
+- Prefer typed linting for production-ish apps, but do not force it in every prototype or giant monorepo. It is slower and should be justified.
+- Prefer `tsc -b` or an equivalent explicit typecheck step separate from Vite. Vite does not do full typechecking.
+- Prefer explicit version/risk checks when the task depends on current package versions, Node floors, or security patches.
+
+## Quick inspection
+
+Run or emulate these checks before proposing changes:
 
 ```bash
-# Check package manager
-ls -la pnpm-lock.yaml package-lock.json yarn.lock 2>/dev/null
-
-# Check configs
-ls -la tsconfig.json eslint.config.ts .prettierrc .editorconfig .husky 2>/dev/null
-
-# Check dependencies
-cat package.json | grep -E '"(husky|lint-staged|vitest|eslint|prettier)"'
+ls -la package.json pnpm-lock.yaml package-lock.json npm-shrinkwrap.json yarn.lock bun.lockb bun.lock pnpm-workspace.yaml .nvmrc .node-version 2>/dev/null
+cat package.json
+find . -maxdepth 2 \( -name 'vite.config.*' -o -name 'react-router.config.*' -o -name 'eslint.config.*' -o -name 'tsconfig*.json' -o -name 'vitest.config.*' -o -name '.prettierrc*' -o -name '.editorconfig' -o -path '*/.husky/*' -o -path './.github/*' \)
 ```
 
-### 2. Migrate npm to pnpm (if needed)
+If it is a monorepo, inspect package boundaries before suggesting root-level scripts or config moves.
 
-See `references/npm-to-pnpm-migration.md` for complete migration guide.
+## Guardrails and edge cases
 
-Quick steps:
+- Do not assume raw Vite is the right answer just because the user says “React + Vite”. Check whether a framework branch is more appropriate.
+- Do not replace a framework starter's build pipeline with `vite build`. React Router framework mode, Vike, RedwoodSDK, and similar setups have their own expectations.
+- Do not assume `eslint.config.ts` is friction-free. It has runtime-specific requirements; JavaScript config files are the safe default.
+- Do not assume `vitest.workspace.*` is the preferred monorepo setup. Use `test.projects`.
+- Do not assume path alias plugins are still required. Vite can now resolve `tsconfig.paths` directly, but that feature has a performance cost and is not always the best choice.
+- Treat React Server Components as an advanced/high-risk branch. If the repo uses RSC, verify patched versions before recommending changes.
+- If the repo already uses TanStack Router, React Router framework mode, Vike, or RedwoodSDK, preserve that architecture unless the user explicitly requests a migration.
+- When the user asks for “latest” versions or current recommendations, verify them from current official docs before pinning or naming versions.
+
+## Output shape
+
+For a **greenfield setup**:
+1. State the chosen branch and why.
+2. List the files/configs to create or update.
+3. Give install commands and scripts only for that branch.
+4. End with verification commands.
+
+For an **audit**:
+1. Report what was detected.
+2. Report what is missing, inconsistent, outdated, or risky.
+3. Recommend the smallest set of changes first.
+4. End with verification commands.
+
+For a **migration**:
+1. State the source setup and target setup.
+2. List breaking changes or likely manual work.
+3. Give ordered migration steps.
+4. End with verification commands and rollback notes when useful.
+
+## Resource map
+
+- `references/scaffolding-and-variants.md`: raw Vite, starter choices, plugin selection, alias strategy, and low-level SSR cautions.
+- `references/frameworks.md`: React Router modes, TanStack Router/Start, Vike, RedwoodSDK, React Compiler, and RSC.
+- `references/runtime-and-package-managers.md`: Node and package manager strategy, Corepack, pnpm pinning, and migrations to pnpm.
+- `references/tsconfig.md`: modern split TypeScript config for Vite apps and optional stricter flags.
+- `references/eslint.md`: ESLint 9 flat config, typed linting, TS config file caveats, and compiler-aware linting guidance.
+- `references/prettier.md`: Prettier, EditorConfig, and formatting strategy.
+- `references/husky.md`: Husky and lint-staged with local-hook guardrails.
+- `references/vitest.md`: Vitest 4, Browser Mode, coverage, and monorepo projects.
+- `references/package-scripts.md`: scripts for raw Vite apps, framework starters, and monorepos.
+- `references/ci-github-actions.md`: GitHub Actions with explicit Node pinning and pnpm-aware caching.
+- `references/monorepo.md`: pnpm workspaces, `workspace:` protocol, shared lockfile strategy, and filtered commands.
+- `references/migrations.md`: CRA to Vite, older Vite to current Vite, ESLint flat-config migration, and Vitest projects migration.
+- `references/tailwind-v4.md`: optional Tailwind CSS 4 integration for Vite.
+- `references/audit-checklist.md`: high-signal audit checklist and common red flags.
+
+## Verification
+
+Always end with the smallest relevant verification set. Adapt commands to the repo's actual package manager and starter:
+
 ```bash
-# Remove npm artifacts
-rm -rf node_modules package-lock.json
-
-# Import existing lockfile (optional, for consistency)
-pnpm import
-
-# Install with pnpm
 pnpm install
-
-# Prevent accidental npm usage
-# Add to package.json scripts: "preinstall": "npx only-allow pnpm"
+pnpm lint
+pnpm typecheck
+pnpm test --run
+pnpm build
 ```
-
-### 3. Setup Commands
-
-```bash
-# Core dependencies
-pnpm add -D typescript @types/react @types/react-dom
-
-# ESLint 9 (flat config with defineConfig)
-pnpm add -D eslint @eslint/js typescript-eslint eslint-plugin-react-hooks eslint-plugin-react-refresh globals jiti
-
-# Prettier
-pnpm add -D prettier eslint-config-prettier
-
-# Pre-commit hooks
-pnpm add -D husky lint-staged
-pnpm exec husky init
-
-# Testing
-pnpm add -D vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom @vitest/coverage-v8
-```
-
-### 4. Configuration Files
-
-See `references/` for complete config templates:
-
-- `references/tsconfig.md` - TypeScript configurations
-- `references/eslint.md` - ESLint 9 flat config with defineConfig
-- `references/prettier.md` - Prettier + EditorConfig
-- `references/husky.md` - Husky + lint-staged setup (pnpm)
-- `references/vitest.md` - Vitest configuration
-- `references/package-scripts.md` - Required pnpm scripts
-- `references/npm-to-pnpm-migration.md` - Migration guide
-
-### 5. Package.json Scripts
-
-```json
-{
-  "scripts": {
-    "preinstall": "npx only-allow pnpm",
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "prepare": "husky"
-  }
-}
-```
-
-### 6. Pre-commit Hook
-
-Create `.husky/pre-commit`:
-```bash
-pnpm exec lint-staged
-```
-
-Add to `package.json`:
-```json
-{
-  "lint-staged": {
-    "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
-    "*.{json,md,css}": ["prettier --write"]
-  }
-}
-```
-
-## Output
-
-When setting up a project:
-1. Check if npm artifacts exist → offer migration to pnpm
-2. Create all missing configuration files
-3. Install dependencies with pnpm
-
-When auditing:
-1. Report which configs are missing or outdated
-2. Flag if project uses npm instead of pnpm
-3. Suggest specific fixes
