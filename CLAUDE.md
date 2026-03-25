@@ -184,6 +184,7 @@ The registry tracks:
 | [vudovn/antigravity-kit](https://github.com/vudovn/antigravity-kit) | Modular AI agent skills - 40 skills covering frontend, backend, testing, security, and architecture |
 | [resend](https://github.com/resend) | Email skills for AI agents - best practices, React Email templates, and Resend API integration |
 | [DanielKerridge/claude-code-power-platform-skills](https://github.com/DanielKerridge/claude-code-power-platform-skills) | Power Platform skills - plan, build, deploy, and test Power Apps, Dataverse, plugins, PCF controls |
+| [microsoft/power-platform-skills](https://github.com/microsoft/power-platform-skills) | Official Microsoft Power Platform plugins - Power Pages, Model Apps, and Power Apps for Claude Code and GitHub Copilot |
 
 ### Using the Registry
 
@@ -234,6 +235,7 @@ Use `python scripts/registry-manager.py list` or browse `skills-registry.yaml` t
 | [vudovn/antigravity-kit](https://github.com/vudovn/antigravity-kit) | 40+ skills: frontend, backend, DevOps, testing, security, architecture |
 | [resend](https://github.com/resend) | Email deliverability, React Email, Resend API |
 | [DanielKerridge/claude-code-power-platform-skills](https://github.com/DanielKerridge/claude-code-power-platform-skills) | Power Apps, Dataverse, PCF controls, plugins, visual QA |
+| [microsoft/power-platform-skills](https://github.com/microsoft/power-platform-skills) | Power Pages, Model Apps, Power Apps code apps, connectors |
 
 ## Skills Library Web Application
 

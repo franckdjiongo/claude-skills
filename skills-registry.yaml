@@ -53,6 +53,13 @@ repositories:
     is_local: false
     skills_path: ""  # Skills are at root level
 
+  ms-power-platform:
+    url: https://github.com/microsoft/power-platform-skills
+    local_path: null
+    description: Official Microsoft Power Platform skills - Power Pages, Model Apps, and Power Apps plugins for Claude Code and GitHub Copilot
+    is_local: false
+    skills_path: plugins/  # Skills are under plugins/{plugin}/skills/
+
 # =============================================================================
 # SKILL CATEGORIES
 # =============================================================================
@@ -1218,6 +1225,193 @@ categories:
         tags: [screen-recording, demos, documentation, chrome, video]
         external_url: https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/record-screen
 
+  # ---------------------------------------------------------------------------
+  # EXTERNAL: MICROSOFT POWER PLATFORM SKILLS (microsoft)
+  # ---------------------------------------------------------------------------
+  ms-power-pages:
+    name: "MS Power Platform: Power Pages"
+    skills:
+      - name: ms-pp-create-site
+        repository: ms-power-platform
+        path: plugins/power-pages/skills/create-site/SKILL.md
+        description: Create a new Power Pages site
+        tags: [power-pages, site, create, scaffold]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-pages/skills/create-site
+
+      - name: ms-pp-activate-site
+        repository: ms-power-platform
+        path: plugins/power-pages/skills/activate-site/SKILL.md
+        description: Enable and activate a Power Pages site
+        tags: [power-pages, site, activate, deploy]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-pages/skills/activate-site
+
+      - name: ms-pp-deploy-site
+        repository: ms-power-platform
+        path: plugins/power-pages/skills/deploy-site/SKILL.md
+        description: Deploy a Power Pages site to production
+        tags: [power-pages, site, deploy, production]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-pages/skills/deploy-site
+
+      - name: ms-pp-setup-datamodel
+        repository: ms-power-platform
+        path: plugins/power-pages/skills/setup-datamodel/SKILL.md
+        description: Set up the underlying data model for a Power Pages site
+        tags: [power-pages, datamodel, dataverse, schema]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-pages/skills/setup-datamodel
+
+      - name: ms-pp-setup-auth
+        repository: ms-power-platform
+        path: plugins/power-pages/skills/setup-auth/SKILL.md
+        description: Configure authentication for a Power Pages site
+        tags: [power-pages, authentication, identity, security]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-pages/skills/setup-auth
+
+      - name: ms-pp-create-webroles
+        repository: ms-power-platform
+        path: plugins/power-pages/skills/create-webroles/SKILL.md
+        description: Set up web roles for Power Pages access control
+        tags: [power-pages, roles, permissions, security]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-pages/skills/create-webroles
+
+      - name: ms-pp-audit-permissions
+        repository: ms-power-platform
+        path: plugins/power-pages/skills/audit-permissions/SKILL.md
+        description: Review and validate Power Pages access controls and permissions
+        tags: [power-pages, audit, permissions, security]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-pages/skills/audit-permissions
+
+      - name: ms-pp-integrate-webapi
+        repository: ms-power-platform
+        path: plugins/power-pages/skills/integrate-webapi/SKILL.md
+        description: Connect Web API functionality to a Power Pages site
+        tags: [power-pages, web-api, integration, api]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-pages/skills/integrate-webapi
+
+      - name: ms-pp-add-seo
+        repository: ms-power-platform
+        path: plugins/power-pages/skills/add-seo/SKILL.md
+        description: Implement SEO for a Power Pages site
+        tags: [power-pages, seo, search, optimization]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-pages/skills/add-seo
+
+      - name: ms-pp-add-sample-data
+        repository: ms-power-platform
+        path: plugins/power-pages/skills/add-sample-data/SKILL.md
+        description: Populate a Power Pages site with sample data
+        tags: [power-pages, data, sample, testing]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-pages/skills/add-sample-data
+
+      - name: ms-pp-test-site
+        repository: ms-power-platform
+        path: plugins/power-pages/skills/test-site/SKILL.md
+        description: Validate Power Pages site functionality and performance
+        tags: [power-pages, testing, validation, qa]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-pages/skills/test-site
+
+  ms-model-apps:
+    name: "MS Power Platform: Model Apps"
+    skills:
+      - name: ms-ma-genpage
+        repository: ms-power-platform
+        path: plugins/model-apps/skills/genpage/SKILL.md
+        description: Build and deploy Power Apps generative pages for model-driven apps (React + TypeScript + Fluent)
+        tags: [model-apps, generative-pages, react, typescript, fluent]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/model-apps/skills/genpage
+
+  ms-power-apps:
+    name: "MS Power Platform: Power Apps"
+    skills:
+      - name: ms-pa-create-power-app
+        repository: ms-power-platform
+        path: plugins/power-apps/skills/create-power-app/SKILL.md
+        description: Create a new Power Apps code app
+        tags: [power-apps, create, scaffold, react, vite]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-apps/skills/create-power-app
+
+      - name: ms-pa-deploy
+        repository: ms-power-platform
+        path: plugins/power-apps/skills/deploy/SKILL.md
+        description: Deploy a Power Apps code app via PAC CLI
+        tags: [power-apps, deploy, pac-cli, production]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-apps/skills/deploy
+
+      - name: ms-pa-add-connector
+        repository: ms-power-platform
+        path: plugins/power-apps/skills/add-connector/SKILL.md
+        description: Add a connector to a Power Apps code app
+        tags: [power-apps, connector, integration]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-apps/skills/add-connector
+
+      - name: ms-pa-add-datasource
+        repository: ms-power-platform
+        path: plugins/power-apps/skills/add-datasource/SKILL.md
+        description: Add a data source to a Power Apps code app
+        tags: [power-apps, datasource, data, integration]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-apps/skills/add-datasource
+
+      - name: ms-pa-add-dataverse
+        repository: ms-power-platform
+        path: plugins/power-apps/skills/add-dataverse/SKILL.md
+        description: Connect a Power Apps code app to Dataverse
+        tags: [power-apps, dataverse, data, integration]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-apps/skills/add-dataverse
+
+      - name: ms-pa-add-sharepoint
+        repository: ms-power-platform
+        path: plugins/power-apps/skills/add-sharepoint/SKILL.md
+        description: Connect a Power Apps code app to SharePoint
+        tags: [power-apps, sharepoint, data, integration]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-apps/skills/add-sharepoint
+
+      - name: ms-pa-add-excel
+        repository: ms-power-platform
+        path: plugins/power-apps/skills/add-excel/SKILL.md
+        description: Connect a Power Apps code app to Excel
+        tags: [power-apps, excel, data, integration]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-apps/skills/add-excel
+
+      - name: ms-pa-add-teams
+        repository: ms-power-platform
+        path: plugins/power-apps/skills/add-teams/SKILL.md
+        description: Connect a Power Apps code app to Microsoft Teams
+        tags: [power-apps, teams, integration, microsoft]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-apps/skills/add-teams
+
+      - name: ms-pa-add-onedrive
+        repository: ms-power-platform
+        path: plugins/power-apps/skills/add-onedrive/SKILL.md
+        description: Connect a Power Apps code app to OneDrive
+        tags: [power-apps, onedrive, data, storage]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-apps/skills/add-onedrive
+
+      - name: ms-pa-add-office365
+        repository: ms-power-platform
+        path: plugins/power-apps/skills/add-office365/SKILL.md
+        description: Connect a Power Apps code app to Office 365
+        tags: [power-apps, office365, integration, microsoft]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-apps/skills/add-office365
+
+      - name: ms-pa-add-azuredevops
+        repository: ms-power-platform
+        path: plugins/power-apps/skills/add-azuredevops/SKILL.md
+        description: Connect a Power Apps code app to Azure DevOps
+        tags: [power-apps, azure-devops, integration, devops]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-apps/skills/add-azuredevops
+
+      - name: ms-pa-add-mcscopilot
+        repository: ms-power-platform
+        path: plugins/power-apps/skills/add-mcscopilot/SKILL.md
+        description: Add Microsoft Copilot Studio integration to a Power Apps code app
+        tags: [power-apps, copilot, ai, microsoft]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-apps/skills/add-mcscopilot
+
+      - name: ms-pa-list-connections
+        repository: ms-power-platform
+        path: plugins/power-apps/skills/list-connections/SKILL.md
+        description: List available connections for a Power Apps code app
+        tags: [power-apps, connections, discovery, connectors]
+        external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-apps/skills/list-connections
+
 # =============================================================================
 # QUICK REFERENCE INDEX
 # =============================================================================
@@ -1378,6 +1572,33 @@ skill_index:
   email-best-practices: { repo: resend-email, category: resend-email }
   react-email: { repo: resend-email, category: resend-email }
   resend-api: { repo: resend-email, category: resend-email }
+  # External skills (dk-power-platform)
+  # External skills (ms-power-platform)
+  ms-pp-create-site: { repo: ms-power-platform, category: ms-power-pages }
+  ms-pp-activate-site: { repo: ms-power-platform, category: ms-power-pages }
+  ms-pp-deploy-site: { repo: ms-power-platform, category: ms-power-pages }
+  ms-pp-setup-datamodel: { repo: ms-power-platform, category: ms-power-pages }
+  ms-pp-setup-auth: { repo: ms-power-platform, category: ms-power-pages }
+  ms-pp-create-webroles: { repo: ms-power-platform, category: ms-power-pages }
+  ms-pp-audit-permissions: { repo: ms-power-platform, category: ms-power-pages }
+  ms-pp-integrate-webapi: { repo: ms-power-platform, category: ms-power-pages }
+  ms-pp-add-seo: { repo: ms-power-platform, category: ms-power-pages }
+  ms-pp-add-sample-data: { repo: ms-power-platform, category: ms-power-pages }
+  ms-pp-test-site: { repo: ms-power-platform, category: ms-power-pages }
+  ms-ma-genpage: { repo: ms-power-platform, category: ms-model-apps }
+  ms-pa-create-power-app: { repo: ms-power-platform, category: ms-power-apps }
+  ms-pa-deploy: { repo: ms-power-platform, category: ms-power-apps }
+  ms-pa-add-connector: { repo: ms-power-platform, category: ms-power-apps }
+  ms-pa-add-datasource: { repo: ms-power-platform, category: ms-power-apps }
+  ms-pa-add-dataverse: { repo: ms-power-platform, category: ms-power-apps }
+  ms-pa-add-sharepoint: { repo: ms-power-platform, category: ms-power-apps }
+  ms-pa-add-excel: { repo: ms-power-platform, category: ms-power-apps }
+  ms-pa-add-teams: { repo: ms-power-platform, category: ms-power-apps }
+  ms-pa-add-onedrive: { repo: ms-power-platform, category: ms-power-apps }
+  ms-pa-add-office365: { repo: ms-power-platform, category: ms-power-apps }
+  ms-pa-add-azuredevops: { repo: ms-power-platform, category: ms-power-apps }
+  ms-pa-add-mcscopilot: { repo: ms-power-platform, category: ms-power-apps }
+  ms-pa-list-connections: { repo: ms-power-platform, category: ms-power-apps }
   # External skills (dk-power-platform)
   dk-plan-with-team: { repo: dk-power-platform, category: dk-power-platform-planning }
   dk-dataverse-web-api: { repo: dk-power-platform, category: dk-power-platform-dataverse }
