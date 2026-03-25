@@ -183,6 +183,7 @@ The registry tracks:
 | [anthropics/skills](https://github.com/anthropics/skills) | Official Anthropic skills - documents, creative design, MCP, and enterprise workflows |
 | [vudovn/antigravity-kit](https://github.com/vudovn/antigravity-kit) | Modular AI agent skills - 40 skills covering frontend, backend, testing, security, and architecture |
 | [resend](https://github.com/resend) | Email skills for AI agents - best practices, React Email templates, and Resend API integration |
+| [DanielKerridge/claude-code-power-platform-skills](https://github.com/DanielKerridge/claude-code-power-platform-skills) | Power Platform skills - plan, build, deploy, and test Power Apps, Dataverse, plugins, PCF controls |
 
 ### Using the Registry
 
@@ -232,6 +233,7 @@ Use `python scripts/registry-manager.py list` or browse `skills-registry.yaml` t
 | [anthropics/skills](https://github.com/anthropics/skills) | PDF/Word/Excel/PPT, generative art, MCP builder, frontend design |
 | [vudovn/antigravity-kit](https://github.com/vudovn/antigravity-kit) | 40+ skills: frontend, backend, DevOps, testing, security, architecture |
 | [resend](https://github.com/resend) | Email deliverability, React Email, Resend API |
+| [DanielKerridge/claude-code-power-platform-skills](https://github.com/DanielKerridge/claude-code-power-platform-skills) | Power Apps, Dataverse, PCF controls, plugins, visual QA |
 
 ## Skills Library Web Application
 

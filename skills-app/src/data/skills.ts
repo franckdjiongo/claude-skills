@@ -41,10 +41,18 @@ export const repositories: Repository[] = [
     isLocal: false,
     skillCount: 3,
   },
+  {
+    id: 'dk-power-platform',
+    name: 'DK Power Platform',
+    url: 'https://github.com/DanielKerridge/claude-code-power-platform-skills',
+    description: 'Power Platform skills for Claude Code - plan, build, deploy, and test Power Apps, Dataverse, plugins, PCF controls',
+    isLocal: false,
+    skillCount: 9,
+  },
 ];
 
 export const categories: Category[] = [
-  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 146, repository: 'claude-skills' },
+  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 155, repository: 'claude-skills' },
   { id: 'power-platform', name: 'Power Platform', icon: 'Zap', skillCount: 12, repository: 'claude-skills' },
   { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 9, repository: 'claude-skills' },
   { id: 'convex', name: 'Convex Database', icon: 'Database', skillCount: 29, repository: 'claude-skills' },
@@ -70,6 +78,10 @@ export const categories: Category[] = [
   { id: 'antigravity-devtools', name: 'Dev Tools', icon: 'Wrench', skillCount: 8, repository: 'antigravity-kit' },
   { id: 'antigravity-specialized', name: 'Specialized', icon: 'Sparkles', skillCount: 5, repository: 'antigravity-kit' },
   { id: 'resend-email', name: 'Email Skills', icon: 'Mail', skillCount: 3, repository: 'resend-email' },
+  { id: 'dk-power-platform-planning', name: 'Planning', icon: 'Users', skillCount: 1, repository: 'dk-power-platform' },
+  { id: 'dk-power-platform-dataverse', name: 'Dataverse', icon: 'Database', skillCount: 3, repository: 'dk-power-platform' },
+  { id: 'dk-power-platform-apps', name: 'App Development', icon: 'Zap', skillCount: 2, repository: 'dk-power-platform' },
+  { id: 'dk-power-platform-quality', name: 'Quality & Testing', icon: 'TestTube', skillCount: 3, repository: 'dk-power-platform' },
 ];
 
 export const skills: Skill[] = [
@@ -1821,6 +1833,115 @@ export const skills: Skill[] = [
     externalUrl: 'https://github.com/resend/resend-skills',
     isLocal: false,
   },
+  // DK Power Platform Skills (DanielKerridge/claude-code-power-platform-skills)
+  {
+    id: 'dk-plan-with-team',
+    name: 'Plan With Team',
+    description: 'Spawns collaborative Agent Team (Data Architect, UX Designer, The Skeptic) for pre-development planning',
+    repository: 'dk-power-platform',
+    category: 'dk-power-platform-planning',
+    categoryName: 'DK Power Platform: Planning',
+    tags: ['power-platform', 'planning', 'agents', 'collaboration', 'architecture'],
+    path: 'plan-with-team/SKILL.md',
+    externalUrl: 'https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/plan-with-team',
+    isLocal: false,
+  },
+  {
+    id: 'dk-dataverse-web-api',
+    name: 'Dataverse Web API',
+    description: 'Creates Dataverse schema including tables, columns, relationships, views, forms, and option sets via Web API',
+    repository: 'dk-power-platform',
+    category: 'dk-power-platform-dataverse',
+    categoryName: 'DK Power Platform: Dataverse',
+    tags: ['dataverse', 'web-api', 'schema', 'tables', 'relationships'],
+    path: 'dataverse-web-api/SKILL.md',
+    externalUrl: 'https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/dataverse-web-api',
+    isLocal: false,
+  },
+  {
+    id: 'dk-dataverse-web-resources',
+    name: 'Dataverse Web Resources',
+    description: 'Creates and deploys web resources (JavaScript form scripts, HTML dashboards, ribbon commands)',
+    repository: 'dk-power-platform',
+    category: 'dk-power-platform-dataverse',
+    categoryName: 'DK Power Platform: Dataverse',
+    tags: ['dataverse', 'web-resources', 'javascript', 'html', 'ribbon'],
+    path: 'dataverse-web-resources/SKILL.md',
+    externalUrl: 'https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/dataverse-web-resources',
+    isLocal: false,
+  },
+  {
+    id: 'dk-dataverse-plugins',
+    name: 'Dataverse Plugins',
+    description: 'Develops and registers C# Dataverse plugins for server-side business logic',
+    repository: 'dk-power-platform',
+    category: 'dk-power-platform-dataverse',
+    categoryName: 'DK Power Platform: Dataverse',
+    tags: ['dataverse', 'plugins', 'csharp', 'server-side', 'business-logic'],
+    path: 'dataverse-plugins/SKILL.md',
+    externalUrl: 'https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/dataverse-plugins',
+    isLocal: false,
+  },
+  {
+    id: 'dk-power-apps-code-apps',
+    name: 'Power Apps Code Apps',
+    description: 'Builds Code App frontends using React/Vue/TypeScript with the @microsoft/power-apps SDK',
+    repository: 'dk-power-platform',
+    category: 'dk-power-platform-apps',
+    categoryName: 'DK Power Platform: App Development',
+    tags: ['power-apps', 'code-apps', 'react', 'typescript', 'frontend'],
+    path: 'power-apps-code-apps/SKILL.md',
+    externalUrl: 'https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/power-apps-code-apps',
+    isLocal: false,
+  },
+  {
+    id: 'dk-pcf-controls',
+    name: 'PCF Controls',
+    description: 'Builds PowerApps Component Framework controls (field, dataset, and React virtual controls)',
+    repository: 'dk-power-platform',
+    category: 'dk-power-platform-apps',
+    categoryName: 'DK Power Platform: App Development',
+    tags: ['pcf', 'controls', 'react', 'power-apps', 'components'],
+    path: 'pcf-controls/SKILL.md',
+    externalUrl: 'https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/pcf-controls',
+    isLocal: false,
+  },
+  {
+    id: 'dk-code-review',
+    name: 'Code Review',
+    description: 'Deep code audits identifying dead wiring, silent failures, placeholders, and bloated files',
+    repository: 'dk-power-platform',
+    category: 'dk-power-platform-quality',
+    categoryName: 'DK Power Platform: Quality & Testing',
+    tags: ['code-review', 'audit', 'quality', 'testing'],
+    path: 'code-review/SKILL.md',
+    externalUrl: 'https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/code-review',
+    isLocal: false,
+  },
+  {
+    id: 'dk-visual-qa',
+    name: 'Visual QA',
+    description: 'AI-powered visual testing that walks through apps, records actions, and sends to Gemini for review',
+    repository: 'dk-power-platform',
+    category: 'dk-power-platform-quality',
+    categoryName: 'DK Power Platform: Quality & Testing',
+    tags: ['visual-testing', 'qa', 'ai', 'gemini', 'automation'],
+    path: 'visual-qa/SKILL.md',
+    externalUrl: 'https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/visual-qa',
+    isLocal: false,
+  },
+  {
+    id: 'dk-record-screen',
+    name: 'Record Screen',
+    description: 'Records Chrome browser tab sessions to video for demos and documentation',
+    repository: 'dk-power-platform',
+    category: 'dk-power-platform-quality',
+    categoryName: 'DK Power Platform: Quality & Testing',
+    tags: ['screen-recording', 'demos', 'documentation', 'chrome', 'video'],
+    path: 'record-screen/SKILL.md',
+    externalUrl: 'https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/record-screen',
+    isLocal: false,
+  },
 ];
 
 export const getSkillsByCategory = (categoryId: string): Skill[] => {
@@ -1853,6 +1974,8 @@ export const getRepositoryColor = (repo: string): string => {
       return 'var(--accent-green, #00ff88)';
     case 'resend-email':
       return 'var(--accent-purple, #8b5cf6)';
+    case 'dk-power-platform':
+      return 'var(--accent-orange, #f97316)';
     default:
       return 'var(--accent-cyan)';
   }

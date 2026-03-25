@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-03-13"
+last_updated: "2026-03-25"
 
 # =============================================================================
 # REPOSITORIES
@@ -45,6 +45,13 @@ repositories:
     description: Email skills for AI agents - best practices, React Email templates, and Resend API integration
     is_local: false
     skills_path: ""  # Skills are in separate repos under resend org
+
+  dk-power-platform:
+    url: https://github.com/DanielKerridge/claude-code-power-platform-skills
+    local_path: null
+    description: Power Platform skills for Claude Code - plan, build, deploy, and test Power Apps, Dataverse, plugins, PCF controls
+    is_local: false
+    skills_path: ""  # Skills are at root level
 
 # =============================================================================
 # SKILL CATEGORIES
@@ -1133,6 +1140,84 @@ categories:
         tags: [email, api, resend, sending, transactional]
         external_url: https://github.com/resend/resend-skills
 
+  # ---------------------------------------------------------------------------
+  # EXTERNAL: DK POWER PLATFORM SKILLS (DanielKerridge)
+  # ---------------------------------------------------------------------------
+  dk-power-platform-planning:
+    name: "DK Power Platform: Planning"
+    skills:
+      - name: dk-plan-with-team
+        repository: dk-power-platform
+        path: plan-with-team/SKILL.md
+        description: Spawns collaborative Agent Team (Data Architect, UX Designer, The Skeptic) for pre-development planning
+        tags: [power-platform, planning, agents, collaboration, architecture]
+        external_url: https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/plan-with-team
+
+  dk-power-platform-dataverse:
+    name: "DK Power Platform: Dataverse"
+    skills:
+      - name: dk-dataverse-web-api
+        repository: dk-power-platform
+        path: dataverse-web-api/SKILL.md
+        description: Creates Dataverse schema including tables, columns, relationships, views, forms, and option sets via Web API
+        tags: [dataverse, web-api, schema, tables, relationships]
+        external_url: https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/dataverse-web-api
+
+      - name: dk-dataverse-web-resources
+        repository: dk-power-platform
+        path: dataverse-web-resources/SKILL.md
+        description: Creates and deploys web resources (JavaScript form scripts, HTML dashboards, ribbon commands)
+        tags: [dataverse, web-resources, javascript, html, ribbon]
+        external_url: https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/dataverse-web-resources
+
+      - name: dk-dataverse-plugins
+        repository: dk-power-platform
+        path: dataverse-plugins/SKILL.md
+        description: Develops and registers C# Dataverse plugins for server-side business logic
+        tags: [dataverse, plugins, csharp, server-side, business-logic]
+        external_url: https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/dataverse-plugins
+
+  dk-power-platform-apps:
+    name: "DK Power Platform: App Development"
+    skills:
+      - name: dk-power-apps-code-apps
+        repository: dk-power-platform
+        path: power-apps-code-apps/SKILL.md
+        description: Builds Code App frontends using React/Vue/TypeScript with the @microsoft/power-apps SDK
+        tags: [power-apps, code-apps, react, typescript, frontend]
+        external_url: https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/power-apps-code-apps
+
+      - name: dk-pcf-controls
+        repository: dk-power-platform
+        path: pcf-controls/SKILL.md
+        description: Builds PowerApps Component Framework controls (field, dataset, and React virtual controls)
+        tags: [pcf, controls, react, power-apps, components]
+        external_url: https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/pcf-controls
+
+  dk-power-platform-quality:
+    name: "DK Power Platform: Quality & Testing"
+    skills:
+      - name: dk-code-review
+        repository: dk-power-platform
+        path: code-review/SKILL.md
+        description: Deep code audits identifying dead wiring, silent failures, placeholders, and bloated files
+        tags: [code-review, audit, quality, testing]
+        external_url: https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/code-review
+
+      - name: dk-visual-qa
+        repository: dk-power-platform
+        path: visual-qa/SKILL.md
+        description: AI-powered visual testing that walks through apps, records actions, and sends to Gemini for review
+        tags: [visual-testing, qa, ai, gemini, automation]
+        external_url: https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/visual-qa
+
+      - name: dk-record-screen
+        repository: dk-power-platform
+        path: record-screen/SKILL.md
+        description: Records Chrome browser tab sessions to video for demos and documentation
+        tags: [screen-recording, demos, documentation, chrome, video]
+        external_url: https://github.com/DanielKerridge/claude-code-power-platform-skills/tree/main/record-screen
+
 # =============================================================================
 # QUICK REFERENCE INDEX
 # =============================================================================
@@ -1293,3 +1378,13 @@ skill_index:
   email-best-practices: { repo: resend-email, category: resend-email }
   react-email: { repo: resend-email, category: resend-email }
   resend-api: { repo: resend-email, category: resend-email }
+  # External skills (dk-power-platform)
+  dk-plan-with-team: { repo: dk-power-platform, category: dk-power-platform-planning }
+  dk-dataverse-web-api: { repo: dk-power-platform, category: dk-power-platform-dataverse }
+  dk-dataverse-web-resources: { repo: dk-power-platform, category: dk-power-platform-dataverse }
+  dk-dataverse-plugins: { repo: dk-power-platform, category: dk-power-platform-dataverse }
+  dk-power-apps-code-apps: { repo: dk-power-platform, category: dk-power-platform-apps }
+  dk-pcf-controls: { repo: dk-power-platform, category: dk-power-platform-apps }
+  dk-code-review: { repo: dk-power-platform, category: dk-power-platform-quality }
+  dk-visual-qa: { repo: dk-power-platform, category: dk-power-platform-quality }
+  dk-record-screen: { repo: dk-power-platform, category: dk-power-platform-quality }

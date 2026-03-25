@@ -2,7 +2,7 @@ export interface Skill {
   id: string;
   name: string;
   description: string;
-  repository: 'claude-skills' | 'superpowers' | 'anthropic-skills' | 'antigravity-kit' | 'resend-email';
+  repository: 'claude-skills' | 'superpowers' | 'anthropic-skills' | 'antigravity-kit' | 'resend-email' | 'dk-power-platform';
   category: string;
   categoryName: string;
   tags: string[];
@@ -16,7 +16,7 @@ export interface Category {
   name: string;
   icon: string;
   skillCount: number;
-  repository: 'claude-skills' | 'superpowers' | 'anthropic-skills' | 'antigravity-kit' | 'resend-email';
+  repository: 'claude-skills' | 'superpowers' | 'anthropic-skills' | 'antigravity-kit' | 'resend-email' | 'dk-power-platform';
 }
 
 export interface Repository {
