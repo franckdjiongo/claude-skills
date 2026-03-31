@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-03-25"
+last_updated: "2026-03-31"
 
 # =============================================================================
 # REPOSITORIES
@@ -59,6 +59,13 @@ repositories:
     description: Official Microsoft Power Platform skills - Power Pages, Model Apps, and Power Apps plugins for Claude Code and GitHub Copilot
     is_local: false
     skills_path: plugins/  # Skills are under plugins/{plugin}/skills/
+
+  korchard-power-platform:
+    url: https://github.com/korchard333/claude-power-platform-community
+    local_path: null
+    description: Community Power Platform skills for Claude Code - agent personas, code apps, Dataverse, security, ALM, AI Builder, and 40 domain skills
+    is_local: false
+    skills_path: .claude/skills/  # Skills are under .claude/skills/{skill}/
 
 # =============================================================================
 # SKILL CATEGORIES
@@ -1412,6 +1419,313 @@ categories:
         tags: [power-apps, connections, discovery, connectors]
         external_url: https://github.com/microsoft/power-platform-skills/tree/main/plugins/power-apps/skills/list-connections
 
+  # ---------------------------------------------------------------------------
+  # EXTERNAL: KORCHARD POWER PLATFORM COMMUNITY (korchard333/claude-power-platform-community)
+  # ---------------------------------------------------------------------------
+  korchard-pp-agents:
+    name: "Korchard PP Community: Agent Personas"
+    skills:
+      - name: kpp-project-manager
+        repository: korchard-power-platform
+        path: .claude/skills/project-manager/SKILL.md
+        description: Laura - Project manager agent persona for Power Platform projects
+        tags: [power-platform, agent, project-management, persona]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/project-manager
+
+      - name: kpp-solutions-architect
+        repository: korchard-power-platform
+        path: .claude/skills/solutions-architect/SKILL.md
+        description: Sean - Solutions architect agent persona for Power Platform design
+        tags: [power-platform, agent, architecture, persona]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/solutions-architect
+
+      - name: kpp-platform-builder
+        repository: korchard-power-platform
+        path: .claude/skills/platform-builder/SKILL.md
+        description: Scott - Platform builder agent persona for Power Platform development
+        tags: [power-platform, agent, builder, persona]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/platform-builder
+
+      - name: kpp-code-reviewer
+        repository: korchard-power-platform
+        path: .claude/skills/code-reviewer/SKILL.md
+        description: Razor - Code reviewer agent persona for Power Platform quality
+        tags: [power-platform, agent, code-review, persona]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/code-reviewer
+
+      - name: kpp-devops-engineer
+        repository: korchard-power-platform
+        path: .claude/skills/devops-engineer/SKILL.md
+        description: Parvez - DevOps engineer agent persona for Power Platform CI/CD
+        tags: [power-platform, agent, devops, persona]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/devops-engineer
+
+      - name: kpp-uat-coordinator
+        repository: korchard-power-platform
+        path: .claude/skills/uat-coordinator/SKILL.md
+        description: Ava - UAT coordinator agent persona for Power Platform testing
+        tags: [power-platform, agent, uat, testing, persona]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/uat-coordinator
+
+      - name: kpp-power-platform-team
+        repository: korchard-power-platform
+        path: .claude/skills/power-platform-team/SKILL.md
+        description: Orchestration skill for coordinating all agent personas
+        tags: [power-platform, agent, orchestration, team]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/power-platform-team
+
+  korchard-pp-apps:
+    name: "Korchard PP Community: App Development"
+    skills:
+      - name: kpp-code-apps
+        repository: korchard-power-platform
+        path: .claude/skills/code-apps/SKILL.md
+        description: Power Apps code-first app development patterns
+        tags: [power-apps, code-apps, react, typescript]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/code-apps
+
+      - name: kpp-canvas-apps
+        repository: korchard-power-platform
+        path: .claude/skills/canvas-apps/SKILL.md
+        description: Canvas app design and development patterns
+        tags: [power-apps, canvas-apps, low-code]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/canvas-apps
+
+      - name: kpp-model-driven-apps
+        repository: korchard-power-platform
+        path: .claude/skills/model-driven-apps/SKILL.md
+        description: Model-driven app configuration and customization
+        tags: [power-apps, model-driven, dataverse]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/model-driven-apps
+
+      - name: kpp-pcf
+        repository: korchard-power-platform
+        path: .claude/skills/pcf/SKILL.md
+        description: Power Apps Component Framework control development
+        tags: [pcf, components, typescript, react]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/pcf
+
+      - name: kpp-web-resources
+        repository: korchard-power-platform
+        path: .claude/skills/web-resources/SKILL.md
+        description: Web resources development for Dynamics 365 and Power Apps
+        tags: [web-resources, javascript, html, dynamics]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/web-resources
+
+      - name: kpp-dashboards
+        repository: korchard-power-platform
+        path: .claude/skills/dashboards/SKILL.md
+        description: Dashboard design and configuration for Power Platform
+        tags: [dashboards, visualization, reporting]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/dashboards
+
+  korchard-pp-data:
+    name: "Korchard PP Community: Data Platform"
+    skills:
+      - name: kpp-dataverse
+        repository: korchard-power-platform
+        path: .claude/skills/dataverse/SKILL.md
+        description: Dataverse schema design, tables, relationships, and configuration
+        tags: [dataverse, schema, tables, relationships]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/dataverse
+
+      - name: kpp-dataverse-web-api
+        repository: korchard-power-platform
+        path: .claude/skills/dataverse-web-api/SKILL.md
+        description: Dataverse Web API calls, CRUD operations, and batch requests
+        tags: [dataverse, web-api, rest, odata]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/dataverse-web-api
+
+      - name: kpp-dataverse-mcp
+        repository: korchard-power-platform
+        path: .claude/skills/dataverse-mcp/SKILL.md
+        description: Dataverse MCP server integration patterns
+        tags: [dataverse, mcp, integration]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/dataverse-mcp
+
+      - name: kpp-data-migration
+        repository: korchard-power-platform
+        path: .claude/skills/data-migration/SKILL.md
+        description: Data migration strategies for Power Platform and Dataverse
+        tags: [data-migration, etl, dataverse]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/data-migration
+
+      - name: kpp-plugins
+        repository: korchard-power-platform
+        path: .claude/skills/plugins/SKILL.md
+        description: Dataverse plugin development in C#
+        tags: [plugins, csharp, dataverse, server-side]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/plugins
+
+  korchard-pp-automation:
+    name: "Korchard PP Community: Automation & Integration"
+    skills:
+      - name: kpp-power-automate
+        repository: korchard-power-platform
+        path: .claude/skills/power-automate/SKILL.md
+        description: Power Automate flow design and development
+        tags: [power-automate, flows, automation]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/power-automate
+
+      - name: kpp-custom-connectors
+        repository: korchard-power-platform
+        path: .claude/skills/custom-connectors/SKILL.md
+        description: Custom connector creation for Power Platform
+        tags: [connectors, api, integration]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/custom-connectors
+
+      - name: kpp-integration-patterns
+        repository: korchard-power-platform
+        path: .claude/skills/integration-patterns/SKILL.md
+        description: Enterprise integration patterns for Power Platform
+        tags: [integration, patterns, enterprise]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/integration-patterns
+
+      - name: kpp-m365-integration
+        repository: korchard-power-platform
+        path: .claude/skills/m365-integration/SKILL.md
+        description: Microsoft 365 integration with Power Platform
+        tags: [m365, sharepoint, teams, integration]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/m365-integration
+
+      - name: kpp-business-process-flows
+        repository: korchard-power-platform
+        path: .claude/skills/business-process-flows/SKILL.md
+        description: Business process flow design and implementation
+        tags: [bpf, business-process, workflow]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/business-process-flows
+
+  korchard-pp-governance:
+    name: "Korchard PP Community: Security & Governance"
+    skills:
+      - name: kpp-security
+        repository: korchard-power-platform
+        path: .claude/skills/security/SKILL.md
+        description: Security configuration and best practices for Power Platform
+        tags: [security, rbac, permissions, dataverse]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/security
+
+      - name: kpp-architecture
+        repository: korchard-power-platform
+        path: .claude/skills/architecture/SKILL.md
+        description: Power Platform architecture patterns and design
+        tags: [architecture, design, patterns]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/architecture
+
+      - name: kpp-governance
+        repository: korchard-power-platform
+        path: .claude/skills/governance/SKILL.md
+        description: Governance policies and CoE patterns for Power Platform
+        tags: [governance, coe, policies, compliance]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/governance
+
+      - name: kpp-licensing
+        repository: korchard-power-platform
+        path: .claude/skills/licensing/SKILL.md
+        description: Power Platform licensing guidance and optimization
+        tags: [licensing, costs, optimization]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/licensing
+
+      - name: kpp-env-strategy
+        repository: korchard-power-platform
+        path: .claude/skills/env-strategy/SKILL.md
+        description: Environment strategy and management for Power Platform
+        tags: [environments, strategy, tenant]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/env-strategy
+
+  korchard-pp-quality:
+    name: "Korchard PP Community: Quality & Deployment"
+    skills:
+      - name: kpp-testing
+        repository: korchard-power-platform
+        path: .claude/skills/testing/SKILL.md
+        description: Testing strategies for Power Platform solutions
+        tags: [testing, quality, automation]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/testing
+
+      - name: kpp-test-engine
+        repository: korchard-power-platform
+        path: .claude/skills/test-engine/SKILL.md
+        description: Power Apps Test Engine patterns and configuration
+        tags: [test-engine, power-apps, automation]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/test-engine
+
+      - name: kpp-alm
+        repository: korchard-power-platform
+        path: .claude/skills/alm/SKILL.md
+        description: Application lifecycle management for Power Platform
+        tags: [alm, devops, ci-cd, deployment]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/alm
+
+      - name: kpp-accessibility-ux
+        repository: korchard-power-platform
+        path: .claude/skills/accessibility-ux/SKILL.md
+        description: Accessibility and UX best practices for Power Platform apps
+        tags: [accessibility, ux, wcag, usability]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/accessibility-ux
+
+      - name: kpp-observability
+        repository: korchard-power-platform
+        path: .claude/skills/observability/SKILL.md
+        description: Monitoring, logging, and observability for Power Platform
+        tags: [observability, monitoring, logging, telemetry]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/observability
+
+      - name: kpp-perf-optimise
+        repository: korchard-power-platform
+        path: .claude/skills/perf-optimise/SKILL.md
+        description: Performance optimization for Power Platform solutions
+        tags: [performance, optimization, tuning]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/perf-optimise
+
+  korchard-pp-ai:
+    name: "Korchard PP Community: AI & Cognitive"
+    skills:
+      - name: kpp-azure-openai
+        repository: korchard-power-platform
+        path: .claude/skills/azure-openai/SKILL.md
+        description: Azure OpenAI integration with Power Platform
+        tags: [azure-openai, ai, gpt, integration]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/azure-openai
+
+      - name: kpp-copilot-studio
+        repository: korchard-power-platform
+        path: .claude/skills/copilot-studio/SKILL.md
+        description: Microsoft Copilot Studio development and configuration
+        tags: [copilot-studio, chatbot, ai, conversational]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/copilot-studio
+
+      - name: kpp-ai-builder
+        repository: korchard-power-platform
+        path: .claude/skills/ai-builder/SKILL.md
+        description: AI Builder models and integration with Power Platform
+        tags: [ai-builder, ml, models, prediction]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/ai-builder
+
+  korchard-pp-specialized:
+    name: "Korchard PP Community: Specialized"
+    skills:
+      - name: kpp-power-bi
+        repository: korchard-power-platform
+        path: .claude/skills/power-bi/SKILL.md
+        description: Power BI report and dashboard development
+        tags: [power-bi, reporting, analytics, dax]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/power-bi
+
+      - name: kpp-power-pages
+        repository: korchard-power-platform
+        path: .claude/skills/power-pages/SKILL.md
+        description: Power Pages website development and configuration
+        tags: [power-pages, web, portal]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/power-pages
+
+      - name: kpp-spec-driven-dev
+        repository: korchard-power-platform
+        path: .claude/skills/spec-driven-dev/SKILL.md
+        description: Specification-driven development methodology for Power Platform
+        tags: [spec-driven, methodology, requirements]
+        external_url: https://github.com/korchard333/claude-power-platform-community/tree/main/.claude/skills/spec-driven-dev
+
 # =============================================================================
 # QUICK REFERENCE INDEX
 # =============================================================================
@@ -1609,3 +1923,44 @@ skill_index:
   dk-code-review: { repo: dk-power-platform, category: dk-power-platform-quality }
   dk-visual-qa: { repo: dk-power-platform, category: dk-power-platform-quality }
   dk-record-screen: { repo: dk-power-platform, category: dk-power-platform-quality }
+  # External skills (korchard-power-platform)
+  kpp-project-manager: { repo: korchard-power-platform, category: korchard-pp-agents }
+  kpp-solutions-architect: { repo: korchard-power-platform, category: korchard-pp-agents }
+  kpp-platform-builder: { repo: korchard-power-platform, category: korchard-pp-agents }
+  kpp-code-reviewer: { repo: korchard-power-platform, category: korchard-pp-agents }
+  kpp-devops-engineer: { repo: korchard-power-platform, category: korchard-pp-agents }
+  kpp-uat-coordinator: { repo: korchard-power-platform, category: korchard-pp-agents }
+  kpp-power-platform-team: { repo: korchard-power-platform, category: korchard-pp-agents }
+  kpp-code-apps: { repo: korchard-power-platform, category: korchard-pp-apps }
+  kpp-canvas-apps: { repo: korchard-power-platform, category: korchard-pp-apps }
+  kpp-model-driven-apps: { repo: korchard-power-platform, category: korchard-pp-apps }
+  kpp-pcf: { repo: korchard-power-platform, category: korchard-pp-apps }
+  kpp-web-resources: { repo: korchard-power-platform, category: korchard-pp-apps }
+  kpp-dashboards: { repo: korchard-power-platform, category: korchard-pp-apps }
+  kpp-dataverse: { repo: korchard-power-platform, category: korchard-pp-data }
+  kpp-dataverse-web-api: { repo: korchard-power-platform, category: korchard-pp-data }
+  kpp-dataverse-mcp: { repo: korchard-power-platform, category: korchard-pp-data }
+  kpp-data-migration: { repo: korchard-power-platform, category: korchard-pp-data }
+  kpp-plugins: { repo: korchard-power-platform, category: korchard-pp-data }
+  kpp-power-automate: { repo: korchard-power-platform, category: korchard-pp-automation }
+  kpp-custom-connectors: { repo: korchard-power-platform, category: korchard-pp-automation }
+  kpp-integration-patterns: { repo: korchard-power-platform, category: korchard-pp-automation }
+  kpp-m365-integration: { repo: korchard-power-platform, category: korchard-pp-automation }
+  kpp-business-process-flows: { repo: korchard-power-platform, category: korchard-pp-automation }
+  kpp-security: { repo: korchard-power-platform, category: korchard-pp-governance }
+  kpp-architecture: { repo: korchard-power-platform, category: korchard-pp-governance }
+  kpp-governance: { repo: korchard-power-platform, category: korchard-pp-governance }
+  kpp-licensing: { repo: korchard-power-platform, category: korchard-pp-governance }
+  kpp-env-strategy: { repo: korchard-power-platform, category: korchard-pp-governance }
+  kpp-testing: { repo: korchard-power-platform, category: korchard-pp-quality }
+  kpp-test-engine: { repo: korchard-power-platform, category: korchard-pp-quality }
+  kpp-alm: { repo: korchard-power-platform, category: korchard-pp-quality }
+  kpp-accessibility-ux: { repo: korchard-power-platform, category: korchard-pp-quality }
+  kpp-observability: { repo: korchard-power-platform, category: korchard-pp-quality }
+  kpp-perf-optimise: { repo: korchard-power-platform, category: korchard-pp-quality }
+  kpp-azure-openai: { repo: korchard-power-platform, category: korchard-pp-ai }
+  kpp-copilot-studio: { repo: korchard-power-platform, category: korchard-pp-ai }
+  kpp-ai-builder: { repo: korchard-power-platform, category: korchard-pp-ai }
+  kpp-power-bi: { repo: korchard-power-platform, category: korchard-pp-specialized }
+  kpp-power-pages: { repo: korchard-power-platform, category: korchard-pp-specialized }
+  kpp-spec-driven-dev: { repo: korchard-power-platform, category: korchard-pp-specialized }

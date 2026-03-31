@@ -185,6 +185,7 @@ The registry tracks:
 | [resend](https://github.com/resend) | Email skills for AI agents - best practices, React Email templates, and Resend API integration |
 | [DanielKerridge/claude-code-power-platform-skills](https://github.com/DanielKerridge/claude-code-power-platform-skills) | Power Platform skills - plan, build, deploy, and test Power Apps, Dataverse, plugins, PCF controls |
 | [microsoft/power-platform-skills](https://github.com/microsoft/power-platform-skills) | Official Microsoft Power Platform plugins - Power Pages, Model Apps, and Power Apps for Claude Code and GitHub Copilot |
+| [korchard333/claude-power-platform-community](https://github.com/korchard333/claude-power-platform-community) | Community Power Platform skills - agent personas, code apps, Dataverse, security, ALM, AI Builder, and 40 domain skills |
 
 ### Using the Registry
 
@@ -236,6 +237,7 @@ Use `python scripts/registry-manager.py list` or browse `skills-registry.yaml` t
 | [resend](https://github.com/resend) | Email deliverability, React Email, Resend API |
 | [DanielKerridge/claude-code-power-platform-skills](https://github.com/DanielKerridge/claude-code-power-platform-skills) | Power Apps, Dataverse, PCF controls, plugins, visual QA |
 | [microsoft/power-platform-skills](https://github.com/microsoft/power-platform-skills) | Power Pages, Model Apps, Power Apps code apps, connectors |
+| [korchard333/claude-power-platform-community](https://github.com/korchard333/claude-power-platform-community) | Agent personas, code apps, Dataverse, security, ALM, AI Builder, Power BI |
 
 ## Skills Library Web Application
 
