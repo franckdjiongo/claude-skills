@@ -1,0 +1,40 @@
+{
+  "skill_name": "session-review",
+  "evals": [
+    {
+      "id": 1,
+      "name": "trivial-typo-fix",
+      "prompt": "Imagine que la session Claude Code qui vient de finir ressemble à ceci : l'utilisateur a demandé 'corrige le typo dans src/components/Header.tsx ligne 42', tu as lu le fichier, fait un Edit qui change 'Bienvnue' en 'Bienvenue', lancé npm run lint (pass), commité le changement. Aucun subagent invoqué, aucune skill invoquée, 4 tool calls au total, ~3 minutes. Maintenant l'utilisateur tape : /session-review\n\nProduis la rétrospective.",
+      "expected_output": "Rapport compressé 3 sections max (score + 1-2 points positifs + 1 point de vigilance), PAS de section agent review, PAS de section suggestions modèle futur. Score attendu autour de 9/10 (session triviale réussie). Longueur < 20 lignes. Pas de padding artificiel.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "medium-refactor-with-user-correction",
+      "prompt": "Voici ce qui vient de se passer dans la session Claude Code : l'utilisateur a demandé d'extraire un composant Button en 3 variants. J'ai créé src/components/Button/Button.primary.tsx, Button.secondary.tsx, Button.tertiary.tsx + un Button.tsx racine. J'ai fait les 3 fichiers, lancé les tests — 2 passed, 1 failed à cause d'un import circulaire. L'utilisateur a dû intervenir : 'tu as oublié que Button.tsx ré-exporte les variants, pas l'inverse'. J'ai corrigé. Ensuite il a dit 'tu aurais pu regarder le pattern existant dans src/components/Card avant de commencer'. J'ai re-fait le refactor en suivant le pattern Card. Final: 12 tool calls, 2 corrections utilisateur, ~25 minutes. Aucun subagent. Maintenant : /session-review\n\nProduis la rétrospective.",
+      "expected_output": "Score entre 5 et 7 (2 corrections utilisateur sont significatives). PAS de section agent review (aucun subagent). Les 2 interventions utilisateur doivent apparaître dans 'ce qui a moins bien marché' avec un fix concret (ex: 'lire les patterns voisins AVANT de dispatcher'). Suggestions actionnables. Langue française.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "complex-plan-execution-mirror",
+      "prompt": "La session qui vient de finir : exécution d'un plan de refactor (9 tâches) dans le repo temps-chantier. J'ai invoqué le skill execute-plan qui a classifié en tiers BATCH/STANDARD/RIGOROUS, puis dispatché via project-subagent-driven-development. Subagents invoqués : tc-implementer x4, tc-ui-implementer x4, code-quality-reviewer x5 (dont 3 re-runs loop-until-clean), spec-reviewer x4. Worktree parallélisme utilisé pour Group 1 (3 worktrees simultanés). 22 commits produits. L'utilisateur a dû me rappeler UNE FOIS que 'code reviews run in a loop until PASS'. Une collision DEFERRED-057 a été catchée par le code-reviewer (bon). Le quality-gate a flaggé 2 MEDIUM pré-existants que j'ai deferrés (DEFERRED-056 + DEFERRED-058). La phase a complété avec 2824 tests verts, source-of-truth delta appliqué (commit bab60c1), et un final scan PASS sur les 6 items. Le projet est /Users/elmabi/Desktop/my-projets/temps-chantier-code-app avec des agents dans .claude/agents/ (tc-implementer.md, tc-ui-implementer.md, code-quality-reviewer.md, spec-reviewer.md). Maintenant : /session-review\n\nProduis la rétrospective complète.",
+      "expected_output": "Rapport complet 5 dimensions. Score entre 7 et 8 (outcome clean mais 1 user reminder + typecheck break Task 2 = friction visible). Section agent review OBLIGATOIRE avec les 4 agents lus et scorés individuellement. Au moins 3 suggestions workflow concrètes (hooks, scripts, agent edits). Au moins 2 considérations modèle futur. L'intervention loop-until-clean doit apparaître dans 'moins bien marché'. Longueur 400-800 lignes. Langue française.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "zero-agent-data-exploration",
+      "prompt": "Session qui vient de finir : l'utilisateur m'a demandé d'analyser un fichier CSV de ventes Q4 (~5000 lignes). J'ai lu le CSV avec Read, écrit un script Python temporaire avec pandas pour calculer les stats par région, lancé le script via Bash, produit un tableau markdown récapitulatif que j'ai affiché dans la conversation. Pas de commit, pas de fichier produit autre que le script temporaire (pas sauvegardé). ~15 tool calls, pure exploration, zéro subagent, zéro skill invoquée. Aucun plan. Maintenant l'utilisateur demande : fais-moi un post-mortem de cette session",
+      "expected_output": "Scope tier Small. Le skill doit DETECTER le trigger 'post-mortem' comme équivalent /session-review. PAS de section agent review (aucun subagent). Dimension 5 'modèle futur' probablement trimmed ou skippée. Focus sur : qualité du mental model construit durant l'exploration, est-ce que les bons filtres ont été appliqués, est-ce que le script aurait dû être sauvegardé pour reproductibilité. Score probablement 7-8. Langue française.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "failure-mode-session",
+      "prompt": "What just happened in this Claude Code session: I was asked to implement a new authentication hook. I dispatched a subagent to write the hook. The subagent returned empty output on first try (tool result missing). I retried, got partial output but it called an imaginary Dataverse method. I proceeded anyway to 'save time'. Tests failed. User had to intervene: 'the method you're calling doesn't exist in the generated service, please read src/generated/services before inventing methods'. I read the file, fixed the hook, re-ran tests — still failed because I missed a mock setup. User intervened again: 'have you actually read the existing test patterns in the same directory?'. I finally got it working after 3 intervention rounds and ~45 minutes for what should have been a 15-minute task. No commits made because the user wants to review first. Now user types: /session-review",
+      "expected_output": "Low honest score (4-5/10 range). Multiple 'went poorly' bullets clearly named: (1) proceeded despite empty subagent output, (2) invented Dataverse method without reading generated service, (3) missed test patterns in sibling directory. Each with a concrete fix. DO NOT sugarcoat. Language should be English (matching prompt). Agent review dimension may be light since only 1 generic subagent was mentioned. Suggestions must include preventive rules (e.g., 'retry empty output 2x then block, never proceed').",
+      "files": []
+    }
+  ]
+}

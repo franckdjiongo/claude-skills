@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-03-31"
+last_updated: "2026-04-20"
 
 # =============================================================================
 # REPOSITORIES
@@ -210,6 +210,24 @@ categories:
         path: docs-workflow-generator/SKILL.md
         description: Generate a full documentation package for new feature work including PRD, task breakdown, roadmap, and documentation workflow
         tags: [documentation, prd, planning, workflow, templates]
+
+      - name: schedule-plan-execution
+        repository: claude-skills
+        path: schedule-plan-execution/SKILL.md
+        description: Schedule autonomous Claude Code sessions to execute implementation plans at specific times on specific branches
+        tags: [scheduling, automation, claude-code, plans, overnight]
+
+      - name: screenshot-context-builder
+        repository: claude-skills
+        path: screenshot-context-builder/SKILL.md
+        description: Rename batches of generic screenshots into descriptive names and embed accurate image references in prompts
+        tags: [screenshots, context, prompting, images, rename]
+
+      - name: session-review
+        repository: claude-skills
+        path: session-review/SKILL.md
+        description: Generate an honest, evidence-grounded retrospective of the current Claude Code session
+        tags: [retrospective, review, meta, quality, session]
 
   # ---------------------------------------------------------------------------
   # CONVEX DATABASE
@@ -463,6 +481,12 @@ categories:
         description: Reconcile meeting synthesis with codebase state to produce a structured task tracking document
         tags: [meetings, tasks, codebase, synthesis, tracking]
 
+      - name: renommer-fichiers-rencontre
+        repository: claude-skills
+        path: renommer-fichiers-rencontre/SKILL.md
+        description: Rename meeting transcription (.docx) and meeting summary (.md) files according to personal naming conventions
+        tags: [meetings, rename, files, french, docx, markdown]
+
   # ---------------------------------------------------------------------------
   # DEVELOPMENT & DEVOPS
   # ---------------------------------------------------------------------------
@@ -576,6 +600,18 @@ categories:
         path: seo-visibility/SKILL.md
         description: Comprehensive SEO and AI discoverability workflow for React and TypeScript websites
         tags: [seo, discoverability, schema, llms-txt, marketing]
+
+      - name: domain-driven-design
+        repository: claude-skills
+        path: domain-driven-design/SKILL.md
+        description: Expert advisor for DDD — strategic design, tactical design, architecture, anti-patterns, and migration
+        tags: [ddd, architecture, domain-modeling, cqrs, event-sourcing, bounded-contexts]
+
+      - name: mac-uninstall
+        repository: claude-skills
+        path: mac-uninstall/SKILL.md
+        description: Completely or partially uninstall macOS applications — removes app bundle and all associated files
+        tags: [macos, uninstall, cleanup, apps, disk-space]
 
   # ---------------------------------------------------------------------------
   # EXTERNAL: SUPERPOWERS (obra/superpowers)
@@ -1809,6 +1845,12 @@ skill_index:
   app-blueprint: { repo: claude-skills, category: specialized }
   brand-forge: { repo: claude-skills, category: specialized }
   seo-visibility: { repo: claude-skills, category: specialized }
+  domain-driven-design: { repo: claude-skills, category: specialized }
+  mac-uninstall: { repo: claude-skills, category: specialized }
+  renommer-fichiers-rencontre: { repo: claude-skills, category: meetings }
+  schedule-plan-execution: { repo: claude-skills, category: claude-code }
+  screenshot-context-builder: { repo: claude-skills, category: claude-code }
+  session-review: { repo: claude-skills, category: claude-code }
   # External skills (superpowers)
   test-driven-development: { repo: superpowers, category: superpowers-testing }
   systematic-debugging: { repo: superpowers, category: superpowers-testing }

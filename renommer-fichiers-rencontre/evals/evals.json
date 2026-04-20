@@ -1,0 +1,113 @@
+{
+  "skill_name": "renommer-fichiers-rencontre",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Renomme ce fichier de transcription selon ma convention: /Users/elmabi/.claude/skills/renommer-fichiers-rencontre-workspace/test-files/Prototype Canvas _ Karolane Gauthier -20260312_103015-Meeting Transcript.docx",
+      "expected_output": "File renamed to Transcription_Rencontre_2026-03-12 - Prototype Canvas - Karolane Gauthier.docx",
+      "files": ["/Users/elmabi/.claude/skills/renommer-fichiers-rencontre-workspace/test-files/Prototype Canvas _ Karolane Gauthier -20260312_103015-Meeting Transcript.docx"],
+      "assertions": [
+        {
+          "name": "date-format-correct",
+          "description": "Le nouveau nom contient la date au format YYYY-MM-DD (2026-03-12)",
+          "type": "contains",
+          "value": "2026-03-12"
+        },
+        {
+          "name": "prefix-correct",
+          "description": "Le nom commence par Transcription_Rencontre_",
+          "type": "contains",
+          "value": "Transcription_Rencontre_"
+        },
+        {
+          "name": "karolane-present",
+          "description": "Le nom de Karolane Gauthier est présent dans le titre",
+          "type": "contains",
+          "value": "Karolane"
+        },
+        {
+          "name": "extension-correct",
+          "description": "L'extension .docx est conservée",
+          "type": "contains",
+          "value": ".docx"
+        },
+        {
+          "name": "file-exists-after-rename",
+          "description": "Le fichier renommé existe sur le disque",
+          "type": "file_exists",
+          "value": "Transcription_Rencontre_2026-03-12"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "J'ai cette transcription brute, peux-tu la renommer correctement selon ma convention de nommage? /Users/elmabi/.claude/skills/renommer-fichiers-rencontre-workspace/test-files/Validation Fonctionnelle App Temps Chantier-20260414_090000-Meeting Transcript.docx",
+      "expected_output": "File renamed to Transcription_Rencontre_2026-04-14 - Validation Fonctionnelle, Sous-traitants et Extrait Excel.docx (or similar descriptive title)",
+      "files": ["/Users/elmabi/.claude/skills/renommer-fichiers-rencontre-workspace/test-files/Validation Fonctionnelle App Temps Chantier-20260414_090000-Meeting Transcript.docx"],
+      "assertions": [
+        {
+          "name": "date-format-correct",
+          "description": "Le nouveau nom contient la date au format YYYY-MM-DD (2026-04-14)",
+          "type": "contains",
+          "value": "2026-04-14"
+        },
+        {
+          "name": "prefix-correct",
+          "description": "Le nom commence par Transcription_Rencontre_",
+          "type": "contains",
+          "value": "Transcription_Rencontre_"
+        },
+        {
+          "name": "extension-correct",
+          "description": "L'extension .docx est conservée",
+          "type": "contains",
+          "value": ".docx"
+        },
+        {
+          "name": "topic-meaningful",
+          "description": "Le sujet décrit le contenu (validation, fonctionnel, sous-traitants ou extrait)",
+          "type": "contains_any",
+          "value": ["Validation", "Fonctionnel", "Sous-traitant", "Extrait", "Excel"]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Renomme cette synthèse selon ma convention: /Users/elmabi/.claude/skills/renommer-fichiers-rencontre-workspace/test-files/synthese-20250210-filtrage-equipements-vincent.md",
+      "expected_output": "File renamed to 10-02-2025-synthese-filtrage-equipements-vincent-tremblay.md (or similar with DD-MM-YYYY format and no accents)",
+      "files": ["/Users/elmabi/.claude/skills/renommer-fichiers-rencontre-workspace/test-files/synthese-20250210-filtrage-equipements-vincent.md"],
+      "assertions": [
+        {
+          "name": "date-format-dd-mm-yyyy",
+          "description": "La date est au format DD-MM-YYYY (10-02-2025)",
+          "type": "contains",
+          "value": "10-02-2025"
+        },
+        {
+          "name": "synthese-prefix",
+          "description": "Le nom contient 'synthese'",
+          "type": "contains",
+          "value": "synthese"
+        },
+        {
+          "name": "no-accents",
+          "description": "Pas d'accents dans le nom de fichier (equipements pas équipements)",
+          "type": "not_contains",
+          "value": "équipements"
+        },
+        {
+          "name": "extension-correct",
+          "description": "L'extension .md est conservée",
+          "type": "contains",
+          "value": ".md"
+        },
+        {
+          "name": "topic-present",
+          "description": "Le sujet (filtrage ou equipements) est présent",
+          "type": "contains_any",
+          "value": ["filtrage", "equipements", "vincent"]
+        }
+      ]
+    }
+  ]
+}

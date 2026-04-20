@@ -62,6 +62,9 @@ The `description` field is critical - it determines when Claude Code should invo
 - `prompt-engineer` - Claude prompting best practices
 - `docs-workflow-generator` - Generate PRD, task breakdown, roadmap, and documentation workflow
 - `ralph-prompt-generator` - Generate auto-compact-resilient Ralph Wiggum loop prompts
+- `schedule-plan-execution` - Schedule autonomous Claude Code sessions to execute implementation plans at specific times
+- `screenshot-context-builder` - Rename batches of generic screenshots and embed image references in prompts
+- `session-review` - Generate an honest retrospective of the current Claude Code session
 
 **Convex Database**
 - `convex-queries` - Convex query patterns and best practices
@@ -107,6 +110,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `rotation-responsabilites` - Manage responsibility rotation schedules
 - `prep-discussion` - Prepare discussion points with a colleague from reference files (Teams message, email, discussion list, or personal notes)
 - `meeting-to-tasks` - Reconcile meeting synthesis with codebase state to produce a structured task tracking document
+- `renommer-fichiers-rencontre` - Rename meeting transcription (.docx) and meeting summary (.md) files per personal naming conventions
 
 **Development & DevOps**
 - `vercel-expert-developer` - Vercel serverless functions
@@ -127,6 +131,8 @@ The `description` field is critical - it determines when Claude Code should invo
 - `app-blueprint` - Reverse-engineer a codebase into a comprehensive Application Blueprint (EN/FR)
 - `brand-forge` - Automate end-to-end branding with naming, slogan, logo, and brand identity outputs
 - `seo-visibility` - Implement SEO, structured data, AI discoverability, and marketing visibility improvements
+- `domain-driven-design` - Expert advisor for DDD: strategic design, tactical design, architecture, anti-patterns, and migration
+- `mac-uninstall` - Completely or partially uninstall macOS applications removing all associated files
 
 ## Creating New Skills
 
