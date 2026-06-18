@@ -1,93 +1,93 @@
 ---
 name: screenshot-context-builder
 description: >
-  Rename batches of generic screenshots into descriptive names, and optionally rewrite a bug-report or feedback prompt to embed accurate image references and missing context. Use when the user wants to: rename screenshots with generic names (e.g. "Screenshot 2026-04-08..."), improve a voice-dictated or AI-rewritten prompt that references images, add exact image paths to a prompt, or do both at once. Triggers on: "rename my screenshots", "rename these images", "my prompt references screenshots", "I dictated this prompt", "add image paths to my prompt", "improve my prompt with the images", "prepare screenshots for Claude".
+  Rename batches of generic screenshots into descriptive names, and optionally turn a bug-report or feedback prompt into a polished HTML report that embeds the real screenshots beside each issue. Use when the user wants to: rename screenshots with generic names (e.g. "Screenshot 2026-04-08...", "SCR-...png"), improve a voice-dictated or AI-rewritten prompt that references images, build a readable bug/feedback report from screenshots, attach exact image references to a prompt, or do any combination of these. Triggers on: "rename my screenshots", "rename these images", "my prompt references screenshots", "I dictated this prompt", "turn these screenshots into a report", "prepare screenshots for Claude", "improve my prompt with the images".
 ---
 
 # Screenshot Context Builder
 
-This skill automates two related tasks that often go together: giving screenshots meaningful names, and making sure any associated prompt accurately references those images with the correct paths and context.
+This skill does two related jobs: give screenshots meaningful names, and turn a rough (often voice-dictated) bug/feedback prompt into an accurate, readable **HTML report** where each issue sits next to the real screenshots that prove it.
+
+The single idea that makes the output trustworthy: **the images are the ground truth.** A dictated prompt is a lossy account of what the user saw — names are misheard, messages are paraphrased, the wrong screenshot gets associated with a bug. Your job is to reconcile the prompt against the pixels and let the images win every disagreement.
 
 ## When the user arrives
 
-Figure out which mode they need — ask only what's necessary:
+Read what they already gave you and ask only for what's missing:
 
-1. **Folder path** — where are the images? (required for both modes)
-2. **Domain/project context** — what does the application or project do? Even a sentence helps the analysis. If the user also provides a prompt, extract context from it.
-3. **Mode** — rename only, or also improve a prompt?
-4. **Exact image path format** — if the user wants paths embedded in the prompt, ask for the root path as it will appear in the target environment (e.g. `C:\Users\...\Screenshots\my-folder\`). The renamed filenames get appended to this root.
-
-Don't ask all four at once — read what the user already gave you and ask only for what's missing.
+1. **Folder path** — where are the images? (required)
+2. **Domain/project context** — what is the app/project? A sentence helps naming and analysis. If they shared a prompt, mine it for context.
+3. **Mode** — rename only, or rename + build the report?
+4. **Image path format for the report** — by default the HTML is saved *in the images folder* so `src="filename.png"` resolves with no path. Only ask if they need a different root (e.g. the report will live elsewhere, or they want a relative `images/...` path for a repo).
 
 ---
 
 ## Mode A — Rename images
 
-### Step 1: List images
+### 1. List the images
+List every image in the folder (png, jpg, jpeg, gif, webp). Tell the user the count.
 
-List all image files in the folder (png, jpg, jpeg, gif, webp). Show the count to the user so they know what's coming.
+### 2. First-pass names with Haiku (in parallel)
+Split into batches of ~7 and spawn a Haiku subagent per batch (all in the same turn). Give each: the file paths, the domain context, and this instruction:
 
-### Step 2: Build context
+> For each image, read it and propose a kebab-case filename, no accents/special chars, max 60 chars, capturing (1) the section/feature visible and (2) the main element/problem/state shown. Use grouping prefixes (e.g. `grille-`, `modal-`, `vide-`, `filtre-`, `footer-`). Return one line per image: `ORIGINAL.png -> new-name.png`. Also add an `OBSERVATIONS:` section with exact strings you can read (names, totals, labels, messages).
 
-Use the domain description the user provided, or extract it from any prompt they shared. The goal: understand what the application looks like, what its main sections are, and what kinds of problems are being illustrated. This context shapes how images get named.
+Treat these names as a **draft**. Haiku reads thumbnails and will sometimes mislabel — e.g. naming a file `grille-interne-*` when it actually shows external data, or `soumission-*` for a screen that's merely "open". Do not ship these blindly.
 
-### Step 3: Analyze with Haiku in parallel batches
+### 3. Verify before committing (do this yourself, not via Haiku)
+For any name you're unsure about — and at minimum a spot-check across the batch — open the image and confirm the name matches what's actually on screen. When small text decides the label (a status badge, a filter state, which employee is shown), use the zoom helper to read it (see "Reading small text"). Fix names that mislead; a filename that lies is worse than a generic one because it will later be cited as evidence for the wrong thing.
 
-Split the images into batches of 7. For each batch, spawn a Haiku subagent with:
-- The list of image file paths to read
-- The domain/project context
-- This naming instruction:
-
-> For each image, read it visually and propose a descriptive filename in kebab-case, no accents or special characters, max 60 characters. The name should capture: (1) the section or feature visible, and (2) the main element, problem, or state shown. Use meaningful prefixes that group related screens (e.g. `resume-semaine-`, `grille-`, `verification-`, `soumission-`, `notes-`, `modal-`). Return one line per image: `ORIGINAL_FILENAME -> new-name.png`
-
-Spawn all batches simultaneously — don't wait for one to finish before starting the next.
-
-### Step 4: Rename files
-
-Once all subagents return, apply the renames using `mv` via Bash. Confirm the count of renamed files to the user.
+### 4. Apply renames
+Rename with `mv` via Bash. Guard against collisions (append `-2`, `-3` for near-duplicates). Confirm the final count.
 
 ---
 
-## Mode B — Rename + improve a prompt
+## Mode B — Rename + build the HTML report
 
-Do Mode A first (rename the images), then proceed with prompt improvement.
+Do Mode A first, then build the report. The report is the deliverable, so the accuracy work below is where most of the value is.
 
-### Why prompts often need improvement
+### Why the dictated prompt can't be trusted verbatim
+- It was dictated and rewritten by another model, so **proper nouns are misspelled** (a name said aloud becomes "Giro" when the screen says "Gireaud").
+- Messages and button labels are **paraphrased**, not quoted.
+- The user often wrote it **before/while** taking screenshots, so a described screen may not be the one that got captured.
+- The same bug is mentioned in several places without pointing at a specific image.
 
-User prompts that describe visual bugs or UX issues are frequently imperfect because:
-- They were dictated by voice and transcribed/rewritten by another AI, introducing inaccuracies
-- The user wrote the prompt before taking screenshots, so image names don't match what's actually shown
-- Context about scale, technical stack, or user constraints is present in the user's head but missing from the text
-- The same problem may be mentioned in multiple places without linking to a specific image
+### 5. Read the images yourself and extract ground truth
+Go through the screenshots (not via Haiku — you are writing the report, so you need to see them). For each, capture the exact, on-screen strings the report will rely on: employee/person names, company names, hour totals, error and empty-state messages, button labels, status badges, filter states, column headers, URLs/IDs.
 
-### Step 5: Analyze images for prompt accuracy
+**Reading small text.** Full-resolution screenshots render UI text illegibly when read whole. Crop the region and upscale it 2–3× first, using the bundled helper:
 
-After renaming, spawn Haiku subagents (same parallel batches) to read each image and extract:
-- The section/feature visible
-- The specific problem or anomaly visible (exact text values, colors, layout issues, error messages)
-- Any discrepancy between what the image shows and what the original prompt claims
+```
+python scripts/zoom_crop.py --src shot.png --info                      # print size
+python scripts/zoom_crop.py --src shot.png --box 620 320 1320 650 --scale 2 --out /tmp/crops/modal.png
+python scripts/zoom_crop.py --src shot.png --frac 0 0.9 1 1 --scale 2 --out /tmp/crops/footer.png
+```
 
-### Step 6: Rewrite the prompt
+Save crops to a scratch dir, then read them. Re-crop with adjusted coordinates if you guessed wrong (screenshots often have browser chrome at the top, so app content starts lower than you'd expect).
 
-Rewrite the user's original prompt applying these principles:
+### 6. Reconcile prompt ↔ images
+- **Names & messages:** wherever the dictation disagrees with a screen, use the spelling/wording from the image. Do this silently in the output, but it's worth flagging the notable corrections to the user (e.g. "the prompt said 'Ludovic Giro'; the screen shows 'Ludovic Gireaud' — I used the latter").
+- **Image ↔ bug fit:** for every issue, confirm the screenshots you attach actually depict *that* problem in *that* state (right filter, right status, right data present/absent). Re-assign images that don't fit. This is the most common defect to catch.
+- **Grouping:** when two, three, or four images together explain a problem better (e.g. the empty state on one filter vs. another, or a before/after), group them under that issue — this is good, not clutter.
 
-**Structure**: Organize by functional area (e.g. one section per screen section or feature). Each section lists the bugs/observations, followed by the images that illustrate them.
+### 7. Build the report from the template
+Use `assets/report-template.html` as the skeleton — don't hand-roll new CSS. It's a dark-mode, accessible layout with a sticky table of contents, numbered sections, per-issue cards, a "repères/landmarks" block for the verified facts, and a click-to-zoom lightbox for the thumbnails. Fill it in:
 
-**Image references**: Embed the exact renamed filenames with the full path the user provided. Group images under the section they illustrate. Format as a simple list of paths — Claude can read files directly from paths.
+- **Structure:** one `<section>` per functional area; one `.issue` card per distinct bug. Mark a critical area with `class="major"`.
+- **Repères block:** populate it with the exact strings you transcribed (names, labels, statuses, totals). This is what tells the reader the report is grounded in the pixels.
+- **Thumbnails:** at the end of each issue, embed the real screenshots as `<figure class="thumb">` with the bare filename in `src` (the HTML sits in the images folder) — or the path format the user requested. The caption is the filename.
+- **Accuracy:** use exact on-screen values, never generic placeholders.
+- **Missing context:** fold in anything the user said verbally but didn't write — scale, user role, technical stack, conventions (e.g. "Fluent UI only, no emojis").
+- **Tone & intent:** factual and problem-focused. Describe the problem; don't prescribe the fix. Don't invent sections the user didn't ask for (no priority matrices or checklists unless requested). If you spotted something in an image the user didn't mention, add it as a brief note marked "(observé dans l'image)" / "(observed in image)".
+- **Language:** write the report in the **same language as the original prompt**. Never switch languages.
 
-**Accuracy**: Correct any mismatches between what the prompt claims and what the images actually show. Use exact values visible in the screenshots (employee names, hour totals, error messages, button labels) rather than generic placeholders.
+Save the HTML in the images folder (so thumbnails resolve), then share the path. If the user explicitly wants Markdown instead, that's a fine fallback — but the default deliverable is HTML.
 
-**Missing context**: Add any context the user mentioned verbally but didn't write — scale, user role, technical constraints, conventions (e.g. "Fluent UI only, no emojis"). If the user mentioned this in conversation, include it.
-
-**Language**: Write the improved prompt in the exact same language as the original — if the user wrote in French, output in French; if in English, in English. Never switch languages.
-
-**Tone**: Keep the prompt factual and problem-focused. Don't prescribe solutions — describe the problem and let Claude reason about the fix.
-
-**Preserve intent**: Don't add sections or structures the user didn't ask for (no priority matrices, no engineering checklists, no executive summaries unless the user specifically requested them). If you notice something in an image the user didn't mention, you may add it as a brief note at the end of the relevant section, clearly marked "(observé dans l'image)" or "(observed in image)".
-
-### Step 7: Save the prompt
-
-Save the improved prompt as a `.md` file in the same folder as the images (or wherever the user specifies). Show them the path.
+### 8. Final checks
+- No original generic names (`Screenshot ...`, `SCR-...`) remain; no duplicate names.
+- Every `src` in the HTML resolves to a file that exists in the folder (grep the filenames and check).
+- Each issue's images genuinely depict that issue (filter/status/data state matches the text).
+- Names, messages, and labels match the screens, not the dictation.
+- Report language matches the original prompt.
 
 ---
 
@@ -95,25 +95,18 @@ Save the improved prompt as a `.md` file in the same folder as the images (or wh
 
 | Pattern | Use for |
 |---|---|
-| `resume-semaine-` | Weekly summary screens |
-| `grille-` | Time entry or data grids |
-| `verification-` | Review/validation screens |
-| `soumission-` | Submission/confirmation flows |
-| `notes-` | Notes panels or forms |
-| `modal-` | Dialog boxes, pop-ups |
-| `dashboard-` | Home/overview screens |
-| `settings-` | Configuration screens |
-| `erreur-` | Error states |
+| `grille-` | Data grids / time-entry tables |
+| `filtre-` | A specific filter/tab state |
+| `footer-` | Footer / totals bars |
+| `modal-` | Dialogs, pop-ups |
 | `vide-` | Empty states |
+| `erreur-` | Error states |
+| `soumission-` / `verification-` | Submission / review flows |
+| `resume-` / `dashboard-` | Summary / overview screens |
+| `notes-` / `settings-` | Notes panels / configuration |
 
-Adapt these prefixes to the user's domain. If the application has different sections, derive prefixes from what the user tells you or from what the images show.
+Adapt prefixes to the domain. Crucially, name from what the image **actually shows**, not from what a sibling screen or the prompt implies — verify (Mode A step 3) before trusting a prefix.
 
----
-
-## Quality checks
-
-Before delivering:
-- All original "Screenshot YYYY-MM-DD HHMMSS.png" style names are gone
-- No two files have the same new name (if there are near-duplicates, append `-2`, `-3`)
-- All image paths in the improved prompt resolve to actual files in the folder
-- The improved prompt is written in the same language as the original (French, English, etc.)
+## Bundled resources
+- `scripts/zoom_crop.py` — crop + upscale a screenshot region so its text is legible. Run with `--info` to get the size, then `--box`/`--frac` + `--scale`.
+- `assets/report-template.html` — the report skeleton (dark mode, TOC, issue cards, landmarks block, lightbox). Read its top comment for placeholders.
