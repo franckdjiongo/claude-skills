@@ -118,7 +118,7 @@ Lisibilité: contraste fort, kerning propre, lettres nettes, aucun mot tronqué
 
 signature de marque (AutoMintech — SAUF logos)
 Crédit discret en pied/coin, petit, net, non dominant: "Créé par AutoMintech"
-(+ contact optionnel si fourni). Voir references/automintech-branding.md.
++ micro-ligne plus petite encore: "automintech.com". Voir references/automintech-branding.md.
 
 contraintes de marque
 Conserver: [palette, ton, formes, produit, silhouette, personnage, style de surface]

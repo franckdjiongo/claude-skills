@@ -10,10 +10,9 @@ parasite. Les logos font exception (livrés propres).
 - **Libellé exact de la signature** : **« Créé par AutoMintech »**.
 - **Logos** : visuel logo **100 % propre**, crédit AutoMintech **hors-fichier** (planche de
   présentation / mockup uniquement).
-- **Contact** : non fourni pour l'instant → laisser un emplacement optionnel
-  `[contact AutoMintech]` (site / handle / email). Ne l'ajouter que si l'utilisateur le donne.
-  Si pertinent et non connu, demander une fois : « Veux-tu ajouter un site/contact à la
-  signature ? ».
+- **Contact** : **automintech.com** (site officiel) → à inclure **par défaut** sur une
+  micro-ligne sous la signature, encore plus petite et discrète. (Mettre à jour ici si un autre
+  contact / handle est souhaité.)
 
 ## Bloc de signature à injecter (visuels marketing)
 
@@ -25,7 +24,7 @@ Signature d'atelier discrète (intentionnelle, ce n'est PAS un watermark parasit
 placer en pied de visuel ou dans un coin, petite taille, nette, fort contraste, non dominante,
 sans gêner la lecture du message principal:
 "Créé par AutoMintech"
-[+ "[contact AutoMintech]" sur une micro-ligne, uniquement si fourni]
+"automintech.com"  (micro-ligne sous la signature, encore plus petite et discrète)
 ```
 
 Et dans les **exclusions**, remplacer tout « No watermark » par :
@@ -72,7 +71,7 @@ Exemple de bloc additionnel à fournir avec un logo :
 Crée une planche de présentation premium du logo "[NOM]" sur fond neutre élégant:
 le logo centré en grand, deux déclinaisons plus petites (version monochrome + version sur
 fond sombre), beaucoup d'espace négatif, rendu studio.
-Crédit d'atelier discret en pied de planche: "Créé par AutoMintech".
+Crédit d'atelier discret en pied de planche: "Créé par AutoMintech" — "automintech.com".
 No clutter. No busy mockup scene. No watermark other than the AutoMintech credit.
 ```
 

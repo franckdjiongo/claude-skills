@@ -37,8 +37,8 @@ L'utilisateur crée des visuels POUR ses clients via son entreprise **AutoMintec
   brochure, menu, slide cover, infographie, mockup, visuel éditorial, série) **DOIT porter la
   signature AutoMintech** : wordmark **« AutoMintech »** + ligne de crédit **« Créé par
   AutoMintech »**, placée discrètement (coin / pied de visuel), petite, nette, à fort
-  contraste, **sans jamais dominer** le message principal. Un contact optionnel (site / handle)
-  peut s'ajouter si l'utilisateur l'a fourni.
+  contraste, **sans jamais dominer** le message principal. Ajouter en micro-ligne le site
+  **automintech.com** sous la signature (encore plus petit/discret).
 - **Les LOGOS sont livrés 100 % propres** : AUCUNE marque AutoMintech sur le logo lui-même.
   Le crédit AutoMintech apparaît uniquement sur la **planche de présentation / le mockup**
   qui accompagne le logo, jamais dans le fichier logo.

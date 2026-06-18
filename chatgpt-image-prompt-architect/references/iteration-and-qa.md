@@ -69,7 +69,7 @@ INVARIANTS (à répéter dans chaque prompt de la série):
 - style typographique: [...]
 - densité visuelle: [...]
 - ratio: [...]
-- signature: "Créé par AutoMintech" en coin discret (sauf logos)
+- signature: "Créé par AutoMintech" + micro-ligne "automintech.com" en coin discret (sauf logos)
 ```
 
 Pour une série : créer d'abord une **image d'ancrage**, puis générer les dérivés en collant le
