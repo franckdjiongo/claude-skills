@@ -133,6 +133,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `seo-visibility` - Implement SEO, structured data, AI discoverability, and marketing visibility improvements
 - `domain-driven-design` - Expert advisor for DDD: strategic design, tactical design, architecture, anti-patterns, and migration
 - `mac-uninstall` - Completely or partially uninstall macOS applications removing all associated files
+- `chatgpt-image-prompt-architect` - Turn a vague visual request into a premium, ready-to-paste ChatGPT image prompt (gpt-image-2) for logos, flyers, ads, mockups, and more, with automatic AutoMintech branding on marketing assets
 
 ## Creating New Skills
 

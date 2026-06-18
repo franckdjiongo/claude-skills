@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-04-20"
+last_updated: "2026-06-18"
 
 # =============================================================================
 # REPOSITORIES
@@ -612,6 +612,12 @@ categories:
         path: mac-uninstall/SKILL.md
         description: Completely or partially uninstall macOS applications — removes app bundle and all associated files
         tags: [macos, uninstall, cleanup, apps, disk-space]
+
+      - name: chatgpt-image-prompt-architect
+        repository: claude-skills
+        path: chatgpt-image-prompt-architect/SKILL.md
+        description: Turn a vague visual request into a premium, ready-to-paste ChatGPT image prompt (gpt-image-2) for logos, flyers, ads, mockups, and more — with automatic AutoMintech branding on marketing assets
+        tags: [image-generation, prompting, chatgpt, gpt-image-2, branding, marketing, logos, premium]
 
   # ---------------------------------------------------------------------------
   # EXTERNAL: SUPERPOWERS (obra/superpowers)
@@ -1851,6 +1857,7 @@ skill_index:
   schedule-plan-execution: { repo: claude-skills, category: claude-code }
   screenshot-context-builder: { repo: claude-skills, category: claude-code }
   session-review: { repo: claude-skills, category: claude-code }
+  chatgpt-image-prompt-architect: { repo: claude-skills, category: specialized }
   # External skills (superpowers)
   test-driven-development: { repo: superpowers, category: superpowers-testing }
   systematic-debugging: { repo: superpowers, category: superpowers-testing }

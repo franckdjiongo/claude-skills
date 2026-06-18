@@ -7,7 +7,7 @@ export const repositories: Repository[] = [
     url: 'https://github.com/franckdjiongo/claude-skills',
     description: 'Main skills library - Power Platform, Claude Code, text processing, and more',
     isLocal: true,
-    skillCount: 79,
+    skillCount: 80,
   },
   {
     id: 'superpowers',
@@ -68,14 +68,14 @@ export const repositories: Repository[] = [
 ];
 
 export const categories: Category[] = [
-  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 226, repository: 'claude-skills' },
+  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 227, repository: 'claude-skills' },
   { id: 'power-platform', name: 'Power Platform', icon: 'Zap', skillCount: 12, repository: 'claude-skills' },
   { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 12, repository: 'claude-skills' },
   { id: 'convex', name: 'Convex Database', icon: 'Database', skillCount: 29, repository: 'claude-skills' },
   { id: 'text-processing', name: 'Text & Documents', icon: 'FileText', skillCount: 4, repository: 'claude-skills' },
   { id: 'meetings', name: 'Meetings', icon: 'Users', skillCount: 7, repository: 'claude-skills' },
   { id: 'development', name: 'Development', icon: 'Code', skillCount: 9, repository: 'claude-skills' },
-  { id: 'specialized', name: 'Specialized', icon: 'Sparkles', skillCount: 10, repository: 'claude-skills' },
+  { id: 'specialized', name: 'Specialized', icon: 'Sparkles', skillCount: 11, repository: 'claude-skills' },
   { id: 'superpowers-testing', name: 'Testing & Debug', icon: 'Bug', skillCount: 3, repository: 'superpowers' },
   { id: 'superpowers-collaboration', name: 'Collaboration', icon: 'GitBranch', skillCount: 9, repository: 'superpowers' },
   { id: 'superpowers-meta', name: 'Meta Skills', icon: 'BookOpen', skillCount: 2, repository: 'superpowers' },
@@ -1030,6 +1030,17 @@ export const skills: Skill[] = [
     categoryName: 'Specialized Workflows',
     tags: ['macos', 'uninstall', 'cleanup', 'apps', 'disk-space'],
     path: 'mac-uninstall/SKILL.md',
+    isLocal: true,
+  },
+  {
+    id: 'chatgpt-image-prompt-architect',
+    name: 'ChatGPT Image Prompt Architect',
+    description: 'Turn a vague visual request into a premium, ready-to-paste ChatGPT image prompt (gpt-image-2) for logos, flyers, ads, mockups, and more — with automatic AutoMintech branding on marketing assets',
+    repository: 'claude-skills',
+    category: 'specialized',
+    categoryName: 'Specialized Workflows',
+    tags: ['image-generation', 'prompting', 'chatgpt', 'gpt-image-2', 'branding', 'marketing', 'logos', 'premium'],
+    path: 'chatgpt-image-prompt-architect/SKILL.md',
     isLocal: true,
   },
   // Superpowers: Testing & Debugging
