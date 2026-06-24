@@ -1,0 +1,30 @@
+{
+  "name": "claude-skills",
+  "owner": {
+    "name": "Franck Djiongo",
+    "url": "https://github.com/franckdjiongo/claude-skills"
+  },
+  "description": "Franck Djiongo's Claude Code skills library, distributed as installable plugins.",
+  "version": "1.0.0",
+  "plugins": [
+    {
+      "name": "design-forge",
+      "source": "./design-forge",
+      "description": "UX/UI Quality Analyst and Design Brief Architect: AUDIT, TEST, and BRIEF modes with a brief-to-build-to-verify pipeline. Bundles a router skill and three specialist sub-agents.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Franck Djiongo"
+      },
+      "keywords": [
+        "ux",
+        "ui",
+        "design",
+        "design-audit",
+        "accessibility",
+        "ai-slop",
+        "design-brief",
+        "qa"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+interface:
+  display_name: "Design Forge"
+  short_description: "UX/UI quality audit, live testing, and design-brief generation"
+
+policy:
+  # Let Codex invoke the skill automatically when a request matches the
+  # SKILL.md description (design/UX review, audit, AI-slop check, live test,
+  # or design-brief generation). Set to false to require explicit invocation.
+  allow_implicit_invocation: true

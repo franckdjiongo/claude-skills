@@ -1,0 +1,28 @@
+{
+  "name": "design-forge",
+  "version": "1.0.0",
+  "description": "UX/UI Quality Analyst and Design Brief Architect. Three modes — AUDIT screenshots/video for defects and AI slop with a scored report and paste-ready correction prompts; TEST a live app with computer-use tools; BRIEF a plain app idea into a premium design prompt — sharing one scoring framework, report format, and anti-slop ruleset, with a brief-to-build-to-verify pipeline.",
+  "author": {
+    "name": "Franck Djiongo"
+  },
+  "homepage": "https://github.com/franckdjiongo/claude-skills/tree/main/design-forge",
+  "repository": "https://github.com/franckdjiongo/claude-skills",
+  "license": "MIT",
+  "keywords": [
+    "ux",
+    "ui",
+    "design",
+    "design-audit",
+    "accessibility",
+    "ai-slop",
+    "design-brief",
+    "qa"
+  ],
+  "skills": "./",
+  "interface": {
+    "displayName": "Design Forge",
+    "shortDescription": "UX/UI audit, live testing, and design-brief generation",
+    "longDescription": "Three modes — audit screenshots/video for defects and AI slop; actively test a live app with computer-use tools; or turn a plain app idea into a premium design brief — sharing one scoring framework, report format, and anti-slop ruleset, with a brief-to-build-to-verify pipeline.",
+    "category": "Design"
+  }
+}

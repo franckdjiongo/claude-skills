@@ -1,0 +1,19 @@
+{
+  "name": "claude-skills",
+  "interface": {
+    "displayName": "Franck Djiongo Skills"
+  },
+  "plugins": [
+    {
+      "name": "design-forge",
+      "source": {
+        "source": "local",
+        "path": "./design-forge"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "Design"
+    }
+  ]
+}
