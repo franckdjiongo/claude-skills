@@ -7,7 +7,7 @@ export const repositories: Repository[] = [
     url: 'https://github.com/franckdjiongo/claude-skills',
     description: 'Main skills library - Power Platform, Claude Code, text processing, and more',
     isLocal: true,
-    skillCount: 80,
+    skillCount: 81,
   },
   {
     id: 'superpowers',
@@ -68,14 +68,14 @@ export const repositories: Repository[] = [
 ];
 
 export const categories: Category[] = [
-  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 227, repository: 'claude-skills' },
+  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 228, repository: 'claude-skills' },
   { id: 'power-platform', name: 'Power Platform', icon: 'Zap', skillCount: 12, repository: 'claude-skills' },
   { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 12, repository: 'claude-skills' },
   { id: 'convex', name: 'Convex Database', icon: 'Database', skillCount: 29, repository: 'claude-skills' },
   { id: 'text-processing', name: 'Text & Documents', icon: 'FileText', skillCount: 4, repository: 'claude-skills' },
   { id: 'meetings', name: 'Meetings', icon: 'Users', skillCount: 7, repository: 'claude-skills' },
   { id: 'development', name: 'Development', icon: 'Code', skillCount: 9, repository: 'claude-skills' },
-  { id: 'specialized', name: 'Specialized', icon: 'Sparkles', skillCount: 11, repository: 'claude-skills' },
+  { id: 'specialized', name: 'Specialized', icon: 'Sparkles', skillCount: 12, repository: 'claude-skills' },
   { id: 'superpowers-testing', name: 'Testing & Debug', icon: 'Bug', skillCount: 3, repository: 'superpowers' },
   { id: 'superpowers-collaboration', name: 'Collaboration', icon: 'GitBranch', skillCount: 9, repository: 'superpowers' },
   { id: 'superpowers-meta', name: 'Meta Skills', icon: 'BookOpen', skillCount: 2, repository: 'superpowers' },
@@ -997,6 +997,17 @@ export const skills: Skill[] = [
     categoryName: 'Specialized Workflows',
     tags: ['branding', 'naming', 'slogans', 'logo', 'marketing'],
     path: 'brand-forge/SKILL.md',
+    isLocal: true,
+  },
+  {
+    id: 'design-forge',
+    name: 'Design Forge',
+    description: 'Audit UI for defects and AI slop with scored reports and paste-ready fix prompts, actively test live apps with computer-use tools, or turn a plain app idea into a premium design brief',
+    repository: 'claude-skills',
+    category: 'specialized',
+    categoryName: 'Specialized Workflows',
+    tags: ['ux', 'ui', 'design-audit', 'accessibility', 'ai-slop', 'design-brief', 'qa'],
+    path: 'design-forge/SKILL.md',
     isLocal: true,
   },
   {
