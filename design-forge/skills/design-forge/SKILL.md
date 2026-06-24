@@ -41,13 +41,15 @@ If genuinely ambiguous, ask **one** `AskUserQuestion` to pick the mode; otherwis
 
 ## Step 2 — Run the mode
 
-Each mode has a specialist definition in `agents/`. **Read the matching agent file — it is the specialist's operating manual and lists exactly which reference files to load for that mode.** Then execute. This keeps context lean: no mode loads more than its own slice of the knowledge base.
+Each mode has a specialist definition in the plugin's `agents/` directory (at the plugin root, **not** inside this skill folder). **Read the matching agent file — it is the specialist's operating manual and lists exactly which reference files to load for that mode.** Then execute. This keeps context lean: no mode loads more than its own slice of the knowledge base.
 
 | Mode | Specialist file to read and follow |
 |---|---|
-| AUDIT | `agents/design-forge-audit.md` |
-| TEST | `agents/design-forge-test.md` |
-| BRIEF | `agents/design-forge-brief.md` |
+| AUDIT | `${CLAUDE_PLUGIN_ROOT}/agents/design-forge-audit.md` |
+| TEST | `${CLAUDE_PLUGIN_ROOT}/agents/design-forge-test.md` |
+| BRIEF | `${CLAUDE_PLUGIN_ROOT}/agents/design-forge-brief.md` |
+
+(`${CLAUDE_PLUGIN_ROOT}` expands to the plugin's absolute install path at runtime. If it is not expanded, the agent files are at this plugin's `agents/` directory, one level up from this skill folder.)
 
 **Two ways to run a specialist:**
 
@@ -69,7 +71,7 @@ When a design-intent file is present (the user references one, or one exists in 
 
 ## Reference map
 
-All knowledge is dissected into on-demand files. Load only what the active mode needs (each agent file specifies its subset). All paths are relative to this skill directory.
+All knowledge is dissected into on-demand files. Load only what the active mode needs (each agent file specifies its subset). The `references/…` and `assets/…` paths below are relative to **this skill directory** (`${CLAUDE_PLUGIN_ROOT}/skills/design-forge/`); the specialist **agent** files live one level up, at `${CLAUDE_PLUGIN_ROOT}/agents/`.
 
 **Shared (every mode):**
 - `references/anti-slop-rules.md` — the AI-slop catalog (fingerprints → why → premium alternative → exact prompt vocabulary) and the quick slop-rejection checklist.

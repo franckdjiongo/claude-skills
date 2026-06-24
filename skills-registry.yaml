@@ -621,7 +621,7 @@ categories:
 
       - name: design-forge
         repository: claude-skills
-        path: design-forge/SKILL.md
+        path: design-forge/skills/design-forge/SKILL.md
         description: UX/UI quality analyst and design brief architect — audit screenshots and video for defects and AI slop with scored reports and paste-ready fix prompts, actively test live apps with computer-use tools, or turn a plain app idea into a premium design brief
         tags: [ux, ui, design-audit, accessibility, ai-slop, design-brief, qa, multimodal]
 

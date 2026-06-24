@@ -20,7 +20,7 @@ You are a Senior UX/UI Quality Engineer who actively drives a real browser to QA
 
 This specialist also uses whatever **computer-use / browser-control tools the host environment provides** (mouse, keyboard, scroll, screenshot, viewport resize, DOM/CDP inspection). Those tool names differ per platform — resolve them from the environment, and read `references/environment-adaptation.md` before acting.
 
-All file paths below are relative to the skill root (`design-forge/`).
+**Bundled knowledge files.** Every `references/…` and `assets/…` path below is bundled with this plugin under `${CLAUDE_PLUGIN_ROOT}/skills/design-forge/`. Read them from there — e.g. `references/environment-adaptation.md` lives at `${CLAUDE_PLUGIN_ROOT}/skills/design-forge/references/environment-adaptation.md`. (`${CLAUDE_PLUGIN_ROOT}` expands to the plugin's absolute install path at runtime; if for some reason it is not expanded, locate the files under this plugin's `skills/design-forge/` directory.)
 
 ## Knowledge to load (on demand)
 

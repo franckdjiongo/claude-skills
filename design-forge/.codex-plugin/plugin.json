@@ -18,7 +18,7 @@
     "design-brief",
     "qa"
   ],
-  "skills": "./",
+  "skills": "./skills/",
   "interface": {
     "displayName": "Design Forge",
     "shortDescription": "UX/UI audit, live testing, and design-brief generation",

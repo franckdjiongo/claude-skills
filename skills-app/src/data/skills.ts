@@ -1007,7 +1007,7 @@ export const skills: Skill[] = [
     category: 'specialized',
     categoryName: 'Specialized Workflows',
     tags: ['ux', 'ui', 'design-audit', 'accessibility', 'ai-slop', 'design-brief', 'qa'],
-    path: 'design-forge/SKILL.md',
+    path: 'design-forge/skills/design-forge/SKILL.md',
     isLocal: true,
   },
   {
