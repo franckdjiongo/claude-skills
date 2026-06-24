@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="guide">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>meta-govern — Quick Start for the User · meta-govern</title>
+  <meta name="doc-type" content="guide">
+  <meta name="doc-type-label" content="Guide">
+  <meta name="doc-title" content="meta-govern — Quick Start for the User">
+  <meta name="doc-source" content="USER-GUIDE.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Guide d&#39;utilisation du skill meta-govern">
+  <link rel="stylesheet" href="assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#2563EB;--doc-glyph:"✦";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="guide">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#tl%3Bdr">TL;DR</a></li><li class="lvl-2"><a href="#how-to-invoke">How to invoke</a></li><li class="lvl-2"><a href="#what-gets-installed-in-bootstrap">What gets installed in BOOTSTRAP</a></li><li class="lvl-3"><a href="#sources-of-truth-(you-fill-in-content-via-interview)">Sources of truth (you fill in content via interview)</a></li><li class="lvl-3"><a href="#.claude%2F-skeleton">.claude/ skeleton</a></li><li class="lvl-3"><a href="#other">Other</a></li><li class="lvl-2"><a href="#what-does-not-happen-automatically">What does NOT happen automatically</a></li><li class="lvl-2"><a href="#evolution-paliers-(0-6)">Evolution paliers (0-6)</a></li><li class="lvl-2"><a href="#self-evolution">Self-evolution</a></li><li class="lvl-2"><a href="#troubleshooting">Troubleshooting</a></li><li class="lvl-2"><a href="#files-in-this-skill">Files in this skill</a></li><li class="lvl-2"><a href="#maintenance-cadence-(you-run-these)">Maintenance cadence (you run these)</a></li><li class="lvl-2"><a href="#philosophy">Philosophy</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="index.html">meta-govern</a><span class="sep">›</span><span aria-current="page">USER-GUIDE</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">✦</span>Guide</span>
+          <h1 class="docs-title">meta-govern — Quick Start for the User</h1>
+          <p class="docs-blurb">Guide d'utilisation du skill meta-govern</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Guide</span>
+            <span><b>Source</b> · <code>USER-GUIDE.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>meta-govern — Quick Start for the User</h1>
+<blockquote>
+<p>User-facing guide. Not loaded by Claude. Read this whenever you need a refresher on what meta-govern does and how to invoke it.</p>
+</blockquote>
+<h2 id="tl%3Bdr" tabindex="-1"><a class="header-anchor" href="#tl%3Bdr" aria-hidden="true">#</a> TL;DR</h2>
+<p>meta-govern is your <strong>global Claude Code governor</strong>. One skill. Lives at <code>~/.claude/skills/meta-govern/</code>. Works in any project on your machine. Replaces the manual &quot;remember to set up CLAUDE.md, hooks, skills, agents, source of truth, govern-claude&quot; ritual you do every time you start a new project.</p>
+<p>It does NOT replace <code>skill-creator</code>, <code>create-subagent</code>, <code>session-review</code>, <code>domain-driven-design</code>, or your project-level <code>govern-claude</code>. It <strong>orchestrates</strong> them.</p>
+<h2 id="how-to-invoke" tabindex="-1"><a class="header-anchor" href="#how-to-invoke" aria-hidden="true">#</a> How to invoke</h2>
+<p>Just describe what you need. Claude will trigger meta-govern via its description matching:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>You say</th>
+<th>meta-govern does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&quot;Set up Claude for this project&quot;</td>
+<td><strong>BOOTSTRAP</strong> — full workflow install</td>
+</tr>
+<tr>
+<td>&quot;Audit my Claude setup&quot; / &quot;drift check&quot; / &quot;what's missing&quot;</td>
+<td><strong>AUDIT</strong> — read-only inventory + findings</td>
+</tr>
+<tr>
+<td>&quot;Upgrade my workflow to v2&quot; / &quot;migrate to new palier&quot;</td>
+<td><strong>MIGRATE</strong> — incremental update</td>
+</tr>
+<tr>
+<td>&quot;Update meta-govern with this new research doc&quot;</td>
+<td><strong>EVOLVE</strong> — meta-govern self-update</td>
+</tr>
+<tr>
+<td>&quot;What palier am I at&quot; / &quot;should I add X&quot;</td>
+<td><strong>ADVISE</strong> — read-only recommendation</td>
+</tr>
+</tbody>
+</table></div>
+<p>You can also explicitly say <code>/meta-govern</code> or &quot;use meta-govern&quot;.</p>
+<h2 id="what-gets-installed-in-bootstrap" tabindex="-1"><a class="header-anchor" href="#what-gets-installed-in-bootstrap" aria-hidden="true">#</a> What gets installed in BOOTSTRAP</h2>
+<p>After you approve the scaffold plan, meta-govern installs into your project:</p>
+<h3 id="sources-of-truth-(you-fill-in-content-via-interview)" tabindex="-1"><a class="header-anchor" href="#sources-of-truth-(you-fill-in-content-via-interview)" aria-hidden="true">#</a> Sources of truth (you fill in content via interview)</h3>
+<ul>
+<li><code>docs/&lt;project&gt;-spec.md</code> — FUNC-XX, RA-XX, VAL-XX</li>
+<li><code>docs/data-model.md</code> — schema, contracts</li>
+<li><code>docs/composants/catalogue-composants.md</code> — C-XX UI catalog</li>
+</ul>
+<h3 id=".claude%2F-skeleton" tabindex="-1"><a class="header-anchor" href="#.claude%2F-skeleton" aria-hidden="true">#</a> <code>.claude/</code> skeleton</h3>
+<ul>
+<li><code>CLAUDE.md</code> (≤120 lines) — router, source-of-truth pointers, model+effort defaults</li>
+<li><code>.claude/settings.json</code> — hooks declarations (PostToolUse, Stop, PreCompact)</li>
+<li><code>.claude/rules/*.md</code> — 8 path-scoped rules (clean-code, file-size-budget, ui-components, data-layer, testing, spec-protocol, parallel-dispatch, claude-config-style)</li>
+<li><code>.claude/skills/</code> — 5 core skills (brainstorm, write-plan, execute-plan, quality-gate, govern-claude)</li>
+<li><code>.claude/agents/</code> — 6 core agents (implementer, ui-implementer, spec-reviewer, code-quality-reviewer, persona-simulator, codebase-reality-check)</li>
+<li><code>.claude/hooks/</code> — 5 hooks (track-workflow, enforce-workflow, precompact-handoff, postcompact-reinject, session-start-env-check) + <code>lib/hook-utils.mjs</code></li>
+<li><code>.claude/scripts/</code> — <code>file-size-growth-guard.mjs</code> + <code>quality-checks/</code> suite</li>
+</ul>
+<h3 id="other" tabindex="-1"><a class="header-anchor" href="#other" aria-hidden="true">#</a> Other</h3>
+<ul>
+<li><code>package.json</code> scripts: <code>validate</code>, <code>validate:fast</code>, <code>quality:check</code>, <code>quality:check:staged</code>, <code>quality:check:critical</code>, <code>size-guard</code></li>
+<li><code>.husky/pre-commit</code> — lint-staged + size-guard + quality-check (staged scope)</li>
+<li><code>.gitignore</code> additions: <code>.claude/settings.local.json</code>, <code>.claude/tmp/</code>, <code>HANDOFF.md</code> (optional)</li>
+<li><code>HANDOFF.md</code> — auto-generated by PreCompact hook</li>
+<li><code>docs/backlog-deferred.md</code> — deferred-issue ledger</li>
+<li><code>docs/architecture/ddd-decision.md</code> — DDD scorecard outcome</li>
+</ul>
+<h2 id="what-does-not-happen-automatically" tabindex="-1"><a class="header-anchor" href="#what-does-not-happen-automatically" aria-hidden="true">#</a> What does NOT happen automatically</h2>
+<ul>
+<li>No git commits. You commit.</li>
+<li>No <code>~/.claude/settings.json</code> modifications. Global config is yours.</li>
+<li>No deletions. meta-govern only adds. Ever.</li>
+<li>No silent overwrites. Every change is previewed.</li>
+</ul>
+<h2 id="evolution-paliers-(0-6)" tabindex="-1"><a class="header-anchor" href="#evolution-paliers-(0-6)" aria-hidden="true">#</a> Evolution paliers (0-6)</h2>
+<p>Per <code>references/evolution-roadmap.html</code>. Your project starts at Palier 0 (greenfield) and earns its way up:</p>
+<ul>
+<li><strong>Palier 0</strong>: Brand new project (no <code>.claude/</code> yet)</li>
+<li><strong>Palier 1</strong>: Initial bootstrap (5 skills, 4 agents, 3 hooks, 8 rules)</li>
+<li><strong>Palier 2</strong>: Spec maturity (≥30 FUNC IDs → adds spec-tracer, qa-plan)</li>
+<li><strong>Palier 3</strong>: Multi-dev (worktree workflow, spec-reviewer split, subagent-plan-edit-guard hook)</li>
+<li><strong>Palier 4</strong>: CI ready (GitHub Actions, release-notes skill)</li>
+<li><strong>Palier 5</strong>: Dual-runtime (<code>.codex/</code> adapter, AGENTS.md mirror)</li>
+<li><strong>Palier 6</strong>: 30+ DEFERRED entries (backlog automation, next-deferred-id.mjs)</li>
+</ul>
+<p>meta-govern detects your palier and proposes promotion when triggers met.</p>
+<h2 id="self-evolution" tabindex="-1"><a class="header-anchor" href="#self-evolution" aria-hidden="true">#</a> Self-evolution</h2>
+<p>When new Claude Code features ship or new research docs land:</p>
+<ol>
+<li>You drop the doc in <code>~/.claude/skills/meta-govern/references/inbox/</code></li>
+<li>Run &quot;evolve meta-govern with this new doc&quot;</li>
+<li>meta-govern proposes reference + template updates</li>
+<li>You review + accept</li>
+<li><code>version.json</code> bumps</li>
+<li>Existing projects become MIGRATE candidates</li>
+</ol>
+<h2 id="troubleshooting" tabindex="-1"><a class="header-anchor" href="#troubleshooting" aria-hidden="true">#</a> Troubleshooting</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Skill doesn't trigger when I ask</td>
+<td>Description not matching</td>
+<td>Be more explicit: &quot;use meta-govern&quot; or &quot;/meta-govern&quot;</td>
+</tr>
+<tr>
+<td>BOOTSTRAP overwrote a file I had</td>
+<td>Should NEVER happen — file diffs are previewed</td>
+<td>File a lesson in <code>lessons-log.html</code>, fix the validator</td>
+</tr>
+<tr>
+<td>AUDIT reports defensive scaffolding I want to keep</td>
+<td>Add file path to <code>.meta-govern-ignore</code></td>
+<td>Document why in the file's frontmatter <code>meta-govern-ignore-reason:</code></td>
+</tr>
+<tr>
+<td>MIGRATE breaks my hooks</td>
+<td>New hook lib is incompatible</td>
+<td>Roll back via git, run AUDIT to identify the diff, manually adapt</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="files-in-this-skill" tabindex="-1"><a class="header-anchor" href="#files-in-this-skill" aria-hidden="true">#</a> Files in this skill</h2>
+<pre><code>~/.claude/skills/meta-govern/
+├── SKILL.md              # Loaded by Claude
+├── version.json          # Semver + changelog
+├── USER-GUIDE.md         # This file (NOT loaded by Claude)
+├── references/           # 18+ knowledge docs (lazy-loaded)
+├── templates/            # File scaffolds (rendered by scripts)
+├── scripts/              # Master skill scripts (analyze, bootstrap, audit, migrate, etc.)
+└── agents/               # 9 sub-agents the skill orchestrates
+</code></pre>
+<h2 id="maintenance-cadence-(you-run-these)" tabindex="-1"><a class="header-anchor" href="#maintenance-cadence-(you-run-these)" aria-hidden="true">#</a> Maintenance cadence (you run these)</h2>
+<ul>
+<li><strong>Every 2-4 weeks</strong>: AUDIT each active project. Apply proposed diffs.</li>
+<li><strong>After every session-review</strong>: Append lessons to <code>references/lessons-log.html</code>.</li>
+<li><strong>When new Claude model ships</strong>: EVOLVE mode + MIGRATE all projects.</li>
+<li><strong>When you change stacks</strong> (e.g., Convex → Supabase): Add a stack convention pack <code>references/stack-&lt;name&gt;.md</code>.</li>
+</ul>
+<h2 id="philosophy" tabindex="-1"><a class="header-anchor" href="#philosophy" aria-hidden="true">#</a> Philosophy</h2>
+<blockquote>
+<p>&quot;Inventories rot, grep stays fresh.&quot;
+Every time you would catch yourself building the same skill, agent, hook, or rule for the third project in a row, that's the signal to extract it into meta-govern's templates instead.</p>
+</blockquote>
+<p>Built from the synthesis of:</p>
+<ul>
+<li>Groupe Gilbert &quot;Temps Chantier&quot; (production, 15 skills, 4 agents, 11 hooks, 8 rules, dual-runtime architecture)</li>
+<li>Brillance Décor Inc. (mid-build, 18 skills, 5 agents, 3 hooks, 8 rules, palier roadmap)</li>
+<li>5 research documents on Claude Code architecture, DDD, effort levels, progressive disclosure, skill design.</li>
+</ul>
+<p>The user's full institutional memory, encoded once, applied everywhere.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Guide · <code>USER-GUIDE.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="assets/js/docs-toc.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Anti-Pattern Catalog · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Anti-Pattern Catalog">
+  <meta name="doc-source" content="references/anti-pattern-catalog.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#claude-code-anti-patterns">Claude Code anti-patterns</a></li><li class="lvl-3"><a href="#claude.md-anti-patterns">CLAUDE.md anti-patterns</a></li><li class="lvl-3"><a href="#rules-anti-patterns">Rules anti-patterns</a></li><li class="lvl-3"><a href="#skills-anti-patterns">Skills anti-patterns</a></li><li class="lvl-3"><a href="#subagents-anti-patterns">Subagents anti-patterns</a></li><li class="lvl-3"><a href="#hooks-anti-patterns">Hooks anti-patterns</a></li><li class="lvl-3"><a href="#mcp-anti-patterns">MCP anti-patterns</a></li><li class="lvl-3"><a href="#plugins-anti-patterns">Plugins anti-patterns</a></li><li class="lvl-2"><a href="#ddd-anti-patterns">DDD anti-patterns</a></li><li class="lvl-3"><a href="#strategic-anti-patterns">Strategic anti-patterns</a></li><li class="lvl-3"><a href="#tactical-anti-patterns">Tactical anti-patterns</a></li><li class="lvl-2"><a href="#10-code-review-signals-of-anemic-drift-(doc-2)">10 code-review signals of anemic drift (Doc 2)</a></li><li class="lvl-2"><a href="#detection-in-scripts">Detection in scripts</a></li><li class="lvl-2"><a href="#when-to-surface">When to surface</a></li><li class="lvl-2"><a href="#always-grow-this-catalog">Always-grow this catalog</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">anti-pattern-catalog</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Anti-Pattern Catalog</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/anti-pattern-catalog.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Anti-Pattern Catalog</h1>
+<p>Combined catalog of DDD anti-patterns + Claude Code anti-patterns. Source: synthesis of all 5 research docs + lessons learned from both production projects.</p>
+<h2 id="claude-code-anti-patterns" tabindex="-1"><a class="header-anchor" href="#claude-code-anti-patterns" aria-hidden="true">#</a> Claude Code anti-patterns</h2>
+<h3 id="claude.md-anti-patterns" tabindex="-1"><a class="header-anchor" href="#claude.md-anti-patterns" aria-hidden="true">#</a> CLAUDE.md anti-patterns</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Anti-pattern</th>
+<th>Symptom</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bloat (&gt;120 lines)</td>
+<td>Standing context cost; instruction adherence degrades</td>
+<td>Move file-type rules to <code>.claude/rules/</code>, move workflows to skills, keep only identity + pointers + invariants</td>
+</tr>
+<tr>
+<td><code>@filename</code> imports</td>
+<td>Embeds full file every session start</td>
+<td>Replace with declarative pointer: <code>Spec: docs/spec.md</code></td>
+</tr>
+<tr>
+<td>Defensive scaffolding</td>
+<td>&quot;MUST&quot;, &quot;ALWAYS&quot;, &quot;double-check before returning&quot;, &quot;n'oublie pas&quot;</td>
+<td>Delete. Opus 4.7 follows literally; performance drops. Aggressive markers ALLOWED only in skill descriptions (frontmatter) for activation.</td>
+</tr>
+<tr>
+<td>Architecture explanations inline</td>
+<td>Long sections explaining why we chose X</td>
+<td>Move to <code>docs/architecture/</code> and add a router pointer</td>
+</tr>
+<tr>
+<td>File-type procedures inline</td>
+<td>&quot;When editing components, use LocalizedString...&quot;</td>
+<td>Move to <code>.claude/rules/ui-components.md</code> with <code>paths:</code> frontmatter</td>
+</tr>
+<tr>
+<td>Routing without <code>paths:</code></td>
+<td>Path-scoped rule loaded globally</td>
+<td>Add <code>paths:</code> frontmatter to the rule</td>
+</tr>
+<tr>
+<td>Migration playbooks inline</td>
+<td>Long step-by-step migrations</td>
+<td>Move to a skill (e.g., <code>bun-migration</code>)</td>
+</tr>
+<tr>
+<td>Stale references</td>
+<td>Pointer to a doc that no longer exists</td>
+<td>AUDIT detects; meta-govern proposes diff</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="rules-anti-patterns" tabindex="-1"><a class="header-anchor" href="#rules-anti-patterns" aria-hidden="true">#</a> Rules anti-patterns</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Anti-pattern</th>
+<th>Symptom</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Missing <code>paths:</code> frontmatter</td>
+<td>Rule loaded globally always</td>
+<td>Add <code>paths:</code> glob list</td>
+</tr>
+<tr>
+<td>Negative-only (&quot;Never use X&quot;)</td>
+<td>Vague; doesn't tell what to do</td>
+<td>Add positive: &quot;Never X. Instead use Y.&quot;</td>
+</tr>
+<tr>
+<td>Files &gt;50 lines</td>
+<td>Loaded cost too high when it activates</td>
+<td>Split or move long content to a skill body</td>
+</tr>
+<tr>
+<td>Duplicates CLAUDE.md content</td>
+<td>Both load → wasted standing tokens</td>
+<td>Pick one home (rules dir for path-conditional, CLAUDE.md for always-on)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="skills-anti-patterns" tabindex="-1"><a class="header-anchor" href="#skills-anti-patterns" aria-hidden="true">#</a> Skills anti-patterns</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Anti-pattern</th>
+<th>Symptom</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vague description</td>
+<td>Skill auto-triggers &lt;50% of relevant queries</td>
+<td>Rewrite: WHAT + WHEN + 5+ trigger phrases</td>
+</tr>
+<tr>
+<td>README.md inside skill folder</td>
+<td>Forbidden by Anthropic</td>
+<td>Delete; move content into SKILL.md or <code>references/</code></td>
+</tr>
+<tr>
+<td>Folder name not kebab-case</td>
+<td>Skill silently invalid</td>
+<td>Rename to kebab-case</td>
+</tr>
+<tr>
+<td><code>name:</code> differs from folder</td>
+<td>Routing surprises</td>
+<td>Match <code>name:</code> to folder name</td>
+</tr>
+<tr>
+<td>&quot;claude&quot; or &quot;anthropic&quot; in name</td>
+<td>Reserved keyword</td>
+<td>Rename</td>
+</tr>
+<tr>
+<td>XML angle brackets in frontmatter</td>
+<td>Prompt injection vector</td>
+<td>Remove</td>
+</tr>
+<tr>
+<td>Body &gt;5000 words</td>
+<td>Slow loading; reduced trigger reliability</td>
+<td>Move detail to <code>references/</code>, keep body lean</td>
+</tr>
+<tr>
+<td><code>disable-model-invocation: false</code> on side-effect skills</td>
+<td>Skill auto-runs and deploys/mutates state</td>
+<td>Set to <code>true</code> for any skill with side effects</td>
+</tr>
+<tr>
+<td>Subagents listed without <code>effort:</code></td>
+<td>Subagent inherits session xhigh</td>
+<td>Add explicit <code>effort:</code> to subagent frontmatter</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="subagents-anti-patterns" tabindex="-1"><a class="header-anchor" href="#subagents-anti-patterns" aria-hidden="true">#</a> Subagents anti-patterns</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Anti-pattern</th>
+<th>Symptom</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Subagent-from-subagent</td>
+<td>Forbidden, fails</td>
+<td>All subagents are leaf workers</td>
+</tr>
+<tr>
+<td>Plugin agent declaring <code>hooks:</code>/<code>mcpServers:</code>/<code>permissionMode:</code></td>
+<td>Silently ignored</td>
+<td>Move to user/project agent (not plugin)</td>
+</tr>
+<tr>
+<td>Background reviewers</td>
+<td>0-byte output, fails silently</td>
+<td>Always foreground for review</td>
+</tr>
+<tr>
+<td>Skills not declared in agent frontmatter</td>
+<td>Subagent doesn't auto-inherit</td>
+<td>List skills in agent's <code>skills:</code> frontmatter</td>
+</tr>
+<tr>
+<td>Agent description without &quot;required context&quot; guidance</td>
+<td>Caller dispatches without context, agent flounders</td>
+<td>Document required context in agent description</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="hooks-anti-patterns" tabindex="-1"><a class="header-anchor" href="#hooks-anti-patterns" aria-hidden="true">#</a> Hooks anti-patterns</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Anti-pattern</th>
+<th>Symptom</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Missing <code>/opt/homebrew/bin</code> PATH</td>
+<td><code>node</code>/<code>git</code>/<code>bun</code> not found on Apple Silicon</td>
+<td>Set explicit PATH in hook script</td>
+</tr>
+<tr>
+<td>nvm dependency</td>
+<td>Breaks if user opens session without nvm init</td>
+<td>Use <code>#!/usr/bin/env node</code> with absolute PATH or homebrew-installed node</td>
+</tr>
+<tr>
+<td>Profile output (echo in <code>.zshrc</code>)</td>
+<td>Corrupts JSON hook responses</td>
+<td>Profile must be silent at startup</td>
+</tr>
+<tr>
+<td>Interactive prompts</td>
+<td>Hooks have no TTY; hangs forever</td>
+<td>All input via stdin/stdout JSON</td>
+</tr>
+<tr>
+<td>Skipping hooks (--no-verify)</td>
+<td>&quot;Just bypass this once&quot; → cumulative drift</td>
+<td>Treat as production infrastructure; fix the root cause</td>
+</tr>
+<tr>
+<td>Verbose stdout in hooks</td>
+<td>Floods context</td>
+<td>Write details to file; return 1-line pointer</td>
+</tr>
+<tr>
+<td>Background reviewers via hooks</td>
+<td>Same as subagent: 0-byte</td>
+<td>Foreground hooks only for review-style work</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="mcp-anti-patterns" tabindex="-1"><a class="header-anchor" href="#mcp-anti-patterns" aria-hidden="true">#</a> MCP anti-patterns</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Anti-pattern</th>
+<th>Symptom</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MCP for tasks better solved by bash</td>
+<td>Tool-definition cost when not needed</td>
+<td>Use bash + scripts</td>
+</tr>
+<tr>
+<td>Hardcoded credentials in MCP config</td>
+<td>Secret leak</td>
+<td>Use env vars / OS keychain</td>
+</tr>
+<tr>
+<td>Idle MCP active</td>
+<td>Context bloat</td>
+<td>Disable MCP unless actively used</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="plugins-anti-patterns" tabindex="-1"><a class="header-anchor" href="#plugins-anti-patterns" aria-hidden="true">#</a> Plugins anti-patterns</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Anti-pattern</th>
+<th>Symptom</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Submodule-based distribution</td>
+<td>Not reliably cloned</td>
+<td>Use marketplace-based distribution</td>
+</tr>
+<tr>
+<td>Hardcoded user paths in plugin</td>
+<td>Breaks for other users</td>
+<td>Use <code>$CLAUDE_PROJECT_DIR</code> and <code>~/.claude/</code> paths</td>
+</tr>
+<tr>
+<td>Unsigned plugins from untrusted source</td>
+<td>Security</td>
+<td>Only enable plugins from known marketplaces</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="ddd-anti-patterns" tabindex="-1"><a class="header-anchor" href="#ddd-anti-patterns" aria-hidden="true">#</a> DDD anti-patterns</h2>
+<h3 id="strategic-anti-patterns" tabindex="-1"><a class="header-anchor" href="#strategic-anti-patterns" aria-hidden="true">#</a> Strategic anti-patterns</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Anti-pattern</th>
+<th>Symptom</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DDD-Lite</strong></td>
+<td>Tactical patterns (aggregates, repos) without bounded contexts/UL</td>
+<td>Strategic first. Skip tactical until score ≥10.</td>
+</tr>
+<tr>
+<td><strong>Big Ball of Mud BC</strong></td>
+<td>One BC handling everything</td>
+<td>Split by ubiquitous language; each BC has its own glossary</td>
+</tr>
+<tr>
+<td><strong>Shared database across BCs</strong></td>
+<td>Coupling, deployment lockstep</td>
+<td>Each BC owns its persistence; integrate via events/contracts</td>
+</tr>
+<tr>
+<td><strong>Confused subdomain classification</strong></td>
+<td>Treating supporting like core or vice versa</td>
+<td>Re-score on Khononov axes (differentiation × complexity)</td>
+</tr>
+<tr>
+<td><strong>Bounded context = microservice always</strong></td>
+<td>Premature deployment fragmentation</td>
+<td>All microservices are BCs, not all BCs are microservices</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="tactical-anti-patterns" tabindex="-1"><a class="header-anchor" href="#tactical-anti-patterns" aria-hidden="true">#</a> Tactical anti-patterns</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Anti-pattern</th>
+<th>Symptom</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Anemic Domain Model</strong></td>
+<td>Entities are setter-bags; logic in services</td>
+<td>Move invariants into entity methods; reject public setters</td>
+</tr>
+<tr>
+<td><strong>God Aggregate</strong></td>
+<td>Aggregate &gt;100ms load</td>
+<td>Split aggregate; reference other roots by ID only</td>
+</tr>
+<tr>
+<td><strong>Generic Repository <code>IRepository&lt;T&gt;</code></strong></td>
+<td>Repository becomes leaky CRUD</td>
+<td>One repository per AGGREGATE ROOT; methods named in ubiquitous language</td>
+</tr>
+<tr>
+<td><strong>Leaky Repository</strong></td>
+<td>Returns <code>IQueryable</code> / raw rows</td>
+<td>Return fully-valid aggregates only</td>
+</tr>
+<tr>
+<td><strong>Infrastructure leaking into domain</strong></td>
+<td>EF Core types in domain entities</td>
+<td>Domain has zero ORM dependency; mapper-as-ACL at boundary</td>
+</tr>
+<tr>
+<td><strong>Primitive obsession</strong></td>
+<td><code>string customerEmail</code> instead of <code>Email</code> value object</td>
+<td>Promote frequently-used primitives to value objects</td>
+</tr>
+<tr>
+<td><strong>Multiple aggregates per transaction</strong></td>
+<td>Contention, deadlocks, unclear ownership</td>
+<td>One aggregate per transaction. Use eventual consistency between aggregates.</td>
+</tr>
+<tr>
+<td><strong>Public setters on aggregates</strong></td>
+<td>Outside code mutates state, bypasses invariants</td>
+<td>Private setters, public methods named in UL</td>
+</tr>
+<tr>
+<td><strong>Event sprawl</strong></td>
+<td>Events fired for every state change, no architectural value</td>
+<td>Events for domain transitions, not CRUD</td>
+</tr>
+<tr>
+<td><strong>Double-write without outbox</strong></td>
+<td>Save aggregate + publish event in 2 transactions → eventual inconsistency</td>
+<td>Outbox pattern: insert outbox row in same DB transaction; separate dispatcher publishes</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="10-code-review-signals-of-anemic-drift-(doc-2)" tabindex="-1"><a class="header-anchor" href="#10-code-review-signals-of-anemic-drift-(doc-2)" aria-hidden="true">#</a> 10 code-review signals of anemic drift (Doc 2)</h2>
+<p>Bake these into your <code>code-quality-reviewer</code> agent or quality-gate script:</p>
+<ol>
+<li>Public setters on aggregate roots</li>
+<li>Primitives where value objects are documented in glossary</li>
+<li>Validation logic in controllers (should be in domain)</li>
+<li>Resource-named commands (<code>PUT /orders</code> vs domain commands)</li>
+<li>Application services holding invariants</li>
+<li>Mutable collections returned from aggregates</li>
+<li>Present-tense events (<code>UpdateOrder</code> vs <code>OrderShipped</code>)</li>
+<li>Property-only tests (no behavior assertions)</li>
+<li>ORM types (DbContext, Entity attributes) in domain layer</li>
+<li>Lazy-loaded cross-aggregate navigation properties</li>
+</ol>
+<h2 id="detection-in-scripts" tabindex="-1"><a class="header-anchor" href="#detection-in-scripts" aria-hidden="true">#</a> Detection in scripts</h2>
+<p><code>scripts/detect-anti-patterns.mjs</code> runs automated detection:</p>
+<ul>
+<li><strong>Claude-Code anti-patterns</strong>: file size, defensive scaffolding regex, <code>@</code>-imports, missing <code>paths:</code>, vague descriptions, README in skill folders, etc.</li>
+<li><strong>DDD anti-patterns</strong> (when DDD score ≥10): public setter detection, IRepository<T> regex, ORM types in domain folders, primitive params on commands, etc.</li>
+</ul>
+<p>Output: severity-tagged findings with file:line references.</p>
+<h2 id="when-to-surface" tabindex="-1"><a class="header-anchor" href="#when-to-surface" aria-hidden="true">#</a> When to surface</h2>
+<ul>
+<li>BOOTSTRAP: After scaffold, run anti-pattern scan on the templates that were just installed (sanity check).</li>
+<li>AUDIT: Always.</li>
+<li>MIGRATE: Always (anti-patterns may emerge during migration).</li>
+<li>EVOLVE: Self-audit detects anti-patterns in meta-govern itself.</li>
+</ul>
+<h2 id="always-grow-this-catalog" tabindex="-1"><a class="header-anchor" href="#always-grow-this-catalog" aria-hidden="true">#</a> Always-grow this catalog</h2>
+<p>When a new anti-pattern is observed:</p>
+<ol>
+<li>Append to <code>lessons-log.html</code></li>
+<li>Add a row to the relevant table here</li>
+<li>Update <code>detect-anti-patterns.mjs</code> with a new check (if scriptable)</li>
+<li>Bump meta-govern minor version</li>
+</ol>
+<p>The catalog is a living document. Stale entries also rot — periodically prune patterns that no longer apply (e.g., when Claude Code adds a feature that obsoletes a workaround).</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/anti-pattern-catalog.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

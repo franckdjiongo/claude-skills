@@ -1,0 +1,41 @@
+# Provision the Dataverse `managedidentities` record needed by Pattern A
+# (plugin → Managed Identity direct call).
+#
+# Usage: send this request via the REST Client extension in VS Code, or
+# adapt to PowerShell/curl. The request must be authenticated as a Dataverse
+# user with permission to create `managedidentity` records (typically a
+# system administrator).
+#
+# Replace placeholders:
+#   <orgURL>       — e.g. https://contoso.crm.dynamics.com
+#   <appId>        — UAMI clientId or App Registration appId
+#   <newGuid>      — generate a fresh GUID for managedidentityid
+#   <tenantId>     — Entra Directory ID
+
+@orgURL = https://<orgURL>
+@accessToken = Bearer <user token for Dataverse Web API>
+
+POST {{orgURL}}/api/data/v9.0/managedidentities
+Authorization: {{accessToken}}
+Content-Type: application/json
+OData-MaxVersion: 4.0
+OData-Version: 4.0
+Accept: application/json
+
+{
+  "applicationid": "<appId>",
+  "managedidentityid": "<newGuid>",
+  "credentialsource": 2,
+  "subjectscope": 1,
+  "tenantid": "<tenantId>",
+  "version": 1
+}
+
+###
+# After creating the record, link the assembly to the managed identity. This
+# is normally done via the Plugin Identity Manager XrmToolBox tool. The
+# corresponding Federated Identity Credential on the Entra app must use
+# subject:
+#   component:pluginassembly,thumbprint:<assembly thumbprint>,environment:<environment id>
+# and issuer:
+#   https://<env-prefix>.<env-suffix>.environment.api.powerplatform.com/sts

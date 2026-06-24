@@ -51,6 +51,9 @@ The `description` field is critical - it determines when Claude Code should invo
 - `governance-script-generator` - Generate PAC CLI and PowerShell governance scripts
 - `power-platform-docs` - Power Platform documentation standards
 - `teams-message-polisher` - Polish messages for Microsoft Teams
+- `add-dataverse` - Add Dataverse tables to a Power Apps code app with generated TypeScript models and services
+- `pp-solution-sync` - Sync Power Platform solution exports from ~/Downloads into local project folders
+- `secure-pa-http-trigger` - Secure a Power Automate HTTP-trigger flow with Entra ID auth and rewire every caller
 
 **Claude Code Extensibility**
 - `skill-creator` - Guide for creating new skills with proper structure and patterns
@@ -59,6 +62,14 @@ The `description` field is critical - it determines when Claude Code should invo
 - `prompt-engineer` - Claude prompting best practices
 - `docs-workflow-generator` - Generate PRD, task breakdown, roadmap, and documentation workflow
 - `ralph-prompt-generator` - Generate auto-compact-resilient Ralph Wiggum loop prompts
+- `claude-hook-creator` - Create or revise Claude Code hooks in settings.json or subagent frontmatter
+- `create-subagent` - Scaffold a well-formed Claude Code subagent (.claude/agents/<name>.md)
+- `meta-govern` - Master governance skill: bootstrap, audit, migrate, and evolve Claude Code project workflows
+- `setup-insights` - Bootstrap the Insight Coaching System (coaching hooks, logging, quality gates) in a project
+- `loop-autonomy` - Run an autonomous work loop over a backlog using subscription-included mechanisms
+- `cloud-night-shift` - Orchestrate chained autonomous overnight cloud runs via claude.ai routines
+- `pipeline-audit` - Reverse-engineer and grade a project's brainstorm→plan→implementation skill pipeline
+- `handoff` - Compact the current conversation into a handoff document for another agent to pick up
 
 **Convex Database**
 - `convex-queries` - Convex query patterns and best practices
@@ -98,6 +109,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `i18n-web-localizer` - Web internationalization
 - `api-test-script-generator` - Generate API test scripts
 - `github-issue-creator` - Create GitHub issues programmatically
+- `supacode-cli` - Control Supacode from the terminal (worktrees, tabs, and surfaces)
 
 **Specialized Workflows**
 - `bpmn-creator` - Create BPMN 2.0 process diagrams
@@ -108,6 +120,15 @@ The `description` field is critical - it determines when Claude Code should invo
 - `app-blueprint` - Reverse-engineer a codebase into a comprehensive Application Blueprint (EN/FR)
 - `brand-forge` - Automate end-to-end branding with naming, slogan, logo, and brand identity outputs
 - `seo-visibility` - Implement SEO, structured data, AI discoverability, and marketing visibility improvements
+- `galley` - HTML artifact review subsystem: read, edit, reply to, and resolve anchored comments living inside an HTML file
+- `ship-polished-ui` - Design then browser-QA premium, production-grade UI with a non-negotiable visual test loop
+
+**Email (Resend)**
+- `resend` - Resend email platform umbrella that routes to send, inbound, agent inbox, and template sub-skills
+- `resend-send-email` - Send transactional, notification, and bulk emails via the Resend API
+- `resend-templates` - Create, update, publish, and manage Resend email templates via the API
+- `resend-inbound` - Receive emails with Resend: inbound domains, webhooks, and content/attachment retrieval
+- `resend-agent-email-inbox` - Set up a secure email inbox for an AI agent with content safety measures
 
 ## Creating New Skills
 

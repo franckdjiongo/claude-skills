@@ -1,0 +1,189 @@
+{
+  "name": "meta-govern",
+  "version": "1.4.1",
+  "released": "2026-06-22",
+  "bornFrom": {
+    "projects": [
+      "temps-chantier-code-app (Groupe Gilbert)",
+      "brillance-d-cor-inc"
+    ],
+    "researchDocuments": [
+      "Claude Code Architecture Research.md",
+      "Domain-Driven Design - A Production Reference.md",
+      "effort-level-decision-framework-claude-code-opus-4-7-sonnet-4-6.md",
+      "Progressive Context Disclosure for Claude Code on Windows.md",
+      "The-Complete-Guide-to-Building-Skills-for-Claude.md",
+      "LLM-friendly project architecture for AI coding agents in 2026.md"
+    ]
+  },
+  "claudeCodeMinVersion": "2.1.76",
+  "modelDefaults": {
+    "opus": "claude-opus-4-7",
+    "sonnet": "claude-sonnet-4-6",
+    "effort": "xhigh"
+  },
+  "compatibility": {
+    "platforms": ["darwin"],
+    "shells": ["bash", "zsh"],
+    "runtimes": ["node>=20", "bun>=1.1"]
+  },
+  "changelog": [
+    {
+      "version": "1.4.1",
+      "date": "2026-06-22",
+      "summary": "Patch corrigeant les pointeurs morts references/*.md dans les corps de skills bootstrappés (le suivi explicitement différé dans la leçon v1.4.0 du 2026-06-22). Le plan par défaut de bootstrap-project.mjs n'installe qu'UNE référence de skill (govern-claude/references/baseline.md, ligne 346) ; or quatre templates de skills pointaient vers des fichiers frères references/*.md que le BOOTSTRAP n'installe jamais — pointeurs morts dans chaque projet bootstrappé. Décision Option (B) : inliner les éléments porteurs + rediriger vers les artefacts EXISTANTS (règle installée .claude/rules/spec-protocol.md, scripts installés .claude/scripts/quality-checks/checks/, canon meta-govern absolu ~/.claude/skills/meta-govern/references/*.html) + supprimer les see-also morts. AUCUN nouveau fichier de référence créé — donc aucun changement au plan de bootstrap, à l'architect ni au scaffolder ; authoring 7 docs from scratch aurait risqué l'invention (les skills mûrs de Temps Chantier utilisent d'autres noms). brainstorm : section-templates.md supprimé (déjà inline), delta-format.md → spec-protocol.md + essentiels inlinés. write-plan : self-review-checks.md inliné en Step 8 (hard/soft gates énumérés). quality-gate : checks-catalog.md → .claude/scripts/quality-checks/checks/. govern-claude : baseline.md conservé (installé), evolution-roadmap.md/authoring-best-practices.md/session-lessons.md → canon HTML absolu (evolution-roadmap, skill/subagent/hook-canonical-structure, macos-hook-conventions pour le PATH des hooks, lessons-log). Nouvelle garde self-audit déterministe (pointer-integrity templates de skills) qui force la complétude des redirections. Purement additif et non-cassant : les projets déjà bootstrappés ne sont pas affectés (rien ne re-rend leur SKILL.md) ; MIGRATE non requis. Multi-runtime : aucun jumeau Codex (modèle AGENTS.md à pointeur fin ; corps de skills single-source) — même verdict que le run v1.4.0. self-audit reste à 0 findings (la nouvelle garde incluse).",
+      "breakingChanges": [],
+      "features": [
+        "templates/skills/brainstorm.SKILL.md.tpl — pointeur references/section-templates.md supprimé (les 6 sections sont déjà inline en Step 3) ; mentions references/delta-format.md redirigées vers la règle installée .claude/rules/spec-protocol.md, avec les essentiels inlinés en Step 4 (verbes ADD/MODIFY/REMOVE/RENAME, tag <!-- origin: ... --> obligatoire, grep {{SPEC_DOC}} anti-collision d'id)",
+        "templates/skills/write-plan.SKILL.md.tpl — pointeur references/self-review-checks.md remplacé par la checklist déterministe inline en Step 8 (3 hard gates : Task 1 = apply-delta, [HUMAN GATE] = BATCH+no-agent, tâche reviewer finale ; 2 soft gates : governing evidence par tâche, groupes parallèles à fichiers disjoints) ; entrée Cross-references morte supprimée ; gotcha session-lessons.md (filename nu) redirigé vers le canon lessons-log.html",
+        "templates/skills/quality-gate.SKILL.md.tpl — pointeur references/checks-catalog.md redirigé vers la source installée .claude/scripts/quality-checks/checks/ (index.mjs + checks/*.mjs)",
+        "templates/skills/govern-claude.SKILL.md.tpl — references/baseline.md conservé (installé par bootstrap, project-local) ; references/evolution-roadmap.md → ~/.claude/skills/meta-govern/references/evolution-roadmap.html ; references/authoring-best-practices.md → canon authoring absolu (skill-canonical-structure.html, subagent-canonical-structure.html, hook-canonical-patterns.html ; macos-hook-conventions.html pour le PATH des hooks en Step 4) ; references/session-lessons.md → lessons-log.html ; toutes occurrences mises à jour (description, liste Step 1, Step 4, Step 7, Cross-references, gotchas)",
+        "scripts/self-audit.mjs — nouvelle garde pointer-integrity pour les templates de skills : tout pointeur local references/<x>.md dans un *.SKILL.md.tpl doit correspondre à un fichier installé par bootstrap-project.mjs (.claude/skills/<skill>/references/<x>.md), sinon HIGH ; négative-lookbehind (?<![~\\w./-]) excluant les chemins absolus/imbriqués ; miroir de la garde SKILL.md→references/*.html existante. Après les redirections, le seul match local survivant est govern-claude/references/baseline.md (installé) → garde à 0 finding"
+      ]
+    },
+    {
+      "version": "1.4.0",
+      "date": "2026-06-22",
+      "summary": "Pipeline-maturity guardrails distilled from a reverse-engineering audit of the Temps Chantier design→plan→implementation skill pipeline (3 workflows: 7-skill audit; 47 designs + 57 plans scored; 1306 session transcripts mined + 18 deep-read). The audit's verdict: the pipeline rarely ships wrong but pays quality in rework, and the weak link is upstream (design B, TDD skill C) — not the execution engine. This minor encodes the audit's recommendation chain into meta-govern's templates + canon so NEW projects (and re-audited ones) start mature: observable acceptance criteria in design → rendered as per-task checkboxes in the plan → design→tasks coverage traceability → upstream plan-content gate in execute. Plus: brainstorm twin-domain parity inventory + linguistic-precision rule; execute-plan branch-at-step-0 (never on master) + single-source status + re-read-mutated-files; a HARD non-soft-disposable visual-QA gate (jsdom-green is blind to render); the test-driven-development SKILL gains the guardrails that previously lived only in the implementer agent body (prove-by-removal per AC, ordering criterion for 'before X', preflight `npx tsc -b --noEmit`, stop-on-deficient-input); and a real-boundary testing clause (green mocks are not proof of integration). Two new architectural principles (10: observable AC are the contract spine; 11: test the real boundary, not the idealized mock). Decision: all new skill content is INLINE in the .SKILL.md.tpl bodies (the bootstrapped skills reference sibling files like references/self-review-checks.md that BOOTSTRAP never installs — a pre-existing dangling-pointer gap, flagged for a separate remediation, not widened here). Multi-runtime: no Codex twin edit — the palier-5 AGENTS.md mirror is a thin pointer to CLAUDE.md, so skill/rule/agent bodies are single-source. Purely additive: existing bootstrapped projects validate as-is; MIGRATE is optional. self-audit remains at 0 findings.",
+      "breakingChanges": [],
+      "features": [
+        "Architectural principles 10 (observable acceptance criteria are the contract spine) + 11 (test the real boundary, not the idealized mock) added to SKILL.md and reflected in references/workflow-blueprint.html per-phase contracts",
+        "templates/skills/brainstorm.SKILL.md.tpl — new Section 4b 'Critères d'acceptation' (observable per-behavior pass/fail conditions, stack-agnostic); mandatory twin-domain parity inventory (specified/adapted/excluded/MISSING) in Step 1 when the topic mirrors an established domain; linguistic-precision pass in Step 5 self-review (quantify thresholds/sort/defaults/empty-error states), distinct from provenance",
+        "templates/skills/write-plan.SKILL.md.tpl — per-task acceptance criteria + edge cases rendered as executable checkboxes (not prose) citing FUNC/RA/VAL/C-XX; new Step 7b design→tasks coverage traceability (every design requirement maps to a task or an explicit out-of-scope, catching the silently-dropped-requirement class)",
+        "templates/skills/execute-plan.SKILL.md.tpl — new Step 2b upstream plan-CONTENT gate (atomic / files-named / criteria-carried / self-sufficient + coverage check, bounce or split otherwise); branch-at-step-0 (confirm via AskUserQuestion, never commit feature work on master/main); single-source task status from step-records; re-read any file a sub-agent mutated before editing; real-boundary verification in Step 4e",
+        "templates/skills/execute-plan.SKILL.md.tpl + templates/agents/ui-implementer.md.tpl — HARD visual-QA gate: 'visual-unverified' is non-soft-disposable; a UI group's 'done' is BLOCKED until live render is verified or hard-tagged NEEDS_VISUAL_QA; ui-implementer Step 7 reframed from optional to hard gate; NEEDS_VISUAL_QA added to the result-summary contract",
+        "templates/skills/test-driven-development.SKILL.md.tpl — ports the implementer-agent guardrails into the SKILL (which scored C): prove-by-removal per AC, ordering criterion for 'before X' behaviors, preflight `npx tsc -b --noEmit` in VERIFY GREEN, and a stop-on-deficient-input clause (do not encode a guessed interpretation into the RED test)",
+        "templates/rules/spec-protocol.md.tpl — new section 4: designs carry observable AC, plans render them as checkboxes, write-plan proves design→tasks coverage before hand-off",
+        "templates/rules/testing.md.tpl — real-boundary clause (a green mock suite is not proof of integration; keep ≥1 integration test on real shapes) + visual/render-not-covered-by-jsdom note"
+      ]
+    },
+    {
+      "version": "1.3.2",
+      "date": "2026-06-20",
+      "summary": "Patch corrigeant quatre frictions du premier vrai BOOTSTRAP SvelteKit (home-spectors / Inspection NGOUFACK), toutes invisibles en revue statique et révélées par le `bun run validate`/`lint` du projet (cf. lessons-log 2026-06-20). (1) HIGH — payload lint-ignore JS/TS : un projet fraîchement bootstrappé échouait son propre validate car eslint/prettier (de `sv add`) lintaient les artefacts vendus par le scaffold (.claude/** catch vides, docs/** 50+ HTML+JS, src/lib/paraglide/** généré). bootstrap-project.mjs augmente désormais `.prettierignore` et insère une entrée global-ignores eslint (indentation + guillemets détectés pour rester prettier-clean) pour `.claude/**`, `docs/**`, `archive/**`, `src/lib/paraglide/**`, sur toute stack avec eslint/prettier. (2) ui-components React-shaped même en SvelteKit (2e occurrence) : nouveau `templates/rules/ui-components.svelte.md.tpl` (paths `*.svelte` + `messages/*.json` ; Paraglide `m.*()`, runes Svelte 5, `localizeHref`/`goto`, tokens Tailwind) sélectionné quand IF_STACK_SVELTEKIT — fin de la glob morte `src/lib/**/*.{ts,tsx,jsx}`. (3) merge de scripts package.json incomplet : runPostInstall ne mergeait que les scripts docs-* ; `validate`/`validate:fast`/`quality:check`/`size-guard`/`test` (référencés par CLAUDE.md via COMMAND_*) sont désormais mergés add-if-missing, package-manager-aware, pour les projets sans husky aussi ; les additionalSteps package-json-script + gitignore-add sont enfin appliqués par le script (plus seulement par l'agent). (4) détecteur de sources de vérité aveugle aux noms non-standards + sous-dossiers : project-detection.mjs lit `docs/docs-map.json` sourcesOfTruth EN PREMIER (autoritatif), repli sur un globbing RÉCURSIF (candidat brand-system.html ajouté) — supprime 2 HIGH + 1 MEDIUM faux positifs d'audit quand les docs vivent dans docs/spec/ + docs/architecture/. Détection SvelteKit rendue dépendance-based (@sveltejs/kit → isSvelteKit/IF_STACK_SVELTEKIT), jamais file-based : sv 0.16 ne livre plus de svelte.config.js. Aucun changement cassant ; aucune migration projet requise.",
+      "breakingChanges": [],
+      "features": [
+        "scripts/bootstrap-project.mjs — applyLintIgnorePayload() : pour les stacks eslint/prettier, augmente .prettierignore (bloc gouvernance, gitignore-style) et insère { ignores: ['.claude/**','docs/**','archive/**','src/lib/paraglide/**'] } dans la config eslint flat (anchors defineConfig(/tseslint.config(/ts.config(/export default [ ; indentation tab|2-espaces et guillemets simple|double détectés depuis le fichier pour passer prettier --check ; idempotent ; best-effort avec raison si point d'insertion non reconnu)",
+        "scripts/bootstrap-project.mjs — runPostInstall() merge désormais quality:check, size-guard, test, validate, validate:fast (add-if-missing, préfixe pmRun() selon le gestionnaire de paquets, test dérivé du framework détecté) en plus des scripts docs-*",
+        "scripts/bootstrap-project.mjs — applyAdditionalSteps() applique package-json-script + gitignore-add du plan de façon déterministe (l'agent scaffolder n'a plus à s'en souvenir ; corrige aussi le gitignore-add du plan par défaut jamais appliqué auparavant)",
+        "templates/rules/ui-components.svelte.md.tpl — règle UI Svelte (Paraglide, runes Svelte 5, localizeHref/goto, tokens Tailwind, a11y) ; sélectionnée par buildDefaultPlan + architect quand IF_STACK_SVELTEKIT, {{CATALOG_DOC}} substitué",
+        "scripts/lib/project-detection.mjs — sourcesOfTruth lus depuis docs/docs-map.json (autoritatif) en premier, repli sur findFirstMatching récursif (findFileRec, sous-dossiers docs/spec/ + docs/architecture/), candidat data-model brand-system.html ajouté ; stack.isSvelteKit (@sveltejs/kit) + flag IF_STACK_SVELTEKIT ; Paraglide (@inlang/paraglide-js) → hasI18n",
+        "agents/architect.md + scaffolder.md + workflow-validator.md — IF_STACK_SVELTEKIT dans la liste des flags, sélection conditionnelle du template ui-components Svelte, contrat post-install déterministe (scripts gouvernance + lint-ignores + additionalSteps), checklist de validation étendue (validate/test existent, lint-ignores posés, ui-components non-mort en SvelteKit)",
+        "references/stack-sveltekit.html — détection dépendance-based @sveltejs/kit (plus de svelte.config.js), règle ui-components pointant vers le template Svelte + idiomes Paraglide, section « lint gates must not lint vendored assets »",
+        "SKILL.md — BOOTSTRAP step 5 documente la variante ui-components Svelte, le merge déterministe des scripts gouvernance (+ test) et le payload lint-ignore JS/TS"
+      ]
+    },
+    {
+      "version": "1.3.1",
+      "date": "2026-06-16",
+      "summary": "Patch corrigeant trois frictions du payload docs-html révélées par la première MIGRATE --target=html-docs d'un projet réel (htmlshare, palier 5, dual-runtime). (1) typeForPath() classait les sources de vérité canoniques rangées à la RACINE de DOCS_ROOT (spec/modèle de données/catalogue) en 'generic' faute de dossier typé : doc-types.mjs dérive désormais leur type du registre docs-map.json (spec→spec, dataModel & catalog→lexique), avec override manuel TYPE_FILES dans docs-config et repli sûr si le registre manque. (2) file-size-growth-guard bloquait le commit sur le CSS du thème docs-html (642/745 lignes) installé par le toolkit lui-même : exemption des chemins générés/vendus (docs/assets/** + .claude/scripts/docs-html/**), conforme à la règle file-size-budget (feuilles de style + codegen exemptés). (3) rewrite-refs ne réécrivait que CLAUDE.md : AGENTS.md (miroir Codex) et README.md (table des docs) sont désormais inclus d'office (existence vérifiée avant lecture), pour la parité multi-runtime. Aucun changement cassant ; aucune migration projet requise.",
+      "breakingChanges": [],
+      "features": [
+        "templates/scripts/docs-html/lib/doc-types.mjs.tpl — typeForPath() dérive le type des sources de vérité racine depuis docs-map.json (sourcesOfTruth: spec→spec, dataModel/catalog→lexique); ordre de résolution TYPE_FILES (override manuel) → docs-map → TYPE_FOLDERS → generic; repli {} si docs-map absent/illisible",
+        "templates/scripts/docs-html/lib/docs-config.mjs.tpl — nouvel export TYPE_FILES (override manuel basename→type, vide par défaut, documenté)",
+        "templates/scripts/file-size-growth-guard.mjs.tpl — GENERATED_RE exempte docs/assets/** + .claude/scripts/docs-html/** (le toolkit installe du CSS > 300 lignes que la garde bloquait à chaque commit)",
+        "templates/scripts/docs-html/rewrite-refs.mjs.tpl — ROOT_FILES inclut AGENTS.md + README.md (existence vérifiée) pour la réécriture .md→.html multi-runtime"
+      ]
+    },
+    {
+      "version": "1.3.0",
+      "date": "2026-06-09",
+      "summary": "Doctrine HTML-first. Tout document lisible par un humain devient HTML (thème premium, TOC, badge par type, registre docs-map.json, hub index.html généré, scaffold déterministe, garde anti-Markdown); seuls les fichiers d'instructions runtime Claude restent Markdown (SKILL.md, agents, rules, templates d'instructions). BOOTSTRAP installe le payload docs-html complet (toolkit .claude/scripts/docs-html/ + lib/docs-config.mjs, hooks block-docs-markdown + docs-index-refresh, assets docs/assets/**, docs/docs-map.json, check-docs-map.mjs) et rend les docs canoniques depuis des successeurs .html.tpl. AUDIT détecte la dérive markdown (HIGH markdown-docs-drift + MEDIUM toolkit/hook/docs-map/index absents). MIGRATE gagne --target=html-docs (inventory → convert → verify → rewrite-refs → no-markdown-guard → make-index) pour convertir les projets legacy. Le corpus propre de meta-govern (28 références + USER-GUIDE + BUILD-SUMMARY + lessons-log) est converti en HTML avec moteur auto-scopé (scripts/docs-html/), index.html et docs-map.json; le protocole lessons devient un append de <section class=\"lesson\"> avant le marqueur LESSONS:APPEND dans references/lessons-log.html. self-audit gagne les checks no-markdown, templates/docs .html.tpl only, pointer-integrity et budget références HTML (900 lignes).",
+      "breakingChanges": [
+        "templates/docs/*.md.tpl SUPPRIMÉS, remplacés par des successeurs .html.tpl (spec, data-model, catalogue-composants, architecture, agent-playbook, decisions/ADR-template). Les plans de bootstrap pointant les anciens .md.tpl doivent être régénérés.",
+        "references/*.md, USER-GUIDE.md, BUILD-SUMMARY.md et lessons-log.md convertis en .html puis supprimés — tout pointeur externe vers ces .md doit passer à .html.",
+        "Les projets bootstrappés produisent désormais des docs HTML (docs/<slug>-spec.html, etc.); les projets legacy avec docs Markdown sont candidats à MIGRATE --target=html-docs."
+      ],
+      "features": [
+        "Doctrine docs HTML documentée dans SKILL.md (section dédiée): docs humains = HTML, instructions runtime = MD; interview bootstrap des paramètres brand/lang AVANT le scaffold",
+        "templates/scripts/docs-html/** — toolkit installable paramétré par lib/docs-config.mjs (PROJECT_NAME, PROJECT_SLUG, LANG, BRAND_PRIMARY, BRAND_ACCENT, THEME_STORAGE_KEY, DOCS_ROOT, HUB_TITLE, DOC_TYPES, TYPE_FOLDERS)",
+        "templates/hooks/block-docs-markdown.mjs.tpl + docs-index-refresh.mjs.tpl — garde anti-.md sous docs/ + refresh du hub à l'arrêt; câblés dans settings.json.tpl",
+        "templates/docs/*.html.tpl — 6 successeurs HTML des doc templates, shell premium complet (metas machine, TOC statique, restauration thème); fix du {{IF_BILINGUAL}} orphelin du catalogue",
+        "bootstrap-project.mjs — variables LANG/BRAND_PRIMARY/BRAND_ACCENT/THEME_STORAGE_KEY/DOCS_ROOT/HUB_TITLE, payload docs-html dans le plan par défaut, post-install (merge scripts npm docs:index/docs-map:check/docs:check + make-index best-effort)",
+        "project-detection.mjs — bloc docsDoctrine {format html|md|mixed|none, hasDocsMap, hasIndexHtml, hasBlockMarkdownHook, hasToolkit}; candidats sources de vérité .html en premier",
+        "audit-project.mjs — findings markdown-docs-drift (HIGH) + toolkit/hook/docs-map/index absents (MEDIUM)",
+        "migrate-project.mjs — target html-docs avec plan séquencé et action 'command' allowlistée (.claude/scripts/** uniquement); state docsDoctrine:'html'",
+        "self-audit.mjs — checks no-markdown (allowlist SKILL.md/agents/templates/scripts), templates/docs sans .md.tpl, pointer-integrity SKILL.md→references/*.html, lessons-log.html (marqueur LESSONS:APPEND + sections datées), budget références 900 lignes HTML",
+        "Moteur docs propre au skill: scripts/docs-html/ (template.mjs, convert-references.mjs, verify.mjs, make-index.mjs, scaffold.mjs, no-markdown-guard.mjs) + assets/ + index.html + docs-map.json",
+        "SKILL.md + 9 master sub-agents: tous les pointeurs references/*.md → *.html; architect planifie le payload docs-html; governance-auditor check markdown-docs-drift; evolution-orchestrator connaît html-docs; workflow-validator checklist doctrine docs; project-analyzer rapporte docsDoctrine; scaffolder vérifie make-index; source-of-truth-scaffolder interviewe brand/lang et scaffolde en HTML",
+        "Templates STAY-MD réécrits: spec-protocol paths .html, brainstorm/write-plan/execute-plan/quality-gate refs designs/plans/backlog en .html via scaffold.mjs, CLAUDE.md.tpl doctrine docs (2 lignes Source de vérité), governance-baseline inventaire docs-html, fix {{#IF_STACK_HAS_UI}} → {{IF_STACK_HAS_UI}} dans ui-components.md.tpl"
+      ]
+    },
+    {
+      "version": "1.2.1",
+      "date": "2026-05-07",
+      "summary": "Bug-fix patch. Closes the silent-skip gap in master sub-agent dispatch: SKILL.md gains exact Agent({subagent_type:...}) invocations at every dispatch point, a Master sub-agent installation section documenting the symlink prerequisite, and an Out-of-scope bullet against inline-authoring sub-agent work. Adds scripts/install-agent-symlinks.mjs (idempotent installer with --check / --repair). Self-audit.mjs now verifies all 9 master sub-agent symlinks exist and point to the skill bundle. bootstrap-project.mjs and migrate-project.mjs harden .claude/.meta-govern.json writes to preserve unknown forward-compat keys; migrate-project.mjs accepts --archetype and --architecture-pattern flags. No breaking changes; no project-level migration required.",
+      "breakingChanges": [],
+      "features": [
+        "scripts/install-agent-symlinks.mjs — idempotent installer; --check verifies, --repair fixes broken/wrong-target links",
+        "scripts/self-audit.mjs — new 'installation' check verifies all 9 master sub-agent symlinks exist and point to the skill bundle (HIGH severity if missing); expected-agents list expanded from 4 to 9 to match reality",
+        "scripts/bootstrap-project.mjs — .claude/.meta-govern.json writes preserve any pre-existing unknown keys (forward-compat); honors variables.ARCHETYPE and variables.ARCHITECTURE_PATTERN",
+        "scripts/migrate-project.mjs — accepts --archetype=<A|B|C|D> and --architecture-pattern=<...> CLI flags; spread-merges existing state to preserve unknown keys",
+        "SKILL.md — every dispatch point now has an explicit Agent({subagent_type:...}) invocation contract (BOOTSTRAP steps 2/5/6, AUDIT, MIGRATE, EVOLVE step 3)",
+        "SKILL.md — new § 'Master sub-agent installation' documents symlink prerequisite + install/check/repair commands; clarifies project-level agents override master symlinks",
+        "SKILL.md — overview line replaces 'Optionally delegate' with 'Dispatch master sub-agents... This is the protocol'",
+        "SKILL.md — Out of scope adds a bullet rejecting inline-authoring of sub-agent outputs (preserves auditability + reproducibility)",
+        "EVOLVE step 3 documents the failure mode: if Agent reports 'subagent type not found', abort and direct user to the install script"
+      ]
+    },
+    {
+      "version": "1.2.0",
+      "date": "2026-05-07",
+      "summary": "Adds the architecture-pattern + project-archetype dimension. Introduces framework-native + feature-first as the default layout, four archetype profiles (A=prototype, B=internal dashboard, C=production SaaS, D=larger full-stack), and opt-in machine-checkable architecture tooling (Knip, dependency-cruiser, eslint-plugin-boundaries) wired to paliers. Adds Next.js + monorepo stack packs, doc templates (architecture.md, agent-playbook.md, ADR), and two new path-scoped rule templates (feature-organization, server-client-boundary). Purely additive — no breaking template changes. Existing v1.0.0/v1.1.0 projects validate as-is; MIGRATE is optional.",
+      "breakingChanges": [],
+      "features": [
+        "references/architecture-patterns.md — pattern catalog with framework-native + feature-first as default, selection tree, anti-patterns, palier integration",
+        "references/project-archetypes.md — A/B/C/D archetype profiles, detection heuristic, per-archetype palier ceilings",
+        "references/tooling-architecture-checks.md — Knip / dependency-cruiser / eslint-plugin-boundaries opt-in matrix tied to archetype + palier",
+        "references/stack-nextjs.md — Next.js App Router stack pack (thin route handlers, src/server/, 'use client' minimization)",
+        "references/stack-monorepo.md — pnpm workspace stack pack with Turborepo / Nx selection guidance",
+        "templates/docs/architecture.md.tpl — repo-wide architecture doc template",
+        "templates/docs/agent-playbook.md.tpl — operator manual template (how to add a feature / endpoint / form / migration)",
+        "templates/docs/decisions/ADR-template.md.tpl — ADR template",
+        "templates/rules/feature-organization.md.tpl — path-scoped rule enforcing feature-first slice ownership",
+        "templates/rules/server-client-boundary.md.tpl — optional path-scoped rule for Next/Svelte server-client separation",
+        "SKILL.md BOOTSTRAP gains step 4b (architecture-pattern + archetype selection)",
+        ".claude/.meta-govern.json gains archetype + architecturePattern keys (forward-compatible; existing files validate without them)",
+        "Architectural principle 9: Layout follows the framework; features own their slices",
+        "decision-trees.md gains Tree 2.5 (architecture-pattern selection)",
+        "evolution-roadmap.md indicators include archetype + architecturePattern; JSON example updated",
+        "four-tier-architecture.md clarifies palier-5 AGENTS.md mirror is a thin pointer (not a duplicate)"
+      ]
+    },
+    {
+      "version": "1.1.0",
+      "date": "2026-05-07",
+      "summary": "Adds spec-reviewer + code-quality-reviewer split (vs generic reviewer), premium ui-implementer agent (uses frontend-design skill), TDD skill, dynamic worktree script, engineering-principles reference. Bootstrap default plan now installs full palier-1 baseline.",
+      "breakingChanges": [
+        "templates/agents/reviewer.md.tpl REMOVED. Project-level agents now use spec-reviewer + code-quality-reviewer as the foundation set. Existing projects on v1.0.0 with `reviewer` should MIGRATE to install both specialists; the generic `reviewer` is no longer scaffolded.",
+        "Core agent count changed from 4 to 6 (added: ui-implementer, spec-reviewer, code-quality-reviewer; removed: reviewer). audit-project.mjs and analyze-project.mjs updated."
+      ],
+      "features": [
+        "spec-reviewer.md.tpl — foreground spec/AC alignment (4-class finding classification)",
+        "code-quality-reviewer.md.tpl — foreground code quality (10-point focus)",
+        "ui-implementer.md.tpl — premium UI implementer (uses `frontend-design` skill)",
+        "test-driven-development.SKILL.md.tpl — RED→GREEN→REFACTOR per-task discipline",
+        "setup-worktree.mjs.tpl — dynamic git worktree creation at .claude/.worktrees/<name>/",
+        "engineering-principles.md — DRY/KISS/YAGNI/SOLID/SINE/Clean Code reference",
+        "Bootstrap default plan: full palier-1 scaffold (~32 files) instead of 3-file stub",
+        "audit-project.mjs rule line cap relaxed: 50→150 (LOW)→200 (MEDIUM) — matches user's actual rule sizes",
+        ".gitignore additions include .claude/.worktrees/"
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "date": "2026-05-06",
+      "summary": "Initial release. Synthesizes the user's full Claude Code workflow from two production projects + 5 research documents into a global master governance skill.",
+      "breakingChanges": [],
+      "features": [
+        "5 modes: BOOTSTRAP, AUDIT, MIGRATE, EVOLVE, ADVISE",
+        "20 reference documents synthesizing all standards",
+        "Templates: CLAUDE.md, settings.json, 8 path-scoped rules, 5 core skills, 4 core agents, 5 hooks, scripts (file-size-guard + quality-checks)",
+        "9 master sub-agents (architect, project-analyzer, source-of-truth-scaffolder, hook-generator, scaffolder, workflow-validator, governance-auditor, evolution-orchestrator, coherence-validator)",
+        "Self-evolution mechanism via lessons-log.md + self-audit script",
+        "Palier system (0-6) for project evolution",
+        "Stack convention packs (Power Platform, React+Vite, Convex)"
+      ]
+    }
+  ]
+}

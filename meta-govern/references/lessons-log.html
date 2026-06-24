@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="journal">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lessons Log — Append-Only Journal · meta-govern</title>
+  <meta name="doc-type" content="journal">
+  <meta name="doc-type-label" content="Journal">
+  <meta name="doc-title" content="Lessons Log — Append-Only Journal">
+  <meta name="doc-source" content="references/lessons-log.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Journal append-only des leçons apprises">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#B45309;--doc-glyph:"✎";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="journal">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#birth-lessons-(2026-05-06-%E2%80%94-meta-govern-v1.0.0)">Birth lessons (2026-05-06 — meta-govern v1.0.0)</a></li><li class="lvl-2"><a href="#2026-05-06-%E2%80%94-both-projects-%E2%80%94-user-repeats-bootstrapping-ritual-every-project">2026-05-06 — Both projects — User repeats bootstrapping ritual every project</a></li><li class="lvl-2"><a href="#2026-05-06-%E2%80%94-cross-project-%E2%80%94-defensive-scaffolding-accumulated-from-opus-4.6-era">2026-05-06 — Cross-project — Defensive scaffolding accumulated from Opus 4.6 era</a></li><li class="lvl-2"><a href="#2026-05-06-%E2%80%94-cross-project-%E2%80%94-skills-auto-trigger-50-84%25%3B-critical-rules-need-hooks">2026-05-06 — Cross-project — Skills auto-trigger 50-84%; critical rules need hooks</a></li><li class="lvl-2"><a href="#future-lessons-go-here">Future lessons go here</a></li><li class="lvl-2"><a href="#2026-05-07-%E2%80%94-cross-project-%E2%80%94-architecture-pattern-%2B-archetype-were-missing-dimensions">2026-05-07 — Cross-project — Architecture-pattern + archetype were missing dimensions</a></li><li class="lvl-2"><a href="#2026-05-07-%E2%80%94-meta-govern-self-%E2%80%94-master-sub-agent-dispatch-was-unreachable-in-practice">2026-05-07 — meta-govern self — Master sub-agent dispatch was unreachable in practice</a></li><li class="lvl-2"><a href="#2026-05-07-%E2%80%94-env-variable-manager-(power-apps-code-app)-bootstrap-%E2%80%94-template-rendering-didn't-reflect-architect-skip-decisions">2026-05-07 — env-variable-manager (Power Apps Code App) BOOTSTRAP — Template rendering didn't reflect architect skip decisions</a></li><li class="lvl-2"><a href="#2026-05-09-%E2%80%94-htmlshare-bootstrap-%E2%80%94-sveltekit-gap%2C-scaffolder-defaults-still-react-shaped%2C-audit-script-sot-detector-blind-spot">2026-05-09 — htmlshare BOOTSTRAP — SvelteKit gap, scaffolder defaults still React-shaped, audit-script SoT detector blind spot</a></li><li class="lvl-2"><a href="#lecon-2026-06-09-html-first">2026-06-09 — Migration v1.3.0 : doctrine HTML-first</a></li><li class="lvl-2"><a href="#lecon-2026-06-16-palier-drift">2026-06-16 — htmlshare MIGRATE — métadonnées de palier figées</a></li><li class="lvl-2"><a href="#lecon-2026-06-16-docs-html-frictions">2026-06-16 — meta-govern v1.3.1 — frictions du payload docs-html</a></li><li class="lvl-2"><a href="#lecon-2026-06-22-pipeline-audit">2026-06-22 — Temps Chantier — Audit pipeline design→plan→implémentation → v1.4.0</a></li><li class="lvl-2"><a href="#lecon-2026-06-22-dead-pointers">2026-06-22 — meta-govern self — Pointeurs references/*.md morts dans les skills bootstrappés → v1.4.1</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#journal">references</a><span class="sep">›</span><span aria-current="page">lessons-log</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">✎</span>Journal</span>
+          <h1 class="docs-title">Lessons Log — Append-Only Journal</h1>
+          <p class="docs-blurb">Journal append-only des leçons apprises</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Journal</span>
+            <span><b>Source</b> · <code>references/lessons-log.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Lessons Log — Append-Only Journal</h1>
+<p>This is the running journal of every lesson learned that informs meta-govern's evolution.</p>
+<p><strong>Discipline</strong>: Append-only. Never rewrite. The journal is the audit trail.</p>
+<p><strong>Format</strong> (per <code>governance-cadence.html</code>):</p>
+<pre><code class="language-markdown">## YYYY-MM-DD — &lt;project&gt; — &lt;one-line lesson title&gt;
+
+**Project:** &lt;project-name&gt;
+**Severity:** [BLOCKING|HIGH|MEDIUM|LOW]
+**Type:** [WORKFLOW|ANTI-PATTERN|TOOLING|MODEL|ARCHITECTURE|RULE]
+**Recurrence:** N (1st observation, 2nd, 3rd…)
+
+### What happened
+&lt;2-3 sentences: the failure mode&gt;
+
+### Root cause
+&lt;1-2 sentences: why it happened&gt;
+
+### Action taken
+- [ ] Updated reference: &lt;reference-file&gt;
+- [ ] Updated template: &lt;template-file&gt;
+- [ ] Updated script: &lt;script-file&gt;
+- [ ] Promoted from rule → hook
+- [ ] Bumped meta-govern version: &lt;new-version&gt;
+- [ ] Documented for MIGRATE: &lt;description&gt;
+
+### Lesson generalized
+&lt;the universal principle, in one sentence — usable across projects&gt;
+</code></pre>
+<hr>
+<h2 id="birth-lessons-(2026-05-06-%E2%80%94-meta-govern-v1.0.0)" tabindex="-1"><a class="header-anchor" href="#birth-lessons-(2026-05-06-%E2%80%94-meta-govern-v1.0.0)" aria-hidden="true">#</a> Birth lessons (2026-05-06 — meta-govern v1.0.0)</h2>
+<p>The skill was born from synthesizing the user's existing setup into a global master skill. Three foundational lessons informed the architecture:</p>
+<section class="lesson" data-date="2026-05-06" id="lesson-2026-05-06-1">
+<h2 id="2026-05-06-%E2%80%94-both-projects-%E2%80%94-user-repeats-bootstrapping-ritual-every-project" tabindex="-1"><a class="header-anchor" href="#2026-05-06-%E2%80%94-both-projects-%E2%80%94-user-repeats-bootstrapping-ritual-every-project" aria-hidden="true">#</a> 2026-05-06 — Both projects — User repeats bootstrapping ritual every project</h2>
+<p><strong>Project:</strong> N/A (cross-project observation)<br>
+<strong>Severity:</strong> HIGH<br>
+<strong>Type:</strong> WORKFLOW<br>
+<strong>Recurrence:</strong> Observed across Temps Chantier + Brillance Décor + implied 8+ other projects</p>
+<h4 id="what-happened" tabindex="-1"><a class="header-anchor" href="#what-happened" aria-hidden="true">#</a> What happened</h4>
+<p>Each new project started, the user manually:</p>
+<ul>
+<li>Created CLAUDE.md</li>
+<li>Set up <code>.claude/skills/</code> with brainstorm, write-plan, execute-plan, quality-gate, govern-claude</li>
+<li>Created <code>.claude/agents/</code> with implementer + reviewer</li>
+<li>Wired hooks for track-workflow, enforce-workflow, precompact-handoff</li>
+<li>Wrote 8 path-scoped rules</li>
+<li>Set up <code>package.json</code> validate scripts</li>
+<li>Wrote source-of-truth docs (spec, data-model, catalog)</li>
+<li>Decided per-project on DDD vs Transaction Script</li>
+</ul>
+<p>The same setup work, repeated. The user's words: &quot;à chaque nouveau projet, j'ai l'impression de toujours recommencer les mêmes choses&quot;.</p>
+<h4 id="root-cause" tabindex="-1"><a class="header-anchor" href="#root-cause" aria-hidden="true">#</a> Root cause</h4>
+<p>No global master skill encapsulating the BOOTSTRAP. govern-claude was project-level only.</p>
+<h4 id="action-taken" tabindex="-1"><a class="header-anchor" href="#action-taken" aria-hidden="true">#</a> Action taken</h4>
+<ul class="contains-task-list">
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Created meta-govern v1.0.0 with BOOTSTRAP / AUDIT / MIGRATE / EVOLVE / ADVISE modes</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Built templates for: CLAUDE.md, settings.json, 8 path-scoped rules, 5 core skills, 4 core agents, 5 hooks, scripts (file-size-guard, quality-checks)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Built scripts: analyze-project, bootstrap-project, audit-project, migrate-project, self-audit</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Built sub-agents: architect, project-analyzer, source-of-truth-scaffolder, hook-generator, scaffolder, workflow-validator, governance-auditor, evolution-orchestrator, coherence-validator</label></li>
+</ul>
+<h4 id="lesson-generalized" tabindex="-1"><a class="header-anchor" href="#lesson-generalized" aria-hidden="true">#</a> Lesson generalized</h4>
+<p><strong>When you would catch yourself building the same primitive (skill / agent / hook / rule) for the third project in a row, that's the signal to extract it into meta-govern's templates instead.</strong></p>
+<hr>
+</section>
+<section class="lesson" data-date="2026-05-06" id="lesson-2026-05-06-2">
+<h2 id="2026-05-06-%E2%80%94-cross-project-%E2%80%94-defensive-scaffolding-accumulated-from-opus-4.6-era" tabindex="-1"><a class="header-anchor" href="#2026-05-06-%E2%80%94-cross-project-%E2%80%94-defensive-scaffolding-accumulated-from-opus-4.6-era" aria-hidden="true">#</a> 2026-05-06 — Cross-project — Defensive scaffolding accumulated from Opus 4.6 era</h2>
+<p><strong>Project:</strong> Likely both<br>
+<strong>Severity:</strong> MEDIUM<br>
+<strong>Type:</strong> MODEL<br>
+<strong>Recurrence:</strong> 1st (corrective)</p>
+<h4 id="what-happened-1" tabindex="-1"><a class="header-anchor" href="#what-happened-1" aria-hidden="true">#</a> What happened</h4>
+<p>Opus 4.6 generalized helpfully when prompts said &quot;MUST&quot;, &quot;ALWAYS&quot;, &quot;double-check before returning&quot;. Opus 4.7 follows literally and underperforms. Defensive scaffolding inherited from earlier projects becomes anti-pattern on Opus 4.7.</p>
+<h4 id="root-cause-1" tabindex="-1"><a class="header-anchor" href="#root-cause-1" aria-hidden="true">#</a> Root cause</h4>
+<p>Model behavior change between 4.6 and 4.7.</p>
+<h4 id="action-taken-1" tabindex="-1"><a class="header-anchor" href="#action-taken-1" aria-hidden="true">#</a> Action taken</h4>
+<ul class="contains-task-list">
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Documented in <code>seven-primitives.html</code> (CLAUDE.md anti-patterns)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Documented in <code>anti-pattern-catalog.html</code></label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Built into <code>audit-project.mjs</code> (pattern detection)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Templates explicitly avoid defensive scaffolding in skill bodies; allow MANDATORY-style markers ONLY in skill descriptions for activation</label></li>
+</ul>
+<h4 id="lesson-generalized-1" tabindex="-1"><a class="header-anchor" href="#lesson-generalized-1" aria-hidden="true">#</a> Lesson generalized</h4>
+<p><strong>Aggressive language markers (&quot;MUST&quot;, &quot;ALWAYS&quot;, &quot;CRITICAL&quot;) are TARGETING instructions in frontmatter — they push skill activation from 50% to 80-84%. They are LITERAL CONSTRAINTS in skill bodies / CLAUDE.md / rules — Opus 4.7 obeys them in unhelpful ways. Use markers in frontmatter; don't use them in bodies.</strong></p>
+<hr>
+</section>
+<section class="lesson" data-date="2026-05-06" id="lesson-2026-05-06-3">
+<h2 id="2026-05-06-%E2%80%94-cross-project-%E2%80%94-skills-auto-trigger-50-84%25%3B-critical-rules-need-hooks" tabindex="-1"><a class="header-anchor" href="#2026-05-06-%E2%80%94-cross-project-%E2%80%94-skills-auto-trigger-50-84%25%3B-critical-rules-need-hooks" aria-hidden="true">#</a> 2026-05-06 — Cross-project — Skills auto-trigger 50-84%; critical rules need hooks</h2>
+<p><strong>Project:</strong> N/A (architectural)<br>
+<strong>Severity:</strong> HIGH<br>
+<strong>Type:</strong> ARCHITECTURE<br>
+<strong>Recurrence:</strong> 1st (foundational)</p>
+<h4 id="what-happened-2" tabindex="-1"><a class="header-anchor" href="#what-happened-2" aria-hidden="true">#</a> What happened</h4>
+<p>Practitioners report Claude Code skill auto-invocation activates only 50-84% of the time. For critical project rules, this is unacceptable.</p>
+<h4 id="root-cause-2" tabindex="-1"><a class="header-anchor" href="#root-cause-2" aria-hidden="true">#</a> Root cause</h4>
+<p>Skills are probabilistic; their description-based triggering competes with all enabled skills.</p>
+<h4 id="action-taken-2" tabindex="-1"><a class="header-anchor" href="#action-taken-2" aria-hidden="true">#</a> Action taken</h4>
+<ul class="contains-task-list">
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> meta-govern's BOOTSTRAP installs hooks for critical rules (track-workflow, enforce-workflow, precompact-handoff)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Skills used for guidance (brainstorm → write-plan → execute-plan)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> AUDIT detects when a recurring rule violation should promote rule → hook</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> <code>decision-trees.html</code> codifies &quot;must be 100%? → hook&quot; as Q1</label></li>
+</ul>
+<h4 id="lesson-generalized-2" tabindex="-1"><a class="header-anchor" href="#lesson-generalized-2" aria-hidden="true">#</a> Lesson generalized</h4>
+<p><strong>For critical project rules, do not trust skill auto-invocation. Use hooks. Skills give the probabilistic layer; hooks give the deterministic layer.</strong></p>
+<hr>
+</section>
+<h2 id="future-lessons-go-here" tabindex="-1"><a class="header-anchor" href="#future-lessons-go-here" aria-hidden="true">#</a> Future lessons go here</h2>
+<p>Append using the format above. Sort newest at top.</p>
+<hr>
+<section class="lesson" data-date="2026-05-07" id="lesson-2026-05-07-1">
+<h2 id="2026-05-07-%E2%80%94-cross-project-%E2%80%94-architecture-pattern-%2B-archetype-were-missing-dimensions" tabindex="-1"><a class="header-anchor" href="#2026-05-07-%E2%80%94-cross-project-%E2%80%94-architecture-pattern-%2B-archetype-were-missing-dimensions" aria-hidden="true">#</a> 2026-05-07 — Cross-project — Architecture-pattern + archetype were missing dimensions</h2>
+<p><strong>Project:</strong> N/A (research-driven)<br>
+<strong>Severity:</strong> HIGH<br>
+<strong>Type:</strong> ARCHITECTURE<br>
+<strong>Recurrence:</strong> 1st (research-anticipated; codified before observation)</p>
+<h4 id="what-happened-3" tabindex="-1"><a class="header-anchor" href="#what-happened-3" aria-hidden="true">#</a> What happened</h4>
+<p>v1.0.0 and v1.1.0 picked stack (React+Vite, Power Platform, Convex) and palier (0-6) per project, but never asked <em>how the source tree should be laid out</em> nor <em>what kind of project this is</em>. BOOTSTRAP defaulted to whatever the stack pack scaffolded, with no machine-readable record of intent. AUDIT could not detect layout drift because there was no &quot;this is the chosen pattern&quot; record.</p>
+<h4 id="root-cause-3" tabindex="-1"><a class="header-anchor" href="#root-cause-3" aria-hidden="true">#</a> Root cause</h4>
+<p>The 2026 research synthesis (<code>LLM-friendly project architecture for AI coding agents in 2026.md</code>) makes explicit a dimension that was implicit in the user's two production projects: agents read repositories better when layout is framework-native + feature-first, and when the <em>kind</em> of project (prototype / internal tool / SaaS / larger system) is recorded so palier-1 install can match the kind. The user-imposed scope kept this Claude-Code-only — Codex coexistence already handled by palier 5; no Copilot/OpenCode integration.</p>
+<h4 id="action-taken-3" tabindex="-1"><a class="header-anchor" href="#action-taken-3" aria-hidden="true">#</a> Action taken</h4>
+<ul class="contains-task-list">
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Added reference: <code>architecture-patterns.html</code> (catalog + selection tree + per-stack defaults)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Added reference: <code>project-archetypes.html</code> (A/B/C/D profiles + detection heuristic + palier ceilings)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Added reference: <code>tooling-architecture-checks.html</code> (Knip / dep-cruiser / eslint-plugin-boundaries opt-in)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Added reference: <code>stack-nextjs.html</code></label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Added reference: <code>stack-monorepo.html</code></label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Added templates: <code>docs/architecture.md.tpl</code>, <code>docs/agent-playbook.md.tpl</code>, <code>docs/decisions/ADR-template.md.tpl</code></label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Added rule templates: <code>feature-organization.md.tpl</code>, <code>server-client-boundary.md.tpl</code></label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Updated SKILL.md BOOTSTRAP with step 4b (archetype + architecture-pattern selection)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Updated <code>four-tier-architecture.html</code> (palier-5 AGENTS.md mirror clarification)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Updated <code>evolution-roadmap.html</code> (archetype + architecture-pattern indicators + JSON schema)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Updated <code>decision-trees.html</code> (architecture-pattern selection tree)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Updated <code>stack-react-vite.html</code>, <code>stack-power-platform.html</code>, <code>stack-convex.html</code> (cross-references)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Bumped meta-govern version: 1.2.0</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Documented for MIGRATE: optional — additive only; existing projects validate without archetype/architecturePattern keys</label></li>
+</ul>
+<h4 id="lesson-generalized-3" tabindex="-1"><a class="header-anchor" href="#lesson-generalized-3" aria-hidden="true">#</a> Lesson generalized</h4>
+<p><strong>Two orthogonal dimensions belong in <code>.claude/.meta-govern.json</code> from day one: archetype (the project's <em>kind</em>) and architecture pattern (the <em>layout strategy</em>). Stack pack picks tools; archetype picks scaffold depth; pattern picks tree shape. Without all three recorded, AUDIT cannot detect drift and MIGRATE cannot reason about consistency.</strong></p>
+<hr>
+</section>
+<section class="lesson" data-date="2026-05-07" id="lesson-2026-05-07-2">
+<h2 id="2026-05-07-%E2%80%94-meta-govern-self-%E2%80%94-master-sub-agent-dispatch-was-unreachable-in-practice" tabindex="-1"><a class="header-anchor" href="#2026-05-07-%E2%80%94-meta-govern-self-%E2%80%94-master-sub-agent-dispatch-was-unreachable-in-practice" aria-hidden="true">#</a> 2026-05-07 — meta-govern self — Master sub-agent dispatch was unreachable in practice</h2>
+<p><strong>Project:</strong> meta-govern itself (v1.2.0 → v1.2.1 patch)<br>
+<strong>Severity:</strong> HIGH<br>
+<strong>Type:</strong> WORKFLOW<br>
+<strong>Recurrence:</strong> 1st (caught by user during v1.2.0 EVOLVE run, before recurrence)</p>
+<h4 id="what-happened-4" tabindex="-1"><a class="header-anchor" href="#what-happened-4" aria-hidden="true">#</a> What happened</h4>
+<p>During the v1.2.0 EVOLVE run, SKILL.md's EVOLVE Mode 4 step 3 said &quot;Spawn <code>evolution-orchestrator</code>&quot;. The parent (Claude) silently bypassed the dispatch and authored the evolution plan inline, until the user asked &quot;why did you not spawn evolution-orchestrator as the skill says?&quot;. Investigation showed three reinforcing failures:</p>
+<ol>
+<li>The 9 master sub-agents at <code>~/.claude/skills/meta-govern/agents/</code> were never symlinked into <code>~/.claude/agents/</code>. Claude Code's Agent tool only loads from <code>~/.claude/agents/</code> and project-level <code>.claude/agents/</code>, so <code>Agent({subagent_type: &quot;evolution-orchestrator&quot;})</code> would have failed with &quot;subagent type not found&quot;. The dispatch path was unreachable from the start.</li>
+<li>SKILL.md said &quot;Optionally delegate verbose work to sub-agents&quot; (line 53). Opus 4.7 follows instructions literally; &quot;Optionally&quot; is a linguistic affordance to skip.</li>
+<li>Mode steps used the verb &quot;Spawn&quot; without the matching tool-call contract <code>Agent({subagent_type: ...})</code>. With no exact invocation, the model picked the lowest-friction interpretation: synthesize the role inline.</li>
+</ol>
+<h4 id="root-cause-4" tabindex="-1"><a class="header-anchor" href="#root-cause-4" aria-hidden="true">#</a> Root cause</h4>
+<p>The skill was authored assuming sub-agents at <code>~/.claude/skills/&lt;skill&gt;/agents/</code> were dispatchable; they aren't (Claude Code only loads from <code>~/.claude/agents/</code>). Combined with permissive language and missing invocation contracts, the silent-skip path was easier than the correct path.</p>
+<h4 id="action-taken-4" tabindex="-1"><a class="header-anchor" href="#action-taken-4" aria-hidden="true">#</a> Action taken</h4>
+<ul class="contains-task-list">
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Created <code>scripts/install-agent-symlinks.mjs</code> (idempotent; --check / --repair flags)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Symlinked all 9 master sub-agents from skill bundle into <code>~/.claude/agents/</code></label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Updated <code>scripts/self-audit.mjs</code>: HIGH severity finding if any of the 9 symlinks is missing or points elsewhere; expected-agents list expanded from 4 to 9 to match reality</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Updated SKILL.md overview: &quot;Optionally delegate&quot; → &quot;Dispatch master sub-agents… This is the protocol&quot;</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Updated SKILL.md mode steps: every dispatch point gets an explicit <code>Agent({subagent_type: &quot;&lt;name&gt;&quot;, ...})</code> invocation contract (BOOTSTRAP 2/5/6, AUDIT, MIGRATE, EVOLVE 3)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Added SKILL.md § &quot;Master sub-agent installation&quot; documenting the symlink prerequisite + install/check/repair commands</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Added SKILL.md Out of scope bullet: &quot;Inline-author what a master sub-agent should produce&quot; — explains the why (auditability + reproducibility)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Hardened <code>bootstrap-project.mjs</code> and <code>migrate-project.mjs</code> to preserve unknown keys in <code>.claude/.meta-govern.json</code> (forward-compat for future versions); migrate accepts --archetype and --architecture-pattern flags</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Bumped meta-govern version: 1.2.1 (patch — bug fix, no breaking changes)</label></li>
+</ul>
+<h4 id="lesson-generalized-4" tabindex="-1"><a class="header-anchor" href="#lesson-generalized-4" aria-hidden="true">#</a> Lesson generalized</h4>
+<p><strong>A skill that &quot;spawns sub-agents&quot; must (1) ship those sub-agents at the path Claude Code's Agent tool actually reads, (2) include the exact <code>Agent({subagent_type: ...})</code> invocation contract in every dispatch point, and (3) verify dispatchability in self-audit. Otherwise the silent-skip path becomes the default — the model rationalizes inline-authoring as &quot;I have full context&quot;, and the orchestration protocol that gives outputs their auditability and reproducibility quietly evaporates.</strong></p>
+</section>
+<section class="lesson" data-date="2026-05-07" id="lesson-2026-05-07-3">
+<h2 id="2026-05-07-%E2%80%94-env-variable-manager-(power-apps-code-app)-bootstrap-%E2%80%94-template-rendering-didn't-reflect-architect-skip-decisions" tabindex="-1"><a class="header-anchor" href="#2026-05-07-%E2%80%94-env-variable-manager-(power-apps-code-app)-bootstrap-%E2%80%94-template-rendering-didn't-reflect-architect-skip-decisions" aria-hidden="true">#</a> 2026-05-07 — env-variable-manager (Power Apps Code App) BOOTSTRAP — Template rendering didn't reflect architect skip decisions</h2>
+<p><strong>Project:</strong> env-variable-manager (palier 0 → 1, archetype B, stack power-platform-react-vite, DDD score 2/16)<br>
+<strong>Severity:</strong> HIGH<br>
+<strong>Type:</strong> SCAFFOLDING<br>
+<strong>Recurrence:</strong> 1st</p>
+<h4 id="what-happened-5" tabindex="-1"><a class="header-anchor" href="#what-happened-5" aria-hidden="true">#</a> What happened</h4>
+<p>BOOTSTRAP step 5 produced a working palier-1 install (29 templates + 14 additional steps, 0 errors), but coherence-validator caught two related rendering defects on the way out:</p>
+<ol>
+<li><strong>Orphan Mustache tag in <code>ui-components.md</code>.</strong> Line 11 had a literal <code>{{#IF_STACK_HAS_UI}}</code> with no closing <code>{{/IF_STACK_HAS_UI}}</code>. The conditional body rendered correctly (because <code>IF_STACK_HAS_UI=true</code>) but the opening token leaked into the output verbatim. Future audits would have flagged this as a content artifact.</li>
+<li><strong><code>baseline.md</code> listed all standard palier-1 artifacts as expected, ignoring the architect's skip list.</strong> The architect's plan explicitly skipped <code>persona-simulator</code> agent, <code>data-layer.md</code> rule, <code>quality-checks/</code> directory, <code>.husky/pre-commit</code>, and three <code>quality:check*</code> scripts. The rendered baseline.md still listed them under &quot;Expected&quot;, which on day-1 govern-claude audit would have produced 4–6 false-positive missing-artifact findings. Two project-level skill bodies (<code>brainstorm</code> referencing <code>persona-simulator</code>, <code>write-plan</code> referencing <code>data-layer.md</code>) had the same issue.</li>
+</ol>
+<h4 id="root-cause-5" tabindex="-1"><a class="header-anchor" href="#root-cause-5" aria-hidden="true">#</a> Root cause</h4>
+<ul>
+<li>The Mustache renderer in <code>bootstrap-project.mjs</code> apparently doesn't error on unbalanced section tags; it emits the opening token literally when there's no matching close. Neither the architect nor the scaffolder caught this because both work at a higher abstraction (file lists + verbatim writes), not at the rendered-content level.</li>
+<li>Skill/agent/rule template bodies are authored against the FULL palier-1 corpus and don't accept skip flags. The scaffolder writes them verbatim. The architect's <code>flags</code> block (<code>IF_STACK_HAS_UI</code>, etc.) is consumed but <code>IF_PERSONA_SIMULATOR_INSTALLED</code> / <code>IF_RULE_DATA_LAYER_INSTALLED</code> flags don't exist in the template-renderer vocabulary, so artifacts that were skipped at the plan layer still appear in baseline expectations and skill prose.</li>
+</ul>
+<h4 id="action-taken-(project-local%2C-this-bootstrap-only)" tabindex="-1"><a class="header-anchor" href="#action-taken-(project-local%2C-this-bootstrap-only)" aria-hidden="true">#</a> Action taken (project-local, this BOOTSTRAP only)</h4>
+<ul class="contains-task-list">
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Removed the orphan <code>{{#IF_STACK_HAS_UI}}</code> line in <code>ui-components.md</code>.</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Rewrote <code>baseline.md</code> to reflect the actual palier-1 inventory + a &quot;Deferred (palier promotion candidates)&quot; section listing the skipped artifacts with promotion triggers.</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Replaced the persona-simulator dispatch interlude in <code>brainstorm/SKILL.md</code> with a &quot;not installed at palier 1&quot; note that explains the archetype B reasoning.</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Updated <code>write-plan/SKILL.md</code>'s rule-list reference (<code>data-layer.md</code> → <code>dataverse-and-sdk.md</code>).</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Renamed <code>.meta-govern.json</code> field <code>lastBootstrap</code> → <code>bootstrappedAt</code>; corrected <code>stack</code> from <code>react</code> to <code>power-platform-react-vite</code>; updated <code>claudeMdLines</code> 71 → 107.</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Cleaned three stale legacy globs from <code>spec-protocol.md</code>'s <code>paths:</code> frontmatter.</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Promoted <code>ship-polished-ui</code> from prose-only mention to <code>skills:</code> frontmatter list in <code>ui-implementer.md</code>.</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Trimmed <code>dataverse-and-sdk.md</code> from 56 → 53 lines (closer to the ≤50 soft cap).</label></li>
+</ul>
+<h4 id="lesson-generalized-5" tabindex="-1"><a class="header-anchor" href="#lesson-generalized-5" aria-hidden="true">#</a> Lesson generalized</h4>
+<p><strong>Bootstrap rendering must respect the architect's skip list end-to-end, not just at the file-creation layer.</strong> Two template-renderer hardening tasks for a future meta-govern patch:</p>
+<ol>
+<li><strong>Reject unbalanced Mustache section tags.</strong> <code>bootstrap-project.mjs</code> should error on <code>{{#FOO}}</code> without a matching <code>{{/FOO}}</code> rather than emit the literal token. A 1-line strict-mode flag on the renderer would catch this at scaffold time.</li>
+<li><strong>Pass the skip set as boolean flags into every template that names palier-1 artifacts.</strong> Templates like <code>baseline.md.tpl</code>, <code>brainstorm/SKILL.md.tpl</code>, <code>write-plan/SKILL.md.tpl</code> should consume <code>IF_AGENT_PERSONA_SIMULATOR_INSTALLED</code>, <code>IF_RULE_DATA_LAYER_INSTALLED</code>, etc., from the architect's plan. The current architecture pushes the burden of &quot;filter for what was skipped&quot; downstream; it should be applied at render time.</li>
+</ol>
+<p>Until those hardening tasks land, every BOOTSTRAP run on a stack-pack that uses skips (Archetype B, TRANSACTION_SCRIPT DDD, etc.) will produce the same drift — a post-render fix-up pass after coherence-validator is the workaround.</p>
+<hr>
+</section>
+<section class="lesson" data-date="2026-05-09" id="lesson-2026-05-09-1">
+<h2 id="2026-05-09-%E2%80%94-htmlshare-bootstrap-%E2%80%94-sveltekit-gap%2C-scaffolder-defaults-still-react-shaped%2C-audit-script-sot-detector-blind-spot" tabindex="-1"><a class="header-anchor" href="#2026-05-09-%E2%80%94-htmlshare-bootstrap-%E2%80%94-sveltekit-gap%2C-scaffolder-defaults-still-react-shaped%2C-audit-script-sot-detector-blind-spot" aria-hidden="true">#</a> 2026-05-09 — htmlshare BOOTSTRAP — SvelteKit gap, scaffolder defaults still React-shaped, audit-script SoT detector blind spot</h2>
+<h4 id="trigger" tabindex="-1"><a class="header-anchor" href="#trigger" aria-hidden="true">#</a> Trigger</h4>
+<p>BOOTSTRAP run on a personal-scale Convex + SvelteKit + Cloudflare R2/Worker + Vercel + Resend project (archetype B, DDD score 3 → Transaction Script). meta-govern v1.2.1 has no <code>stack-sveltekit.html</code> reference and the React-flavored frontend templates leaked into rule and agent bodies even when variable substitution targeted Svelte.</p>
+<h4 id="observed-drift-(caught-and-patched-inline)" tabindex="-1"><a class="header-anchor" href="#observed-drift-(caught-and-patched-inline)" aria-hidden="true">#</a> Observed drift (caught and patched inline)</h4>
+<ul>
+<li><code>.claude/rules/ui-components.md</code> template <code>paths:</code> was <code>src/lib/components/**/*.{ts,tsx,jsx}</code> + <code>pages/**/*.{ts,tsx,jsx}</code> — dead globs in a SvelteKit project. The rule never auto-loaded on <code>.svelte</code> files. Body referenced <code>useEffect</code>, <code>useMemo</code>, <code>&lt;Link&gt;</code>, <code>useContent()</code>. Rewrote globs to <code>src/routes/**/*.svelte</code>, <code>src/lib/**/*.svelte</code>, <code>src/lib/**/*.svelte.ts</code> and the body to Svelte 5 runes (<code>$state</code>, <code>$derived</code>, <code>$effect</code>) plus the in-app preview <code>&lt;iframe sandbox=&quot;allow-scripts&quot;&gt;</code> guidance.</li>
+<li><code>.claude/rules/spec-protocol.md</code> template <code>paths:</code> listed generic template defaults (<code>docs/data-model.md</code>, <code>docs/composants/catalogue-composants.md</code>) instead of the project-actual <code>docs/&lt;project&gt;-data-model.md</code> + <code>docs/&lt;project&gt;-catalog.md</code>. Rule did not auto-load on the real SoT files. Substitution only targeted <code>*-spec.md</code>.</li>
+<li><code>.claude/rules/clean-code.md</code> and <code>.claude/rules/file-size-budget.md</code> templates ship a single <code>paths:</code> glob (<code>src/**/*.{ts,svelte}</code>) — missing <code>convex/**/*.ts</code>. Convex code was not covered by either rule despite CLAUDE.md's routing table claiming both. Added <code>convex/**/*.ts</code> manually.</li>
+<li><code>.claude/rules/data-layer.md</code> body referenced <code>docs/data-model.md</code> (no project prefix) — drift from the real <code>docs/htmlshare-data-model.md</code>. Rule body link drifted while frontmatter <code>paths:</code> was correct.</li>
+<li><code>.claude/agents/ui-implementer.md</code> description string still said &quot;Builds React/UI components&quot;; Step 4 referenced <code>useEffect</code>/<code>setState</code>/<code>useSyncedState</code>/<code>Parent.tsx</code>. Substitution only happens via <code>{{VAR}}</code> tokens; React idioms in body prose are unsubstituted text. Rewrote inline.</li>
+<li><code>CLAUDE.md</code> rendered with a 35-line HTML comment block containing the literal template variable map (&quot;htmlshare — Human-readable project name&quot;, etc.). The renderer leaked the comment-bracketed template metadata into the final file. Stripped manually.</li>
+<li><code>CLAUDE.md</code> <code>## Après compaction</code> section restated the trust-boundary callout already in <code>## Règles non-négociables</code> — <code>claude-config-style.md</code> &quot;one concept, one place&quot; violation. De-duplicated.</li>
+</ul>
+<h4 id="audit-script-blind-spot" tabindex="-1"><a class="header-anchor" href="#audit-script-blind-spot" aria-hidden="true">#</a> Audit-script blind spot</h4>
+<p><code>scripts/lib/project-detection.mjs:221-229</code> candidate-path lists for <code>dataModelPath</code> and <code>catalogPath</code> cover <code>docs/data-model.md</code>, <code>docs/lexique-donnees-dataverse.md</code>, <code>docs/composants/catalogue-composants.md</code>, <code>docs/components/catalog.md</code> — but NOT <code>docs/&lt;project&gt;-data-model.md</code> or <code>docs/&lt;project&gt;-catalog.md</code>. Even though the SoT scaffolder uses the <code>&lt;project&gt;-</code> prefix as its standard pattern, the audit detector misses them and emits HIGH/MEDIUM false-positive findings. False positives erode signal — the audit then says &quot;drift&quot; when the project is fine.</p>
+<h4 id="action-taken-(project-local%2C-this-bootstrap-only)-1" tabindex="-1"><a class="header-anchor" href="#action-taken-(project-local%2C-this-bootstrap-only)-1" aria-hidden="true">#</a> Action taken (project-local, this BOOTSTRAP only)</h4>
+<ul class="contains-task-list">
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Patched the 4 path-glob bugs (ui-components, spec-protocol, clean-code, file-size-budget).</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Rewrote <code>ui-components.md</code> body for Svelte 5.</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Rewrote <code>ui-implementer.md</code> description + Step 4 for Svelte 5.</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Stripped HTML comment leak + duplicated callout from <code>CLAUDE.md</code> (98 → 60 lines).</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Fixed <code>data-layer.md</code> body link to <code>docs/htmlshare-data-model.md</code>.</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Stripped unsubstituted <code>{{COMPONENT_DIR}}</code> placeholder from <code>docs/htmlshare-catalog.md:33</code>.</label></li>
+</ul>
+<h4 id="lesson-generalized-6" tabindex="-1"><a class="header-anchor" href="#lesson-generalized-6" aria-hidden="true">#</a> Lesson generalized</h4>
+<p>Three EVOLVE candidates for a future meta-govern minor:</p>
+<ol>
+<li>
+<p><strong>Author <code>references/stack-sveltekit.html</code>.</strong> Cover: glob conventions for <code>.svelte</code> and <code>.svelte.ts</code>, Svelte 5 runes idioms (<code>$state</code>, <code>$derived</code>, <code>$effect</code>), the <code>&lt;iframe sandbox=&quot;allow-scripts&quot;&gt;</code> pattern for embedding untrusted content, SvelteKit's load-function semantics (when to use <code>+page.server.ts</code> vs <code>+page.ts</code>), Vercel adapter pin, and the pattern for projects that pair a SvelteKit app with a separate Cloudflare Worker (worker code lives in <code>worker/</code>, not <code>src/routes/</code>). Until this exists, every SvelteKit project pays the same tax of post-render Svelte adaptation.</p>
+</li>
+<li>
+<p><strong>Strip template-variable HTML comments at render time.</strong> The bootstrap renderer should skip leading HTML comment blocks of the form <code>&lt;!-- Template variables: ... --&gt;</code> when rendering CLAUDE.md / agent / skill templates. These are documentation for template authors, not content for the rendered file. Easiest fix: a single regex pass in <code>template-renderer.mjs</code> that strips <code>&lt;!--\s*Template variables:.*?--&gt;</code> blocks.</p>
+</li>
+<li>
+<p><strong>Extend SoT-detection candidate paths.</strong> <code>scripts/lib/project-detection.mjs:221-229</code> should glob <code>docs/*-data-model.md</code> and <code>docs/*-catalog.md</code> (or accept <code>*-data-model.md</code> / <code>*-catalog.md</code> filename patterns alongside the existing exact paths). The <code>&lt;project&gt;-</code> prefix pattern is already the SoT scaffolder's default; the audit detector should match what the scaffolder produces.</p>
+</li>
+</ol>
+<h4 id="bonus-observations" tabindex="-1"><a class="header-anchor" href="#bonus-observations" aria-hidden="true">#</a> Bonus observations</h4>
+<ul>
+<li><code>.claude/.meta-govern.json</code> writes flat <code>dddScore</code> + <code>dddDecision</code> keys, but the architect's plan specified nested <code>ddd: { score, decision }</code>. Values are correct; shape diverges from architect intent. Schema-shape divergence is a v1.2.x cleanup candidate.</li>
+<li><code>.claude/.meta-govern.json</code> uses <code>lastBootstrap</code> key name; some validators expect <code>bootstrappedAt</code>. Date value is correct. Same kind of name-vs-value drift.</li>
+<li><code>.claude/.meta-govern.json</code> writes <code>claudeMdLines</code> once at scaffold time; after subsequent CLAUDE.md edits it goes stale. Either compute on demand or update on every meta-govern run.</li>
+<li><code>enforce-workflow</code> hook is wired to the <code>Stop</code> event in templates; the workflow-validator checklist names <code>UserPromptSubmit</code> / <code>PreToolUse</code> as expected events. The <code>Stop</code> event is functionally correct (&quot;block end-of-turn&quot;) but the checklist should add <code>Stop</code> as an accepted event for enforce-workflow.</li>
+<li>The 5 stack packs (<code>stack-convex.html</code>, <code>stack-monorepo.html</code>, <code>stack-nextjs.html</code>, <code>stack-power-platform.html</code>, <code>stack-react-vite.html</code>) cover most of what users actually ship to. Adding <code>stack-sveltekit.html</code> and <code>stack-cloudflare-workers.md</code> (for stand-alone Worker projects, distinct from Pages) would close the bulk of the gap.</li>
+</ul>
+<h4 id="2026-05-09-follow-up-%E2%80%94-3-of-3-evolve-candidates-addressed" tabindex="-1"><a class="header-anchor" href="#2026-05-09-follow-up-%E2%80%94-3-of-3-evolve-candidates-addressed" aria-hidden="true">#</a> 2026-05-09 follow-up — 3 of 3 EVOLVE candidates addressed</h4>
+<ul>
+<li>✓ <code>references/stack-sveltekit.html</code> authored (~140 lines, mirrors stack-react-vite.html structure: detection, layout, skills/agents/rules, SoT structure, tooling, Svelte 5 runes idioms, load-function semantics, SvelteKit + separate Cloudflare Worker pattern, gotchas, htmlshare reference).</li>
+<li>✓ <code>scripts/lib/template-renderer.mjs</code> patched: new <code>stripTemplateVariableComments()</code> exported helper, applied at end of <code>renderTemplate()</code> (post-substitution, pre-return). Regex <code>/&lt;!--\s*\nTemplate variables[\s\S]*?--&gt;\s*\n?/g</code> anchors on the literal &quot;Template variables&quot; tag so legitimate HTML comments pass through. Strips both pattern variants (<code>&lt;!-- Template variables: ... --&gt;</code> and <code>&lt;!-- Template variables (substituted at BOOTSTRAP): ... --&gt;</code>).</li>
+<li>✓ <code>scripts/lib/project-detection.mjs:221-229</code> extended: <code>docs/*-data-model.md</code> and <code>docs/*-catalog.md</code> added as the FIRST candidate in each list (preferred over the legacy hardcoded paths). Existing exact-path candidates retained for backward compat.</li>
+<li>✓ <code>SKILL.md</code> &quot;When to load which reference&quot; table gained a <code>stack-sveltekit.html</code> row.</li>
+<li>⏸ <code>version.json</code> bump to 1.2.2 was BLOCKED by the harness (treated as agent self-modification). The 4 changes above are in place; the version.json bump + changelog entry need to be applied manually by the user. Until then, projects continue to record <code>metaGovernVersion: &quot;1.2.1&quot;</code>, but the runtime code/doc improvements are active.</li>
+</ul>
+<hr>
+</section>
+<section class="lesson" data-date="2026-06-09" id="lesson-2026-06-09-1">
+<h2 id="lecon-2026-06-09-html-first">2026-06-09 — Migration v1.3.0 : doctrine HTML-first <a class="header-anchor" href="#lecon-2026-06-09-html-first" aria-hidden="true">#</a></h2>
+<p><strong>Contexte :</strong> évolution majeure pilotée par workflows dynamiques (5 agents d'implémentation parallèles à périmètres disjoints + 4 agents QA E2E avec autorité de fix), modèle : système docs-html de temps-chantier-code-app.</p>
+<ul>
+<li><strong>Leçon 1 — contrat partagé avant fan-out :</strong> un fichier contrat unique (manifeste de fichiers + conventions + propriétaires) a permis à 5 agents parallèles de livrer un ensemble cohérent sans conflit d'écriture. Les seuls mismatches inter-agents ({{VALIDATE_CMD}} vs VALIDATE_COMMAND, {{STACK}} vs STACK_NAME) venaient de zones où le contrat disait « conserver les {{VAR}} existants » sans les énumérer.</li>
+<li><strong>Leçon 2 — conversion déterministe, jamais manuelle :</strong> les 30 documents du corpus ont été convertis par script (markdown-it + fixes fidélité) avec gate <code>verify.mjs</code> (multiset de mots md ⊆ html) — 30/30 PASS, blocs de code byte-identiques après déséchappement. Aucune conversion à la main.</li>
+<li><strong>Leçon 3 — la QA E2E réelle trouve ce que la revue statique rate :</strong> bootstrap réel sur sandbox → 3 leaks CRITICAL + 17 variables manquantes invisibles du rapport (le détecteur sautait les commentaires HTML — corrigé par un check <code>missing-variable-marker</code> HIGH) ; migration réelle → hooks installés mais jamais câblés dans settings.json, et <code>check-docs-map</code> qui échouait sur tout projet fraîchement migré.</li>
+<li><strong>Leçon 4 — durcissements hérités à propager :</strong> le hook <code>block-docs-markdown</code> était contournable via symlink (cwd /tmp → /private/tmp sous macOS) — latent aussi dans le projet source. Fix realpath canonique. Tout hook porté d'un projet doit repasser l'audit macos-hardening (PATH_PREFIX).</li>
+<li>✓ Livré : payload docs-html installable (23 templates), 6 docs .html.tpl, corpus propre 100 % HTML (28 références + 2 guides + index hub), <code>migrate --target=html-docs</code> testé E2E, self-audit étendu (no-markdown, pointer-integrity, lessons-log, templates docs). Seuls SKILL.md et agents/*.md restent Markdown (instructions runtime).</li>
+</ul>
+<hr>
+</section>
+<section class="lesson" data-date="2026-06-16" id="lesson-2026-06-16-1">
+<h2 id="lecon-2026-06-16-palier-drift">2026-06-16 — htmlshare MIGRATE — métadonnées de palier figées au bootstrap <a class="header-anchor" href="#lecon-2026-06-16-palier-drift" aria-hidden="true">#</a></h2>
+<p><strong>Contexte :</strong> demande « promouvoir palier 1 → 2 » (déclencheur ≥10 C-XX atteint, 18 C-XX). <code>migrate-project.mjs --target=palier-2 --dry-run</code> renvoie un no-op : la détection live calcule <strong>palier 5</strong>, alors que <code>.claude/.meta-govern.json</code> ET le baseline govern-claude enregistraient encore palier 1.</p>
+<ul>
+<li><strong>Leçon 1 — les indicateurs de <code>.meta-govern.json</code> gèlent au BOOTSTRAP et dérivent :</strong> le fichier portait les valeurs du jour-1 (<code>palier 1, loc:0, components:0, backend:absent, multiRuntime:false</code>) jamais rafraîchies — 4 paliers de retard sur la réalité (Convex mature, AGENTS.md dual-runtime, 18 C-XX, 14,7k LOC). La source de vérité du palier est la détection live (<code>migrate-project.mjs</code> la recalcule), jamais le fichier enregistré.</li>
+<li><strong>Leçon 2 — re-stamper les indicateurs à chaque AUDIT/MIGRATE :</strong> les deux modes devraient réécrire <code>indicators</code> + <code>palier</code> depuis la détection live, sinon chaque audit suivant raisonne sur des chiffres morts. Proposé : <code>audit-project.mjs</code>/<code>migrate</code> émettent un warning « recorded palier N ≠ detected palier M » quand ils divergent.</li>
+<li><strong>Leçon 3 — promotion par déclencheur ≠ artefacts installés :</strong> palier 5 par déclencheur (dual-runtime) mais l'artefact palier-4 est sauté (aucun <code>.github/workflows/</code>). Le no-op de <code>--target=palier-5</code> compare current==target sans vérifier la complétude des artefacts ; un <code>--reconcile</code> auditant la présence des artefacts de chaque palier ≤ courant manque.</li>
+<li>✓ Action : <code>.meta-govern.json</code> réconcilié à palier 5 + indicateurs frais ; note de réconciliation au baseline govern-claude ; gap CI (palier 4) signalé ; 5→6 nécessite 30+ DEFERRED (5 actuels).</li>
+</ul>
+<hr>
+</section>
+<section class="lesson" data-date="2026-06-16" id="lesson-2026-06-16-2">
+<h2 id="lecon-2026-06-16-docs-html-frictions">2026-06-16 — meta-govern v1.3.1 — frictions du payload docs-html révélées par la 1re MIGRATE réelle <a class="header-anchor" href="#lecon-2026-06-16-docs-html-frictions" aria-hidden="true">#</a></h2>
+<p><strong>Contexte :</strong> première <code>MIGRATE --target=html-docs</code> d'un projet legacy réel (htmlshare, palier 5, dual-runtime) : 22 docs convertis, gate de fidélité 22/22. Trois frictions du payload docs-html — toutes invisibles en revue statique, révélées par le run réel + le commit.</p>
+<ul>
+<li><strong>Leçon 1 — les sources de vérité à la RACINE de DOCS_ROOT tombaient en <code>generic</code> :</strong> <code>typeForPath()</code> ne classait que par dossier ; spec / modèle de données / catalogue, rangés à <code>docs/</code> racine, n'avaient pas de badge propre. Fix v1.3.1 : <code>doc-types.mjs</code> dérive leur type du registre <code>docs-map.json</code> (<code>sourcesOfTruth</code> : spec→spec, dataModel &amp; catalog→lexique), avec override manuel <code>TYPE_FILES</code> et repli sûr si le registre manque — zéro config par projet, et ça aurait typé htmlshare correctement d'emblée.</li>
+<li><strong>Leçon 2 — un payload ne doit pas violer les gardes qu'il côtoie :</strong> le BOOTSTRAP installe le thème docs-html (CSS 642/745 lignes) ET <code>file-size-growth-guard</code> qui scanne <code>.css</code> et plafonne à 300 lignes → chaque projet bootstrappé aurait planté au commit sur ses propres assets. Contradiction interne du scaffold. Fix : <code>GENERATED_RE</code> exempte <code>docs/assets/**</code> + <code>.claude/scripts/docs-html/**</code> (conforme à la règle file-size-budget : feuilles de style + codegen exemptés). Règle générale : tout artefact installé doit passer les gardes du même scaffold.</li>
+<li><strong>Leçon 3 — <code>rewrite-refs</code> était mono-runtime par défaut :</strong> <code>ROOT_FILES = ['CLAUDE.md']</code> laissait <code>AGENTS.md</code> (miroir Codex) et <code>README.md</code> (table des docs) avec des liens <code>.md</code> morts sur les projets multi-runtime — un simple commentaire « ajoutez-les » ne suffit pas. Fix : <code>ROOT_FILES</code> inclut d'office AGENTS.md + README.md (existence vérifiée avant lecture ; remplacement par chaîne exacte → sûr).</li>
+<li><strong>Méta-leçon :</strong> un payload portable se valide en l'exécutant sur un vrai projet après chaque évolution. Les trois frictions sont passées à travers la revue statique et la self-audit ; seules la MIGRATE réelle puis le <code>git commit</code> (hook de garde) les ont fait surgir — même schéma que la leçon QA-E2E du 2026-06-09.</li>
+<li>✓ Action : v1.3.1 (patch, sans rupture) — 4 templates corrigés (doc-types, docs-config, file-size-growth-guard, rewrite-refs) ; vérifié par render + test fonctionnel <code>typeForPath</code> (6/6) + exemption GENERATED_RE + self-audit clean (0). htmlshare déjà corrigé localement en amont du patch.</li>
+</ul>
+<hr>
+</section>
+<section class="lesson" data-date="2026-06-20" id="lesson-2026-06-20-1">
+<h2 id="lecon-2026-06-20-sveltekit-bootstrap">2026-06-20 — home-spectors (Inspection NGOUFACK) BOOTSTRAP — 1er vrai bootstrap SvelteKit : frictions du gate de lint et de la convention sv 0.16 <a class="header-anchor" href="#lecon-2026-06-20-sveltekit-bootstrap" aria-hidden="true">#</a></h2>
+<p><strong>Contexte :</strong> premier BOOTSTRAP réel d'un projet SvelteKit (site vitrine bilingue, Svelte 5 runes + Vite 8 + Tailwind v4 + Paraglide, bun), scaffold app via <code>sv create</code> + <code>sv add</code> AVANT le bootstrap meta-govern. Architect PASS (63 fichiers, data-layer/Convex écartés à raison). Trois frictions, toutes invisibles en revue statique, révélées par <code>bun run validate</code>/<code>lint</code> après matérialisation.</p>
+<ul>
+<li><strong>Leçon 1 — le gate de lint du projet (eslint/prettier de <code>sv add</code>) scanne les artefacts vendus par le scaffold :</strong> <code>.claude/hooks/*.mjs</code> (catch vides défensifs) et <code>docs/assets/js/docs-toc.js</code> faisaient échouer <code>eslint .</code> ; les 50+ fichiers docs-html + governance faisaient échouer <code>prettier --check .</code>. Un projet fraîchement bootstrappé plante donc sur son propre <code>bun run validate</code>. Même forme que la leçon file-size-guard-vs-docs-assets (2026-06-16) : <strong>tout artefact installé doit passer les gates du même scaffold</strong>. Fix appliqué localement : <code>.prettierignore</code> + ignores eslint (<code>.claude/**</code>, <code>docs/**</code>, <code>archive/**</code>, <code>src/lib/paraglide/**</code>). À promouvoir : le BOOTSTRAP des stacks JS/TS (React, SvelteKit, Next) doit émettre ces ignores (ou un additionalStep scaffolder qui les append à <code>.prettierignore</code>/<code>eslint.config.js</code>).</li>
+<li><strong>Leçon 2 — <code>ui-components.md</code> reste React-shaped, glob compris (récurrent) :</strong> l'architect a bien flaggé un additionalStep manual-edit, mais le template livré ciblait <code>src/lib/**/*.{ts,tsx,jsx}</code> + idiomes <code>useContent()</code>/<code>className</code>/<code>&lt;Link&gt;</code> — la glob ne matche AUCUN <code>.svelte</code> : règle silencieusement morte. Réécriture complète requise (paths <code>*.svelte</code>, Paraglide <code>m.*()</code>, runes, <code>localizeHref</code>/<code>goto</code>). C'est la 2e occurrence (cf. htmlshare 2026-05-09 « scaffolder defaults still React-shaped ») → seuil de récurrence atteint : créer un <code>rules/ui-components.svelte.md.tpl</code> sélectionné quand <code>IF_STACK_SVELTEKIT</code>, plutôt qu'un manual-edit post-render.</li>
+<li><strong>Leçon 3 — scripts npm validate/quality/size-guard/test non mergés :</strong> l'architect a déclaré <code>COMMAND_VALIDATE=bun run validate</code> etc. et CLAUDE.md y pointe, mais <code>bootstrap-project.mjs</code> n'a mergé que les scripts docs-*. <code>validate</code>/<code>quality:check</code>/<code>size-guard</code>/<code>test</code> ajoutés à la main. Le merge de scripts du bootstrap est incomplet hors husky/gros projet.</li>
+<li><strong>Leçon 4 — convention sv 0.16 : plus de <code>svelte.config.js</code> :</strong> la config adapter + compilerOptions vit désormais dans <code>vite.config.ts</code> via le plugin <code>sveltekit()</code>. Les références/détecteurs qui cherchent <code>svelte.config.js</code> sont périmés (stack-sveltekit + analyze-project). À vérifier : la détection SvelteKit ne doit pas dépendre de la présence de <code>svelte.config.js</code>.</li>
+<li>✓ Action : projet livré vert (validate/quality/build/dev OK), poussé sous automintech, tâche planifiée de build autonome créée. Corrections promues à proposer en patch v1.3.2 : ignores lint dans le payload JS/TS, template ui-components Svelte, merge scripts complet, détection SvelteKit sans svelte.config.js.</li>
+<li>✓ Résolu — meta-govern v1.3.2 (2026-06-20) : les quatre frictions corrigées à la source. (1) <code>bootstrap-project.mjs</code> → <code>applyLintIgnorePayload()</code> augmente <code>.prettierignore</code> + insère une entrée global-ignores eslint (indentation/guillemets détectés pour rester prettier-clean) sur toute stack eslint/prettier. (2) <code>templates/rules/ui-components.svelte.md.tpl</code> créé (paths <code>*.svelte</code> + <code>messages/*.json</code>, Paraglide/runes/<code>localizeHref</code>), sélectionné quand <code>IF_STACK_SVELTEKIT</code> par <code>buildDefaultPlan</code> + l'architect. (3) <code>runPostInstall()</code> merge <code>quality:check</code>/<code>size-guard</code>/<code>test</code>/<code>validate</code>/<code>validate:fast</code> add-if-missing (package-manager-aware) + <code>applyAdditionalSteps()</code> applique enfin package-json-script & gitignore-add. (4) <code>project-detection.mjs</code> lit <code>docs/docs-map.json</code> <code>sourcesOfTruth</code> en premier (repli globbing récursif + candidat <code>brand-system.html</code>) → 0 faux positif d'audit ; détection SvelteKit via <code>@sveltejs/kit</code> → <code>isSvelteKit</code>/<code>IF_STACK_SVELTEKIT</code>, jamais via <code>svelte.config.js</code>. Vérifié par rendu sur fixtures SvelteKit + React (eslint.config.js valide, idempotent) ; <code>self-audit</code> propre.</li>
+</ul>
+<hr>
+</section>
+<section class="lesson" data-date="2026-06-22" id="lesson-2026-06-22-1">
+<h2 id="lecon-2026-06-22-pipeline-audit">2026-06-22 — Temps Chantier — Audit reverse-engineering du pipeline design→plan→implémentation → meta-govern v1.4.0 <a class="header-anchor" href="#lecon-2026-06-22-pipeline-audit" aria-hidden="true">#</a></h2>
+<p><strong>Project:</strong> Temps Chantier (audit du pipeline de skills) → généralisé dans meta-govern<br>
+<strong>Severity:</strong> HIGH<br>
+<strong>Type:</strong> WORKFLOW<br>
+<strong>Recurrence:</strong> 1re (audit-driven ; 3 workflows convergents — 7 skills notés, 47 designs + 57 plans scorés, 1306 transcriptions minées + 18 lues en profondeur)</p>
+<h4 id="what-happened-pipeline-audit" tabindex="-1"><a class="header-anchor" href="#what-happened-pipeline-audit" aria-hidden="true">#</a> What happened</h4>
+<p>L'audit conclut que le pipeline livre rarement du faux (une seule sortie défectueuse a atteint l'utilisateur sur 18 sessions friction-denses, immédiatement revertée) mais paie la qualité en <em>reprises</em> (remediation dans ~89 % des lots). Le maillon faible est <strong>en amont</strong> : l'étage design (noté B) et la précision d'entrée des tâches (plan), pas le moteur d'exécution. Le skill TDD est noté C parce que les garde-fous (relire les critères d'acceptation, prouver-par-retrait, preflight typecheck, arrêt sur entrée déficiente) vivent dans le <em>corps de l'agent</em> tc-implementer mais pas dans le skill. Une seule sortie fausse ayant atteint l'utilisateur (UI sous-traitance) venait d'un « visuel non vérifié » soft-disposé 3 fois.</p>
+<h4 id="root-cause-pipeline-audit" tabindex="-1"><a class="header-anchor" href="#root-cause-pipeline-audit" aria-hidden="true">#</a> Root cause</h4>
+<p>Les critères d'acceptation n'étaient jamais exigés comme conditions observables par comportement ; le flou du design se propageait à l'aval. Les cas limites vivaient en prose hors des cases à cocher ; aucune traçabilité design→tâches (seulement tâche→spec) ; le gate d'entrée d'execute était structurel (le bloc Stratégie existe-t-il ?) jamais de contenu ; aucun gate dur pour la QA visuelle (jsdom est aveugle au rendu) ni pour la frontière réelle (1584 tests verts sur mocks pendant que l'app cassait sur le vrai Dataverse).</p>
+<h4 id="action-taken-pipeline-audit" tabindex="-1"><a class="header-anchor" href="#action-taken-pipeline-audit" aria-hidden="true">#</a> Action taken</h4>
+<ul class="contains-task-list">
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Principes canon 10 (les critères d'acceptation observables sont la colonne vertébrale du contrat) + 11 (tester la vraie frontière, pas le mock idéalisé) — SKILL.md + workflow-blueprint.html</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> brainstorm.SKILL.md.tpl : Section 4b critères d'acceptation observables ; inventaire de parité domaine-jumeau ; règle de précision linguistique</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> write-plan.SKILL.md.tpl : critères d'acceptation + cas limites rendus en cases à cocher ; Step 7b traçabilité de couverture design→tâches</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> execute-plan.SKILL.md.tpl : Step 2b gate de contenu de plan en amont ; branche feature en étape 0 (jamais sur master) ; statut source-unique ; re-lecture des fichiers mutés ; vérification frontière réelle</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Gate de QA visuelle DUR non-reportable (execute-plan + ui-implementer) : un groupe UI n'est pas « done » tant que le rendu n'est pas vérifié ou hard-tagué NEEDS_VISUAL_QA</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> test-driven-development.SKILL.md.tpl : portage des garde-fous du corps d'agent (prouver-par-retrait par AC, critère d'ordre pour « avant X », preflight npx tsc -b --noEmit, clause d'arrêt sur entrée déficiente)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> spec-protocol.md.tpl + testing.md.tpl : ancre AC/traçabilité ; clause frontière réelle + note rendu-visuel</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Bump meta-govern : v1.4.0 (mineure, purement additive, aucune migration projet requise)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> Suivi séparé (NON fait ici) : les corps de skills bootstrappés pointent vers des fichiers frères (references/self-review-checks.md, section-templates.md, delta-format.md) que le BOOTSTRAP n'installe jamais — pointeurs morts pré-existants à corriger dans une remediation dédiée</label></li>
+</ul>
+<h4 id="lesson-generalized-pipeline-audit" tabindex="-1"><a class="header-anchor" href="#lesson-generalized-pipeline-audit" aria-hidden="true">#</a> Lesson generalized</h4>
+<p><strong>La rigueur appartient à l'amont : des critères d'acceptation OBSERVABLES par comportement dans le design, rendus en cases à cocher exécutables dans le plan, dont la couverture design→tâches est prouvée, et contrôlés par un gate de CONTENU (pas seulement de structure) à l'exécution — c'est le plus court chemin de « rarement faux mais souvent repris » à « correct du premier coup ». Corollaire : un test vert sur mock idéalisé / jsdom ne prouve pas la frontière réelle ni le rendu — la vérification d'intégration et la QA visuelle sont des gates de première classe, non-reportables. Quand un garde-fou ne vit que dans le corps d'un agent, il faut le porter dans le skill pour qu'il survive au changement de l'agent.</strong></p>
+<hr>
+</section>
+<section class="lesson" data-date="2026-06-22" id="lesson-2026-06-22-2">
+<h2 id="lecon-2026-06-22-dead-pointers">2026-06-22 — meta-govern self — Bootstrapped skill bodies pointed to references/*.md the BOOTSTRAP never installed → v1.4.1 <a class="header-anchor" href="#lecon-2026-06-22-dead-pointers" aria-hidden="true">#</a></h2>
+<p><strong>Project:</strong> meta-govern itself (v1.4.0 → v1.4.1 patch)<br>
+<strong>Severity:</strong> MEDIUM<br>
+<strong>Type:</strong> TOOLING<br>
+<strong>Recurrence:</strong> 1re (le suivi explicitement différé dans <code>lesson-2026-06-22-1</code>, désormais traité)</p>
+<h4 id="what-happened-dead-pointers" tabindex="-1"><a class="header-anchor" href="#what-happened-dead-pointers" aria-hidden="true">#</a> What happened</h4>
+<p>Quatre templates de skills (<code>brainstorm</code>, <code>write-plan</code>, <code>quality-gate</code>, <code>govern-claude</code>) référençaient des fichiers frères <code>references/*.md</code> (<code>section-templates.md</code>, <code>delta-format.md</code>, <code>self-review-checks.md</code>, <code>checks-catalog.md</code>, <code>evolution-roadmap.md</code>, <code>authoring-best-practices.md</code>, <code>session-lessons.md</code>) que <code>bootstrap-project.mjs</code> n'installe jamais — son plan par défaut n'installe qu'UNE référence de skill, <code>govern-claude/references/baseline.md</code> (ligne 346). Chaque projet bootstrappé portait donc des pointeurs morts dans des corps de skills par ailleurs auto-suffisants.</p>
+<h4 id="root-cause-dead-pointers" tabindex="-1"><a class="header-anchor" href="#root-cause-dead-pointers" aria-hidden="true">#</a> Root cause</h4>
+<p>Les corps de skills ont été rédigés selon une convention « les détails vivent dans un fichier frère <code>references/</code> » qui n'a jamais été câblée dans le plan de bootstrap. Aucune source fondée n'existait pour authoring ces 7 fichiers (les skills mûrs de Temps Chantier utilisent d'AUTRES noms de fichiers) — les créer serait de l'invention. Aucune garde déterministe ne reliait « pointeur <code>references/*.md</code> dans un template » à « fichier installé par le bootstrap ».</p>
+<h4 id="action-taken-dead-pointers" tabindex="-1"><a class="header-anchor" href="#action-taken-dead-pointers" aria-hidden="true">#</a> Action taken</h4>
+<ul class="contains-task-list">
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Option (B) : inliner les éléments porteurs + rediriger vers les artefacts existants + supprimer les « see-also » morts ; aucun nouveau fichier de référence créé (donc aucun changement au plan de bootstrap / architect / scaffolder).</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> brainstorm.SKILL.md.tpl : <code>section-templates.md</code> supprimé (sections déjà inline en Step 3) ; <code>delta-format.md</code> redirigé vers la règle installée <code>.claude/rules/spec-protocol.md</code> + verbes/origin/anti-collision inlinés en Step 4.</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> write-plan.SKILL.md.tpl : <code>self-review-checks.md</code> inliné en Step 8 (3 hard gates + 2 soft gates énumérés).</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> quality-gate.SKILL.md.tpl : <code>checks-catalog.md</code> redirigé vers la source installée <code>.claude/scripts/quality-checks/checks/</code>.</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> govern-claude.SKILL.md.tpl : <code>baseline.md</code> conservé (installé, project-local) ; <code>evolution-roadmap.md</code>/<code>authoring-best-practices.md</code>/<code>session-lessons.md</code> redirigés vers le canon absolu <code>~/.claude/skills/meta-govern/references/*.html</code> (evolution-roadmap, skill-/subagent-/hook-canonical-structure, macos-hook-conventions pour le PATH des hooks, lessons-log).</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> self-audit.mjs : nouvelle garde déterministe (pointer-integrity templates de skills) — un pointeur local <code>references/&lt;x&gt;.md</code> doit être installé par le bootstrap, sinon HIGH ; miroir de la garde SKILL.md→references/*.html. Négative-lookbehind validé (exclut absolus/imbriqués) ; prouvé qu'il mord sur un pointeur mort et passe sur baseline.md installé.</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" checked="" disabled="" type="checkbox"> Bump meta-govern : v1.4.1 (patch — bug-fix + nouvelle garde déterministe ; aucun changement cassant ; aucune migration projet requise ; les installs existants ne sont pas affectés).</label></li>
+</ul>
+<h4 id="lesson-generalized-dead-pointers" tabindex="-1"><a class="header-anchor" href="#lesson-generalized-dead-pointers" aria-hidden="true">#</a> Lesson generalized</h4>
+<p><strong>Un corps de skill ne doit pointer que vers des fichiers que le BOOTSTRAP installe réellement : soit inliner le contenu porteur, soit rediriger vers un artefact installé (règle <code>.claude/rules/*.md</code>, script <code>.claude/scripts/**</code>) ou vers le canon meta-govern globalement présent (chemin absolu <code>~/.claude/skills/meta-govern/references/*.html</code>) — jamais vers un fichier frère <code>references/*.md</code> fantôme. Quand on ne peut pas authoring un fichier sans inventer, on redirige vers le grounded existant plutôt que de halluciner. Et tout invariant pointeur↔installation se promeut en garde self-audit déterministe (même schéma que la promotion règle→hook).</strong></p>
+<hr>
+</section>
+<!-- LESSONS:APPEND -->
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Journal · <code>references/lessons-log.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

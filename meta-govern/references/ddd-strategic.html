@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DDD — Strategic Design (Quick Reference) · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="DDD — Strategic Design (Quick Reference)">
+  <meta name="doc-source" content="references/ddd-strategic.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#when-to-apply">When to apply</a></li><li class="lvl-2"><a href="#the-4-strategic-artifacts">The 4 strategic artifacts</a></li><li class="lvl-3"><a href="#1.-glossary-(ubiquitous-language)">1. Glossary (ubiquitous language)</a></li><li class="lvl-3"><a href="#2.-bounded-context-canvas-(per-bc)">2. Bounded Context Canvas (per BC)</a></li><li class="lvl-3"><a href="#3.-context-map">3. Context Map</a></li><li class="lvl-3"><a href="#4.-core-domain-chart">4. Core Domain Chart</a></li><li class="lvl-2"><a href="#power-platform-mapping">Power Platform mapping</a></li><li class="lvl-2"><a href="#anti-corruption-layer-(mapper-as-acl)">Anti-Corruption Layer (mapper-as-ACL)</a></li><li class="lvl-2"><a href="#eventstorming-(discovery)">EventStorming (discovery)</a></li><li class="lvl-2"><a href="#when-meta-govern-installs-ddd-strategic-artifacts">When meta-govern installs DDD strategic artifacts</a></li><li class="lvl-2"><a href="#cross-reference">Cross-reference</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">ddd-strategic</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">DDD — Strategic Design (Quick Reference)</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/ddd-strategic.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>DDD — Strategic Design (Quick Reference)</h1>
+<p>This reference is a quick map. For full guidance, invoke the existing master skill <code>domain-driven-design</code> (already global at <code>~/.claude/skills/domain-driven-design/</code>).</p>
+<h2 id="when-to-apply" tabindex="-1"><a class="header-anchor" href="#when-to-apply" aria-hidden="true">#</a> When to apply</h2>
+<ul>
+<li>Project DDD score ≥ 5 (per <code>ddd-scorecard.html</code>)</li>
+<li>Multiple bounded contexts emerging</li>
+<li>Team needs shared ubiquitous language</li>
+</ul>
+<h2 id="the-4-strategic-artifacts" tabindex="-1"><a class="header-anchor" href="#the-4-strategic-artifacts" aria-hidden="true">#</a> The 4 strategic artifacts</h2>
+<h3 id="1.-glossary-(ubiquitous-language)" tabindex="-1"><a class="header-anchor" href="#1.-glossary-(ubiquitous-language)" aria-hidden="true">#</a> 1. Glossary (ubiquitous language)</h3>
+<p>Located at <code>docs/architecture/glossary.md</code>. Each BC has its own glossary section.</p>
+<pre><code class="language-markdown"># Glossary — &lt;project&gt;
+
+## Bounded Context: Billing
+
+- **Invoice**: A request for payment for goods or services rendered. Has line items, due date, status.
+- **Charge**: An attempt to capture money on a payment method. Belongs to one Invoice.
+- **Refund**: A reversal of a Charge. May be partial.
+
+## Bounded Context: Inventory
+
+- **SKU**: Unique product identifier. Internal only.
+- **Variant**: A SKU with specific attributes (size, color). Customer-facing.
+</code></pre>
+<p>Glossaries live next to code (per <code>feature-package</code> org). Update during brainstorm.</p>
+<h3 id="2.-bounded-context-canvas-(per-bc)" tabindex="-1"><a class="header-anchor" href="#2.-bounded-context-canvas-(per-bc)" aria-hidden="true">#</a> 2. Bounded Context Canvas (per BC)</h3>
+<p>Located at <code>docs/architecture/bounded-context-canvas-&lt;bc&gt;.md</code>.</p>
+<p>Sections:</p>
+<ul>
+<li>Name + 1-line description</li>
+<li>Strategic classification (Core / Supporting / Generic + rationale)</li>
+<li>Domain roles (input / output)</li>
+<li>Ubiquitous language (link to glossary)</li>
+<li>Business decisions (which decisions live here?)</li>
+<li>Inbound communication (commands accepted)</li>
+<li>Outbound communication (events emitted)</li>
+<li>Persistence (what stores, what schema)</li>
+<li>Team ownership</li>
+</ul>
+<h3 id="3.-context-map" tabindex="-1"><a class="header-anchor" href="#3.-context-map" aria-hidden="true">#</a> 3. Context Map</h3>
+<p>Located at <code>docs/architecture/context-map.md</code>.</p>
+<p>Shows BCs as nodes, integration patterns as edges:</p>
+<ul>
+<li>Partnership (mutual evolution, shared roadmap)</li>
+<li>Shared Kernel (shared models, dangerous if BCs evolve apart)</li>
+<li>Customer-Supplier (consumer drives provider's roadmap)</li>
+<li>Conformist (consumer accepts provider's model)</li>
+<li>Anti-Corruption Layer (translation layer at boundary)</li>
+<li>Open Host Service (provider exposes versioned public contract)</li>
+<li>Published Language (shared vocabulary, e.g., schema.org)</li>
+<li>Separate Ways (no integration)</li>
+<li>Big Ball of Mud (anti-pattern)</li>
+</ul>
+<h3 id="4.-core-domain-chart" tabindex="-1"><a class="header-anchor" href="#4.-core-domain-chart" aria-hidden="true">#</a> 4. Core Domain Chart</h3>
+<p>Khononov's 2021 framing: business differentiation × model complexity, with subdomains plotted on the 2x2.</p>
+<ul>
+<li><strong>Core</strong> (high diff, high complexity) → invest, own</li>
+<li><strong>Supporting</strong> (low diff, high complexity) → build simply</li>
+<li><strong>Generic</strong> (low diff, low complexity) → buy</li>
+<li><strong>Hidden core warning</strong> (high diff, low complexity) → commoditize quickly</li>
+</ul>
+<p>Re-score every 6-12 months.</p>
+<h2 id="power-platform-mapping" tabindex="-1"><a class="header-anchor" href="#power-platform-mapping" aria-hidden="true">#</a> Power Platform mapping</h2>
+<ul>
+<li>Dataverse environment = Bounded Context (often 1:1)</li>
+<li>C# plugin = Aggregate transactional boundary</li>
+<li>Power Automate flow = Process Manager (orchestration, NOT domain)</li>
+<li>Custom connector = ACL (anti-corruption layer)</li>
+</ul>
+<h2 id="anti-corruption-layer-(mapper-as-acl)" tabindex="-1"><a class="header-anchor" href="#anti-corruption-layer-(mapper-as-acl)" aria-hidden="true">#</a> Anti-Corruption Layer (mapper-as-ACL)</h2>
+<p>For Dataverse + DDD:</p>
+<pre><code>Domain (pure TS, zero Dataverse types)
+   ↑
+   Mapper (translates Dataverse rows → Domain entities)
+   ↑
+Repository (interface in domain, impl in infrastructure)
+   ↑
+Dataverse SDK (generated services)
+</code></pre>
+<p>NEVER let Dataverse types (<code>@odata.bind</code>, <code>_value</code>, <code>FormattedValue</code>) into domain. Mapper translates.</p>
+<h2 id="eventstorming-(discovery)" tabindex="-1"><a class="header-anchor" href="#eventstorming-(discovery)" aria-hidden="true">#</a> EventStorming (discovery)</h2>
+<p>Three levels:</p>
+<ol>
+<li><strong>Big-picture</strong>: domain events on a wall, sorted chronologically</li>
+<li><strong>Process-level</strong>: add commands, actors, policies, read models</li>
+<li><strong>Design-level</strong>: add aggregates, invariants, scenarios</li>
+</ol>
+<p>Output:</p>
+<ul>
+<li>Bounded contexts emerge from event clusters</li>
+<li>Aggregates emerge from invariant clusters</li>
+<li>Read models emerge from query needs</li>
+</ul>
+<h2 id="when-meta-govern-installs-ddd-strategic-artifacts" tabindex="-1"><a class="header-anchor" href="#when-meta-govern-installs-ddd-strategic-artifacts" aria-hidden="true">#</a> When meta-govern installs DDD strategic artifacts</h2>
+<p>In BOOTSTRAP, if DDD score ≥ 5:</p>
+<ul>
+<li><code>docs/architecture/glossary.md</code> (skeleton, user fills in)</li>
+<li><code>docs/architecture/context-map.md</code> (skeleton, single BC by default)</li>
+</ul>
+<p>If DDD score ≥ 10:</p>
+<ul>
+<li>All of the above</li>
+<li><code>docs/architecture/bounded-context-canvas-&lt;bc&gt;.md</code> (per BC)</li>
+<li><code>docs/architecture/core-domain-chart.md</code></li>
+<li><code>.claude/rules/ddd-strategic.html</code> (path-scoped to <code>docs/architecture/**</code>)</li>
+</ul>
+<h2 id="cross-reference" tabindex="-1"><a class="header-anchor" href="#cross-reference" aria-hidden="true">#</a> Cross-reference</h2>
+<p>For tactical patterns (entities, VOs, aggregates, repositories), see <code>ddd-tactical.html</code> AND the existing <code>domain-driven-design</code> master skill.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/ddd-strategic.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tooling — Architecture Checks · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Tooling — Architecture Checks">
+  <meta name="doc-source" content="references/tooling-architecture-checks.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#the-three-tools">The three tools</a></li><li class="lvl-3"><a href="#knip-%E2%80%94-unused-files-%2F-exports-%2F-dependencies">Knip — unused files / exports / dependencies</a></li><li class="lvl-3"><a href="#dependency-cruiser-%E2%80%94-circular-deps%2C-missing-deps%2C-orphans">dependency-cruiser — circular deps, missing deps, orphans</a></li><li class="lvl-3"><a href="#eslint-plugin-boundaries-%E2%80%94-architectural-import-enforcement">eslint-plugin-boundaries — architectural import enforcement</a></li><li class="lvl-2"><a href="#decision-matrix">Decision matrix</a></li><li class="lvl-2"><a href="#integration-with-existing-quality-checks">Integration with existing quality-checks</a></li><li class="lvl-2"><a href="#when-not-to-add-these">When NOT to add these</a></li><li class="lvl-2"><a href="#migration-playbook-(when-adding-mid-project)">Migration playbook (when adding mid-project)</a></li><li class="lvl-2"><a href="#per-tool-docs">Per-tool docs</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">tooling-architecture-checks</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Tooling — Architecture Checks</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/tooling-architecture-checks.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Tooling — Architecture Checks</h1>
+<p>Source: synthesis of <code>LLM-friendly project architecture for AI coding agents in 2026.md</code> plus the user's existing <code>quality-checks/</code> script suite.</p>
+<p>Three machine-checkable architecture tools complement the existing 12-check <code>quality-checks/</code> script. They are <strong>opt-in</strong>, recommended at specific paliers.</p>
+<h2 id="the-three-tools" tabindex="-1"><a class="header-anchor" href="#the-three-tools" aria-hidden="true">#</a> The three tools</h2>
+<h3 id="knip-%E2%80%94-unused-files-%2F-exports-%2F-dependencies" tabindex="-1"><a class="header-anchor" href="#knip-%E2%80%94-unused-files-%2F-exports-%2F-dependencies" aria-hidden="true">#</a> Knip — unused files / exports / dependencies</h3>
+<p><strong>What:</strong> static analysis that walks <code>package.json</code>, source files, and config to flag:</p>
+<ul>
+<li>unused exports</li>
+<li>unused files</li>
+<li>unused dependencies</li>
+<li>unused devDependencies</li>
+</ul>
+<p><strong>When to add:</strong> palier 3+ (multi-dev) or any time the codebase has &gt;50 source files.</p>
+<p><strong>Why agents care:</strong> dead code shows up in agent searches and wastes context. Pruning improves discoverability.</p>
+<p><strong>Install:</strong></p>
+<pre><code>bun add -D knip
+</code></pre>
+<p><strong>Wire into <code>validate</code>:</strong></p>
+<pre><code class="language-json">{
+  &quot;scripts&quot;: {
+    &quot;lint:dead&quot;: &quot;knip&quot;,
+    &quot;validate&quot;: &quot;... &amp;&amp; bun run lint:dead &amp;&amp; ...&quot;
+  }
+}
+</code></pre>
+<p><strong>Config (<code>knip.json</code>):</strong></p>
+<pre><code class="language-json">{
+  &quot;$schema&quot;: &quot;https://unpkg.com/knip@5/schema.json&quot;,
+  &quot;entry&quot;: [&quot;src/main.tsx&quot;, &quot;src/app/**/*.{ts,tsx}&quot;],
+  &quot;project&quot;: [&quot;src/**/*.{ts,tsx}&quot;],
+  &quot;ignore&quot;: [&quot;src/test/**&quot;]
+}
+</code></pre>
+<p><strong>Severity policy (in <code>validate</code>):</strong> start as warning-only; promote to blocker once the team is at zero findings.</p>
+<h3 id="dependency-cruiser-%E2%80%94-circular-deps%2C-missing-deps%2C-orphans" tabindex="-1"><a class="header-anchor" href="#dependency-cruiser-%E2%80%94-circular-deps%2C-missing-deps%2C-orphans" aria-hidden="true">#</a> dependency-cruiser — circular deps, missing deps, orphans</h3>
+<p><strong>What:</strong> rule-based dependency analyzer:</p>
+<ul>
+<li>detects circular import cycles</li>
+<li>detects missing/extraneous dependencies</li>
+<li>detects orphan files (no incoming references)</li>
+<li>enforces custom forbidden-edge rules</li>
+</ul>
+<p><strong>When to add:</strong> palier 2+ if the project has &gt;100 files, OR any time a circular import is observed.</p>
+<p><strong>Why agents care:</strong> circular deps cause non-deterministic load order; agents make wrong assumptions. Orphans waste search time.</p>
+<p><strong>Install:</strong></p>
+<pre><code>bun add -D dependency-cruiser
+</code></pre>
+<p><strong>Wire into <code>validate</code>:</strong></p>
+<pre><code class="language-json">{
+  &quot;scripts&quot;: {
+    &quot;lint:deps&quot;: &quot;depcruise --config .dependency-cruiser.cjs src&quot;,
+    &quot;validate&quot;: &quot;... &amp;&amp; bun run lint:deps &amp;&amp; ...&quot;
+  }
+}
+</code></pre>
+<p><strong>Config (<code>.dependency-cruiser.cjs</code>):</strong> start with <code>npx depcruise --init</code> and pick the recommended preset. Add custom rules per project (e.g., <code>features/* must not import from features/*</code> to enforce slice independence).</p>
+<h3 id="eslint-plugin-boundaries-%E2%80%94-architectural-import-enforcement" tabindex="-1"><a class="header-anchor" href="#eslint-plugin-boundaries-%E2%80%94-architectural-import-enforcement" aria-hidden="true">#</a> eslint-plugin-boundaries — architectural import enforcement</h3>
+<p><strong>What:</strong> ESLint plugin that enforces import direction between named &quot;elements&quot; of the codebase. Configurable: layers, modules, slices.</p>
+<p><strong>When to add:</strong> palier 3+ multi-dev, OR archetype D (monorepo / FSD-light).</p>
+<p><strong>Why agents care:</strong> without enforcement, slices leak into each other and the architecture decays into spaghetti. Enforcement turns architectural intent into machine-checkable feedback.</p>
+<p><strong>Install:</strong></p>
+<pre><code>bun add -D eslint-plugin-boundaries
+</code></pre>
+<p><strong>Config (in <code>eslint.config.js</code>):</strong></p>
+<pre><code class="language-javascript">import boundaries from 'eslint-plugin-boundaries';
+
+export default [
+  {
+    plugins: { boundaries },
+    settings: {
+      'boundaries/elements': [
+        { type: 'app', pattern: 'src/app/**' },
+        { type: 'feature', pattern: 'src/features/*' },
+        { type: 'shared', pattern: 'src/shared/**' },
+        { type: 'route', pattern: 'src/routes/**' }
+      ]
+    },
+    rules: {
+      'boundaries/element-types': ['error', {
+        default: 'disallow',
+        rules: [
+          { from: 'app', allow: ['feature', 'shared', 'route'] },
+          { from: 'route', allow: ['feature', 'shared'] },
+          { from: 'feature', allow: ['shared'] },
+          { from: 'shared', allow: ['shared'] }
+        ]
+      }]
+    }
+  }
+];
+</code></pre>
+<p>This config encodes: routes can use features, features cannot import other features, everything can use shared. The lint error explains exactly why an import is rejected — agents fix it deterministically.</p>
+<h2 id="decision-matrix" tabindex="-1"><a class="header-anchor" href="#decision-matrix" aria-hidden="true">#</a> Decision matrix</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Project state</th>
+<th>Knip</th>
+<th>dep-cruiser</th>
+<th>eslint-plugin-boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Archetype A, palier 1</td>
+<td>skip</td>
+<td>skip</td>
+<td>skip</td>
+</tr>
+<tr>
+<td>Archetype B, palier 1-2</td>
+<td>skip</td>
+<td>optional</td>
+<td>skip</td>
+</tr>
+<tr>
+<td>Archetype B, palier 3+</td>
+<td>recommend</td>
+<td>recommend</td>
+<td>optional</td>
+</tr>
+<tr>
+<td>Archetype C, palier 1-2</td>
+<td>recommend</td>
+<td>recommend</td>
+<td>optional</td>
+</tr>
+<tr>
+<td>Archetype C, palier 3+</td>
+<td>required</td>
+<td>required</td>
+<td>recommend</td>
+</tr>
+<tr>
+<td>Archetype D (any palier)</td>
+<td>required</td>
+<td>required</td>
+<td>required</td>
+</tr>
+<tr>
+<td>Any archetype with observed circular imports</td>
+<td>n/a</td>
+<td>required</td>
+<td>n/a</td>
+</tr>
+<tr>
+<td>Any archetype with <code>features/*</code> cross-imports leaking</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>required</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="integration-with-existing-quality-checks" tabindex="-1"><a class="header-anchor" href="#integration-with-existing-quality-checks" aria-hidden="true">#</a> Integration with existing quality-checks</h2>
+<p>The user's existing <code>quality-checks/</code> script does:</p>
+<ul>
+<li>hardcoded colors (hex / rgba)</li>
+<li>i18n bypass</li>
+<li>file size &gt; 300 lines</li>
+<li><code>any</code> types</li>
+<li>console.log</li>
+<li>secret patterns</li>
+<li>direct <code>fetch()</code> in components</li>
+<li>snapshot tests</li>
+<li><code>container.querySelector</code></li>
+<li>useEffect+setState heuristic</li>
+<li>TODO markers</li>
+<li>project-specific checks</li>
+</ul>
+<p>These three tools are <strong>architectural</strong> (file-graph level), not <strong>per-file</strong> (line level). They're complementary. Quality-checks runs first (fast feedback); architecture checks run last in the <code>validate</code> chain (slower, broader).</p>
+<p>Recommended <code>validate</code> order:</p>
+<pre><code>1. typecheck      (fastest, catches the most)
+2. lint           (eslint, including boundaries plugin)
+3. test           (unit/integration)
+4. quality:check  (per-file rules, 12 checks)
+5. lint:deps      (dependency-cruiser, only when added)
+6. lint:dead      (knip, only when added)
+7. build          (last — slowest, requires the rest passing)
+</code></pre>
+<h2 id="when-not-to-add-these" tabindex="-1"><a class="header-anchor" href="#when-not-to-add-these" aria-hidden="true">#</a> When NOT to add these</h2>
+<ul>
+<li>Archetype A prototypes — adds friction with no benefit.</li>
+<li>A codebase under heavy refactor — false positives explode; defer until refactor lands.</li>
+<li>A team that won't fix findings — running and ignoring is worse than not running. Only add if <code>validate</code> is allowed to fail on findings.</li>
+</ul>
+<h2 id="migration-playbook-(when-adding-mid-project)" tabindex="-1"><a class="header-anchor" href="#migration-playbook-(when-adding-mid-project)" aria-hidden="true">#</a> Migration playbook (when adding mid-project)</h2>
+<ol>
+<li>Install + add config in a feature branch.</li>
+<li>Run once; capture findings to <code>docs/&lt;date&gt;-&lt;tool&gt;-baseline.md</code>.</li>
+<li>Fix critical findings only (circulars, missing deps, blatant unused).</li>
+<li>Add to <code>validate</code> with <code>--fail-level=error</code> for the new findings only (most tools support a baseline).</li>
+<li>Triage the rest in <code>docs/backlog-deferred.md</code>.</li>
+<li>Tighten over time; never block CI on baseline-day findings.</li>
+</ol>
+<p>This avoids the &quot;add the tool, get 200 findings, abandon&quot; failure mode.</p>
+<h2 id="per-tool-docs" tabindex="-1"><a class="header-anchor" href="#per-tool-docs" aria-hidden="true">#</a> Per-tool docs</h2>
+<ul>
+<li>Knip: <a href="https://knip.dev/">https://knip.dev/</a></li>
+<li>dependency-cruiser: <a href="https://github.com/sverweij/dependency-cruiser">https://github.com/sverweij/dependency-cruiser</a></li>
+<li>eslint-plugin-boundaries: <a href="https://github.com/javierbrea/eslint-plugin-boundaries">https://github.com/javierbrea/eslint-plugin-boundaries</a></li>
+</ul>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/tooling-architecture-checks.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

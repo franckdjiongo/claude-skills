@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Decision Trees — Quick Decisions · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Decision Trees — Quick Decisions">
+  <meta name="doc-source" content="references/decision-trees.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#1.-where-does-this-rule-belong%3F">1. Where does this rule belong?</a></li><li class="lvl-2"><a href="#2.-should-this-project-use-ddd%3F">2. Should this project use DDD?</a></li><li class="lvl-2"><a href="#2.5-architecture-pattern-selection">2.5 Architecture pattern selection</a></li><li class="lvl-2"><a href="#3.-skill-vs-subagent">3. Skill vs Subagent</a></li><li class="lvl-2"><a href="#4.-skill's-disable-model-invocation-setting">4. Skill's disable-model-invocation setting</a></li><li class="lvl-2"><a href="#5.-skill's-context%3A-fork-setting">5. Skill's context: fork setting</a></li><li class="lvl-2"><a href="#6.-hook-handler-type">6. Hook handler type</a></li><li class="lvl-2"><a href="#7.-compact-vs-clear-vs-rewind">7. Compact vs Clear vs Rewind</a></li><li class="lvl-2"><a href="#8.-bounded-context-vs-microservice">8. Bounded Context vs Microservice</a></li><li class="lvl-2"><a href="#9.-domain-event-vs-integration-event">9. Domain Event vs Integration Event</a></li><li class="lvl-2"><a href="#10.-entity-vs-value-object">10. Entity vs Value Object</a></li><li class="lvl-2"><a href="#11.-when-to-audit-(vs-migrate-vs-advise)">11. When to AUDIT (vs MIGRATE vs ADVISE)</a></li><li class="lvl-2"><a href="#12.-promote-to-next-palier%3F">12. Promote to next palier?</a></li><li class="lvl-2"><a href="#13.-when-to-refactor-a-claude.md">13. When to refactor a CLAUDE.md</a></li><li class="lvl-2"><a href="#14.-adding-new-lesson-to-lessons-log">14. Adding new lesson to lessons-log</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">decision-trees</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Decision Trees — Quick Decisions</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/decision-trees.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Decision Trees — Quick Decisions</h1>
+<p>Reference for fast routing during BOOTSTRAP, AUDIT, MIGRATE, ADVISE.</p>
+<h2 id="1.-where-does-this-rule-belong%3F" tabindex="-1"><a class="header-anchor" href="#1.-where-does-this-rule-belong%3F" aria-hidden="true">#</a> 1. Where does this rule belong?</h2>
+<pre><code>Rule: ___________________________________________
+
+Q1. Must it be 100% enforced (zero tolerance for skipping)?
+   YES → HOOK. Stop here.
+   NO  → continue
+
+Q2. Is it path/file-type specific?
+   YES → .claude/rules/&lt;name&gt;.md with `paths:` frontmatter. Stop here.
+   NO  → continue
+
+Q3. Is it a multi-step workflow with domain knowledge?
+   YES → Skill. Continue with Q3a:
+       Q3a. Workflow has side effects (deploys, schema mutations)?
+            YES → frontmatter `disable-model-invocation: true` (manual only).
+            NO  → standard skill, ensure trigger phrases in description.
+   NO  → continue
+
+Q4. Always-on identity / source-of-truth pointer / model+effort default?
+   YES → CLAUDE.md (≤120 lines budget; if budget exceeded, move oldest item out)
+   NO  → continue
+
+Q5. Verbose specialist work that should not pollute main context?
+   YES → Subagent
+   NO  → continue
+
+Q6. External system (Notion / Vercel / GitHub / Convex)?
+   YES → MCP server
+   NO  → re-evaluate; the rule may not need a primitive at all (could be tribal knowledge / a comment in code)
+</code></pre>
+<h2 id="2.-should-this-project-use-ddd%3F" tabindex="-1"><a class="header-anchor" href="#2.-should-this-project-use-ddd%3F" aria-hidden="true">#</a> 2. Should this project use DDD?</h2>
+<p>See <code>ddd-scorecard.html</code> for the full 8-item scorecard. Quick gate:</p>
+<pre><code>Score ≥ 10 → Full DDD: bounded context canvas, glossary, aggregate-per-AR repos, anti-pattern hooks
+Score 5-9 → Strategic DDD only: glossary + context map; tactical patterns optional
+Score &lt; 5 → Transaction Script / Active Record. Don't force DDD.
+</code></pre>
+<p>Most Power Apps code apps and small SPAs land at &lt;5 or 5-9. Don't over-engineer.</p>
+<h2 id="2.5-architecture-pattern-selection" tabindex="-1"><a class="header-anchor" href="#2.5-architecture-pattern-selection" aria-hidden="true">#</a> 2.5 Architecture pattern selection</h2>
+<p>Source: <code>architecture-patterns.html</code>. Use during BOOTSTRAP step 4b.</p>
+<pre><code>Q1. Is this a throwaway prototype that won't ship?
+   YES → flat or single-feature folder. Skip the rest.
+   NO  → continue.
+
+Q2. Multiple deployables OR genuinely shared packages?
+   YES → Package-based monorepo (apps/ + packages/). Pick Nx if AI/CI heavy, else Turborepo.
+   NO  → continue.
+
+Q3. Single app — does the framework provide native routing/runtime conventions?
+   YES → Framework-native shell + feature-first slices.
+        React+Vite → src/app/ + src/routes/ + src/features/ + src/shared/
+        Next.js   → src/app/ (router) + src/features/ + src/server/ + src/shared/
+        Power Apps code app → src/{features,shared,services,models}
+   NO  → fall back to plain vertical-slice with explicit feature folders.
+
+Q4. Hard business rules (regulated, money, compliance)?
+   YES → add hexagonal indirection inside affected slices ONLY (DDD score ≥10).
+   NO  → keep slices light; no Repository&lt;T&gt;/UseCase/Mapper layers.
+
+Q5. &gt;5 distinct top-level domains hinted by spec?
+   YES → adopt FSD-light (layers + import-direction lint).
+   NO  → flat features/ is enough.
+</code></pre>
+<p>Default for most projects: framework-native + feature-first. Record decision in <code>.claude/.meta-govern.json</code> under <code>architecturePattern</code>.</p>
+<h2 id="3.-skill-vs-subagent" tabindex="-1"><a class="header-anchor" href="#3.-skill-vs-subagent" aria-hidden="true">#</a> 3. Skill vs Subagent</h2>
+<pre><code>&quot;I need Claude to handle &lt;task&gt;.&quot;
+
+Q1. Should the *current* context be teaching/doing it?
+   YES → Skill (current context learns the workflow)
+   NO  → Subagent (delegate to fresh context, get summary back)
+
+Q2. Will it produce verbose output that would flood the main thread?
+   YES → Subagent (or skill with `context: fork`)
+   NO  → Skill is fine
+
+Q3. Is it a one-shot job vs. a recurring workflow?
+   ONE-SHOT → maybe just inline the prompt; don't create a primitive
+   RECURRING → Skill or subagent based on Q1, Q2
+
+Q4. Does it need to invoke other skills?
+   YES → Skill (subagents don't auto-inherit skills; isolation forced)
+   NO  → either works; pick by Q1, Q2
+</code></pre>
+<h2 id="4.-skill's-disable-model-invocation-setting" tabindex="-1"><a class="header-anchor" href="#4.-skill's-disable-model-invocation-setting" aria-hidden="true">#</a> 4. Skill's <code>disable-model-invocation</code> setting</h2>
+<pre><code>Q. Does the skill have side effects (deploys, schema mutations, payments, sends emails)?
+   YES → disable-model-invocation: true (only manually invoked)
+   NO  → omit (default false; auto-invoke allowed)
+
+Q. Is the skill triggered by 1-2 specific commands and never useful elsewhere?
+   YES → consider disable-model-invocation: true (cleaner)
+   NO  → leave default
+</code></pre>
+<h2 id="5.-skill's-context%3A-fork-setting" tabindex="-1"><a class="header-anchor" href="#5.-skill's-context%3A-fork-setting" aria-hidden="true">#</a> 5. Skill's <code>context: fork</code> setting</h2>
+<pre><code>Q. Does the skill produce verbose tool output that would flood the main thread?
+   YES → context: fork (skill body becomes prompt to fresh subagent)
+   NO  → omit (default: runs in main context)
+
+Q. Does the skill perform heavy validation (lint, audit, compliance)?
+   YES → context: fork
+   NO  → omit
+
+Q. Will the skill's output be referenced later in the session?
+   YES → don't fork (you need it in main context)
+   NO  → fork is fine
+</code></pre>
+<h2 id="6.-hook-handler-type" tabindex="-1"><a class="header-anchor" href="#6.-hook-handler-type" aria-hidden="true">#</a> 6. Hook handler type</h2>
+<pre><code>Q1. Is it a deterministic check answerable from filesystem state in &lt;100ms?
+   YES → command (shell exit-code)
+
+Q2. Does it need to call out to a service (validation API, secrets server)?
+   YES → HTTP (POST to URL)
+
+Q3. Does it need light reasoning (e.g., classify a commit message)?
+   YES → prompt (single-turn fast Claude)
+
+Q4. Does it need multi-step verification (run tests, parse output, decide)?
+   YES → agent (multi-step subagent)
+</code></pre>
+<h2 id="7.-compact-vs-clear-vs-rewind" tabindex="-1"><a class="header-anchor" href="#7.-compact-vs-clear-vs-rewind" aria-hidden="true">#</a> 7. Compact vs Clear vs Rewind</h2>
+<pre><code>Context still relevant but window full?
+   → /compact (focused: /compact &lt;topic to keep&gt;)
+
+Context poisoned (wrong direction, hallucinated state)?
+   → /clear
+
+Want to rewind to a specific moment?
+   → /rewind (visual UI; pick the turn)
+
+Want to keep just a summary?
+   → &quot;summarize from here, then I'll /clear&quot;
+</code></pre>
+<h2 id="8.-bounded-context-vs-microservice" tabindex="-1"><a class="header-anchor" href="#8.-bounded-context-vs-microservice" aria-hidden="true">#</a> 8. Bounded Context vs Microservice</h2>
+<pre><code>Q. Does this slice have a single ubiquitous language?
+   NO → keep splitting; you have multiple BCs masquerading as one
+   YES → it's a Bounded Context
+
+Q. Does it deserve its own deployable + database?
+   YES → it can also be a microservice
+   NO  → it's a BC inside a modular monolith (preferred default)
+</code></pre>
+<p>Khononov: &quot;All microservices are bounded contexts, but not all bounded contexts are microservices.&quot;</p>
+<h2 id="9.-domain-event-vs-integration-event" tabindex="-1"><a class="header-anchor" href="#9.-domain-event-vs-integration-event" aria-hidden="true">#</a> 9. Domain Event vs Integration Event</h2>
+<pre><code>Q. Will the consumer live inside the same Bounded Context?
+   YES → Domain Event (in-process, may be sync or async, schema owned by BC)
+   NO  → Integration Event (cross-BC, async via broker, stable versioned contract, at-least-once)
+</code></pre>
+<h2 id="10.-entity-vs-value-object" tabindex="-1"><a class="header-anchor" href="#10.-entity-vs-value-object" aria-hidden="true">#</a> 10. Entity vs Value Object</h2>
+<pre><code>Q. Does the object's identity persist across state changes?
+   YES → Entity
+   NO  → continue
+
+Q. Are two instances with the same attributes interchangeable?
+   YES → Value Object
+   NO  → Entity (your invariants depend on identity)
+</code></pre>
+<p>Vernon's bias: &quot;When in doubt, start as a Value Object; promote to Entity only when identity is required.&quot;</p>
+<h2 id="11.-when-to-audit-(vs-migrate-vs-advise)" tabindex="-1"><a class="header-anchor" href="#11.-when-to-audit-(vs-migrate-vs-advise)" aria-hidden="true">#</a> 11. When to AUDIT (vs MIGRATE vs ADVISE)</h2>
+<pre><code>Q1. Is meta-govern's version newer than the project's recorded version?
+   YES → MIGRATE candidate. Run AUDIT first to decide.
+   NO  → continue
+
+Q2. Has it been &gt;4 weeks since last AUDIT?
+   YES → AUDIT now.
+   NO  → continue
+
+Q3. Did the user just complete a milestone (feature ship, refactor, model upgrade)?
+   YES → AUDIT now.
+   NO  → ADVISE only.
+</code></pre>
+<h2 id="12.-promote-to-next-palier%3F" tabindex="-1"><a class="header-anchor" href="#12.-promote-to-next-palier%3F" aria-hidden="true">#</a> 12. Promote to next palier?</h2>
+<p>See <code>evolution-roadmap.html</code> for full triggers. Quick gate per palier:</p>
+<pre><code>Palier 0 → 1: BOOTSTRAP signals: project has CLAUDE.md? .claude/settings.json? 5 core skills? 4 core agents?
+Palier 1 → 2: ≥30 FUNC IDs OR project has live users
+Palier 2 → 3: 2+ devs OR worktree workflow needed
+Palier 3 → 4: PR opened on remote (GitHub/GitLab) OR CI requested
+Palier 4 → 5: Codex/Claude.ai dual-runtime needed (e.g., for non-MCP integrations)
+Palier 5 → 6: 30+ DEFERRED entries in backlog
+</code></pre>
+<h2 id="13.-when-to-refactor-a-claude.md" tabindex="-1"><a class="header-anchor" href="#13.-when-to-refactor-a-claude.md" aria-hidden="true">#</a> 13. When to refactor a CLAUDE.md</h2>
+<pre><code>Q1. Is CLAUDE.md &gt; 120 lines?
+   YES → refactor.
+
+Q2. Does CLAUDE.md contain `@filename` imports?
+   YES → refactor; replace with declarative pointers.
+
+Q3. Does it have defensive scaffolding (&quot;MUST&quot;, &quot;ALWAYS&quot;, &quot;verify before returning&quot;)?
+   YES → refactor; rewrite without defensive language.
+
+Q4. Does it duplicate content also in .claude/rules/*.md?
+   YES → refactor; pick one home (rules dir for path-conditional, CLAUDE.md for always-on identity).
+
+Q5. Does it have file-type procedures?
+   YES → refactor; move to .claude/rules/&lt;file-type&gt;.md with `paths:`.
+</code></pre>
+<p>If any → invoke <code>claude-md-improver</code> (plugin) for the surgical edit; meta-govern handles the surrounding decisions.</p>
+<h2 id="14.-adding-new-lesson-to-lessons-log" tabindex="-1"><a class="header-anchor" href="#14.-adding-new-lesson-to-lessons-log" aria-hidden="true">#</a> 14. Adding new lesson to lessons-log</h2>
+<pre><code>Lesson observed: ___________________________________________
+
+Q. Is it generic across projects?
+   YES → meta-govern lessons-log.md AND propose update to a reference
+   NO  → project-level govern-claude session-lessons.md
+
+Q. Does it require new template / new sub-agent?
+   YES → propose new artifact in EVOLVE mode
+   NO  → just append to lessons-log
+
+Q. Does it invalidate an existing template?
+   YES → bump meta-govern major version + MIGRATE all projects
+   NO  → minor version bump
+</code></pre>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/decision-trees.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

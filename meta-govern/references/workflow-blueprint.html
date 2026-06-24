@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Workflow Blueprint — End-to-End Project Lifecycle · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Workflow Blueprint — End-to-End Project Lifecycle">
+  <meta name="doc-source" content="references/workflow-blueprint.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#the-end-to-end-lifecycle">The end-to-end lifecycle</a></li><li class="lvl-2"><a href="#per-phase-contracts">Per-phase contracts</a></li><li class="lvl-3"><a href="#brainstorm-phase-(design)">Brainstorm phase (design)</a></li><li class="lvl-3"><a href="#write-plan-phase">Write-plan phase</a></li><li class="lvl-3"><a href="#execute-plan-phase">Execute-plan phase</a></li><li class="lvl-3"><a href="#quality-gate-phase">Quality-gate phase</a></li><li class="lvl-3"><a href="#session-review-phase">Session review phase</a></li><li class="lvl-3"><a href="#governance-cadence-phase">Governance cadence phase</a></li><li class="lvl-2"><a href="#cross-cutting-principles">Cross-cutting principles</a></li><li class="lvl-3"><a href="#every-artifact-has-4-attributes">Every artifact has 4 attributes</a></li><li class="lvl-3"><a href="#always-grounded-discipline">Always-grounded discipline</a></li><li class="lvl-3"><a href="#probabilistic-vs-deterministic-layers">Probabilistic vs deterministic layers</a></li><li class="lvl-2"><a href="#how-meta-govern's-output-integrates">How meta-govern's output integrates</a></li><li class="lvl-2"><a href="#stack-specific-deviations">Stack-specific deviations</a></li><li class="lvl-3"><a href="#power-platform-(code-app-%2B-dataverse)">Power Platform (Code App + Dataverse)</a></li><li class="lvl-3"><a href="#convex">Convex</a></li><li class="lvl-3"><a href="#vite-%2B-react-%2B-typescript">Vite + React + TypeScript</a></li><li class="lvl-3"><a href="#cloudflare-workers">Cloudflare Workers</a></li><li class="lvl-3"><a href="#generic-node-cli">Generic Node CLI</a></li><li class="lvl-2"><a href="#when-the-user-asks-%22what's-the-workflow%22">When the user asks &quot;what's the workflow&quot;</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">workflow-blueprint</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Workflow Blueprint — End-to-End Project Lifecycle</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/workflow-blueprint.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Workflow Blueprint — End-to-End Project Lifecycle</h1>
+<p>Source: synthesis of Temps Chantier's full workflow + Brillance Décor's brainstorm→write-plan→execute-plan→quality-gate sequence.</p>
+<h2 id="the-end-to-end-lifecycle" tabindex="-1"><a class="header-anchor" href="#the-end-to-end-lifecycle" aria-hidden="true">#</a> The end-to-end lifecycle</h2>
+<p>A project bootstrapped by meta-govern follows this lifecycle:</p>
+<pre><code>PROJECT INIT
+   ↓
+BOOTSTRAP (meta-govern)
+   - Sources of truth (3 docs)
+   - .claude/ skeleton
+   - 5 core skills, 4 core agents, 5 hooks, 8 rules
+   - package.json scripts
+   - .husky/pre-commit
+   ↓
+FEATURE WORK
+   ↓
+   /brainstorm &quot;&lt;topic&gt;&quot;               # design phase
+      → docs/specs/YYYY-MM-DD-&lt;topic&gt;-design.md (with Source-of-truth delta block)
+   ↓
+   /write-plan                          # plan phase
+      → docs/plans/YYYY-MM-DD-&lt;topic&gt;-plan.md (Task 1 = Apply delta)
+   ↓
+   /execute-plan                        # execution phase
+      - 3-tier classification (BATCH / STANDARD / RIGOROUS)
+      - Pipeline Task List
+      - Parallel groups via worktrees (palier 3+)
+      - Per-task: implementer (or ui-implementer) → spec-reviewer + code-quality-reviewer (foreground) → fix/defer
+      - Final phase: apply source-of-truth delta
+      - Commit per task or per group based on tier
+   ↓
+   /quality-gate                        # FINAL SCAN before merge
+      - Deterministic 12-check script
+      - Architectural review
+      - Severity gates (CRITICAL/HIGH/MEDIUM/LOW)
+   ↓
+COMMIT / MERGE / DEPLOY
+   ↓
+SESSION REVIEW (periodic)
+   ↓
+   /session-review                      # honest retrospective
+      → 5 dimensions: self-eval/10, what worked, what poorly, agent/skill review, improvements
+   ↓
+   Append lessons to govern-claude/references/session-lessons.md
+   ↓
+GOVERNANCE CADENCE
+   ↓
+   Every 2-4 weeks:
+      /govern-claude                    # project-level audit
+         → drift detection, baseline diff, evolution suggestions
+   ↓
+   When meta-govern bumps:
+      meta-govern AUDIT → migrate plan → MIGRATE
+   ↓
+   When triggers met:
+      Promote to next palier
+</code></pre>
+<h2 id="per-phase-contracts" tabindex="-1"><a class="header-anchor" href="#per-phase-contracts" aria-hidden="true">#</a> Per-phase contracts</h2>
+<h3 id="brainstorm-phase-(design)" tabindex="-1"><a class="header-anchor" href="#brainstorm-phase-(design)" aria-hidden="true">#</a> Brainstorm phase (design)</h3>
+<p><strong>Skill</strong>: <code>brainstorm</code> (or <code>project-brainstorming</code>)</p>
+<p><strong>HARD GATE</strong>: NO implementation until:</p>
+<ol>
+<li>Each section approved by user</li>
+<li><code>## Source of truth delta</code> block written</li>
+</ol>
+<p><strong>Output</strong>: <code>docs/specs/YYYY-MM-DD-&lt;topic&gt;-design.md</code></p>
+<p><strong>Mandatory sections</strong>:</p>
+<ul>
+<li>Context (why we're doing this)</li>
+<li>Approach (architectural decisions)</li>
+<li>Acceptance criteria — observable per-behavior pass/fail conditions (not a test strategy)</li>
+<li>Twin-domain parity inventory — when the feature mirrors an established domain (internal↔external, a future module cloning a current one), classify each counterpart capability specified/adapted/excluded/MISSING before scoping</li>
+<li><strong>Source of truth delta</strong> — what changes in spec / data-model / catalog</li>
+</ul>
+<p><strong>Sub-agent</strong>: <code>codebase-reality-check</code> (mandatory pre-Step-1; verifies that referenced files/symbols actually exist)</p>
+<p><strong>Sub-agent</strong>: <code>persona-simulator</code> (mandatory between Sections 4 and 5; UX role-play with project-scoped personas)</p>
+<h3 id="write-plan-phase" tabindex="-1"><a class="header-anchor" href="#write-plan-phase" aria-hidden="true">#</a> Write-plan phase</h3>
+<p><strong>Skill</strong>: <code>write-plan</code> (or <code>project-writing-plan</code>)</p>
+<p><strong>HARD GATE</strong>: Rejects designs without <code>## Source of truth delta</code>. Mandatory:</p>
+<ol>
+<li>Task 1 = &quot;Apply source-of-truth delta&quot;</li>
+<li>Decision Journal section</li>
+<li>Design→tasks coverage traceability — every design requirement maps to a task or an explicit out-of-scope (catches the silently-dropped-requirement class)</li>
+<li>Self-review (2 review passes — Track A spec + Track B codebase — both 0 issues)</li>
+</ol>
+<p><strong>Output</strong>: <code>docs/plans/YYYY-MM-DD-&lt;topic&gt;-plan.md</code></p>
+<p><strong>Per-task structure</strong>:</p>
+<ul>
+<li>Files (paths)</li>
+<li>Agent assignment (<code>implementer</code> / <code>ui-implementer</code> / <code>spec-reviewer</code> / <code>code-quality-reviewer</code>)</li>
+<li>Governing FUNC/RA/VAL/C-XX refs (traceability)</li>
+<li>Acceptance criteria + edge cases as rendered checkboxes (not prose — prose AC fall out of the executable contract)</li>
+<li>TDD checklist (RED → GREEN → REFACTOR)</li>
+<li>Tier (BATCH / STANDARD / RIGOROUS)</li>
+</ul>
+<h3 id="execute-plan-phase" tabindex="-1"><a class="header-anchor" href="#execute-plan-phase" aria-hidden="true">#</a> Execute-plan phase</h3>
+<p><strong>Skill</strong>: <code>execute-plan</code> (or <code>project-subagent-driven-development</code>)</p>
+<p><strong>3-tier classification</strong>:</p>
+<ul>
+<li><strong>BATCH</strong>: trivial mechanical changes (rename, format) → no per-task review</li>
+<li><strong>STANDARD</strong>: standard feature work → group-level review</li>
+<li><strong>RIGOROUS</strong>: complex / cross-cutting / risky → per-task review</li>
+</ul>
+<p><strong>Pipeline Task List</strong>: ordered task graph with dependencies as DAG. Parallel groups dispatch multiple implementers in same message.</p>
+<p><strong>Plan-content gate</strong> (before any classification or dispatch): assert each task is atomic, names its files, carries acceptance-criteria checkboxes, and is self-sufficient (a fresh subagent could execute it with no hidden context); plus the design→tasks coverage check. Bounce or split a task that fails — never dispatch a vague task verbatim (the implementer then guesses). This is a CONTENT gate, distinct from the structural "does the Execution Strategy block exist?" check.</p>
+<p><strong>Per-task discipline</strong>:</p>
+<ol>
+<li>Dispatch <code>implementer</code> (medium effort) with task spec</li>
+<li>Implementer reads canonical refs, writes failing test, implements, runs validate</li>
+<li>Implementer returns 7-section result summary</li>
+<li>Dispatch <code>spec-reviewer</code> AND <code>code-quality-reviewer</code> (high effort, plan mode, foreground in same message) — never background</li>
+<li>Reviewers return 3-section verdicts each (Findings / Notes / Verdict)</li>
+<li><strong>Disposition every finding</strong>: Fixed (re-run) or Deferred (new DEFERRED-XXX entry)</li>
+<li><strong>Visual-QA gate (UI groups)</strong>: a UI group is not "done" until its live render is verified, or the task is hard-tagged <code>NEEDS_VISUAL_QA</code> and BLOCKED. "Visual unverified" is not soft-disposable — jsdom/unit-green is blind to render. Real-boundary/integration checks (real datastore shape, not idealized mocks) are part of the same gate.</li>
+<li>Commit task or group</li>
+</ol>
+<p><strong>Final phase</strong>: Apply source-of-truth delta. Update <code>docs/&lt;spec&gt;.md</code>, <code>docs/&lt;data-model&gt;.md</code>, <code>docs/&lt;catalog&gt;.md</code> with the changes from the design.</p>
+<h3 id="quality-gate-phase" tabindex="-1"><a class="header-anchor" href="#quality-gate-phase" aria-hidden="true">#</a> Quality-gate phase</h3>
+<p><strong>Skill</strong>: <code>quality-gate</code></p>
+<p><strong>Deterministic checks</strong> (script-based):</p>
+<ol>
+<li>Hardcoded colors (hex / rgba)</li>
+<li>i18n bypass (ternaries on language)</li>
+<li>File size &gt; 300 lines</li>
+<li><code>any</code> types</li>
+<li>console.log</li>
+<li>Secret patterns</li>
+<li>Direct <code>fetch()</code> in components</li>
+<li>Snapshot tests</li>
+<li><code>container.querySelector</code></li>
+<li>useEffect+setState heuristic</li>
+<li>TODO markers</li>
+<li>Project-specific (Dataverse FormattedValue, etc.)</li>
+</ol>
+<p><strong>Architectural review</strong> (manual):</p>
+<ol>
+<li>Duplication &gt; threshold-of-three</li>
+<li>Prop drilling</li>
+<li>Missing tests</li>
+<li>Spec alignment</li>
+</ol>
+<p><strong>Severity gates</strong>: CRITICAL (blocks ship) / HIGH (resolve before merge) / MEDIUM (resolve in 1 sprint) / LOW (advisory)</p>
+<h3 id="session-review-phase" tabindex="-1"><a class="header-anchor" href="#session-review-phase" aria-hidden="true">#</a> Session review phase</h3>
+<p><strong>Skill</strong>: <code>session-review</code> (user-level)</p>
+<p><strong>5 dimensions</strong>:</p>
+<ol>
+<li>Self-evaluation /10 with concrete rationale</li>
+<li>What worked well (cited examples)</li>
+<li>What went poorly (cost analysis)</li>
+<li>Subagents/skills review (read .md, cross-reference observed usage)</li>
+<li>Improvement suggestions for workflow + next-gen models</li>
+</ol>
+<p><strong>Output</strong>: appends to <code>govern-claude/references/session-lessons.md</code> (project) AND to <code>~/.claude/skills/meta-govern/references/lessons-log.html</code> (global, when generic).</p>
+<h3 id="governance-cadence-phase" tabindex="-1"><a class="header-anchor" href="#governance-cadence-phase" aria-hidden="true">#</a> Governance cadence phase</h3>
+<p><strong>Skill</strong>: <code>govern-claude</code> (project-level, scaffolded by meta-govern)</p>
+<p><strong>Triggers</strong>:</p>
+<ul>
+<li>Periodic (2-4 weeks)</li>
+<li>After major refactor / addition</li>
+<li>Before milestone</li>
+<li>When user says &quot;drift&quot; / &quot;audit&quot; / &quot;what's missing&quot;</li>
+</ul>
+<p><strong>Output</strong>: comparison against baseline; severity-tagged findings; proposed diffs.</p>
+<p><strong>Delegate to</strong>:</p>
+<ul>
+<li><code>skill-creator</code> for new skill authoring</li>
+<li><code>create-subagent</code> for new agent authoring</li>
+<li>meta-govern AUDIT for full-project audit</li>
+</ul>
+<h2 id="cross-cutting-principles" tabindex="-1"><a class="header-anchor" href="#cross-cutting-principles" aria-hidden="true">#</a> Cross-cutting principles</h2>
+<h3 id="every-artifact-has-4-attributes" tabindex="-1"><a class="header-anchor" href="#every-artifact-has-4-attributes" aria-hidden="true">#</a> Every artifact has 4 attributes</h3>
+<ol>
+<li><strong>Source</strong> (3 canonical docs are the source-of-truth; everything else routes against them)</li>
+<li><strong>Owner</strong> (which artifact owns this rule? CLAUDE.md / rule / skill / agent / hook)</li>
+<li><strong>Triggered by</strong> (when does it activate?)</li>
+<li><strong>Enforced by</strong> (probabilistic skill activation? deterministic hook? both?)</li>
+</ol>
+<h3 id="always-grounded-discipline" tabindex="-1"><a class="header-anchor" href="#always-grounded-discipline" aria-hidden="true">#</a> Always-grounded discipline</h3>
+<ul>
+<li>Never invent skills/agents/hooks the user hasn't approved</li>
+<li>Never invent file paths, symbol names, function names</li>
+<li>Read existing siblings before creating new files (<code>govern-claude</code> first principle: &quot;Read at least one existing sibling before creating any new file.&quot;)</li>
+<li>Use <code>grep</code> over inventories — &quot;Inventories rot, grep stays fresh&quot;</li>
+</ul>
+<h3 id="probabilistic-vs-deterministic-layers" tabindex="-1"><a class="header-anchor" href="#probabilistic-vs-deterministic-layers" aria-hidden="true">#</a> Probabilistic vs deterministic layers</h3>
+<ul>
+<li>Skills: 50-84% reliability (use for guidance)</li>
+<li>Hooks: 100% reliability (use for critical rules)</li>
+<li>Subagents: 100% reliability when explicitly invoked (use for verbose specialist work)</li>
+<li>CLAUDE.md: 70-85% reliability (use for identity + invariants)</li>
+<li>Rules: 70-85% reliability (use for path-conditional conventions)</li>
+</ul>
+<p>For critical rules, use hooks. Always.</p>
+<h2 id="how-meta-govern's-output-integrates" tabindex="-1"><a class="header-anchor" href="#how-meta-govern's-output-integrates" aria-hidden="true">#</a> How meta-govern's output integrates</h2>
+<p>After meta-govern BOOTSTRAP completes a project, the user has:</p>
+<pre><code>my-project/
+├── CLAUDE.md                       # ≤120 lines
+├── HANDOFF.md                      # auto-generated by PreCompact
+├── package.json                    # validate scripts
+├── .husky/pre-commit               # 3-stage gate
+├── .gitignore                      # excludes .claude/settings.local.json, .claude/tmp/
+├── .claude/
+│   ├── settings.json               # 3 hooks
+│   ├── rules/                      # 8 path-scoped rules
+│   ├── skills/                     # 5 core skills
+│   ├── agents/                     # 4 core agents
+│   ├── hooks/                      # 5 hooks + lib
+│   ├── scripts/                    # file-size-guard + quality-checks/
+│   └── tmp/                        # runtime state
+├── docs/
+│   ├── &lt;project&gt;-spec.md           # FUNC-XX, RA-XX, VAL-XX
+│   ├── data-model.md               # schema, contracts
+│   ├── composants/
+│   │   └── catalogue-composants.md # C-XX
+│   ├── architecture/
+│   │   └── ddd-decision.md         # scorecard outcome
+│   ├── specs/                      # design drafts (post-brainstorm)
+│   ├── plans/                      # plans (post-write-plan)
+│   ├── reports/                    # execution reports
+│   └── backlog-deferred.md         # DEFERRED-XXX entries
+└── (source code)
+</code></pre>
+<p>The first day of feature work, the user invokes <code>/brainstorm</code> and the lifecycle begins.</p>
+<h2 id="stack-specific-deviations" tabindex="-1"><a class="header-anchor" href="#stack-specific-deviations" aria-hidden="true">#</a> Stack-specific deviations</h2>
+<h3 id="power-platform-(code-app-%2B-dataverse)" tabindex="-1"><a class="header-anchor" href="#power-platform-(code-app-%2B-dataverse)" aria-hidden="true">#</a> Power Platform (Code App + Dataverse)</h3>
+<ul>
+<li>Add <code>add-dataverse</code>, <code>code-app-deploy</code>, <code>code-app-connect</code> skills (these are USER-LEVEL — already global)</li>
+<li>Add Dataverse-specific rules: <code>data-layer.md</code> references repository-per-table, OData safety, FormattedValue ban, column registry compliance</li>
+<li>Add <code>dataverse-audit</code> skill at palier 2</li>
+</ul>
+<h3 id="convex" tabindex="-1"><a class="header-anchor" href="#convex" aria-hidden="true">#</a> Convex</h3>
+<ul>
+<li>Add Convex skills (these come as a vendored bundle; user already has them)</li>
+<li>Add <code>convex-component-auditor</code> agent at palier 2 (per-component verification)</li>
+<li>Backend rules: <code>data-layer.md</code> references Convex hooks only, ConvexError codes, schema in <code>convex/schema.ts</code></li>
+</ul>
+<h3 id="vite-%2B-react-%2B-typescript" tabindex="-1"><a class="header-anchor" href="#vite-%2B-react-%2B-typescript" aria-hidden="true">#</a> Vite + React + TypeScript</h3>
+<ul>
+<li>Add <code>vite-react-ts-setup</code> skill at BOOTSTRAP (user already has globally)</li>
+<li>Standard: ESLint 9 flat config, Vitest 4, Tailwind 3-4</li>
+</ul>
+<h3 id="cloudflare-workers" tabindex="-1"><a class="header-anchor" href="#cloudflare-workers" aria-hidden="true">#</a> Cloudflare Workers</h3>
+<ul>
+<li>Add <code>cloudflare-*</code> skills (workers-best-practices, durable-objects, etc.) — already in plugin</li>
+</ul>
+<h3 id="generic-node-cli" tabindex="-1"><a class="header-anchor" href="#generic-node-cli" aria-hidden="true">#</a> Generic Node CLI</h3>
+<ul>
+<li>Skip UI rules</li>
+<li>Skip persona-simulator (no UX surface)</li>
+</ul>
+<h2 id="when-the-user-asks-%22what's-the-workflow%22" tabindex="-1"><a class="header-anchor" href="#when-the-user-asks-%22what's-the-workflow%22" aria-hidden="true">#</a> When the user asks &quot;what's the workflow&quot;</h2>
+<p>Point them at this file. It's the canonical answer.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/workflow-blueprint.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

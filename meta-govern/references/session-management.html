@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Session Management — Compact, Clear, Rewind, Handoff · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Session Management — Compact, Clear, Rewind, Handoff">
+  <meta name="doc-source" content="references/session-management.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#the-4-session-operations">The 4 session operations</a></li><li class="lvl-2"><a href="#when-to-compact-(proactive)">When to compact (proactive)</a></li><li class="lvl-2"><a href="#what-survives-compaction">What survives compaction</a></li><li class="lvl-2"><a href="#the-compaction-recovery-pattern">The compaction recovery pattern</a></li><li class="lvl-3"><a href="#1.-claude.md-%22apr%C3%A8s-compaction%22-section">1. CLAUDE.md &quot;Après compaction&quot; section</a></li><li class="lvl-3"><a href="#2.-precompact-hook-generating-handoff.md">2. PreCompact hook generating HANDOFF.md</a></li><li class="lvl-3"><a href="#3.-postcompact-hook-re-injecting-discipline">3. PostCompact hook re-injecting discipline</a></li><li class="lvl-2"><a href="#handoff-file-structure-(bootstrap-installs)">Handoff file structure (BOOTSTRAP installs)</a></li><li class="lvl-2"><a href="#%2Fcompact-vs-%2Fcompact">/compact vs /compact</a></li><li class="lvl-2"><a href="#%2Fclear-vs-%2Fcompact">/clear vs /compact</a></li><li class="lvl-2"><a href="#%2Frename-before-%2Fclear-(preserve-session-id)">/rename before /clear (preserve session ID)</a></li><li class="lvl-2"><a href="#session-state-files-(bootstrap-installs)">Session-state files (BOOTSTRAP installs)</a></li><li class="lvl-2"><a href="#anti-patterns">Anti-patterns</a></li><li class="lvl-2"><a href="#when-the-user-crosses-80%25-utilization">When the user crosses 80% utilization</a></li><li class="lvl-2"><a href="#periodic-compaction-in-long-sessions">Periodic compaction in long sessions</a></li><li class="lvl-2"><a href="#in-meta-govern-modes">In meta-govern modes</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">session-management</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Session Management — Compact, Clear, Rewind, Handoff</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/session-management.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Session Management — Compact, Clear, Rewind, Handoff</h1>
+<p>Source: <code>Progressive Context Disclosure for Claude Code on Windows.md</code> Session Workflow section, Temps Chantier compaction discipline observed in <code>postcompact-reinject.mjs</code>.</p>
+<h2 id="the-4-session-operations" tabindex="-1"><a class="header-anchor" href="#the-4-session-operations" aria-hidden="true">#</a> The 4 session operations</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>When to use</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/compact</code></td>
+<td>Window approaching limit, but context still relevant</td>
+<td>Compresses prior turns; PostCompact hook fires</td>
+</tr>
+<tr>
+<td><code>/compact &lt;topic&gt;</code></td>
+<td>Want to keep context focused on a specific thread</td>
+<td>Compaction with focus prompt — only that topic survives</td>
+</tr>
+<tr>
+<td><code>/clear</code></td>
+<td>Context poisoned, hallucinated state, pivoting</td>
+<td>Wipes context; CLAUDE.md re-loads, nothing else</td>
+</tr>
+<tr>
+<td><code>/rewind</code></td>
+<td>Want to go back to a specific moment in this session</td>
+<td>Visual UI; pick the turn</td>
+</tr>
+<tr>
+<td>Summarize then clear</td>
+<td>Want a compressed save before wiping</td>
+<td>Tell Claude &quot;summarize from here&quot;, copy summary, then <code>/clear</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="when-to-compact-(proactive)" tabindex="-1"><a class="header-anchor" href="#when-to-compact-(proactive)" aria-hidden="true">#</a> When to compact (proactive)</h2>
+<p>Per Doc 4: <strong>Proactive compaction at 50% utilization</strong> beats reactive at 90%.</p>
+<p>Rough heuristic: compact when:</p>
+<ul>
+<li>Context window is half full</li>
+<li>You're about to start a new logical phase</li>
+<li>Subagent dispatches are starting to fail</li>
+<li>Claude is forgetting earlier instructions</li>
+</ul>
+<h2 id="what-survives-compaction" tabindex="-1"><a class="header-anchor" href="#what-survives-compaction" aria-hidden="true">#</a> What survives compaction</h2>
+<p>Only:</p>
+<ol>
+<li><code>CLAUDE.md</code> (re-loaded fresh)</li>
+<li><code>PostCompact</code> hook output (re-injected as <code>additionalContext</code>)</li>
+<li>Claude's own summary of compacted content</li>
+</ol>
+<p>What is LOST:</p>
+<ul>
+<li>Skill bodies that were loaded</li>
+<li>Subagent context</li>
+<li>Tool call history</li>
+<li>Any in-context state that wasn't in CLAUDE.md or PostCompact output</li>
+</ul>
+<h2 id="the-compaction-recovery-pattern" tabindex="-1"><a class="header-anchor" href="#the-compaction-recovery-pattern" aria-hidden="true">#</a> The compaction recovery pattern</h2>
+<p>To survive compaction safely, the user needs:</p>
+<h3 id="1.-claude.md-%22apr%C3%A8s-compaction%22-section" tabindex="-1"><a class="header-anchor" href="#1.-claude.md-%22apr%C3%A8s-compaction%22-section" aria-hidden="true">#</a> 1. CLAUDE.md &quot;Après compaction&quot; section</h3>
+<pre><code class="language-markdown">## Après compaction
+
+Re-read this file. If `HANDOFF.md` exists at project root, read it. Resume work
+on the active branch. If you're mid-plan-execution, see HANDOFF.md `Active plans`
+section.
+</code></pre>
+<h3 id="2.-precompact-hook-generating-handoff.md" tabindex="-1"><a class="header-anchor" href="#2.-precompact-hook-generating-handoff.md" aria-hidden="true">#</a> 2. PreCompact hook generating HANDOFF.md</h3>
+<p>The <code>precompact-handoff.mjs</code> hook fires before compaction and writes <code>HANDOFF.md</code>:</p>
+<pre><code class="language-markdown"># HANDOFF — Generated YYYY-MM-DD HH:MM
+
+## Branch
+plan/payment-flow-v2
+
+## Modified files (top 40)
+- src/payment/...
+- ...
+
+## Active plans
+- docs/plans/2026-05-06-payment-flow-plan.md (3/8 tasks complete)
+
+## Trigger reason
+Context window at 80%
+
+## Resume instructions
+1. Read this file
+2. Read CLAUDE.md
+3. Read the active plan
+4. Continue from task 4
+
+## Discipline reminders
+- Foreground reviews only
+- Apply delta as last task
+- File-size cap 300 lines
+</code></pre>
+<h3 id="3.-postcompact-hook-re-injecting-discipline" tabindex="-1"><a class="header-anchor" href="#3.-postcompact-hook-re-injecting-discipline" aria-hidden="true">#</a> 3. PostCompact hook re-injecting discipline</h3>
+<p>The <code>postcompact-reinject.mjs</code> hook fires after compaction and re-injects critical rules:</p>
+<pre><code class="language-javascript">// Detects plan execution context
+const isInPlanExecution = (
+  fs.existsSync('HANDOFF.md') &amp;&amp;
+  /plan\//.test(currentBranch) &amp;&amp;
+  hasUncheckedPipelineTasks
+);
+
+if (isInPlanExecution) {
+  return {
+    additionalContext: `
+# Plan execution discipline (reinjected after compaction)
+
+1. NEVER dispatch reviewers in background.
+2. Dispatch != done. A subagent returning means the WORK is done; the FINDINGS still need disposition.
+3. Groups are barriers. Don't start group N+1 until group N is fully reviewed.
+4. Review fix loop: every finding gets Fixed (with re-run) or Deferred (with new DEFERRED-XXX entry).
+5. Every finding needs a disposition. No silent dropping.
+`
+  };
+}
+</code></pre>
+<p>This is the ONLY way to enforce discipline that must survive compaction.</p>
+<h2 id="handoff-file-structure-(bootstrap-installs)" tabindex="-1"><a class="header-anchor" href="#handoff-file-structure-(bootstrap-installs)" aria-hidden="true">#</a> Handoff file structure (BOOTSTRAP installs)</h2>
+<p><code>HANDOFF.md</code> is auto-generated, never manually edited. Located at project root.</p>
+<p>If user manually edits, the next PreCompact will overwrite. To preserve, save under a different name (<code>docs/handoffs/YYYY-MM-DD-handoff.md</code>).</p>
+<h2 id="%2Fcompact-vs-%2Fcompact" tabindex="-1"><a class="header-anchor" href="#%2Fcompact-vs-%2Fcompact" aria-hidden="true">#</a> /compact vs /compact <topic></h2>
+<pre><code>/compact
+   → Compresses everything. Good for general window pressure.
+
+/compact &quot;We're working on payment flow Phase 2 implementation. Keep payment-related context.&quot;
+   → Focused compaction. Other unrelated context is heavily compressed.
+</code></pre>
+<p>Use focused when:</p>
+<ul>
+<li>You've been working on multiple topics this session</li>
+<li>Some topics are done, others ongoing</li>
+<li>You want to surgically keep specific context</li>
+</ul>
+<h2 id="%2Fclear-vs-%2Fcompact" tabindex="-1"><a class="header-anchor" href="#%2Fclear-vs-%2Fcompact" aria-hidden="true">#</a> /clear vs /compact</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Window full, work still good</td>
+<td><code>/compact</code></td>
+</tr>
+<tr>
+<td>Hallucinated state (&quot;Claude thinks file X has Y but it doesn't&quot;)</td>
+<td><code>/clear</code></td>
+</tr>
+<tr>
+<td>Pivoting to entirely new task</td>
+<td><code>/clear</code></td>
+</tr>
+<tr>
+<td>Want to debug Claude's behavior</td>
+<td><code>/clear</code> (rules out memory poisoning)</td>
+</tr>
+<tr>
+<td>Context still mostly relevant, just verbose</td>
+<td><code>/compact</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="%2Frename-before-%2Fclear-(preserve-session-id)" tabindex="-1"><a class="header-anchor" href="#%2Frename-before-%2Fclear-(preserve-session-id)" aria-hidden="true">#</a> /rename before /clear (preserve session ID)</h2>
+<p>If you're going to <code>/clear</code> but want to find this session later:</p>
+<ol>
+<li><code>/rename &quot;investigation-XYZ-2026-05-07&quot;</code></li>
+<li><code>/clear</code></li>
+<li>Later: <code>/resume &lt;session-id&gt;</code> to come back</li>
+</ol>
+<h2 id="session-state-files-(bootstrap-installs)" tabindex="-1"><a class="header-anchor" href="#session-state-files-(bootstrap-installs)" aria-hidden="true">#</a> Session-state files (BOOTSTRAP installs)</h2>
+<p>Located in <code>.claude/tmp/</code>:</p>
+<ul>
+<li><code>workflow-state.json</code> — last edit + last validate timestamps</li>
+<li><code>last-env-check.json</code> — SessionStart hook 24h cache</li>
+<li><code>last-full-scan.json</code> — daily-drift-alert 24h cache (palier 3+)</li>
+</ul>
+<p>These should be:</p>
+<ul>
+<li>gitignored</li>
+<li>mkdir-p'd at first write</li>
+<li>Cleaned by <code>npm run clean</code> (optional)</li>
+</ul>
+<h2 id="anti-patterns" tabindex="-1"><a class="header-anchor" href="#anti-patterns" aria-hidden="true">#</a> Anti-patterns</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Anti-pattern</th>
+<th>Symptom</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No PreCompact hook</td>
+<td>After /compact, Claude has no memory of plans/branches</td>
+<td>Install <code>precompact-handoff.mjs</code></td>
+</tr>
+<tr>
+<td>No PostCompact hook for plan execution</td>
+<td>After /compact, Claude restarts dispatch dispatch loops without discipline</td>
+<td>Install <code>postcompact-reinject.mjs</code> with plan-detection</td>
+</tr>
+<tr>
+<td>Compaction-critical rules not in CLAUDE.md</td>
+<td>Lost on /compact</td>
+<td>Move to CLAUDE.md OR ensure PostCompact reinjects them</td>
+</tr>
+<tr>
+<td><code>/clear</code> without <code>/rename</code> first</td>
+<td>Lost session record</td>
+<td><code>/rename</code> first if you might want to resume</td>
+</tr>
+<tr>
+<td>HANDOFF.md committed to git</td>
+<td>Pollutes history</td>
+<td>Add to <code>.gitignore</code></td>
+</tr>
+<tr>
+<td>Manually editing HANDOFF.md</td>
+<td>Next PreCompact overwrites</td>
+<td>Save under docs/handoffs/ if you need to keep</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="when-the-user-crosses-80%25-utilization" tabindex="-1"><a class="header-anchor" href="#when-the-user-crosses-80%25-utilization" aria-hidden="true">#</a> When the user crosses 80% utilization</h2>
+<p>meta-govern can detect this via session metadata (if exposed) or rely on the user's intuition. Standard pattern:</p>
+<ol>
+<li>Claude proactively says: &quot;Context is at 80%; I recommend <code>/compact &lt;topic&gt;</code> before continuing.&quot;</li>
+<li>User compacts.</li>
+<li>PostCompact hook re-injects discipline.</li>
+<li>Continue.</li>
+</ol>
+<h2 id="periodic-compaction-in-long-sessions" tabindex="-1"><a class="header-anchor" href="#periodic-compaction-in-long-sessions" aria-hidden="true">#</a> Periodic compaction in long sessions</h2>
+<p>For multi-hour sessions:</p>
+<ul>
+<li>Compact every ~2 hours of active work</li>
+<li>Each compaction is an opportunity to re-state goals</li>
+<li>After compact: read CLAUDE.md, read HANDOFF.md, restate current task</li>
+</ul>
+<h2 id="in-meta-govern-modes" tabindex="-1"><a class="header-anchor" href="#in-meta-govern-modes" aria-hidden="true">#</a> In meta-govern modes</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Compaction expectation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BOOTSTRAP</td>
+<td>Should fit in single context window for moderate projects</td>
+</tr>
+<tr>
+<td>AUDIT</td>
+<td>Read-only; no writes; should fit easily</td>
+</tr>
+<tr>
+<td>MIGRATE</td>
+<td>Long-running; compaction likely → ensure HANDOFF discipline</td>
+</tr>
+<tr>
+<td>EVOLVE</td>
+<td>Reading lessons-log + own files; should fit</td>
+</tr>
+</tbody>
+</table></div>
+<p>For long migrations, meta-govern checkpoint-commits between phases so /compact recovery is trivial.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/session-management.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

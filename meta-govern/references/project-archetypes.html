@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Project Archetypes — Initial-Scaffold Profiles · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Project Archetypes — Initial-Scaffold Profiles">
+  <meta name="doc-source" content="references/project-archetypes.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#why-this-exists">Why this exists</a></li><li class="lvl-2"><a href="#the-four-archetypes">The four archetypes</a></li><li class="lvl-3"><a href="#archetype-a-%E2%80%94-small-prototype">Archetype A — Small prototype</a></li><li class="lvl-3"><a href="#archetype-b-%E2%80%94-internal-dashboard-%2F-tool">Archetype B — Internal dashboard / tool</a></li><li class="lvl-3"><a href="#archetype-c-%E2%80%94-production-saas">Archetype C — Production SaaS</a></li><li class="lvl-3"><a href="#archetype-d-%E2%80%94-larger-full-stack-system">Archetype D — Larger full-stack system</a></li><li class="lvl-2"><a href="#detection-heuristics-for-analyze-project.mjs">Detection heuristics for analyze-project.mjs</a></li><li class="lvl-2"><a href="#how-bootstrap-uses-archetype">How BOOTSTRAP uses archetype</a></li><li class="lvl-2"><a href="#per-archetype-palier-ceiling">Per-archetype palier ceiling</a></li><li class="lvl-2"><a href="#when-archetype-changes">When archetype changes</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">project-archetypes</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Project Archetypes — Initial-Scaffold Profiles</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/project-archetypes.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Project Archetypes — Initial-Scaffold Profiles</h1>
+<p>Source: synthesis of <code>LLM-friendly project architecture for AI coding agents in 2026.md</code> plus existing palier system.</p>
+<h2 id="why-this-exists" tabindex="-1"><a class="header-anchor" href="#why-this-exists" aria-hidden="true">#</a> Why this exists</h2>
+<p><strong>Palier</strong> = maturity stage (0 → 6). <strong>Archetype</strong> = project's <em>kind</em>. The two are orthogonal.</p>
+<p>A throwaway prototype can be palier 1; a production SaaS can also be palier 1 the day it bootstraps. They start with different scaffolds. Archetype shapes the <em>initial palier-1 install</em>; palier promotion adds capability over time.</p>
+<h2 id="the-four-archetypes" tabindex="-1"><a class="header-anchor" href="#the-four-archetypes" aria-hidden="true">#</a> The four archetypes</h2>
+<h3 id="archetype-a-%E2%80%94-small-prototype" tabindex="-1"><a class="header-anchor" href="#archetype-a-%E2%80%94-small-prototype" aria-hidden="true">#</a> Archetype A — Small prototype</h3>
+<p><strong>What it is:</strong> demo, spike, weekend hack, &quot;is this idea worth pursuing&quot;, internal one-off.</p>
+<p><strong>Indicators:</strong> LOC &lt; 500 expected, single dev, no live users planned, deployment optional.</p>
+<p><strong>Default scaffold (palier-1 minus):</strong></p>
+<ul>
+<li>Framework-native single app</li>
+<li>Feature-first slices</li>
+<li>CLAUDE.md (≤120 lines)</li>
+<li>5 core skills, 4 core agents, 5 hooks, 8 rules — full palier 1</li>
+<li>ONE source-of-truth doc (<code>docs/&lt;project&gt;-spec.md</code>) instead of three</li>
+<li>No <code>docs/composants/catalogue-composants.md</code> until 5+ components exist</li>
+<li>No DDD discussion (auto-score &lt; 5)</li>
+<li>No CI files, no <code>.husky</code> (optional)</li>
+<li><code>validate</code> script: typecheck + lint + test</li>
+</ul>
+<p><strong>Skip:</strong> persona-simulator (no UX surface deep enough), full DDD scorecard interview.</p>
+<p><strong>Promotion signal to next archetype:</strong> spec grows past 30 FUNC IDs, OR live users land, OR second dev joins → <strong>Internal dashboard</strong> or <strong>Production SaaS</strong> depending on polish.</p>
+<h3 id="archetype-b-%E2%80%94-internal-dashboard-%2F-tool" tabindex="-1"><a class="header-anchor" href="#archetype-b-%E2%80%94-internal-dashboard-%2F-tool" aria-hidden="true">#</a> Archetype B — Internal dashboard / tool</h3>
+<p><strong>What it is:</strong> ops console, admin app, BI viewer, internal CRUD app for a known team.</p>
+<p><strong>Indicators:</strong> known small audience, no public marketing, may need auth + RBAC, schema is the spec.</p>
+<p><strong>Default scaffold:</strong></p>
+<ul>
+<li>React + Vite single app OR small <code>apps/web + apps/api</code> workspace if backend is non-trivial</li>
+<li>Feature-first slices</li>
+<li>All 3 source-of-truth docs (spec / data-model / catalogue)</li>
+<li>Full palier 1 set</li>
+<li>DDD scorecard run (likely lands 5-9 → strategic glossary only)</li>
+<li><code>docs/security.md</code> from day one (RBAC matrix lives here)</li>
+<li><code>validate</code> includes typecheck + lint + test + build</li>
+</ul>
+<p><strong>Skip:</strong> SEO/marketing concerns, public-facing performance budgets.</p>
+<p><strong>Promotion signal:</strong> the tool is replacing a paid SaaS internally, OR audience grows past one team → <strong>Production SaaS</strong>.</p>
+<h3 id="archetype-c-%E2%80%94-production-saas" tabindex="-1"><a class="header-anchor" href="#archetype-c-%E2%80%94-production-saas" aria-hidden="true">#</a> Archetype C — Production SaaS</h3>
+<p><strong>What it is:</strong> revenue-generating product, public marketing surface, paying customers, billing, multi-tenancy likely.</p>
+<p><strong>Indicators:</strong> real users, real money, real on-call rotation possible.</p>
+<p><strong>Default scaffold:</strong></p>
+<ul>
+<li>Next.js App Router single app OR <code>apps/web + apps/api</code> workspace</li>
+<li>Framework-native + feature-first</li>
+<li>All 3 source-of-truth docs</li>
+<li>Full palier 1 set</li>
+<li>DDD scorecard run (likely lands 5-9, sometimes ≥10 if billing/auth invariants are hard)</li>
+<li><code>docs/architecture.md</code>, <code>docs/security.md</code>, <code>docs/agent-playbook.md</code>, <code>docs/decisions/</code> from day one</li>
+<li><code>validate</code> includes typecheck + lint + test + build + e2e</li>
+<li>Promote to palier 4 (CI) early</li>
+<li><code>seo-visibility</code> skill (already global) wired in</li>
+<li>Architecture checks (Knip, dep-cruiser) at palier 3+</li>
+</ul>
+<p><strong>Promotion signal to next archetype:</strong> monorepo with multiple deployables justified → <strong>Larger full-stack system</strong>.</p>
+<h3 id="archetype-d-%E2%80%94-larger-full-stack-system" tabindex="-1"><a class="header-anchor" href="#archetype-d-%E2%80%94-larger-full-stack-system" aria-hidden="true">#</a> Archetype D — Larger full-stack system</h3>
+<p><strong>What it is:</strong> multi-app, multi-package, multi-team. Web + admin + api + workers + docs site.</p>
+<p><strong>Indicators:</strong> ≥2 deployables, ≥2 teams, real shared packages (UI lib, schemas, domain).</p>
+<p><strong>Default scaffold:</strong></p>
+<ul>
+<li>pnpm workspace monorepo (<code>apps/</code> + <code>packages/</code>)</li>
+<li>Turborepo if simple package-task orchestration; Nx if affected/graph/AI-aware CI is core</li>
+<li>Per-app: framework-native + feature-first</li>
+<li>Shared: <code>packages/ui</code>, <code>packages/schemas</code>, <code>packages/domain</code>, <code>packages/config-{eslint,typescript}</code></li>
+<li>Full doc set + ADRs + agent-playbook</li>
+<li><code>validate</code> is graph-aware (<code>nx affected -t lint test typecheck build</code> or Turborepo equivalents)</li>
+<li>Architecture checks (Knip, dep-cruiser, eslint-plugin-boundaries) at palier 1</li>
+<li>DDD scorecard run per package; some packages land ≥10, others &lt;5</li>
+</ul>
+<p><strong>No promotion</strong> — this is the terminal archetype for most projects. Further growth → split into multiple monorepos or service-extraction.</p>
+<h2 id="detection-heuristics-for-analyze-project.mjs" tabindex="-1"><a class="header-anchor" href="#detection-heuristics-for-analyze-project.mjs" aria-hidden="true">#</a> Detection heuristics for <code>analyze-project.mjs</code></h2>
+<pre><code>Inputs:
+- LOC
+- Files / dirs at root
+- package.json scripts
+- presence of pnpm-workspace.yaml / turbo.json / nx.json
+- presence of apps/ or packages/
+- README hints (keywords: &quot;internal&quot;, &quot;demo&quot;, &quot;prototype&quot;, &quot;saas&quot;, &quot;production&quot;)
+- existing CI config
+
+Heuristic:
+  if (has pnpm-workspace.yaml AND has apps/ AND has packages/)        → Archetype D
+  else if (has next.config.* OR has billing/ OR has stripe in deps)   → Archetype C
+  else if (has auth/ AND no public marketing pages AND LOC &lt; 5000)    → Archetype B
+  else if (LOC &lt; 500 AND no tests AND no CI)                          → Archetype A
+  else                                                                 → ASK user
+</code></pre>
+<p>When ambiguous, prefer <code>AskUserQuestion</code> over silent assumption.</p>
+<h2 id="how-bootstrap-uses-archetype" tabindex="-1"><a class="header-anchor" href="#how-bootstrap-uses-archetype" aria-hidden="true">#</a> How BOOTSTRAP uses archetype</h2>
+<p>In Step 4 of BOOTSTRAP (after stack convention pack):</p>
+<ol>
+<li>Run detection heuristic.</li>
+<li>Confirm with user (1 question, 4 options).</li>
+<li>Load archetype profile from this file.</li>
+<li>Merge with stack pack to produce final plan.</li>
+<li>Architect agent uses both as input.</li>
+</ol>
+<p>Archetype is recorded in <code>.claude/.meta-govern.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;metaGovernVersion&quot;: &quot;1.2.0&quot;,
+  &quot;archetype&quot;: &quot;B&quot;,
+  &quot;palier&quot;: 1,
+  &quot;stack&quot;: &quot;react-vite&quot;,
+  &quot;architecturePattern&quot;: &quot;framework-native-feature-first&quot;,
+  ...
+}
+</code></pre>
+<p>This file is the single source of truth meta-govern reads on subsequent AUDIT / MIGRATE / ADVISE runs.</p>
+<h2 id="per-archetype-palier-ceiling" tabindex="-1"><a class="header-anchor" href="#per-archetype-palier-ceiling" aria-hidden="true">#</a> Per-archetype palier ceiling</h2>
+<p>Some archetypes never need higher paliers:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Archetype</th>
+<th>Typical palier max</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A — Prototype</td>
+<td>1-2 (rarely 3)</td>
+</tr>
+<tr>
+<td>B — Internal dashboard</td>
+<td>3-4</td>
+</tr>
+<tr>
+<td>C — Production SaaS</td>
+<td>4-5</td>
+</tr>
+<tr>
+<td>D — Larger system</td>
+<td>5-6</td>
+</tr>
+</tbody>
+</table></div>
+<p>If a prototype is at palier 5, something is wrong (over-built). AUDIT flags this.</p>
+<h2 id="when-archetype-changes" tabindex="-1"><a class="header-anchor" href="#when-archetype-changes" aria-hidden="true">#</a> When archetype changes</h2>
+<p>Rare but real: a prototype graduates to internal dashboard, or an internal dashboard becomes a SaaS. Trigger:</p>
+<pre><code>Q. Has the project's audience or business model changed since BOOTSTRAP?
+   NO  → archetype unchanged.
+   YES → propose archetype migration in MIGRATE mode.
+</code></pre>
+<p>Archetype migration is a one-step plan: add the docs/skills/agents the new archetype needs. It does NOT re-scaffold from scratch.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/project-archetypes.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

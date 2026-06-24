@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Four-Tier Architecture — Progressive Context Disclosure · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="The Four-Tier Architecture — Progressive Context Disclosure">
+  <meta name="doc-source" content="references/four-tier-architecture.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#the-four-tiers">The four tiers</a></li><li class="lvl-2"><a href="#tier-1%3A-claude.md">Tier 1: CLAUDE.md</a></li><li class="lvl-3"><a href="#budget%3A-%E2%89%A4120-lines">Budget: ≤120 lines</a></li><li class="lvl-3"><a href="#what-belongs">What belongs</a></li><li class="lvl-3"><a href="#what-does-not-belong">What does NOT belong</a></li><li class="lvl-3"><a href="#example-skeleton">Example skeleton</a></li><li class="lvl-2"><a href="#tier-2%3A-.claude%2Frules%2F*.md">Tier 2: .claude/rules/*.md</a></li><li class="lvl-3"><a href="#budget%3A-%E2%89%A450-lines-per-file%2C-paths%3A-frontmatter-mandatory">Budget: ≤50 lines per file, paths: frontmatter mandatory</a></li><li class="lvl-3"><a href="#frontmatter-contract">Frontmatter contract</a></li><li class="lvl-3"><a href="#what-belongs-1">What belongs</a></li><li class="lvl-3"><a href="#what-does-not-belong-1">What does NOT belong</a></li><li class="lvl-2"><a href="#tier-3%3A-skills">Tier 3: Skills</a></li><li class="lvl-3"><a href="#budget%3A-~50-token-metadata-always-loaded%3B-~5k-body-on-trigger">Budget: ~50 token metadata always loaded; ~5K body on trigger</a></li><li class="lvl-3"><a href="#internal-three-level-disclosure">Internal three-level disclosure</a></li><li class="lvl-3"><a href="#what-belongs-2">What belongs</a></li><li class="lvl-3"><a href="#trigger-phrasing-in-description">Trigger phrasing in description</a></li><li class="lvl-2"><a href="#tier-4%3A-hooks">Tier 4: Hooks</a></li><li class="lvl-3"><a href="#budget%3A-zero-context-cost-(run-outside-llm)">Budget: Zero context cost (run outside LLM)</a></li><li class="lvl-3"><a href="#22-hook-lifecycle-events">22 hook lifecycle events</a></li><li class="lvl-3"><a href="#default-hook-set-(bootstrap-creates-these)">Default hook set (BOOTSTRAP creates these)</a></li><li class="lvl-3"><a href="#what-belongs-in-hooks">What belongs in hooks</a></li><li class="lvl-3"><a href="#cost-efficient-hook-design">Cost-efficient hook design</a></li><li class="lvl-2"><a href="#when-tiers-conflict">When tiers conflict</a></li><li class="lvl-2"><a href="#claude.md-compaction-survival">CLAUDE.md compaction survival</a></li><li class="lvl-2"><a href="#validation-checklist-(bootstrap-%2F-audit)">Validation checklist (BOOTSTRAP / AUDIT)</a></li><li class="lvl-2"><a href="#palier-5%3A-agents.md-mirror">Palier 5: AGENTS.md mirror</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">four-tier-architecture</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">The Four-Tier Architecture — Progressive Context Disclosure</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/four-tier-architecture.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>The Four-Tier Architecture — Progressive Context Disclosure</h1>
+<p>Source: synthesis of <code>Progressive Context Disclosure for Claude Code on Windows.md</code>, <code>Claude Code Architecture Research.md</code>. Confirmed by both production projects.</p>
+<h2 id="the-four-tiers" tabindex="-1"><a class="header-anchor" href="#the-four-tiers" aria-hidden="true">#</a> The four tiers</h2>
+<p>Standing context degrades quality at scale. Even with 1M context, accuracy drops from 93% (256K) to 76% (1M). Practitioners observe ~2% effectiveness loss per 100K tokens added. <strong>The four-tier hierarchy is how the user keeps standing context small while shipping comprehensive standards.</strong></p>
+<pre><code>Tier 1 ──── CLAUDE.md ────────────────────────── ≤120 lines, always loaded
+            project identity + invariants + pointers + commands
+            ↓
+Tier 2 ──── .claude/rules/*.md ──────────────── path-scoped, ~200 tokens loaded only when matching files touched
+            file-type / directory conventions
+            ↓
+Tier 3 ──── Skills ─────────────────────────── ~50 tokens metadata, body ~5K when triggered
+            multi-step workflows, domain knowledge
+            ↓
+Tier 4 ──── Hooks ─────────────────────────── zero context cost
+            deterministic enforcement
+</code></pre>
+<h2 id="tier-1%3A-claude.md" tabindex="-1"><a class="header-anchor" href="#tier-1%3A-claude.md" aria-hidden="true">#</a> Tier 1: CLAUDE.md</h2>
+<h3 id="budget%3A-%E2%89%A4120-lines" tabindex="-1"><a class="header-anchor" href="#budget%3A-%E2%89%A4120-lines" aria-hidden="true">#</a> Budget: ≤120 lines</h3>
+<p><code>Claude Code Architecture Research.md</code> recommends ≤120 (stricter than the 150 in Progressive Context Disclosure doc). Take the stricter number.</p>
+<h3 id="what-belongs" tabindex="-1"><a class="header-anchor" href="#what-belongs" aria-hidden="true">#</a> What belongs</h3>
+<ul>
+<li>Project identity (1-2 lines)</li>
+<li>Source of truth pointers (3 docs: spec, data model, component catalog)</li>
+<li>Stack summary (1-2 lines: framework, runtime, package manager)</li>
+<li>Always-on rules (5-10 bullets, NON-DEFENSIVE language)</li>
+<li>Commands (table format: <code>npm run validate</code>, <code>npm run quality:check</code>)</li>
+<li>Path-scoped routing (<code>docs/architecture/**</code> → load <code>references/architecture-strategy.md</code>)</li>
+<li>Compaction recovery (<code>After Compaction</code> section — the only post-compact survivor)</li>
+<li>Notes / current phase tracker</li>
+</ul>
+<h3 id="what-does-not-belong" tabindex="-1"><a class="header-anchor" href="#what-does-not-belong" aria-hidden="true">#</a> What does NOT belong</h3>
+<ul>
+<li>Long style guides → move to <code>.claude/rules/*.md</code></li>
+<li>Architecture explanations → move to <code>docs/architecture/*</code> and add a pointer</li>
+<li>File-type procedures → move to <code>.claude/rules/*.md</code></li>
+<li>Review checklists → move to a skill (e.g., <code>quality-gate</code>)</li>
+<li>Migration playbooks → move to a skill (e.g., <code>bun-migration</code>)</li>
+<li><code>@filename</code> imports → use declarative pointers (<code>UI behavior: docs/document-ui-ux-v1.md</code>)</li>
+<li>Defensive scaffolding (&quot;MUST&quot;, &quot;double-check before returning&quot;) → DELETE</li>
+</ul>
+<h3 id="example-skeleton" tabindex="-1"><a class="header-anchor" href="#example-skeleton" aria-hidden="true">#</a> Example skeleton</h3>
+<pre><code class="language-markdown"># &lt;Project Name&gt; — CLAUDE.md
+
+## Projet
+&lt;one paragraph: what this is, who it serves&gt;
+
+## Source de vérité
+- `docs/&lt;project&gt;-spec.md` — FUNC-XX, RA-XX, VAL-XX
+- `docs/data-model.md` — schema, contracts
+- `docs/composants/catalogue-composants.md` — C-XX
+
+## Stack
+React 19, TypeScript 5.8, Vite 6, Convex, R2. Runtime: Bun.
+
+## Commands
+| Goal | Command |
+|---|---|
+| dev | `bun run dev` |
+| validate | `bun run validate` |
+| quality | `bun run quality:check` |
+
+## Règles non-négociables
+- Toute string utilisateur via `LocalizedString` + `useContent()`
+- File-size cap 300 lignes; dot-notation extraction sinon
+- Hooks Convex uniquement (pas de `fetch` direct)
+- Money: integer cents, CAD
+- Reviews: foreground only
+
+## Routing path-scoped
+- `components/**/*.tsx` → `.claude/rules/ui-components.md`
+- `convex/**/*.ts` → `.claude/rules/data-layer.md`
+- `tests/**/*.test.*` → `.claude/rules/testing.md`
+
+## Default model + effort
+Opus 4.7 xhigh by default. Sonnet 4.6 high for tests/docs/single-file. opusplan for plan-then-build.
+
+## Après compaction
+Re-read this file. If `HANDOFF.md` exists, read it. Resume work.
+
+## Notes
+Current palier: 1. Next palier trigger: 30 FUNC IDs.
+</code></pre>
+<h2 id="tier-2%3A-.claude%2Frules%2F*.md" tabindex="-1"><a class="header-anchor" href="#tier-2%3A-.claude%2Frules%2F*.md" aria-hidden="true">#</a> Tier 2: .claude/rules/*.md</h2>
+<h3 id="budget%3A-%E2%89%A450-lines-per-file%2C-paths%3A-frontmatter-mandatory" tabindex="-1"><a class="header-anchor" href="#budget%3A-%E2%89%A450-lines-per-file%2C-paths%3A-frontmatter-mandatory" aria-hidden="true">#</a> Budget: ≤50 lines per file, <code>paths:</code> frontmatter mandatory</h3>
+<p>Loaded only when matching files are in the active context. Zero standing-context cost when files outside the path are touched.</p>
+<h3 id="frontmatter-contract" tabindex="-1"><a class="header-anchor" href="#frontmatter-contract" aria-hidden="true">#</a> Frontmatter contract</h3>
+<pre><code class="language-yaml">---
+description: &lt;one-line, what convention this enforces&gt;
+paths:
+  - components/**/*.tsx
+  - components/**/*.module.css
+---
+</code></pre>
+<h3 id="what-belongs-1" tabindex="-1"><a class="header-anchor" href="#what-belongs-1" aria-hidden="true">#</a> What belongs</h3>
+<p>Path-conditional conventions. Examples:</p>
+<ul>
+<li><code>components/**/*.tsx</code> → use <code>LocalizedString</code>, no hardcoded strings, no <code>&lt;a href&gt;</code> for in-app navigation</li>
+<li><code>convex/**/*.ts</code> → repository per table, ConvexError codes, mutations invalidate queries</li>
+<li><code>tests/**/*.test.*</code> → no <code>container.querySelector</code>, no snapshot tests, async assertions</li>
+</ul>
+<h3 id="what-does-not-belong-1" tabindex="-1"><a class="header-anchor" href="#what-does-not-belong-1" aria-hidden="true">#</a> What does NOT belong</h3>
+<ul>
+<li>Always-on rules → CLAUDE.md</li>
+<li>Multi-step workflows → skill</li>
+<li>Anything that needs deterministic enforcement → hook</li>
+</ul>
+<h2 id="tier-3%3A-skills" tabindex="-1"><a class="header-anchor" href="#tier-3%3A-skills" aria-hidden="true">#</a> Tier 3: Skills</h2>
+<h3 id="budget%3A-~50-token-metadata-always-loaded%3B-~5k-body-on-trigger" tabindex="-1"><a class="header-anchor" href="#budget%3A-~50-token-metadata-always-loaded%3B-~5k-body-on-trigger" aria-hidden="true">#</a> Budget: ~50 token metadata always loaded; ~5K body on trigger</h3>
+<p>Each skill is <code>~/.claude/skills/&lt;name&gt;/SKILL.md</code> (user-level) or <code>.claude/skills/&lt;name&gt;/SKILL.md</code> (project-level).</p>
+<h3 id="internal-three-level-disclosure" tabindex="-1"><a class="header-anchor" href="#internal-three-level-disclosure" aria-hidden="true">#</a> Internal three-level disclosure</h3>
+<ol>
+<li><strong>Frontmatter (always loaded)</strong>: name, description (with WHEN-to-use triggers).</li>
+<li><strong>Body (loaded on trigger)</strong>: workflow steps, decision points, examples.</li>
+<li><strong>References (loaded on demand)</strong>: <code>references/*.md</code> files; subfolders for templates, scripts, examples.</li>
+</ol>
+<h3 id="what-belongs-2" tabindex="-1"><a class="header-anchor" href="#what-belongs-2" aria-hidden="true">#</a> What belongs</h3>
+<ul>
+<li>Multi-step repeatable workflows (brainstorm → plan → execute)</li>
+<li>Domain knowledge (DDD reference, Cloudflare Workers patterns)</li>
+<li>MCP enhancement (orchestrating Notion + Linear together)</li>
+</ul>
+<h3 id="trigger-phrasing-in-description" tabindex="-1"><a class="header-anchor" href="#trigger-phrasing-in-description" aria-hidden="true">#</a> Trigger phrasing in description</h3>
+<p>Per Doc 4 research: aggressive language markers in frontmatter description push activation from ~50% to 80-84%. <strong>In frontmatter, use markers; in body, don't.</strong></p>
+<p>Description shape: <code>[What it does] + [When to use it] + [Trigger phrases users would say] + [Distinct from X]</code>.</p>
+<h2 id="tier-4%3A-hooks" tabindex="-1"><a class="header-anchor" href="#tier-4%3A-hooks" aria-hidden="true">#</a> Tier 4: Hooks</h2>
+<h3 id="budget%3A-zero-context-cost-(run-outside-llm)" tabindex="-1"><a class="header-anchor" href="#budget%3A-zero-context-cost-(run-outside-llm)" aria-hidden="true">#</a> Budget: Zero context cost (run outside LLM)</h3>
+<p>Located in <code>.claude/hooks/*.mjs</code> (project) or <code>~/.claude/hooks/</code> (none in current setup, all project-level).</p>
+<h3 id="22-hook-lifecycle-events" tabindex="-1"><a class="header-anchor" href="#22-hook-lifecycle-events" aria-hidden="true">#</a> 22 hook lifecycle events</h3>
+<p>By category:</p>
+<ul>
+<li><strong>Session</strong>: SessionStart, SessionEnd</li>
+<li><strong>Conversation</strong>: UserPromptSubmit, Stop</li>
+<li><strong>Tool</strong>: PreToolUse, PostToolUse, PostToolUseFailure</li>
+<li><strong>Subagent</strong>: SubagentStart, SubagentStop</li>
+<li><strong>Context</strong>: PreCompact, PostCompact, InstructionsLoaded, ConfigChange</li>
+<li><strong>Infrastructure</strong>: WorktreeCreated, WorktreeDestroyed, NotificationDisplay, ElicitationRequested</li>
+</ul>
+<h3 id="default-hook-set-(bootstrap-creates-these)" tabindex="-1"><a class="header-anchor" href="#default-hook-set-(bootstrap-creates-these)" aria-hidden="true">#</a> Default hook set (BOOTSTRAP creates these)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Hook</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SessionStart</td>
+<td>session-start-env-check.mjs</td>
+<td>Verify <code>node</code>, <code>git</code>, <code>bun</code> (Apple Silicon PATH)</td>
+</tr>
+<tr>
+<td>PostToolUse Edit/Write/MultiEdit/Bash</td>
+<td>track-workflow.mjs</td>
+<td>Record edits + validate runs</td>
+</tr>
+<tr>
+<td>Stop</td>
+<td>enforce-workflow.mjs</td>
+<td>Block if validate not run since last edit</td>
+</tr>
+<tr>
+<td>PreCompact</td>
+<td>precompact-handoff.mjs</td>
+<td>Write HANDOFF.md</td>
+</tr>
+<tr>
+<td>PostCompact</td>
+<td>postcompact-reinject.mjs</td>
+<td>Re-inject critical discipline</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="what-belongs-in-hooks" tabindex="-1"><a class="header-anchor" href="#what-belongs-in-hooks" aria-hidden="true">#</a> What belongs in hooks</h3>
+<ul>
+<li>100% deterministic enforcement (no skill activation roulette)</li>
+<li>Format-on-edit</li>
+<li>Block-destructive (rm -rf in /, secrets in commits, console.log in production)</li>
+<li>Test-gate before completion</li>
+<li>Env self-check</li>
+</ul>
+<h3 id="cost-efficient-hook-design" tabindex="-1"><a class="header-anchor" href="#cost-efficient-hook-design" aria-hidden="true">#</a> Cost-efficient hook design</h3>
+<ul>
+<li>Prefer denials with <strong>short reasons</strong> over dumping logs into context</li>
+<li>Write details to a file, return a one-line pointer</li>
+<li>Use <code>context: fork</code> for verbose operations</li>
+<li>Apple Silicon: explicit PATH, no nvm dependency, silent startup</li>
+</ul>
+<h2 id="when-tiers-conflict" tabindex="-1"><a class="header-anchor" href="#when-tiers-conflict" aria-hidden="true">#</a> When tiers conflict</h2>
+<p>If a rule could fit two tiers, pick the <strong>lower-cost</strong> one that achieves required reliability.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Lower-cost option</th>
+<th>When the higher-cost option wins</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&quot;Use LocalizedString&quot;</td>
+<td>Path-scoped rule</td>
+<td>If hardcoded strings keep slipping through → add a hook</td>
+</tr>
+<tr>
+<td>&quot;Run TDD&quot;</td>
+<td>Skill</td>
+<td>If devs skip TDD → add a Stop hook that blocks completion if no test edited</td>
+</tr>
+<tr>
+<td>&quot;Format on save&quot;</td>
+<td>Hook</td>
+<td>Always hook (deterministic)</td>
+</tr>
+<tr>
+<td>&quot;Bounded context = environment&quot;</td>
+<td>CLAUDE.md (identity)</td>
+<td>If too much context, move to <code>references/ddd-application.md</code> and pointer</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="claude.md-compaction-survival" tabindex="-1"><a class="header-anchor" href="#claude.md-compaction-survival" aria-hidden="true">#</a> CLAUDE.md compaction survival</h2>
+<p><strong>Critical:</strong> Only <code>CLAUDE.md</code> and <code>PostCompact</code> hook output survive <code>/compact</code>. Everything else (rules, skill bodies, subagent context) is cleared.</p>
+<p>This means:</p>
+<ul>
+<li>Compaction-critical rules live in CLAUDE.md</li>
+<li>Compaction-recovery instructions live in CLAUDE.md <code>## Après compaction</code> section</li>
+<li>Long-running plan execution discipline lives in <code>postcompact-reinject.mjs</code></li>
+</ul>
+<h2 id="validation-checklist-(bootstrap-%2F-audit)" tabindex="-1"><a class="header-anchor" href="#validation-checklist-(bootstrap-%2F-audit)" aria-hidden="true">#</a> Validation checklist (BOOTSTRAP / AUDIT)</h2>
+<ul class="contains-task-list">
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> <code>CLAUDE.md</code> exists and is ≤120 lines</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> No <code>@</code>-file imports in CLAUDE.md</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> No defensive scaffolding (&quot;MUST&quot;, &quot;ALWAYS&quot;, &quot;double-check&quot;) in CLAUDE.md or rules</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> Every <code>.claude/rules/*.md</code> has <code>paths:</code> frontmatter</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> Every rule file is ≤50 lines</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> Every skill has WHAT + WHEN + trigger phrases in description</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> No skill body &gt;5000 words</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> No skill name contains &quot;claude&quot; or &quot;anthropic&quot;</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> No README.md inside skill folders</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> All hooks declared in settings.json exist on disk</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> All hook scripts are macOS-hardened (explicit PATH)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> SessionStart env-check + PostCompact reinject hooks present (or documented exceptions)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> <code>CLAUDE.md ## Après compaction</code> section exists</label></li>
+</ul>
+<p>If any of these fail → AUDIT mode emits findings.</p>
+<h2 id="palier-5%3A-agents.md-mirror" tabindex="-1"><a class="header-anchor" href="#palier-5%3A-agents.md-mirror" aria-hidden="true">#</a> Palier 5: AGENTS.md mirror</h2>
+<p>Dual-runtime projects (Claude Code + Codex) at palier 5 mirror <code>CLAUDE.md</code> as <code>AGENTS.md</code> so Codex picks up the same standing context. The mirror is a <strong>thin pointer</strong>, not a duplicate — it references <code>CLAUDE.md</code> and lists Codex-specific deltas (typically just the build/test commands and the safety section). Drift between the two is detected by the palier-5 <code>sync-claude-mirrors.mjs</code> script.</p>
+<p>Single-runtime Claude-only projects (palier ≤4) do not need <code>AGENTS.md</code>. See <code>evolution-roadmap.html</code> palier 5 for promotion triggers.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/four-tier-architecture.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hooks — Canonical Patterns · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Hooks — Canonical Patterns">
+  <meta name="doc-source" content="references/hook-canonical-patterns.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#what-hooks-are">What hooks are</a></li><li class="lvl-2"><a href="#the-22-hook-events">The 22 hook events</a></li><li class="lvl-3"><a href="#session-lifecycle">Session lifecycle</a></li><li class="lvl-3"><a href="#conversation">Conversation</a></li><li class="lvl-3"><a href="#tool-use">Tool use</a></li><li class="lvl-3"><a href="#subagent">Subagent</a></li><li class="lvl-3"><a href="#context">Context</a></li><li class="lvl-3"><a href="#infrastructure">Infrastructure</a></li><li class="lvl-2"><a href="#handler-types">Handler types</a></li><li class="lvl-3"><a href="#1.-command-(shell%2C-exit-code-driven)">1. Command (shell, exit-code-driven)</a></li><li class="lvl-3"><a href="#2.-http-(post-to-url)">2. HTTP (POST to URL)</a></li><li class="lvl-3"><a href="#3.-prompt-(single-turn-fast-claude)">3. Prompt (single-turn fast Claude)</a></li><li class="lvl-3"><a href="#4.-agent-(multi-step-subagent-verification)">4. Agent (multi-step subagent verification)</a></li><li class="lvl-2"><a href="#hook-script-%E2%80%94-json-i%2Fo-contract">Hook script — JSON I/O contract</a></li><li class="lvl-3"><a href="#input-shape-(varies-by-event)">Input shape (varies by event)</a></li><li class="lvl-3"><a href="#output-shape-(for-command-hooks)">Output shape (for command hooks)</a></li><li class="lvl-2"><a href="#macos-apple-silicon-hardening-(critical)">macOS Apple Silicon hardening (CRITICAL)</a></li><li class="lvl-2"><a href="#standard-hook-set-(bootstrap-installs)">Standard hook set (BOOTSTRAP installs)</a></li><li class="lvl-3"><a href="#track-workflow.mjs-(posttooluse-edit%7Cwrite%7Cmultiedit%7Cbash)">track-workflow.mjs (PostToolUse Edit|Write|MultiEdit|Bash)</a></li><li class="lvl-3"><a href="#enforce-workflow.mjs-(stop)">enforce-workflow.mjs (Stop)</a></li><li class="lvl-3"><a href="#precompact-handoff.mjs-(precompact)">precompact-handoff.mjs (PreCompact)</a></li><li class="lvl-3"><a href="#postcompact-reinject.mjs-(postcompact)">postcompact-reinject.mjs (PostCompact)</a></li><li class="lvl-3"><a href="#session-start-env-check.mjs-(sessionstart)">session-start-env-check.mjs (SessionStart)</a></li><li class="lvl-2"><a href="#higher-palier-hooks-(palier-3%2B)">Higher-palier hooks (Palier 3+)</a></li><li class="lvl-3"><a href="#subagent-plan-edit-guard.mjs-(pretooluse-edit%7Cmultiedit%2C-scoped-to-implementer-agents-via-frontmatter-hooks%3A)">subagent-plan-edit-guard.mjs (PreToolUse Edit|MultiEdit, scoped to implementer agents via frontmatter hooks:)</a></li><li class="lvl-3"><a href="#agent-dispatch-preflight.mjs-(pretooluse-agent)">agent-dispatch-preflight.mjs (PreToolUse Agent)</a></li><li class="lvl-3"><a href="#daily-drift-alert.mjs-(sessionstart)">daily-drift-alert.mjs (SessionStart)</a></li><li class="lvl-3"><a href="#validate-plan.mjs-(pretooluse-write%7Cedit%7Cmultiedit)">validate-plan.mjs (PreToolUse Write|Edit|MultiEdit)</a></li><li class="lvl-3"><a href="#file-size-growth-guard.mjs-(pre-commit-hook%2C-not-in-settings.json-%E2%80%94-wired-via-.husky%2Fpre-commit)">file-size-growth-guard.mjs (pre-commit hook, NOT in settings.json — wired via .husky/pre-commit)</a></li><li class="lvl-2"><a href="#hook-lib-pattern">Hook lib pattern</a></li><li class="lvl-2"><a href="#cost-efficient-hook-design">Cost-efficient hook design</a></li><li class="lvl-3"><a href="#don't-dump-logs-into-context">Don't dump logs into context</a></li><li class="lvl-3"><a href="#use-context%3A-fork-for-verbose-verification">Use context: fork for verbose verification</a></li><li class="lvl-2"><a href="#dispatch-loop-%26-decision-contract">Dispatch loop &amp; decision contract</a></li><li class="lvl-2"><a href="#invariants">Invariants</a></li><li class="lvl-2"><a href="#validation-checklist-(bootstrap-%2F-audit)">Validation checklist (BOOTSTRAP / AUDIT)</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">hook-canonical-patterns</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Hooks — Canonical Patterns</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/hook-canonical-patterns.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Hooks — Canonical Patterns</h1>
+<p>Source: <code>Progressive Context Disclosure for Claude Code on Windows.md</code>, <code>Claude Code Architecture Research.md</code>, observed patterns in Temps Chantier (11 hooks) and Brillance Décor (3 hooks).</p>
+<h2 id="what-hooks-are" tabindex="-1"><a class="header-anchor" href="#what-hooks-are" aria-hidden="true">#</a> What hooks are</h2>
+<p>Hooks are deterministic enforcement layers. They run <strong>outside</strong> the LLM loop. They have:</p>
+<ul>
+<li>Zero standing-context cost</li>
+<li>100% reliability (run on every event)</li>
+<li>The power to BLOCK Claude's actions</li>
+</ul>
+<p>Skills teach. Hooks enforce. <strong>Never substitute one for the other.</strong></p>
+<h2 id="the-22-hook-events" tabindex="-1"><a class="header-anchor" href="#the-22-hook-events" aria-hidden="true">#</a> The 22 hook events</h2>
+<h3 id="session-lifecycle" tabindex="-1"><a class="header-anchor" href="#session-lifecycle" aria-hidden="true">#</a> Session lifecycle</h3>
+<ul>
+<li><code>SessionStart</code> — fires once when session begins</li>
+<li><code>SessionEnd</code> — fires when session terminates</li>
+</ul>
+<h3 id="conversation" tabindex="-1"><a class="header-anchor" href="#conversation" aria-hidden="true">#</a> Conversation</h3>
+<ul>
+<li><code>UserPromptSubmit</code> — fires before Claude sees user prompt</li>
+<li><code>Stop</code> — fires before Claude finalizes assistant turn</li>
+</ul>
+<h3 id="tool-use" tabindex="-1"><a class="header-anchor" href="#tool-use" aria-hidden="true">#</a> Tool use</h3>
+<ul>
+<li><code>PreToolUse</code> — before any tool call (filterable by tool name)</li>
+<li><code>PostToolUse</code> — after successful tool call</li>
+<li><code>PostToolUseFailure</code> — after failed tool call</li>
+</ul>
+<h3 id="subagent" tabindex="-1"><a class="header-anchor" href="#subagent" aria-hidden="true">#</a> Subagent</h3>
+<ul>
+<li><code>SubagentStart</code> — when a subagent is dispatched</li>
+<li><code>SubagentStop</code> — when a subagent returns</li>
+</ul>
+<h3 id="context" tabindex="-1"><a class="header-anchor" href="#context" aria-hidden="true">#</a> Context</h3>
+<ul>
+<li><code>PreCompact</code> — before context compaction</li>
+<li><code>PostCompact</code> — after context compaction (re-injection point)</li>
+<li><code>InstructionsLoaded</code> — after CLAUDE.md / instructions are loaded</li>
+<li><code>ConfigChange</code> — settings.json change detected</li>
+</ul>
+<h3 id="infrastructure" tabindex="-1"><a class="header-anchor" href="#infrastructure" aria-hidden="true">#</a> Infrastructure</h3>
+<ul>
+<li><code>WorktreeCreated</code> / <code>WorktreeDestroyed</code> — worktree lifecycle</li>
+<li><code>NotificationDisplay</code> — push notifications</li>
+<li><code>ElicitationRequested</code> — user input requested</li>
+</ul>
+<h2 id="handler-types" tabindex="-1"><a class="header-anchor" href="#handler-types" aria-hidden="true">#</a> Handler types</h2>
+<p>A hook handler can be one of four:</p>
+<h3 id="1.-command-(shell%2C-exit-code-driven)" tabindex="-1"><a class="header-anchor" href="#1.-command-(shell%2C-exit-code-driven)" aria-hidden="true">#</a> 1. Command (shell, exit-code-driven)</h3>
+<p>Most common. Hook script runs as a subprocess, exit code drives action.</p>
+<pre><code class="language-json">{
+  &quot;PreToolUse&quot;: [
+    {
+      &quot;matcher&quot;: &quot;Edit|Write|MultiEdit&quot;,
+      &quot;hooks&quot;: [
+        {
+          &quot;type&quot;: &quot;command&quot;,
+          &quot;command&quot;: &quot;node ${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-plan.mjs&quot;
+        }
+      ]
+    }
+  ]
+}
+</code></pre>
+<p>Exit code semantics (for command hooks):</p>
+<ul>
+<li><code>0</code> — allow (silent)</li>
+<li><code>1</code> — soft block: emit reason, continue</li>
+<li><code>2</code> — hard block: emit reason, halt operation</li>
+</ul>
+<h3 id="2.-http-(post-to-url)" tabindex="-1"><a class="header-anchor" href="#2.-http-(post-to-url)" aria-hidden="true">#</a> 2. HTTP (POST to URL)</h3>
+<p>Less common. Hook posts JSON to URL, awaits response.</p>
+<h3 id="3.-prompt-(single-turn-fast-claude)" tabindex="-1"><a class="header-anchor" href="#3.-prompt-(single-turn-fast-claude)" aria-hidden="true">#</a> 3. Prompt (single-turn fast Claude)</h3>
+<p>For light reasoning (e.g., classify a commit message).</p>
+<h3 id="4.-agent-(multi-step-subagent-verification)" tabindex="-1"><a class="header-anchor" href="#4.-agent-(multi-step-subagent-verification)" aria-hidden="true">#</a> 4. Agent (multi-step subagent verification)</h3>
+<p>For heavy verification (run tests, parse output, decide). Use <code>context: fork</code> to avoid main-thread bloat.</p>
+<h2 id="hook-script-%E2%80%94-json-i%2Fo-contract" tabindex="-1"><a class="header-anchor" href="#hook-script-%E2%80%94-json-i%2Fo-contract" aria-hidden="true">#</a> Hook script — JSON I/O contract</h2>
+<p>All hook scripts read JSON from stdin and write JSON to stdout.</p>
+<h3 id="input-shape-(varies-by-event)" tabindex="-1"><a class="header-anchor" href="#input-shape-(varies-by-event)" aria-hidden="true">#</a> Input shape (varies by event)</h3>
+<p>For <code>PreToolUse</code>:</p>
+<pre><code class="language-json">{
+  &quot;session_id&quot;: &quot;abc&quot;,
+  &quot;tool_name&quot;: &quot;Edit&quot;,
+  &quot;tool_input&quot;: {
+    &quot;file_path&quot;: &quot;/path/to/file&quot;,
+    &quot;old_string&quot;: &quot;...&quot;,
+    &quot;new_string&quot;: &quot;...&quot;
+  },
+  &quot;prompt&quot;: &quot;...&quot;,
+  &quot;transcript_path&quot;: &quot;...&quot;,
+  &quot;cwd&quot;: &quot;/path/to/project&quot;
+}
+</code></pre>
+<p>For <code>Stop</code>:</p>
+<pre><code class="language-json">{
+  &quot;session_id&quot;: &quot;abc&quot;,
+  &quot;last_assistant_message&quot;: &quot;...&quot;,
+  &quot;transcript_path&quot;: &quot;...&quot;,
+  &quot;cwd&quot;: &quot;/path/to/project&quot;
+}
+</code></pre>
+<h3 id="output-shape-(for-command-hooks)" tabindex="-1"><a class="header-anchor" href="#output-shape-(for-command-hooks)" aria-hidden="true">#</a> Output shape (for command hooks)</h3>
+<pre><code class="language-json">{
+  &quot;decision&quot;: &quot;allow&quot; | &quot;block&quot;,
+  &quot;reason&quot;: &quot;...&quot;,
+  &quot;additionalContext&quot;: &quot;...&quot;   // optional, prepended to next assistant turn
+}
+</code></pre>
+<p>If the script just exits 0 with no JSON → silently allow.</p>
+<h2 id="macos-apple-silicon-hardening-(critical)" tabindex="-1"><a class="header-anchor" href="#macos-apple-silicon-hardening-(critical)" aria-hidden="true">#</a> macOS Apple Silicon hardening (CRITICAL)</h2>
+<pre><code class="language-javascript">#!/usr/bin/env node
+// .claude/hooks/my-hook.mjs
+
+const PATH_PREFIX = &quot;/opt/homebrew/bin:/usr/local/bin:/opt/homebrew/sbin:/usr/sbin:/usr/bin:/sbin:/bin&quot;;
+process.env.PATH = `${PATH_PREFIX}:${process.env.PATH || &quot;&quot;}`;
+</code></pre>
+<p><strong>Without explicit PATH</strong>:</p>
+<ul>
+<li><code>node</code>, <code>git</code>, <code>bun</code>, <code>rg</code> not found on Apple Silicon</li>
+<li>Hook fails silently</li>
+<li>Whole event handler breaks</li>
+</ul>
+<p><strong>Other macOS gotchas</strong>:</p>
+<ul>
+<li>Don't use <code>nvm</code> — hook environment is non-interactive, no nvm init</li>
+<li>Use <code>#!/usr/bin/env node</code> not <code>#!/usr/local/bin/node</code> (path differs)</li>
+<li><code>~/.zshrc</code> and <code>~/.profile</code> MUST be silent at startup (no <code>echo</code>/<code>printf</code>) — output corrupts JSON</li>
+</ul>
+<h2 id="standard-hook-set-(bootstrap-installs)" tabindex="-1"><a class="header-anchor" href="#standard-hook-set-(bootstrap-installs)" aria-hidden="true">#</a> Standard hook set (BOOTSTRAP installs)</h2>
+<h3 id="track-workflow.mjs-(posttooluse-edit%7Cwrite%7Cmultiedit%7Cbash)" tabindex="-1"><a class="header-anchor" href="#track-workflow.mjs-(posttooluse-edit%7Cwrite%7Cmultiedit%7Cbash)" aria-hidden="true">#</a> <code>track-workflow.mjs</code> (PostToolUse Edit|Write|MultiEdit|Bash)</h3>
+<pre><code>Records timestamps for last feature-file edit &amp; last validate-style command into
+.claude/tmp/workflow-state.json. Used by enforce-workflow.mjs.
+</code></pre>
+<h3 id="enforce-workflow.mjs-(stop)" tabindex="-1"><a class="header-anchor" href="#enforce-workflow.mjs-(stop)" aria-hidden="true">#</a> <code>enforce-workflow.mjs</code> (Stop)</h3>
+<pre><code>Reads workflow-state.json. If lastEdit &gt; lastValidate AND last assistant message
+contains completion-style words (&quot;done&quot;, &quot;completed&quot;, &quot;ready&quot;), returns
+{decision: &quot;block&quot;, reason: &quot;Run `bun run validate` before ending session&quot;}.
+</code></pre>
+<h3 id="precompact-handoff.mjs-(precompact)" tabindex="-1"><a class="header-anchor" href="#precompact-handoff.mjs-(precompact)" aria-hidden="true">#</a> <code>precompact-handoff.mjs</code> (PreCompact)</h3>
+<pre><code>Generates HANDOFF.md with: branch, modified files (top 40), active plans,
+latest design, resume instructions, discipline reminders. Saves to project root.
+</code></pre>
+<h3 id="postcompact-reinject.mjs-(postcompact)" tabindex="-1"><a class="header-anchor" href="#postcompact-reinject.mjs-(postcompact)" aria-hidden="true">#</a> <code>postcompact-reinject.mjs</code> (PostCompact)</h3>
+<pre><code>Detects plan-execution context (HANDOFF.md content + branch name `plan/` prefix
++ scans for plans with unchecked Pipeline). Re-injects 5-rule discipline summary
+as `additionalContext`.
+</code></pre>
+<h3 id="session-start-env-check.mjs-(sessionstart)" tabindex="-1"><a class="header-anchor" href="#session-start-env-check.mjs-(sessionstart)" aria-hidden="true">#</a> <code>session-start-env-check.mjs</code> (SessionStart)</h3>
+<pre><code>On Apple Silicon: verifies node, git, bun, rg in PATH. Reports missing tools
+to additionalContext. Cached: skips if checked &lt; 24h ago (.claude/tmp/last-env-check.json).
+</code></pre>
+<h2 id="higher-palier-hooks-(palier-3%2B)" tabindex="-1"><a class="header-anchor" href="#higher-palier-hooks-(palier-3%2B)" aria-hidden="true">#</a> Higher-palier hooks (Palier 3+)</h2>
+<h3 id="subagent-plan-edit-guard.mjs-(pretooluse-edit%7Cmultiedit%2C-scoped-to-implementer-agents-via-frontmatter-hooks%3A)" tabindex="-1"><a class="header-anchor" href="#subagent-plan-edit-guard.mjs-(pretooluse-edit%7Cmultiedit%2C-scoped-to-implementer-agents-via-frontmatter-hooks%3A)" aria-hidden="true">#</a> <code>subagent-plan-edit-guard.mjs</code> (PreToolUse Edit|MultiEdit, scoped to implementer agents via frontmatter <code>hooks:</code>)</h3>
+<pre><code>Blocks edits to plan files (docs/plans/**/*.md) by implementer agents.
+Plans are managed by orchestrator only.
+</code></pre>
+<h3 id="agent-dispatch-preflight.mjs-(pretooluse-agent)" tabindex="-1"><a class="header-anchor" href="#agent-dispatch-preflight.mjs-(pretooluse-agent)" aria-hidden="true">#</a> <code>agent-dispatch-preflight.mjs</code> (PreToolUse Agent)</h3>
+<pre><code>Scans dispatch prompts for file paths. For each existing file at 281+ lines,
+injects a FILE SIZE WARNING block as additionalContext. Always allows; never blocks.
+</code></pre>
+<h3 id="daily-drift-alert.mjs-(sessionstart)" tabindex="-1"><a class="header-anchor" href="#daily-drift-alert.mjs-(sessionstart)" aria-hidden="true">#</a> <code>daily-drift-alert.mjs</code> (SessionStart)</h3>
+<pre><code>Once per 24h: runs quality-checks.js --scope full --fail-level critical. Reports
+oversized files + architecture drift (folders not mentioned in context-map.md).
+Silent when clean.
+</code></pre>
+<h3 id="validate-plan.mjs-(pretooluse-write%7Cedit%7Cmultiedit)" tabindex="-1"><a class="header-anchor" href="#validate-plan.mjs-(pretooluse-write%7Cedit%7Cmultiedit)" aria-hidden="true">#</a> <code>validate-plan.mjs</code> (PreToolUse Write|Edit|MultiEdit)</h3>
+<pre><code>Blocks edits on plans-with-tasks-but-no-Execution-Strategy that mutate checkboxes.
+Forces /execute-plan.
+</code></pre>
+<h3 id="file-size-growth-guard.mjs-(pre-commit-hook%2C-not-in-settings.json-%E2%80%94-wired-via-.husky%2Fpre-commit)" tabindex="-1"><a class="header-anchor" href="#file-size-growth-guard.mjs-(pre-commit-hook%2C-not-in-settings.json-%E2%80%94-wired-via-.husky%2Fpre-commit)" aria-hidden="true">#</a> <code>file-size-growth-guard.mjs</code> (pre-commit hook, NOT in settings.json — wired via .husky/pre-commit)</h3>
+<pre><code>Blocks commits that GROW an already-over-budget file. Grandfathers legacy debt.
+SIZE_ALLOWLIST exempts specific files.
+</code></pre>
+<h2 id="hook-lib-pattern" tabindex="-1"><a class="header-anchor" href="#hook-lib-pattern" aria-hidden="true">#</a> Hook lib pattern</h2>
+<p>For multiple hooks sharing logic, use a shared library:</p>
+<pre><code>.claude/hooks/
+├── lib/
+│   ├── hook-utils.mjs          # Shared helpers
+│   └── hook-utils.d.mts        # TypeScript types
+├── enforce-workflow.mjs        # imports from lib
+├── track-workflow.mjs          # imports from lib
+└── ...
+</code></pre>
+<p><code>hook-utils.mjs</code> exports:</p>
+<ul>
+<li><code>projectDir()</code> — <code>$CLAUDE_PROJECT_DIR</code> or fallback to <code>cwd</code></li>
+<li><code>readJsonStdin()</code> / <code>writeJsonStdout()</code></li>
+<li><code>reduceWorkflowState()</code> — pure reducer for tracking</li>
+<li><code>shouldBlockOnStop()</code> — completion-message regex match</li>
+<li><code>isFeatureFile()</code> / <code>isValidateBash()</code> — classifier helpers</li>
+<li><code>buildHandoffMarkdown()</code> — handoff template</li>
+<li><code>analyzePlanToolUse()</code> — plan-edit detection</li>
+</ul>
+<h2 id="cost-efficient-hook-design" tabindex="-1"><a class="header-anchor" href="#cost-efficient-hook-design" aria-hidden="true">#</a> Cost-efficient hook design</h2>
+<h3 id="don't-dump-logs-into-context" tabindex="-1"><a class="header-anchor" href="#don't-dump-logs-into-context" aria-hidden="true">#</a> Don't dump logs into context</h3>
+<p>Bad:</p>
+<pre><code class="language-javascript">console.log(`Found ${issues.length} issues:`);
+issues.forEach(issue =&gt; console.log(`  - ${issue}`));
+process.exit(2);  // block
+</code></pre>
+<p>Good:</p>
+<pre><code class="language-javascript">// Write details to file
+fs.writeFileSync('.claude/tmp/last-hook-output.json', JSON.stringify({issues}));
+
+// Return one-line pointer in JSON
+process.stdout.write(JSON.stringify({
+  decision: 'block',
+  reason: `${issues.length} issues; see .claude/tmp/last-hook-output.json`
+}));
+</code></pre>
+<h3 id="use-context%3A-fork-for-verbose-verification" tabindex="-1"><a class="header-anchor" href="#use-context%3A-fork-for-verbose-verification" aria-hidden="true">#</a> Use context: fork for verbose verification</h3>
+<p>If a hook handler is an agent that runs tests:</p>
+<pre><code class="language-json">{
+  &quot;Stop&quot;: [
+    {
+      &quot;hooks&quot;: [
+        {
+          &quot;type&quot;: &quot;agent&quot;,
+          &quot;agent&quot;: &quot;test-runner&quot;,
+          &quot;context&quot;: &quot;fork&quot;
+        }
+      ]
+    }
+  ]
+}
+</code></pre>
+<p>The agent runs in a fork; main thread sees only summary.</p>
+<h2 id="dispatch-loop-%26-decision-contract" tabindex="-1"><a class="header-anchor" href="#dispatch-loop-%26-decision-contract" aria-hidden="true">#</a> Dispatch loop &amp; decision contract</h2>
+<pre><code>hook script reads stdin
+   ↓
+hook script does work (file checks, regex, validation)
+   ↓
+hook script writes JSON to stdout (or just exits 0 silent)
+   ↓
+Claude Code applies decision:
+   - decision: &quot;allow&quot; or no JSON → continue
+   - decision: &quot;block&quot; → halt operation, surface reason to user
+   - additionalContext present → prepend to next assistant turn
+   ↓
+Hook process exits with appropriate code
+</code></pre>
+<h2 id="invariants" tabindex="-1"><a class="header-anchor" href="#invariants" aria-hidden="true">#</a> Invariants</h2>
+<ul>
+<li>Hooks must complete in &lt;2s (timeout default; some events have lower)</li>
+<li>Hooks must be deterministic (same input → same output)</li>
+<li>Hooks must not require interactive input (no TTY)</li>
+<li>Hooks must not modify user files unless explicitly designed to (e.g., format-on-edit)</li>
+</ul>
+<h2 id="validation-checklist-(bootstrap-%2F-audit)" tabindex="-1"><a class="header-anchor" href="#validation-checklist-(bootstrap-%2F-audit)" aria-hidden="true">#</a> Validation checklist (BOOTSTRAP / AUDIT)</h2>
+<ul class="contains-task-list">
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> Every hook in settings.json has a corresponding script on disk</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> Every hook script is executable (or runs via <code>node</code>/<code>bash</code>)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> Every hook script has explicit PATH on macOS</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> Every hook script reads stdin / writes stdout in JSON</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> No hook depends on nvm / interactive shell</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> No hook outputs verbose logs (use file pointer instead)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> PreCompact + PostCompact hooks present (compaction discipline)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> SessionStart env-check hook present (macOS reliability)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> Stop or SessionEnd hook enforces validate-before-completion (workflow gate)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> Pre-commit hook (Husky) wires file-size-growth-guard + quality-checks</label></li>
+</ul>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/hook-canonical-patterns.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

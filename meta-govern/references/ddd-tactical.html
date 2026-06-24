@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DDD — Tactical Patterns (Quick Reference) · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="DDD — Tactical Patterns (Quick Reference)">
+  <meta name="doc-source" content="references/ddd-tactical.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#when-to-apply">When to apply</a></li><li class="lvl-2"><a href="#not-when-to-apply">NOT when to apply</a></li><li class="lvl-2"><a href="#the-7-tactical-patterns">The 7 tactical patterns</a></li><li class="lvl-3"><a href="#1.-value-object">1. Value Object</a></li><li class="lvl-3"><a href="#2.-entity">2. Entity</a></li><li class="lvl-3"><a href="#3.-aggregate">3. Aggregate</a></li><li class="lvl-3"><a href="#4.-domain-event">4. Domain Event</a></li><li class="lvl-3"><a href="#5.-repository">5. Repository</a></li><li class="lvl-3"><a href="#6.-domain-service">6. Domain Service</a></li><li class="lvl-3"><a href="#7.-process-manager-%2F-saga">7. Process Manager / Saga</a></li><li class="lvl-2"><a href="#the-4-rules-of-aggregate-design-(vernon)">The 4 rules of Aggregate Design (Vernon)</a></li><li class="lvl-2"><a href="#outbox-pattern-(mandatory-for-events)">Outbox Pattern (mandatory for events)</a></li><li class="lvl-2"><a href="#typescript-first-ddd">TypeScript-first DDD</a></li><li class="lvl-2"><a href="#power-platform-tactical-mapping">Power Platform tactical mapping</a></li><li class="lvl-2"><a href="#when-meta-govern-installs-ddd-tactical-scaffolding">When meta-govern installs DDD tactical scaffolding</a></li><li class="lvl-2"><a href="#anti-pattern-detection-(scripts%2Fdetect-anti-patterns.mjs)">Anti-pattern detection (scripts/detect-anti-patterns.mjs)</a></li><li class="lvl-2"><a href="#cross-reference">Cross-reference</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">ddd-tactical</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">DDD — Tactical Patterns (Quick Reference)</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/ddd-tactical.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>DDD — Tactical Patterns (Quick Reference)</h1>
+<p>This reference is a quick map. For full guidance, invoke the existing master skill <code>domain-driven-design</code>.</p>
+<h2 id="when-to-apply" tabindex="-1"><a class="header-anchor" href="#when-to-apply" aria-hidden="true">#</a> When to apply</h2>
+<ul>
+<li>DDD score ≥ 10 (per <code>ddd-scorecard.html</code>)</li>
+<li>Strategic artifacts (glossary, context map, BC canvas) exist</li>
+<li>Domain has rich invariants (state machines, transactions, refunds)</li>
+</ul>
+<h2 id="not-when-to-apply" tabindex="-1"><a class="header-anchor" href="#not-when-to-apply" aria-hidden="true">#</a> NOT when to apply</h2>
+<ul>
+<li>DDD score &lt; 10 → use Transaction Script / Active Record</li>
+<li>&quot;DDD-Lite&quot; warning: applying tactical patterns without strategic work is WORSE than not doing DDD at all</li>
+</ul>
+<h2 id="the-7-tactical-patterns" tabindex="-1"><a class="header-anchor" href="#the-7-tactical-patterns" aria-hidden="true">#</a> The 7 tactical patterns</h2>
+<h3 id="1.-value-object" tabindex="-1"><a class="header-anchor" href="#1.-value-object" aria-hidden="true">#</a> 1. Value Object</h3>
+<ul>
+<li>Defined by attributes (no identity)</li>
+<li>Immutable</li>
+<li>Structurally equal (two instances with same attributes are interchangeable)</li>
+<li>Promoted from primitives that recur (<code>Email</code>, <code>Money</code>, <code>PhoneNumber</code>)</li>
+</ul>
+<pre><code class="language-typescript">class Email {
+  private readonly value: string;
+  private constructor(value: string) {
+    if (!isValidEmail(value)) throw new InvalidEmail();
+    this.value = value;
+  }
+  static of(value: string): Email { return new Email(value); }
+  toString(): string { return this.value; }
+  equals(other: Email): boolean { return this.value === other.value; }
+}
+</code></pre>
+<p>Vernon's bias: &quot;When in doubt, start as a Value Object; promote to Entity only when identity is required.&quot;</p>
+<h3 id="2.-entity" tabindex="-1"><a class="header-anchor" href="#2.-entity" aria-hidden="true">#</a> 2. Entity</h3>
+<ul>
+<li>Has identity that persists across state changes</li>
+<li>Mutable (within invariants)</li>
+<li>Equality by ID, not attributes</li>
+</ul>
+<pre><code class="language-typescript">class Order {
+  readonly id: OrderId;
+  private status: OrderStatus;
+  // ... invariant-protecting methods only; no public setters
+}
+</code></pre>
+<h3 id="3.-aggregate" tabindex="-1"><a class="header-anchor" href="#3.-aggregate" aria-hidden="true">#</a> 3. Aggregate</h3>
+<ul>
+<li>Cluster of entities + value objects with one <strong>Aggregate Root</strong></li>
+<li>Transactional consistency boundary</li>
+<li>Other aggregates referenced by ID only (NEVER by navigation)</li>
+<li>One aggregate per transaction (Vernon's #1 tactical rule)</li>
+</ul>
+<pre><code class="language-typescript">class Order {  // Aggregate Root
+  private items: OrderItem[];
+  // OrderItem is internal — never exposed; modifications only via Order's methods
+  addItem(sku: SKU, quantity: number): void {
+    if (this.status !== 'draft') throw new CannotModifyShippedOrder();
+    // ... invariant: at most 100 items per order
+  }
+}
+</code></pre>
+<h3 id="4.-domain-event" tabindex="-1"><a class="header-anchor" href="#4.-domain-event" aria-hidden="true">#</a> 4. Domain Event</h3>
+<ul>
+<li>A thing that happened in the domain (past tense: <code>OrderShipped</code>, not <code>ShipOrder</code>)</li>
+<li>In-process inside a BC</li>
+<li>Schema owned by the BC</li>
+<li>May be sync or async</li>
+</ul>
+<p>Distinct from <strong>Integration Event</strong>:</p>
+<ul>
+<li>Integration events cross BCs</li>
+<li>Stable versioned public contract</li>
+<li>Async via broker</li>
+<li>At-least-once delivery</li>
+</ul>
+<h3 id="5.-repository" tabindex="-1"><a class="header-anchor" href="#5.-repository" aria-hidden="true">#</a> 5. Repository</h3>
+<ul>
+<li>Interface in domain layer</li>
+<li>Implementation in infrastructure layer</li>
+<li><strong>One repository per Aggregate Root</strong> (NOT per entity, NOT per table)</li>
+<li>Methods named in ubiquitous language (<code>findOverdue()</code>, <code>save()</code>, <code>ofId()</code>)</li>
+<li>Returns fully-valid aggregates only (no <code>IQueryable</code> leakage)</li>
+</ul>
+<pre><code class="language-typescript">interface OrderRepository {
+  ofId(id: OrderId): Promise&lt;Order | null&gt;;
+  save(order: Order): Promise&lt;void&gt;;
+  findOverdue(): Promise&lt;Order[]&gt;;
+}
+</code></pre>
+<p>ANTI-PATTERN: <code>IRepository&lt;T&gt;</code> (generic) — leaky, becomes CRUD wrapper.</p>
+<h3 id="6.-domain-service" tabindex="-1"><a class="header-anchor" href="#6.-domain-service" aria-hidden="true">#</a> 6. Domain Service</h3>
+<ul>
+<li>For domain logic that doesn't naturally belong to one entity</li>
+<li>Example: <code>PricingService.calculate(order, customer, discounts)</code> — needs multiple aggregates</li>
+<li>Stateless</li>
+<li>Lives in domain layer</li>
+</ul>
+<p>NOT to be confused with Application Service (use case orchestrator) or Infrastructure Service (technical concern).</p>
+<h3 id="7.-process-manager-%2F-saga" tabindex="-1"><a class="header-anchor" href="#7.-process-manager-%2F-saga" aria-hidden="true">#</a> 7. Process Manager / Saga</h3>
+<ul>
+<li>Orchestrates long-running multi-aggregate workflows</li>
+<li>Uses domain events as triggers</li>
+<li>Manages compensating transactions (refund on failed shipment)</li>
+<li>Stateful (tracks where it is in the process)</li>
+</ul>
+<p>In Power Platform: <strong>Power Automate flows are process managers</strong>. NOT domain. Keep them thin; delegate decisions to domain code.</p>
+<h2 id="the-4-rules-of-aggregate-design-(vernon)" tabindex="-1"><a class="header-anchor" href="#the-4-rules-of-aggregate-design-(vernon)" aria-hidden="true">#</a> The 4 rules of Aggregate Design (Vernon)</h2>
+<ol>
+<li>Model true invariants in consistency boundaries</li>
+<li>Design SMALL aggregates</li>
+<li>Reference other aggregates by IDENTITY only</li>
+<li>Use eventual consistency between aggregates</li>
+</ol>
+<h2 id="outbox-pattern-(mandatory-for-events)" tabindex="-1"><a class="header-anchor" href="#outbox-pattern-(mandatory-for-events)" aria-hidden="true">#</a> Outbox Pattern (mandatory for events)</h2>
+<p>Avoids double-write problem. Insert outbox row in <strong>same DB transaction</strong> as the aggregate save:</p>
+<pre><code class="language-sql">BEGIN TRANSACTION;
+  UPDATE orders SET status='shipped' WHERE id=@id;
+  INSERT INTO outbox (event_id, type, payload, dispatched) VALUES (uuid(), 'OrderShipped', '{...}', false);
+COMMIT;
+</code></pre>
+<p>Separate dispatcher polls outbox, publishes to broker, marks dispatched. Consumers deduplicate via <code>event_id</code> (inbox pattern).</p>
+<h2 id="typescript-first-ddd" tabindex="-1"><a class="header-anchor" href="#typescript-first-ddd" aria-hidden="true">#</a> TypeScript-first DDD</h2>
+<ul>
+<li>Strict mode mandatory</li>
+<li><code>readonly</code> everywhere by default</li>
+<li>Private constructors with static factories</li>
+<li>Branded types for IDs:<pre><code class="language-typescript">type OrderId = string &amp; { __brand: 'OrderId' };
+function OrderId(value: string): OrderId {
+  return value as OrderId;
+}
+</code></pre>
+</li>
+<li><code>Result&lt;T, E&gt;</code> for fallible operations</li>
+<li>ORM (Prisma / Drizzle) lives OUTSIDE the domain (in infrastructure adapter)</li>
+<li>In-memory repositories for tests</li>
+</ul>
+<h2 id="power-platform-tactical-mapping" tabindex="-1"><a class="header-anchor" href="#power-platform-tactical-mapping" aria-hidden="true">#</a> Power Platform tactical mapping</h2>
+<ul>
+<li>C# plugin = Aggregate behavior holder (sandboxed transaction = aggregate transaction)</li>
+<li>Plugins should be THIN: delegate to pure domain classes</li>
+<li>Mapper-as-ACL pattern: NEVER let Dataverse types (<code>@odata.bind</code>, <code>_value</code>, <code>FormattedValue</code>) into domain</li>
+<li>Keep <code>Mapper</code> class at the domain boundary</li>
+</ul>
+<h2 id="when-meta-govern-installs-ddd-tactical-scaffolding" tabindex="-1"><a class="header-anchor" href="#when-meta-govern-installs-ddd-tactical-scaffolding" aria-hidden="true">#</a> When meta-govern installs DDD tactical scaffolding</h2>
+<p>In BOOTSTRAP, if DDD score ≥ 10:</p>
+<ul>
+<li><code>src/&lt;feature&gt;/&lt;domain&gt;/</code> folder structure (one per Aggregate Root)</li>
+<li><code>.claude/rules/ddd-tactical.html</code> (path-scoped to <code>src/**/*.ts</code>)</li>
+<li><code>.claude/hooks/ddd-anti-pattern-guard.mjs</code> (blocks: <code>IRepository&lt;T&gt;</code>, public setters on aggregates, ORM types in domain)</li>
+<li>ESLint rule additions</li>
+<li>TypeScript path mappings</li>
+</ul>
+<h2 id="anti-pattern-detection-(scripts%2Fdetect-anti-patterns.mjs)" tabindex="-1"><a class="header-anchor" href="#anti-pattern-detection-(scripts%2Fdetect-anti-patterns.mjs)" aria-hidden="true">#</a> Anti-pattern detection (<code>scripts/detect-anti-patterns.mjs</code>)</h2>
+<p>When DDD score ≥ 10, these checks run:</p>
+<ol>
+<li><strong>Anemic detection</strong>: aggregate roots with public setters and no methods</li>
+<li><strong><code>IRepository&lt;T&gt;</code> generic</strong> (leaky)</li>
+<li><strong>ORM types in domain layer</strong> (DbContext, Entity attribute imports in <code>domain/</code>)</li>
+<li><strong>Primitive obsession</strong>: command parameters all strings/numbers</li>
+<li><strong>Mutable collections</strong> returned from aggregates</li>
+<li><strong>Present-tense events</strong> (<code>UpdateOrder</code> vs <code>OrderShipped</code>)</li>
+<li><strong>Property-only tests</strong> (no behavior assertions)</li>
+</ol>
+<p>Findings emit HIGH severity for IRepository<T>, MEDIUM for primitive obsession.</p>
+<h2 id="cross-reference" tabindex="-1"><a class="header-anchor" href="#cross-reference" aria-hidden="true">#</a> Cross-reference</h2>
+<p>For strategic design (bounded contexts, glossary, context map), see <code>ddd-strategic.html</code>.
+For full DDD reference, invoke the existing <code>domain-driven-design</code> master skill.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/ddd-tactical.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

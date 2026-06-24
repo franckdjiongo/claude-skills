@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stack Pack — SvelteKit + Svelte 5 · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Stack Pack — SvelteKit + Svelte 5">
+  <meta name="doc-source" content="references/stack-sveltekit.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#layout-reference">Layout reference</a></li><li class="lvl-2"><a href="#skills-to-install-(bootstrap)">Skills to install (BOOTSTRAP)</a></li><li class="lvl-2"><a href="#agents-to-install">Agents to install</a></li><li class="lvl-2"><a href="#path-scoped-rules-to-install">Path-scoped rules to install</a></li><li class="lvl-2"><a href="#source-of-truth-doc-structure">Source-of-truth doc structure</a></li><li class="lvl-2"><a href="#tooling-stack">Tooling stack</a></li><li class="lvl-2"><a href="#load-function-semantics-%E2%80%94-when-ssr-matters">Load-function semantics — when SSR matters</a></li><li class="lvl-2"><a href="#tests">Tests</a></li><li class="lvl-2"><a href="#validate-command">Validate command</a></li><li class="lvl-2"><a href="#pre-commit-(.husky%2Fpre-commit)">Pre-commit (.husky/pre-commit)</a></li><li class="lvl-2"><a href="#sveltekit-app-%2B-cloudflare-worker-(split-deploy-pattern)">SvelteKit-app + Cloudflare Worker (split-deploy pattern)</a></li><li class="lvl-2"><a href="#common-gotchas">Common gotchas</a></li><li class="lvl-2"><a href="#reference">Reference</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">stack-sveltekit</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Stack Pack — SvelteKit + Svelte 5</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/stack-sveltekit.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Stack Pack — SvelteKit + Svelte 5</h1>
+<p>When meta-govern detects: <code>package.json</code> includes <code>@sveltejs/kit</code> (with <code>svelte</code> &gt;=5). Detection is <strong>dependency-based, never file-based</strong>: sv 0.16 puts the adapter + <code>compilerOptions</code> in <code>vite.config.ts</code> via the <code>sveltekit()</code> plugin and ships <strong>NO</strong> <code>svelte.config.js</code>, so never gate SvelteKit detection on that file (<code>project-detection.mjs</code> keys off <code>@sveltejs/kit</code> → <code>stack.isSvelteKit</code> / <code>IF_STACK_SVELTEKIT</code>).</p>
+<h2 id="layout-reference" tabindex="-1"><a class="header-anchor" href="#layout-reference" aria-hidden="true">#</a> Layout reference</h2>
+<p>Default architecture pattern: <strong>framework-native + feature-first</strong> (see <code>architecture-patterns.html</code>). SvelteKit's file-based router lives in <code>src/routes/</code>; reusable components and stores live under <code>src/lib/</code>. Backend code (Convex, server-only utilities) lives in sibling top-level dirs, never under <code>src/routes/</code>.</p>
+<p>Typical tree:</p>
+<pre><code>src/
+  routes/                 ← file-based router; +page.svelte / +layout.svelte / +page.server.ts
+    (authed)/             ← route group for auth-gated pages
+      library/
+        +page.svelte
+        +page.ts          ← client+server load fn (universal)
+    auth/
+      +page.svelte
+  lib/
+    components/           ← reusable Svelte components (.svelte)
+    stores/               ← cross-component state (.svelte.ts or runes-based stores)
+    api/                  ← typed wrappers around backend clients
+  app.html                ← root HTML shell
+worker/                   ← stand-alone Cloudflare Worker (if used); NOT inside src/routes/
+convex/                   ← Convex backend (if used)
+</code></pre>
+<h2 id="skills-to-install-(bootstrap)" tabindex="-1"><a class="header-anchor" href="#skills-to-install-(bootstrap)" aria-hidden="true">#</a> Skills to install (BOOTSTRAP)</h2>
+<p>In addition to the 6 core skills:</p>
+<ul>
+<li><code>frontend-design</code> (plugin) — distinctive frontend code generation; works for Svelte the same way as for React</li>
+<li><code>ship-polished-ui</code> — premium UI + browser visual QA loop</li>
+<li><code>seo-visibility</code> — JSON-LD, llms.txt, robots.txt, sitemap (only when the site is public-marketing)</li>
+</ul>
+<p>For Convex-backed projects, also install the Convex skill set per <code>stack-convex.html</code>.</p>
+<h2 id="agents-to-install" tabindex="-1"><a class="header-anchor" href="#agents-to-install" aria-hidden="true">#</a> Agents to install</h2>
+<p>In addition to the 6 core agents:</p>
+<ul>
+<li><code>visual-qa-inspector</code> — already global at user-level; pairs with <code>ship-polished-ui</code></li>
+</ul>
+<h2 id="path-scoped-rules-to-install" tabindex="-1"><a class="header-anchor" href="#path-scoped-rules-to-install" aria-hidden="true">#</a> Path-scoped rules to install</h2>
+<p>In addition to the 9 core rules, install the <strong>Svelte-shaped</strong> <code>ui-components</code> rule — render from <code>templates/rules/ui-components.svelte.md.tpl</code> (selected automatically when <code>IF_STACK_SVELTEKIT</code>), NOT the React-shaped default. The React glob <code>src/lib/**/*.{ts,tsx,jsx}</code> matches no <code>.svelte</code> file, so shipping it leaves a silently dead rule (recurring friction — see <code>lessons-log.html</code> 2026-06-20).</p>
+<ul>
+<li><code>ui-components.md</code> (paths: <code>src/lib/**/*.svelte</code>, <code>src/routes/**/*.svelte</code>, <code>src/lib/**/*.svelte.ts</code>, <code>src/**/*.css</code>, <code>messages/*.json</code>):
+<ul>
+<li>User-facing strings through Paraglide: <code>import * as m from '$lib/paraglide/messages'</code>, read as <code>m.key()</code>; add every key to BOTH locale files under <code>messages/</code>. No literal text in markup, no <code>locale === 'fr' ? … : …</code> ternaries.</li>
+<li>Runes idioms: <code>$state</code> (local), <code>$derived</code> (computed), <code>$effect</code> (side effects), <code>$props()</code>. Derive with <code>$derived</code>; never mirror a prop into local state. No Svelte 4 idioms (<code>export let</code>, <code>$:</code>), no React patterns (<code>useEffect</code>/<code>useState</code>).</li>
+<li>Design tokens only (tokens stylesheet + Tailwind <code>@theme</code>); no inline hex/rgba. Glass/motion restrained; honor <code>prefers-reduced-motion</code>.</li>
+<li>Accessibility: accessible names, alt text, focus-visible, semantic headings; touch targets ≥ 44px.</li>
+<li>In-app navigation: <code>&lt;a href=&quot;/route&quot;&gt;</code> with SvelteKit preloading, or <code>goto()</code> from <code>$app/navigation</code>; locale-aware links via <code>localizeHref()</code> from <code>$lib/paraglide/runtime</code>. Don't reach into <code>window.location</code> for internal links.</li>
+<li>When embedding untrusted content (user-uploaded HTML, third-party widgets) use <code>&lt;iframe sandbox=&quot;allow-scripts&quot;&gt;</code>. The sandbox attribute strips same-origin privileges; do not add <code>allow-same-origin</code> casually.</li>
+</ul>
+</li>
+</ul>
+<h2 id="source-of-truth-doc-structure" tabindex="-1"><a class="header-anchor" href="#source-of-truth-doc-structure" aria-hidden="true">#</a> Source-of-truth doc structure</h2>
+<p>Three canonical docs (same convention as other stacks):</p>
+<ol>
+<li><code>docs/&lt;project&gt;-spec.md</code> — FUNC-XX, NF-XX, RA-XX, VAL-XX</li>
+<li><code>docs/&lt;project&gt;-data-model.md</code> — schema, contracts (frontend types + backend if applicable)</li>
+<li><code>docs/&lt;project&gt;-catalog.md</code> — C-XX components</li>
+</ol>
+<p>Add HTML prototypes when the project has design-heavy surfaces:</p>
+<ul>
+<li><code>docs/composants/prototypes/&lt;C-XX&gt;-&lt;name&gt;.html</code> — hand-coded reference</li>
+</ul>
+<h2 id="tooling-stack" tabindex="-1"><a class="header-anchor" href="#tooling-stack" aria-hidden="true">#</a> Tooling stack</h2>
+<ul>
+<li><strong>TypeScript strict mode</strong> (<code>tsconfig.json</code> extends <code>./.svelte-kit/tsconfig.json</code>)</li>
+<li><strong>Svelte 5</strong> with runes enabled (default in v5)</li>
+<li><strong><code>svelte-check</code></strong> for type checking (<code>svelte-kit sync &amp;&amp; svelte-check</code>)</li>
+<li><strong>Vitest</strong> for unit tests; configure in <code>vite.config.ts</code> so it shares the SvelteKit Vite instance</li>
+<li><strong>Tailwind 3-4</strong> with design tokens in <code>tailwind.config.js</code></li>
+<li><strong>Husky 9</strong> for pre-commit (size-guard + quality:check:staged)</li>
+<li><strong>Adapter</strong>: <code>@sveltejs/adapter-vercel</code> for Vercel deploys; <code>@sveltejs/adapter-cloudflare</code> for CF Pages; <code>@sveltejs/adapter-node</code> for self-host</li>
+</ul>
+<h2 id="load-function-semantics-%E2%80%94-when-ssr-matters" tabindex="-1"><a class="header-anchor" href="#load-function-semantics-%E2%80%94-when-ssr-matters" aria-hidden="true">#</a> Load-function semantics — when SSR matters</h2>
+<p>SvelteKit gives you three flavors of data loading. Pick the one that matches the data:</p>
+<ul>
+<li><strong><code>+page.ts</code></strong> (universal) — runs on the server during SSR, then again in the browser on navigation. Use for public, cacheable data with no secrets in scope.</li>
+<li><strong><code>+page.server.ts</code></strong> (server-only) — only ever runs on the server. Use when the load needs DB credentials, server-only env vars, or you're rendering response headers/cookies.</li>
+<li><strong>No load fn</strong> — the page is fully client-rendered. Best for projects where all data goes through a reactive client (Convex, Firestore) and SSR provides no value.</li>
+</ul>
+<p>For Convex-backed projects, the standard pattern is <strong>no load fn</strong>: pages mount, the Convex client subscribes, reactive queries hydrate the UI. Save server-load functions for traditional REST/SQL data.</p>
+<h2 id="tests" tabindex="-1"><a class="header-anchor" href="#tests" aria-hidden="true">#</a> Tests</h2>
+<pre><code class="language-typescript">// src/lib/components/__tests__/UploadForm.test.ts
+import { render, screen } from '@testing-library/svelte';
+import UploadForm from '../UploadForm.svelte';
+
+test('shows the file input', () =&gt; {
+  render(UploadForm);
+  expect(screen.getByLabelText(/upload html/i)).toBeInTheDocument();
+});
+</code></pre>
+<p>Forbidden:</p>
+<ul>
+<li><code>container.querySelector</code> — use <code>@testing-library/svelte</code> queries</li>
+<li><code>.toMatchSnapshot()</code> on Svelte component output — brittle</li>
+<li>Asserting on <code>$state</code> values directly — assert through the rendered DOM</li>
+</ul>
+<h2 id="validate-command" tabindex="-1"><a class="header-anchor" href="#validate-command" aria-hidden="true">#</a> Validate command</h2>
+<pre><code class="language-json">{
+  &quot;scripts&quot;: {
+    &quot;dev&quot;: &quot;vite dev&quot;,
+    &quot;build&quot;: &quot;vite build&quot;,
+    &quot;preview&quot;: &quot;vite preview&quot;,
+    &quot;check&quot;: &quot;svelte-kit sync &amp;&amp; svelte-check --tsconfig ./tsconfig.json&quot;,
+    &quot;test&quot;: &quot;vitest run&quot;,
+    &quot;test:watch&quot;: &quot;vitest&quot;,
+    &quot;validate&quot;: &quot;npm run check &amp;&amp; npm run test &amp;&amp; npm run size-guard &amp;&amp; npm run quality:check&quot;,
+    &quot;validate:fast&quot;: &quot;npm run check &amp;&amp; npm run test&quot;,
+    &quot;quality:check&quot;: &quot;node .claude/scripts/quality-checks/index.mjs&quot;,
+    &quot;quality:check:staged&quot;: &quot;node .claude/scripts/quality-checks/index.mjs --scope staged --fail-level high&quot;,
+    &quot;size-guard&quot;: &quot;node .claude/scripts/file-size-growth-guard.mjs&quot;
+  }
+}
+</code></pre>
+<p><strong>Lint gates must not lint vendored governance assets.</strong> <code>sv add</code> wires eslint + prettier to scan the whole tree, including the meta-govern payload (<code>.claude/**</code> hooks with intentional empty catches, <code>docs/**</code> 50+ HTML + JS assets, <code>src/lib/paraglide/**</code> generated runtime). Left as-is, a freshly bootstrapped project fails its own <code>bun run validate</code>/<code>lint</code>. The bootstrap therefore augments <code>.prettierignore</code> and inserts an eslint global-ignores entry for <code>.claude/**</code>, <code>docs/**</code>, <code>archive/**</code>, <code>src/lib/paraglide/**</code> — every artifact the scaffold installs passes the gates the same scaffold installs (echo of the 2026-06-16 file-size-guard lesson). The bootstrap also merges <code>quality:check</code>, <code>size-guard</code>, <code>test</code>, <code>validate</code>, <code>validate:fast</code> into <code>package.json</code> add-if-missing, so the scripts CLAUDE.md points at actually exist.</p>
+<h2 id="pre-commit-(.husky%2Fpre-commit)" tabindex="-1"><a class="header-anchor" href="#pre-commit-(.husky%2Fpre-commit)" aria-hidden="true">#</a> Pre-commit (<code>.husky/pre-commit</code>)</h2>
+<pre><code class="language-bash">npm run size-guard &amp;&amp; npm run quality:check:staged
+</code></pre>
+<h2 id="sveltekit-app-%2B-cloudflare-worker-(split-deploy-pattern)" tabindex="-1"><a class="header-anchor" href="#sveltekit-app-%2B-cloudflare-worker-(split-deploy-pattern)" aria-hidden="true">#</a> SvelteKit-app + Cloudflare Worker (split-deploy pattern)</h2>
+<p>When the project pairs a SvelteKit app on one origin with a separate Cloudflare Worker on another (e.g., a sandboxed view domain), keep them in the same repo but in separate top-level dirs:</p>
+<pre><code>src/                    ← SvelteKit app
+worker/
+  src/
+    index.ts            ← Worker entry; reads R2, injects CSP, handles 404
+  wrangler.toml         ← Worker config (separate from the app's vite.config.ts)
+  package.json          ← optional, only if Worker has its own deps
+</code></pre>
+<p>Reasons to keep them split:</p>
+<ul>
+<li>The Worker is the trust boundary for untrusted content. Code that touches user-uploaded HTML must not import anything from <code>src/</code> (cookies, auth helpers, app routes).</li>
+<li><code>wrangler dev</code> and <code>vite dev</code> run on different ports and shouldn't share config.</li>
+<li>Deployment pipelines are independent: SvelteKit ships to Vercel/CF Pages; Worker ships via <code>wrangler deploy</code>.</li>
+</ul>
+<p>CLAUDE.md should call out the split with a path-scoped rule (<code>worker/**/*.ts</code>) noting the Worker has no access to app cookies and runs on a separate origin.</p>
+<h2 id="common-gotchas" tabindex="-1"><a class="header-anchor" href="#common-gotchas" aria-hidden="true">#</a> Common gotchas</h2>
+<ul>
+<li>Svelte 5 components written in Svelte 4 idioms (<code>export let prop</code>, <code>$:</code> blocks) still work but cost legibility; in new files prefer <code>$props()</code> + runes.</li>
+<li><code>+page.server.ts</code> data is serialized over the wire — non-serializable values (functions, classes, Maps) silently break.</li>
+<li>The <code>app</code> directory (<code>$app/...</code>) is virtual; don't try to import from <code>node_modules/@sveltejs/kit/...</code> directly.</li>
+<li>File names matter: <code>+page.svelte</code>, <code>+layout.svelte</code>, <code>+page.server.ts</code>, <code>+server.ts</code>, <code>+error.svelte</code>. SvelteKit's router is filename-driven.</li>
+<li>Tailwind dark-mode: pin the strategy in <code>tailwind.config.js</code> (<code>darkMode: 'class'</code> is the modern default).</li>
+</ul>
+<h2 id="reference" tabindex="-1"><a class="header-anchor" href="#reference" aria-hidden="true">#</a> Reference</h2>
+<p>The HtmlShare project (<code>/Users/elmabi/Desktop/my-projets/htmlshare/</code>) is the canonical SvelteKit + Convex + Cloudflare Worker bootstrap reference under meta-govern v1.2.2. When in doubt, read its <code>.claude/</code> and <code>docs/</code> for working patterns.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/stack-sveltekit.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

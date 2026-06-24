@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DDD Applicability Scorecard · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="DDD Applicability Scorecard">
+  <meta name="doc-source" content="references/ddd-scorecard.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#when-ddd-pays-back">When DDD pays back</a></li><li class="lvl-2"><a href="#the-8-items">The 8 items</a></li><li class="lvl-2"><a href="#interpretation">Interpretation</a></li><li class="lvl-2"><a href="#power-platform-%2F-dataverse-mapping">Power Platform / Dataverse mapping</a></li><li class="lvl-2"><a href="#when-subdomains-migrate">When subdomains migrate</a></li><li class="lvl-2"><a href="#output-of-the-scorecard">Output of the scorecard</a></li><li class="lvl-2"><a href="#anti-pattern%3A-ddd-lite">Anti-pattern: DDD-Lite</a></li><li class="lvl-2"><a href="#honest-disclosure">Honest disclosure</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">ddd-scorecard</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">DDD Applicability Scorecard</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/ddd-scorecard.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>DDD Applicability Scorecard</h1>
+<p>Source: <code>Domain-Driven Design - A Production Reference.md</code> §7.1, adapted.</p>
+<h2 id="when-ddd-pays-back" tabindex="-1"><a class="header-anchor" href="#when-ddd-pays-back" aria-hidden="true">#</a> When DDD pays back</h2>
+<p>DDD's strategic half (bounded contexts, ubiquitous language, context maps) almost always pays back at system-of-systems scale. DDD's tactical half (entities, VOs, aggregates, repositories) is <strong>optional</strong> — it's a heavy investment that only pays back when the domain has rich invariants.</p>
+<p>The 8-item scorecard quantifies whether this project deserves full DDD, strategic-only, or none.</p>
+<h2 id="the-8-items" tabindex="-1"><a class="header-anchor" href="#the-8-items" aria-hidden="true">#</a> The 8 items</h2>
+<p>Score 0 (no), 1 (partial / unclear), or 2 (yes) for each.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Question</th>
+<th>Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Is the product <strong>a key competitive differentiator</strong> for the business?</td>
+<td>0/1/2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Are the <strong>business rules contested</strong> between stakeholders (or change frequently)?</td>
+<td>0/1/2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Will this product <strong>live longer than 2 years</strong>?</td>
+<td>0/1/2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Will <strong>multiple teams</strong> work on it?</td>
+<td>0/1/2</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Are <strong>domain experts reachable</strong> for ongoing collaboration?</td>
+<td>0/1/2</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Does the domain have <strong>non-trivial invariants</strong> (state machines, transactions, refunds, multi-step approvals)?</td>
+<td>0/1/2</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Does the system have <strong>multiple integrations</strong> (3+ external systems)?</td>
+<td>0/1/2</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Is the system <strong>multi-tenant</strong> with isolation requirements per tenant?</td>
+<td>0/1/2</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Max score: 16.</strong></p>
+<h2 id="interpretation" tabindex="-1"><a class="header-anchor" href="#interpretation" aria-hidden="true">#</a> Interpretation</h2>
+<pre><code>≥ 10  → FULL DDD
+        Bounded context canvas, glossary, context map, aggregates per AR,
+        repositories per AR, anti-pattern hooks, event-driven where useful,
+        Strangler Fig for legacy.
+
+5 - 9 → STRATEGIC + LIGHT TACTICAL
+        Glossary + context map (even sketch), package by feature, value objects
+        for primitives, but skip aggregate-per-transaction unless rules demand.
+        Most &quot;well-designed CRUD&quot; projects land here.
+
+&lt; 5   → TRANSACTION SCRIPT / ACTIVE RECORD
+        Don't force DDD. Use clean ordinary code. Apply KISS aggressively.
+        Most simple SPAs, marketing sites, internal tools land here.
+</code></pre>
+<h2 id="power-platform-%2F-dataverse-mapping" tabindex="-1"><a class="header-anchor" href="#power-platform-%2F-dataverse-mapping" aria-hidden="true">#</a> Power Platform / Dataverse mapping</h2>
+<p>For Power Apps code apps + Dataverse:</p>
+<ul>
+<li><strong>Dataverse environments</strong> often <em>are</em> bounded contexts. One environment = one BC.</li>
+<li><strong>C# plugins</strong> are aggregate transactional boundaries (sandboxed transaction = aggregate transaction).</li>
+<li><strong>Power Automate flows</strong> are orchestration (process managers / sagas), NOT the domain.</li>
+<li><strong>Plugins should be thin</strong>: delegate to pure domain classes. Plugin = adapter.</li>
+</ul>
+<p>If the user is on Power Platform AND scores ≥10:</p>
+<ul>
+<li>Bounded contexts map 1:1 to Dataverse environments</li>
+<li>Plugins implement aggregate behavior; flows orchestrate</li>
+<li>Mapper-as-ACL: never let Dataverse types leak into the domain</li>
+</ul>
+<h2 id="when-subdomains-migrate" tabindex="-1"><a class="header-anchor" href="#when-subdomains-migrate" aria-hidden="true">#</a> When subdomains migrate</h2>
+<p>A subdomain's classification is NOT locked. Khononov's &quot;Black Swan core&quot;: a generic subdomain becomes core when you start innovating on it (Tune's example: pricing, originally generic, became their differentiator).</p>
+<ul>
+<li><strong>Generic</strong> (low differentiation, low complexity) → buy / use a library</li>
+<li><strong>Supporting</strong> (low differentiation, high complexity) → build simply, don't over-engineer</li>
+<li><strong>Core</strong> (high differentiation, high complexity) → invest heavily, own the ubiquitous language</li>
+<li><strong>&quot;Hidden core&quot; warning</strong> (high differentiation, low complexity) → commoditize quickly OR automate; otherwise you'll lose the differentiation</li>
+</ul>
+<p>Re-score every 6-12 months.</p>
+<h2 id="output-of-the-scorecard" tabindex="-1"><a class="header-anchor" href="#output-of-the-scorecard" aria-hidden="true">#</a> Output of the scorecard</h2>
+<p>After scoring, meta-govern writes <code>docs/architecture/ddd-decision.md</code>:</p>
+<pre><code class="language-markdown"># DDD Decision — &lt;project&gt;
+
+Date: 2026-MM-DD
+Score: N/16
+Decision: [FULL DDD | STRATEGIC + LIGHT TACTICAL | TRANSACTION SCRIPT]
+
+## Score breakdown
+1. Differentiator: N (rationale: ...)
+2. Contested rules: N (rationale: ...)
+3. Lifespan &gt;2yr: N (rationale: ...)
+4. Multiple teams: N (rationale: ...)
+5. Experts reachable: N (rationale: ...)
+6. Non-trivial invariants: N (rationale: ...)
+7. Multiple integrations: N (rationale: ...)
+8. Multi-tenant: N (rationale: ...)
+
+## Implications
+
+[FULL DDD] meta-govern installs:
+- docs/architecture/context-map.md
+- docs/architecture/core-domain-chart.md
+- docs/architecture/glossary.md
+- docs/architecture/bounded-context-canvas-&lt;bc&gt;.md (per BC)
+- .claude/rules/ddd-anti-patterns.md
+- .claude/hooks/ddd-anti-pattern-guard.mjs
+- references-bridge to ~/.claude/skills/domain-driven-design/
+
+[STRATEGIC + LIGHT TACTICAL] meta-govern installs:
+- docs/architecture/glossary.md
+- docs/architecture/context-map.md (sketch)
+
+[TRANSACTION SCRIPT] meta-govern skips DDD scaffolding entirely.
+
+## Re-score cadence
+Every 6 months OR when business model shifts OR when subdomain crosses Khononov axes.
+</code></pre>
+<h2 id="anti-pattern%3A-ddd-lite" tabindex="-1"><a class="header-anchor" href="#anti-pattern%3A-ddd-lite" aria-hidden="true">#</a> Anti-pattern: DDD-Lite</h2>
+<p>Doc 2 §V warns about <strong>DDD-Lite</strong>: applying tactical patterns (entities, VOs, aggregates, repositories) without doing the strategic work (bounded contexts, ubiquitous language). This is worse than not doing DDD at all — you pay the ceremony tax without getting the boundary clarity.</p>
+<p>meta-govern's scorecard prevents this: tactical scaffolding only happens at score ≥10, where strategic artifacts are also produced. Score 5-9 produces only strategic. Score &lt;5 produces neither.</p>
+<h2 id="honest-disclosure" tabindex="-1"><a class="header-anchor" href="#honest-disclosure" aria-hidden="true">#</a> Honest disclosure</h2>
+<p>For most projects the user works on (small client SaaS, marketing sites, code apps), the score will be <strong>&lt;5 or 5-9</strong>. That's fine. KISS first; DDD only when the score earns it.</p>
+<p>The exception: Temps Chantier (Groupe Gilbert) is a complex Dataverse-driven workflow product → likely scores ≥10 and uses Mapper-as-ACL pattern explicitly.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/ddd-scorecard.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

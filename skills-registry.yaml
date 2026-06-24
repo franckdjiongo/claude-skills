@@ -151,6 +151,24 @@ categories:
         description: Deploy a Power Apps code app, manage ALM, configure security and monitoring
         tags: [power-apps, code-app, deployment, alm, csp, monitoring]
 
+      - name: add-dataverse
+        repository: claude-skills
+        path: add-dataverse/SKILL.md
+        description: Add Dataverse tables to a Power Apps code app with generated TypeScript models and services
+        tags: [power-apps, dataverse, code-app, typescript, crud]
+
+      - name: pp-solution-sync
+        repository: claude-skills
+        path: pp-solution-sync/SKILL.md
+        description: Sync Power Platform solution exports from ~/Downloads into local project folders
+        tags: [power-platform, solution, sync, alm, export]
+
+      - name: secure-pa-http-trigger
+        repository: claude-skills
+        path: secure-pa-http-trigger/SKILL.md
+        description: Secure a Power Automate HTTP-trigger flow with Entra ID auth and rewire every caller
+        tags: [power-automate, security, entra-id, oauth, http-trigger]
+
   # ---------------------------------------------------------------------------
   # CLAUDE CODE & AI EXTENSIBILITY
   # ---------------------------------------------------------------------------
@@ -228,6 +246,54 @@ categories:
         path: session-review/SKILL.md
         description: Generate an honest, evidence-grounded retrospective of the current Claude Code session
         tags: [retrospective, review, meta, quality, session]
+
+      - name: claude-hook-creator
+        repository: claude-skills
+        path: claude-hook-creator/SKILL.md
+        description: Create or revise Claude Code hooks in settings.json or subagent frontmatter
+        tags: [claude-code, hooks, settings, automation]
+
+      - name: create-subagent
+        repository: claude-skills
+        path: create-subagent/SKILL.md
+        description: Scaffold a well-formed Claude Code subagent (.claude/agents/<name>.md)
+        tags: [claude-code, subagents, agents, scaffolding]
+
+      - name: meta-govern
+        repository: claude-skills
+        path: meta-govern/SKILL.md
+        description: Master governance skill — bootstrap, audit, migrate, and evolve Claude Code project workflows
+        tags: [governance, bootstrap, audit, migration, workflow]
+
+      - name: setup-insights
+        repository: claude-skills
+        path: setup-insights/SKILL.md
+        description: Bootstrap the Insight Coaching System (coaching hooks, logging, quality gates) in a project
+        tags: [coaching, insights, hooks, claude-code]
+
+      - name: loop-autonomy
+        repository: claude-skills
+        path: loop-autonomy/SKILL.md
+        description: Run an autonomous work loop over a backlog using subscription-included mechanisms
+        tags: [automation, loop, backlog, autonomous, claude-code]
+
+      - name: cloud-night-shift
+        repository: claude-skills
+        path: cloud-night-shift/SKILL.md
+        description: Orchestrate chained autonomous overnight cloud runs via claude.ai routines
+        tags: [automation, cloud, overnight, claude-ai, scheduling]
+
+      - name: pipeline-audit
+        repository: claude-skills
+        path: pipeline-audit/SKILL.md
+        description: Reverse-engineer and grade a project's brainstorm-to-implementation skill pipeline
+        tags: [audit, pipeline, skills, quality, workflow]
+
+      - name: handoff
+        repository: claude-skills
+        path: handoff/SKILL.md
+        description: Compact the current conversation into a handoff document for another agent to pick up
+        tags: [handoff, context, compaction, claude-code]
 
   # ---------------------------------------------------------------------------
   # CONVEX DATABASE
@@ -547,6 +613,12 @@ categories:
         description: Prevent feature creep when building software, apps, and AI-powered products
         tags: [development, scope, mvp, planning]
 
+      - name: supacode-cli
+        repository: claude-skills
+        path: supacode-cli/SKILL.md
+        description: Control Supacode from the terminal — worktrees, tabs, and surfaces
+        tags: [supacode, cli, terminal, worktrees]
+
   # ---------------------------------------------------------------------------
   # SPECIALIZED WORKFLOWS
   # ---------------------------------------------------------------------------
@@ -624,6 +696,54 @@ categories:
         path: design-forge/skills/design-forge/SKILL.md
         description: UX/UI quality analyst and design brief architect — audit screenshots and video for defects and AI slop with scored reports and paste-ready fix prompts, actively test live apps with computer-use tools, or turn a plain app idea into a premium design brief
         tags: [ux, ui, design-audit, accessibility, ai-slop, design-brief, qa, multimodal]
+
+      - name: galley
+        repository: claude-skills
+        path: galley/SKILL.md
+        description: HTML artifact review subsystem — read, edit, reply to, and resolve anchored comments living inside an HTML file
+        tags: [html, review, annotations, workstation, mcp]
+
+      - name: ship-polished-ui
+        repository: claude-skills
+        path: ship-polished-ui/SKILL.md
+        description: Design then browser-QA premium, production-grade UI with a non-negotiable visual test loop
+        tags: [ui, design, frontend, qa, premium]
+
+  # ---------------------------------------------------------------------------
+  # EMAIL (RESEND)
+  # ---------------------------------------------------------------------------
+  email:
+    name: Email (Resend)
+    skills:
+      - name: resend
+        repository: claude-skills
+        path: resend/SKILL.md
+        description: Resend email platform umbrella — routes to send, inbound, agent inbox, and template sub-skills
+        tags: [email, resend, umbrella, routing]
+
+      - name: resend-send-email
+        repository: claude-skills
+        path: resend-send-email/SKILL.md
+        description: Send transactional, notification, and bulk emails via the Resend API
+        tags: [email, resend, transactional, api, sending]
+
+      - name: resend-templates
+        repository: claude-skills
+        path: resend-templates/SKILL.md
+        description: Create, update, publish, and manage Resend email templates via the API
+        tags: [email, resend, templates, api]
+
+      - name: resend-inbound
+        repository: claude-skills
+        path: resend-inbound/SKILL.md
+        description: Receive emails with Resend — inbound domains, webhooks, and content/attachment retrieval
+        tags: [email, resend, inbound, webhooks]
+
+      - name: resend-agent-email-inbox
+        repository: claude-skills
+        path: resend-agent-email-inbox/SKILL.md
+        description: Set up a secure email inbox for an AI agent with content safety measures
+        tags: [email, resend, ai-agent, inbox, security]
 
   # ---------------------------------------------------------------------------
   # EXTERNAL: SUPERPOWERS (obra/superpowers)
@@ -1865,6 +1985,25 @@ skill_index:
   screenshot-context-builder: { repo: claude-skills, category: claude-code }
   session-review: { repo: claude-skills, category: claude-code }
   chatgpt-image-prompt-architect: { repo: claude-skills, category: specialized }
+  add-dataverse: { repo: claude-skills, category: power-platform }
+  pp-solution-sync: { repo: claude-skills, category: power-platform }
+  secure-pa-http-trigger: { repo: claude-skills, category: power-platform }
+  claude-hook-creator: { repo: claude-skills, category: claude-code }
+  create-subagent: { repo: claude-skills, category: claude-code }
+  meta-govern: { repo: claude-skills, category: claude-code }
+  setup-insights: { repo: claude-skills, category: claude-code }
+  loop-autonomy: { repo: claude-skills, category: claude-code }
+  cloud-night-shift: { repo: claude-skills, category: claude-code }
+  pipeline-audit: { repo: claude-skills, category: claude-code }
+  handoff: { repo: claude-skills, category: claude-code }
+  supacode-cli: { repo: claude-skills, category: development }
+  galley: { repo: claude-skills, category: specialized }
+  ship-polished-ui: { repo: claude-skills, category: specialized }
+  resend: { repo: claude-skills, category: email }
+  resend-send-email: { repo: claude-skills, category: email }
+  resend-templates: { repo: claude-skills, category: email }
+  resend-inbound: { repo: claude-skills, category: email }
+  resend-agent-email-inbox: { repo: claude-skills, category: email }
   # External skills (superpowers)
   test-driven-development: { repo: superpowers, category: superpowers-testing }
   systematic-debugging: { repo: superpowers, category: superpowers-testing }

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stack Pack — Vite + React + TypeScript · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Stack Pack — Vite + React + TypeScript">
+  <meta name="doc-source" content="references/stack-react-vite.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#layout-reference">Layout reference</a></li><li class="lvl-2"><a href="#skills-to-install-(bootstrap)">Skills to install (BOOTSTRAP)</a></li><li class="lvl-2"><a href="#agents-to-install">Agents to install</a></li><li class="lvl-2"><a href="#hooks-to-install">Hooks to install</a></li><li class="lvl-2"><a href="#path-scoped-rules-to-install">Path-scoped rules to install</a></li><li class="lvl-2"><a href="#source-of-truth-doc-structure">Source-of-truth doc structure</a></li><li class="lvl-2"><a href="#tooling-stack">Tooling stack</a></li><li class="lvl-2"><a href="#tests">Tests</a></li><li class="lvl-2"><a href="#validate-command">Validate command</a></li><li class="lvl-2"><a href="#pre-commit-(.husky%2Fpre-commit)">Pre-commit (.husky/pre-commit)</a></li><li class="lvl-2"><a href="#common-gotchas">Common gotchas</a></li><li class="lvl-2"><a href="#reference%3A-brillance-d%C3%A9cor">Reference: Brillance Décor</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">stack-react-vite</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Stack Pack — Vite + React + TypeScript</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/stack-react-vite.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Stack Pack — Vite + React + TypeScript</h1>
+<p>When meta-govern detects: <code>package.json</code> includes <code>vite</code> AND (<code>react</code> OR <code>react-dom</code>) AND <code>typescript</code>.</p>
+<h2 id="layout-reference" tabindex="-1"><a class="header-anchor" href="#layout-reference" aria-hidden="true">#</a> Layout reference</h2>
+<p>Default architecture pattern: <strong>framework-native + feature-first</strong> (see <code>architecture-patterns.html</code> § React + Vite + TypeScript). For palier 3+ machine-checkable enforcement, see <code>tooling-architecture-checks.html</code> (Knip, dependency-cruiser, eslint-plugin-boundaries — opt-in).</p>
+<h2 id="skills-to-install-(bootstrap)" tabindex="-1"><a class="header-anchor" href="#skills-to-install-(bootstrap)" aria-hidden="true">#</a> Skills to install (BOOTSTRAP)</h2>
+<p>In addition to the 5 core skills:</p>
+<ul>
+<li><code>vite-react-ts-setup</code> — already global; setup/audit/upgrade vite repos</li>
+<li><code>frontend-design</code> (plugin) — distinctive frontend code generation</li>
+<li><code>ship-polished-ui</code> — premium UI + browser visual QA loop</li>
+<li><code>seo-visibility</code> — JSON-LD, llms.txt, robots.txt, sitemap</li>
+</ul>
+<p>For palier 2+:</p>
+<ul>
+<li>(Optional) <code>simplify</code> — review changed code for reuse + quality</li>
+</ul>
+<h2 id="agents-to-install" tabindex="-1"><a class="header-anchor" href="#agents-to-install" aria-hidden="true">#</a> Agents to install</h2>
+<p>In addition to the 4 core agents:</p>
+<ul>
+<li><code>visual-qa-inspector</code> — already global at user-level; pairs with <code>ship-polished-ui</code></li>
+</ul>
+<h2 id="hooks-to-install" tabindex="-1"><a class="header-anchor" href="#hooks-to-install" aria-hidden="true">#</a> Hooks to install</h2>
+<p>In addition to the 5 core hooks:</p>
+<ul>
+<li>(none specific; reuse default hook set)</li>
+</ul>
+<h2 id="path-scoped-rules-to-install" tabindex="-1"><a class="header-anchor" href="#path-scoped-rules-to-install" aria-hidden="true">#</a> Path-scoped rules to install</h2>
+<p>In addition to the 8 core rules:</p>
+<ul>
+<li><code>ui-components.md</code> (paths: <code>src/**/components/**</code>, <code>pages/**</code>):
+<ul>
+<li><code>LocalizedString</code> + <code>useContent()</code> mandatory for user-facing strings</li>
+<li>Tailwind tokens only (no inline hex/rgba)</li>
+<li><code>dark:</code> variants for dark mode (when applicable)</li>
+<li>Brand palette enforced</li>
+<li>Accessibility: aria-label, alt text, semantic HTML, keyboard navigation</li>
+<li>Touch targets 44px minimum (36px for dense controls)</li>
+<li>No <code>&lt;a href&gt;</code> for in-app navigation (use <code>&lt;Link&gt;</code> / <code>&lt;NavLink&gt;</code>)</li>
+</ul>
+</li>
+</ul>
+<h2 id="source-of-truth-doc-structure" tabindex="-1"><a class="header-anchor" href="#source-of-truth-doc-structure" aria-hidden="true">#</a> Source-of-truth doc structure</h2>
+<p>Three canonical docs:</p>
+<ol>
+<li><code>docs/&lt;project&gt;-spec.md</code> — FUNC-XX, RA-XX, VAL-XX</li>
+<li><code>docs/data-model.md</code> — schema, contracts (frontend types + backend if applicable)</li>
+<li><code>docs/composants/catalogue-composants.md</code> — C-XX components</li>
+</ol>
+<p>Add HTML prototypes:</p>
+<ul>
+<li><code>docs/composants/prototypes/&lt;C-XX&gt;-&lt;name&gt;.html</code> (one per C-XX, hand-coded reference)</li>
+</ul>
+<h2 id="tooling-stack" tabindex="-1"><a class="header-anchor" href="#tooling-stack" aria-hidden="true">#</a> Tooling stack</h2>
+<ul>
+<li><strong>ESLint 9 flat config</strong> (<code>eslint.config.js</code>)</li>
+<li><strong>Prettier 3+</strong> with <code>.prettierrc</code></li>
+<li><strong>Vitest 4</strong> for component/hook/integration tests</li>
+<li><strong><code>node:test</code></strong> for config/build assertions (split runner)</li>
+<li><strong>Tailwind 3-4</strong> with design tokens in <code>tailwind.config.js</code></li>
+<li><strong>Husky 9 + lint-staged 16</strong> for pre-commit</li>
+<li><strong>TypeScript strict mode</strong></li>
+</ul>
+<h2 id="tests" tabindex="-1"><a class="header-anchor" href="#tests" aria-hidden="true">#</a> Tests</h2>
+<pre><code class="language-typescript">// tests/&lt;Component&gt;.test.tsx
+import { render, screen } from '@testing-library/react';
+import { ContentProvider } from '@/contexts/AppContext';
+
+it('renders the main heading in French', () =&gt; {
+  render(
+    &lt;ContentProvider initialLanguage=&quot;fr&quot;&gt;
+      &lt;HomePage /&gt;
+    &lt;/ContentProvider&gt;
+  );
+  expect(screen.findByRole('heading', { level: 1, name: /accueil/i })).resolves.toBeTruthy();
+});
+</code></pre>
+<p>Forbidden:</p>
+<ul>
+<li><code>container.querySelector</code> — use Testing Library queries</li>
+<li><code>.toMatchSnapshot()</code> — brittle</li>
+<li><code>findBy*</code> for elements that should be there immediately (use <code>getBy*</code> + <code>await</code>)</li>
+</ul>
+<h2 id="validate-command" tabindex="-1"><a class="header-anchor" href="#validate-command" aria-hidden="true">#</a> Validate command</h2>
+<p><code>bun run validate</code> (or <code>npm run validate</code>):</p>
+<pre><code class="language-json">{
+  &quot;scripts&quot;: {
+    &quot;dev&quot;: &quot;vite&quot;,
+    &quot;typecheck&quot;: &quot;tsc -b&quot;,
+    &quot;build&quot;: &quot;tsc -b &amp;&amp; vite build&quot;,
+    &quot;preview&quot;: &quot;vite preview&quot;,
+    &quot;lint&quot;: &quot;eslint .&quot;,
+    &quot;lint:fix&quot;: &quot;eslint . --fix&quot;,
+    &quot;format&quot;: &quot;prettier --write .&quot;,
+    &quot;format:check&quot;: &quot;prettier --check .&quot;,
+    &quot;test&quot;: &quot;vitest run&quot;,
+    &quot;test:watch&quot;: &quot;vitest&quot;,
+    &quot;test:ui&quot;: &quot;vitest --ui&quot;,
+    &quot;test:node&quot;: &quot;node --test tests/*.test.mjs&quot;,
+    &quot;validate&quot;: &quot;bun run typecheck &amp;&amp; bun run lint &amp;&amp; bun run test &amp;&amp; bun run build &amp;&amp; bun run quality:check&quot;,
+    &quot;validate:fast&quot;: &quot;bun run typecheck &amp;&amp; bun run lint &amp;&amp; bun run test&quot;,
+    &quot;quality:check&quot;: &quot;node .claude/scripts/quality-checks/index.mjs&quot;,
+    &quot;quality:check:staged&quot;: &quot;node .claude/scripts/quality-checks/index.mjs --scope staged --fail-level high&quot;,
+    &quot;quality:check:critical&quot;: &quot;node .claude/scripts/quality-checks/index.mjs --scope full --fail-level critical&quot;,
+    &quot;size-guard&quot;: &quot;node .claude/scripts/file-size-growth-guard.mjs&quot;
+  }
+}
+</code></pre>
+<h2 id="pre-commit-(.husky%2Fpre-commit)" tabindex="-1"><a class="header-anchor" href="#pre-commit-(.husky%2Fpre-commit)" aria-hidden="true">#</a> Pre-commit (<code>.husky/pre-commit</code>)</h2>
+<pre><code class="language-bash">bunx lint-staged
+bun .claude/scripts/file-size-growth-guard.mjs
+bun .claude/scripts/quality-checks/index.mjs --scope staged --fail-level high
+</code></pre>
+<h2 id="common-gotchas" tabindex="-1"><a class="header-anchor" href="#common-gotchas" aria-hidden="true">#</a> Common gotchas</h2>
+<ul>
+<li><code>useEffect</code> + <code>setState</code> heuristic flagged by quality-checks (state sync anti-pattern)</li>
+<li>Hardcoded colors caught by <code>colors-hex</code> and <code>colors-rgba</code> checks</li>
+<li>i18n bypass via <code>language === 'en'</code> ternaries caught by <code>i18n-ternary</code> check</li>
+<li>File size &gt; 300 lines caught by <code>file-size</code> check</li>
+<li>Money: use integer cents, not floats</li>
+<li>Errors: throw typed errors with codes; map codes to translations</li>
+</ul>
+<h2 id="reference%3A-brillance-d%C3%A9cor" tabindex="-1"><a class="header-anchor" href="#reference%3A-brillance-d%C3%A9cor" aria-hidden="true">#</a> Reference: Brillance Décor</h2>
+<p>The user's Brillance Décor project is the canonical Vite+React implementation:</p>
+<ul>
+<li>18 skills, 5 agents, 3 hooks, 8 rules</li>
+<li>Convex backend (in progress)</li>
+<li>Bilingual (FR/EN) site</li>
+<li>Custom <code>quality-checks</code> 12-check script</li>
+</ul>
+<p>When in doubt, read patterns at <code>/Users/elmabi/Desktop/my-projets/brillance-d-cor-inc/.claude/</code>.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/stack-react-vite.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

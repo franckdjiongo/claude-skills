@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stack Pack — Power Platform (Code App + Dataverse) · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Stack Pack — Power Platform (Code App + Dataverse)">
+  <meta name="doc-source" content="references/stack-power-platform.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#layout-reference">Layout reference</a></li><li class="lvl-2"><a href="#skills-to-install-(bootstrap)">Skills to install (BOOTSTRAP)</a></li><li class="lvl-2"><a href="#agents-to-install">Agents to install</a></li><li class="lvl-2"><a href="#hooks-to-install">Hooks to install</a></li><li class="lvl-2"><a href="#path-scoped-rules-to-install">Path-scoped rules to install</a></li><li class="lvl-2"><a href="#source-of-truth-doc-structure">Source-of-truth doc structure</a></li><li class="lvl-2"><a href="#ddd-mapping">DDD mapping</a></li><li class="lvl-2"><a href="#common-gotchas-(encoded-in-rules-%2B-hooks)">Common gotchas (encoded in rules + hooks)</a></li><li class="lvl-2"><a href="#tests">Tests</a></li><li class="lvl-2"><a href="#validate-command">Validate command</a></li><li class="lvl-2"><a href="#pre-commit-(.husky%2Fpre-commit)">Pre-commit (.husky/pre-commit)</a></li><li class="lvl-2"><a href="#reference%3A-temps-chantier-(groupe-gilbert)">Reference: Temps Chantier (Groupe Gilbert)</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">stack-power-platform</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Stack Pack — Power Platform (Code App + Dataverse)</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/stack-power-platform.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Stack Pack — Power Platform (Code App + Dataverse)</h1>
+<p>When meta-govern detects: <code>package.json</code> includes <code>@microsoft/power-apps</code>, <code>power-apps</code>, OR <code>power.config.json</code> exists.</p>
+<h2 id="layout-reference" tabindex="-1"><a class="header-anchor" href="#layout-reference" aria-hidden="true">#</a> Layout reference</h2>
+<p>Default architecture pattern: <strong>feature-first</strong> (no native router in code apps). Layout: <code>src/{features,shared,services,models}</code>. See <code>architecture-patterns.html</code> § Power Apps code app.</p>
+<h2 id="skills-to-install-(bootstrap)" tabindex="-1"><a class="header-anchor" href="#skills-to-install-(bootstrap)" aria-hidden="true">#</a> Skills to install (BOOTSTRAP)</h2>
+<p>In addition to the 5 core skills, install these (already globally available — pin via project skills):</p>
+<ul>
+<li><code>add-dataverse</code> — adds Dataverse tables, generates TS models/services</li>
+<li><code>code-app-create</code> — scaffolds new code app</li>
+<li><code>code-app-connect</code> — connects to data sources</li>
+<li><code>code-app-deploy</code> — deploy + ALM + monitoring</li>
+<li><code>pp-solution-sync</code> — sync solution exports</li>
+<li><code>secure-pa-http-trigger</code> — HTTP-trigger Entra auth migration</li>
+</ul>
+<p>For palier 2+:</p>
+<ul>
+<li><code>dataverse-audit</code> (project-level skill scaffolded by meta-govern) — 11-check repository audit</li>
+</ul>
+<h2 id="agents-to-install" tabindex="-1"><a class="header-anchor" href="#agents-to-install" aria-hidden="true">#</a> Agents to install</h2>
+<p>In addition to the 4 core agents:</p>
+<ul>
+<li>(none specific; reuse implementer + ui-implementer + spec-reviewer + code-quality-reviewer)</li>
+</ul>
+<h2 id="hooks-to-install" tabindex="-1"><a class="header-anchor" href="#hooks-to-install" aria-hidden="true">#</a> Hooks to install</h2>
+<p>In addition to the 5 core hooks:</p>
+<ul>
+<li>(Palier 2+) <code>dataverse-column-registry-check.mjs</code> (PreToolUse Edit on <code>**/repositories/**</code>) — verifies column references against <code>docs/dataverse-columns/manifest.json</code></li>
+</ul>
+<h2 id="path-scoped-rules-to-install" tabindex="-1"><a class="header-anchor" href="#path-scoped-rules-to-install" aria-hidden="true">#</a> Path-scoped rules to install</h2>
+<p>In addition to the 8 core rules:</p>
+<ul>
+<li>
+<p><code>dataverse-and-sdk.md</code> (paths: <code>src/**/repositories/**</code>, <code>src/**/mutations/**</code>):</p>
+<ul>
+<li>FormattedValue ban (CRITICAL)</li>
+<li>Column registry compliance</li>
+<li><code>@odata.bind</code> quirks</li>
+<li>GUID case sensitivity</li>
+<li>Formula-column filter incompatibility</li>
+<li>Date normalization</li>
+<li>Mock format fidelity for tests</li>
+</ul>
+</li>
+<li>
+<p><code>data-layer.md</code> (paths: <code>src/**/data-layer/**</code>):</p>
+<ul>
+<li>3-layer architecture: Repositories → Mutations → Actions on top of generated SDK</li>
+<li>One repository per table</li>
+<li>Mutations must invalidate query keys</li>
+<li>No raw SDK calls in components</li>
+</ul>
+</li>
+</ul>
+<h2 id="source-of-truth-doc-structure" tabindex="-1"><a class="header-anchor" href="#source-of-truth-doc-structure" aria-hidden="true">#</a> Source-of-truth doc structure</h2>
+<p>Three canonical docs:</p>
+<ol>
+<li><code>docs/&lt;project&gt;-spec.md</code> — FUNC-XX, RA-XX, VAL-XX</li>
+<li><code>docs/lexique-donnees-dataverse.md</code> — tables, columns, OData, lookups, option sets</li>
+<li><code>docs/composants/catalogue-composants.md</code> — C-XX components</li>
+</ol>
+<p>Add machine-readable column registry:</p>
+<ul>
+<li><code>docs/dataverse-columns/manifest.json</code> (synced from lexique by <code>update-manifest</code> script)</li>
+<li>Enforced by <code>dataverse-audit</code> Check 11</li>
+</ul>
+<h2 id="ddd-mapping" tabindex="-1"><a class="header-anchor" href="#ddd-mapping" aria-hidden="true">#</a> DDD mapping</h2>
+<p>If DDD score ≥ 10:</p>
+<ul>
+<li>Bounded Context = Dataverse environment (often 1:1)</li>
+<li>Aggregate transactional boundary = C# plugin sandboxed transaction</li>
+<li>Process Manager = Power Automate flow</li>
+<li>Mapper-as-ACL = TS Mapper class at the domain/infrastructure boundary</li>
+</ul>
+<h2 id="common-gotchas-(encoded-in-rules-%2B-hooks)" tabindex="-1"><a class="header-anchor" href="#common-gotchas-(encoded-in-rules-%2B-hooks)" aria-hidden="true">#</a> Common gotchas (encoded in rules + hooks)</h2>
+<ul>
+<li><code>FormattedValue</code> is forbidden — use raw value + <code>formatColumn()</code> helper</li>
+<li>GUIDs are case-sensitive when using <code>@odata.bind</code></li>
+<li>Formula columns can't be used in OData filters</li>
+<li>Lookups need <code>@odata.bind</code> for navigation properties</li>
+<li><code>_columnname_value</code> is the lookup ID format</li>
+<li>Plugin sandboxed transaction = aggregate transactional boundary</li>
+</ul>
+<h2 id="tests" tabindex="-1"><a class="header-anchor" href="#tests" aria-hidden="true">#</a> Tests</h2>
+<ul>
+<li>Mock Dataverse responses with format fidelity (use <code>Dataverse-Mock</code> library or manual fixtures)</li>
+<li>Test repository methods, not raw SDK calls</li>
+<li>Test mutation cache invalidation</li>
+<li>State machine tests for journal/workflow status transitions</li>
+</ul>
+<h2 id="validate-command" tabindex="-1"><a class="header-anchor" href="#validate-command" aria-hidden="true">#</a> Validate command</h2>
+<p><code>npm run validate</code>:</p>
+<pre><code class="language-json">{
+  &quot;scripts&quot;: {
+    &quot;validate&quot;: &quot;npm run typecheck &amp;&amp; npm run lint &amp;&amp; npm run test &amp;&amp; npm run build &amp;&amp; npm run quality:check&quot;,
+    &quot;validate:fast&quot;: &quot;npm run typecheck &amp;&amp; npm run lint &amp;&amp; npm run test:changed&quot;,
+    &quot;quality:check&quot;: &quot;node .claude/skills/quality-gate/scripts/quality-checks.js --scope full --fail-level high&quot;,
+    &quot;quality:check:staged&quot;: &quot;node .claude/skills/quality-gate/scripts/quality-checks.js --scope staged --fail-level high&quot;,
+    &quot;quality:check:critical&quot;: &quot;node .claude/skills/quality-gate/scripts/quality-checks.js --scope full --fail-level critical&quot;,
+    &quot;test:failures&quot;: &quot;node .claude/scripts/test-failures.mjs&quot;
+  }
+}
+</code></pre>
+<h2 id="pre-commit-(.husky%2Fpre-commit)" tabindex="-1"><a class="header-anchor" href="#pre-commit-(.husky%2Fpre-commit)" aria-hidden="true">#</a> Pre-commit (<code>.husky/pre-commit</code>)</h2>
+<pre><code class="language-bash">npx lint-staged
+node .claude/scripts/file-size-growth-guard.mjs
+node .claude/skills/quality-gate/scripts/quality-checks.js --scope staged --fail-level high
+node .claude/skills/dataverse-audit/scripts/dataverse-audit.js --scope staged
+</code></pre>
+<h2 id="reference%3A-temps-chantier-(groupe-gilbert)" tabindex="-1"><a class="header-anchor" href="#reference%3A-temps-chantier-(groupe-gilbert)" aria-hidden="true">#</a> Reference: Temps Chantier (Groupe Gilbert)</h2>
+<p>The user's Temps Chantier project is the canonical Power Platform implementation:</p>
+<ul>
+<li>15 skills, 4 agents, 11 hooks, 8 rules</li>
+<li>Dual-runtime architecture (<code>.agents/</code>, <code>.codex/</code>, <code>.claude/</code>)</li>
+<li>60+ debugging lessons in <code>governance-matrix.md</code></li>
+<li>Strict source-of-truth alignment with <code>dataverse-and-sdk.md</code></li>
+</ul>
+<p>When in doubt, read TC patterns at <code>/Users/elmabi/Desktop/my-projets/temps-chantier-code-app/.claude/</code>.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/stack-power-platform.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

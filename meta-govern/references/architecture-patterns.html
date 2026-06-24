@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Architecture Patterns — Layout &amp; Boundary Catalog · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Architecture Patterns — Layout &amp; Boundary Catalog">
+  <meta name="doc-source" content="references/architecture-patterns.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#why-this-exists">Why this exists</a></li><li class="lvl-2"><a href="#pattern-matrix">Pattern matrix</a></li><li class="lvl-2"><a href="#selection-tree">Selection tree</a></li><li class="lvl-2"><a href="#what-%22framework-native-%2B-feature-first%22-looks-like">What &quot;framework-native + feature-first&quot; looks like</a></li><li class="lvl-3"><a href="#react-%2B-vite-%2B-typescript">React + Vite + TypeScript</a></li><li class="lvl-3"><a href="#next.js-app-router">Next.js App Router</a></li><li class="lvl-3"><a href="#power-apps-code-app-(no-native-router)">Power Apps code app (no native router)</a></li><li class="lvl-2"><a href="#anti-patterns-this-catalog-explicitly-rejects">Anti-patterns this catalog explicitly rejects</a></li><li class="lvl-2"><a href="#how-this-integrates-with-paliers">How this integrates with paliers</a></li><li class="lvl-2"><a href="#per-stack-default">Per-stack default</a></li><li class="lvl-2"><a href="#when-bootstrap-should-ask-the-user">When BOOTSTRAP should ask the user</a></li><li class="lvl-2"><a href="#validation-hooks">Validation hooks</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">architecture-patterns</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Architecture Patterns — Layout &amp; Boundary Catalog</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/architecture-patterns.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Architecture Patterns — Layout &amp; Boundary Catalog</h1>
+<p>Source: synthesis of <code>LLM-friendly project architecture for AI coding agents in 2026.md</code> plus existing meta-govern conventions. Cross-cuts every stack pack.</p>
+<h2 id="why-this-exists" tabindex="-1"><a class="header-anchor" href="#why-this-exists" aria-hidden="true">#</a> Why this exists</h2>
+<p>Stack packs (React+Vite, Next.js, Convex, Power Platform) say <em>which framework</em>. DDD scorecard says <em>whether to model the domain explicitly</em>. Neither answers <em>how to lay out the source tree</em>. This catalog does.</p>
+<p>The recommended default for 2026 agentic coding is:</p>
+<blockquote>
+<p><strong>Framework-native shell + feature-first vertical slices + typed contracts + modular-monolith mindset.</strong></p>
+</blockquote>
+<p>Five reasons agents do better with this:</p>
+<ol>
+<li>Routes/entrypoints stay where the framework expects them — discoverability is free.</li>
+<li>Most edits land inside one feature folder — locality of change.</li>
+<li>Shared packages exist only when reuse is real — no <code>shared/utils/helpers</code> dump.</li>
+<li>Boundary files are obvious — server-vs-client, route-vs-domain, app-vs-package.</li>
+<li>Validation surfaces (<code>validate</code>) are unambiguous and stack-agnostic.</li>
+</ol>
+<h2 id="pattern-matrix" tabindex="-1"><a class="header-anchor" href="#pattern-matrix" aria-hidden="true">#</a> Pattern matrix</h2>
+<p>Score is <strong>agent-readability</strong>, not human-readability. [Synthesis from research doc.]</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Score</th>
+<th>Best for</th>
+<th>Anti-signal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Framework-native + feature-first</strong></td>
+<td>9/10</td>
+<td>Default for most apps (React+Vite, Next, SvelteKit, Power Apps code apps)</td>
+<td>None — start here</td>
+</tr>
+<tr>
+<td><strong>Vertical slice</strong></td>
+<td>8.5/10</td>
+<td>CRUD-heavy apps, internal tools, BFFs</td>
+<td>Heavy cross-feature physics simulation, real-time engines</td>
+</tr>
+<tr>
+<td><strong>Modular monolith</strong></td>
+<td>8.5/10</td>
+<td>Production SaaS / full-stack products, palier 3+</td>
+<td>Tiny prototypes</td>
+</tr>
+<tr>
+<td><strong>Feature-Sliced Design (light)</strong></td>
+<td>8/10</td>
+<td>Mid-size+ frontends with multiple domains</td>
+<td>Throwaway prototypes</td>
+</tr>
+<tr>
+<td><strong>Package-based monorepo</strong></td>
+<td>8/10 (when justified)</td>
+<td>Multiple deployables, real shared packages</td>
+<td>Single app pretending it has packages</td>
+</tr>
+<tr>
+<td><strong>Clean / hexagonal everywhere</strong></td>
+<td>6.5/10</td>
+<td>Complex regulated domains, integration-heavy services</td>
+<td>Most CRUD apps — pays ceremony tax for nothing</td>
+</tr>
+<tr>
+<td><strong>Flat by-type</strong> (<code>components/</code>, <code>hooks/</code>, <code>services/</code>, <code>helpers/</code>)</td>
+<td>4/10 — anti-pattern</td>
+<td>Throwaway prototypes only</td>
+<td>Anything that ships</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="selection-tree" tabindex="-1"><a class="header-anchor" href="#selection-tree" aria-hidden="true">#</a> Selection tree</h2>
+<pre><code>Q1. Is this a throwaway prototype that won't ship?
+   YES → flat or single-feature folder is fine; skip the rest of this guide.
+   NO  → continue.
+
+Q2. Multiple deployables (web + api + worker), or genuinely shared packages?
+   YES → Package-based monorepo (apps/ + packages/). Choose Nx if AI/CI heavy, else Turborepo.
+   NO  → continue.
+
+Q3. Single app. Does the framework provide native routing/runtime conventions?
+   YES → Framework-native shell + feature-first slices.
+        For React+Vite: src/app/ (composition) + src/routes/ (pages) + src/features/ (slices) + src/shared/ (cross-cutting).
+        For Next.js: src/app/ (router) + src/features/ (slices) + src/server/ (durable logic) + src/shared/.
+        For Power Apps code app: src/{features,shared,services} — code app has no native router.
+   NO  → fall back to plain vertical-slice with explicit feature folders.
+
+Q4. Does the domain have hard business rules (regulated, money, compliance)?
+   YES → Add hexagonal indirection inside affected slices ONLY (DDD score ≥10 → see ddd-tactical.md).
+   NO  → keep slices light; no Repository&lt;T&gt; / UseCase / Mapper layers.
+
+Q5. Is the frontend going to host &gt;5 distinct domains (auth + billing + admin + reports + ...)?
+   YES → Adopt FSD-light: layers (`app/`, `processes/`, `pages/`, `widgets/`, `features/`, `entities/`, `shared/`) with import direction enforced by lint.
+   NO  → flat `features/` is enough.
+</code></pre>
+<h2 id="what-%22framework-native-%2B-feature-first%22-looks-like" tabindex="-1"><a class="header-anchor" href="#what-%22framework-native-%2B-feature-first%22-looks-like" aria-hidden="true">#</a> What &quot;framework-native + feature-first&quot; looks like</h2>
+<h3 id="react-%2B-vite-%2B-typescript" tabindex="-1"><a class="header-anchor" href="#react-%2B-vite-%2B-typescript" aria-hidden="true">#</a> React + Vite + TypeScript</h3>
+<pre><code>src/
+├─ app/                   # composition root: providers, router, theme, main.tsx
+├─ routes/                # route-visible pages (one folder per page)
+├─ features/              # reusable feature slices: auth/, billing/, profile/
+│  └─ &lt;feature&gt;/
+│     ├─ components/
+│     ├─ hooks/
+│     ├─ schemas/
+│     ├─ services/        # or api/
+│     └─ &lt;feature&gt;.test.ts
+├─ shared/                # genuinely cross-feature: ui/, lib/, config/, types/
+└─ test/                  # global setup, msw mocks
+</code></pre>
+<h3 id="next.js-app-router" tabindex="-1"><a class="header-anchor" href="#next.js-app-router" aria-hidden="true">#</a> Next.js App Router</h3>
+<pre><code>src/
+├─ app/                   # routes (Server Components by default), route groups, route.ts (thin)
+├─ features/              # business slices reused across routes
+├─ server/                # durable backend logic: db/, services/, repositories/, auth/
+├─ shared/                # ui/, lib/, schemas/, config/
+</code></pre>
+<p>Rule: <code>route.ts</code> parses, validates, calls a service, responds. Domain logic lives in <code>src/server/&lt;area&gt;/</code>. <code>'use client'</code> lives at the smallest interactive boundary — never at the top of a page.</p>
+<h3 id="power-apps-code-app-(no-native-router)" tabindex="-1"><a class="header-anchor" href="#power-apps-code-app-(no-native-router)" aria-hidden="true">#</a> Power Apps code app (no native router)</h3>
+<pre><code>src/
+├─ features/&lt;feature&gt;/    # components, hooks, services
+├─ shared/                # ui, lib, config
+├─ services/              # generated Dataverse services
+└─ models/                # generated TypeScript models
+</code></pre>
+<p>Code apps lack a router; <code>App.tsx</code> is the composition root. Feature-first still applies.</p>
+<h2 id="anti-patterns-this-catalog-explicitly-rejects" tabindex="-1"><a class="header-anchor" href="#anti-patterns-this-catalog-explicitly-rejects" aria-hidden="true">#</a> Anti-patterns this catalog explicitly rejects</h2>
+<ul>
+<li><strong>Flat by-type</strong> (<code>components/</code>, <code>hooks/</code>, <code>services/</code>, all parallel) — feature ownership is inferred from naming, agents waste tokens reconstructing it.</li>
+<li><strong>Business logic in <code>route.ts</code> / <code>+page.server.ts</code> / <code>route handler</code></strong> — boundary files become 260-line hotspots. Move to <code>server/</code> or feature service.</li>
+<li><strong><code>shared/utils/helpers/</code> dumping ground</strong> — anything reused by 1 caller doesn't belong in shared.</li>
+<li><strong>Premature monorepo</strong> — <code>apps/web/</code> containing the entire app, <code>packages/</code> empty or with one trivial config package. Wait until two real deployables.</li>
+<li><strong>Clean architecture in CRUD slices</strong> — UseCase + Repository + Mapper + DTO + Entity for a list-of-items page is overhead that buys nothing.</li>
+<li><strong>Shared package per slice</strong> — <code>packages/auth-feature/</code>, <code>packages/billing-feature/</code> defeats locality; reuse-of-1 is not reuse.</li>
+</ul>
+<h2 id="how-this-integrates-with-paliers" tabindex="-1"><a class="header-anchor" href="#how-this-integrates-with-paliers" aria-hidden="true">#</a> How this integrates with paliers</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Palier</th>
+<th>Default pattern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 → 1</td>
+<td>BOOTSTRAP picks pattern at scaffolding time. Default: framework-native + feature-first. Recorded in <code>.claude/.meta-govern.json</code>.</td>
+</tr>
+<tr>
+<td>1 → 2</td>
+<td>Pattern stays. New features go in <code>features/&lt;new-feature&gt;/</code> — never in a parallel by-type tree.</td>
+</tr>
+<tr>
+<td>2 → 3</td>
+<td>Multi-dev. <code>eslint-plugin-boundaries</code> becomes worth the setup (see <code>tooling-architecture-checks.html</code>).</td>
+</tr>
+<tr>
+<td>3 → 4</td>
+<td>CI. Architecture checks (Knip, dep-cruiser) wired into <code>validate</code>.</td>
+</tr>
+<tr>
+<td>4 → 5</td>
+<td>Dual-runtime. Pattern unchanged. AGENTS.md mirror added.</td>
+</tr>
+<tr>
+<td>5 → 6</td>
+<td>Mature. May extract real <code>packages/</code> if reuse is now real.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="per-stack-default" tabindex="-1"><a class="header-anchor" href="#per-stack-default" aria-hidden="true">#</a> Per-stack default</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Stack</th>
+<th>Default pattern</th>
+<th>Layout reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>React + Vite</td>
+<td>Framework-native + feature-first</td>
+<td><code>stack-react-vite.html</code></td>
+</tr>
+<tr>
+<td>Next.js App Router</td>
+<td>Framework-native + feature-first + thin route handlers</td>
+<td><code>stack-nextjs.html</code></td>
+</tr>
+<tr>
+<td>Power Platform code app</td>
+<td>Feature-first (no router)</td>
+<td><code>stack-power-platform.html</code></td>
+</tr>
+<tr>
+<td>Convex</td>
+<td>Feature-first frontend; <code>convex/</code> enforces backend layout</td>
+<td><code>stack-convex.html</code></td>
+</tr>
+<tr>
+<td>Monorepo</td>
+<td>apps/ + packages/ + per-app pattern above</td>
+<td><code>stack-monorepo.html</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="when-bootstrap-should-ask-the-user" tabindex="-1"><a class="header-anchor" href="#when-bootstrap-should-ask-the-user" aria-hidden="true">#</a> When BOOTSTRAP should ask the user</h2>
+<p>Don't ask:</p>
+<ul>
+<li>Single app, no monorepo, framework detected → default to framework-native + feature-first silently.</li>
+<li>Power Apps code app → feature-first silently.</li>
+</ul>
+<p>Ask:</p>
+<ul>
+<li>Two or more deployables detected (<code>apps/</code> exists with &gt;1 child) → confirm monorepo.</li>
+<li>Domain looks regulated (DDD score ≥10) → confirm whether hexagonal indirection is wanted in core slices.</li>
+<li>
+<blockquote>
+<p>5 distinct top-level domains hinted by spec → propose FSD-light.</p>
+</blockquote>
+</li>
+</ul>
+<p>Default lives in <code>references/project-archetypes.html</code>.</p>
+<h2 id="validation-hooks" tabindex="-1"><a class="header-anchor" href="#validation-hooks" aria-hidden="true">#</a> Validation hooks</h2>
+<p><code>audit-project.mjs</code> should warn (not block) on:</p>
+<ul>
+<li>Top-level <code>components/</code> AND <code>hooks/</code> AND <code>services/</code> parallel folders with &gt;5 files each → flat by-type detected → SUGGEST migration.</li>
+<li><code>route.ts</code> or <code>+server.ts</code> &gt;120 lines → boundary file owns logic → SUGGEST extraction.</li>
+<li><code>shared/</code> containing &gt;30 files → SUGGEST audit; &quot;shared&quot; should be small.</li>
+<li><code>packages/</code> with only one package → SUGGEST collapsing back to single app.</li>
+</ul>
+<p>These are advisory; the user decides.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/architecture-patterns.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

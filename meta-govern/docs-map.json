@@ -1,0 +1,24 @@
+{
+  "_comment": "Registre canonique du corpus documentaire meta-govern. Tout document lisible par un humain est HTML (coquille premium, TOC, badge) ; seuls SKILL.md, agents/*.md et les templates/scripts restent Markdown (instructions runtime). Nouveau doc : node scripts/docs-html/scaffold.mjs <type> <chemin>.html \"<Titre>\". Réindexation : node scripts/docs-html/make-index.mjs. Garde : node scripts/docs-html/no-markdown-guard.mjs.",
+  "version": 1,
+  "lastReviewed": "2026-06-09",
+  "root": ".",
+  "sourcesOfTruth": {
+    "skillEntry": "SKILL.md",
+    "userGuide": "USER-GUIDE.html",
+    "buildSummary": "BUILD-SUMMARY.html",
+    "lessonsLog": "references/lessons-log.html"
+  },
+  "artifactDirs": {
+    "references": "references",
+    "agents": "agents",
+    "templates": "templates",
+    "scripts": "scripts"
+  },
+  "conventions": {
+    "docFormat": "html",
+    "markdownAllowlist": ["SKILL.md", "agents/*.md", "templates/**", "scripts/**"],
+    "lessonsAppendMarker": "<!-- LESSONS:APPEND -->",
+    "verifyBaselineCommit": "900c654"
+  }
+}

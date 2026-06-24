@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stack Pack — Monorepo (pnpm + Turborepo or Nx) · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Stack Pack — Monorepo (pnpm + Turborepo or Nx)">
+  <meta name="doc-source" content="references/stack-monorepo.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#when-monorepo-wins">When monorepo wins</a></li><li class="lvl-2"><a href="#turborepo-vs-nx">Turborepo vs Nx</a></li><li class="lvl-2"><a href="#layout">Layout</a></li><li class="lvl-2"><a href="#claude.md-strategy">CLAUDE.md strategy</a></li><li class="lvl-2"><a href="#skills-to-install-(bootstrap)">Skills to install (BOOTSTRAP)</a></li><li class="lvl-2"><a href="#agents-to-install">Agents to install</a></li><li class="lvl-2"><a href="#hooks-to-install">Hooks to install</a></li><li class="lvl-2"><a href="#path-scoped-rules-to-install">Path-scoped rules to install</a></li><li class="lvl-2"><a href="#tooling-stack">Tooling stack</a></li><li class="lvl-2"><a href="#validate-command">Validate command</a></li><li class="lvl-3"><a href="#turborepo">Turborepo</a></li><li class="lvl-3"><a href="#nx">Nx</a></li><li class="lvl-2"><a href="#common-gotchas">Common gotchas</a></li><li class="lvl-2"><a href="#source-of-truth-doc-structure">Source-of-truth doc structure</a></li><li class="lvl-2"><a href="#promotion-signals">Promotion signals</a></li><li class="lvl-2"><a href="#reference">Reference</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">stack-monorepo</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Stack Pack — Monorepo (pnpm + Turborepo or Nx)</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/stack-monorepo.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Stack Pack — Monorepo (pnpm + Turborepo or Nx)</h1>
+<p>When meta-govern detects: <code>pnpm-workspace.yaml</code> exists at root AND (<code>apps/</code> exists with ≥1 child OR <code>packages/</code> exists with ≥1 child) AND (<code>turbo.json</code> OR <code>nx.json</code>).</p>
+<h2 id="when-monorepo-wins" tabindex="-1"><a class="header-anchor" href="#when-monorepo-wins" aria-hidden="true">#</a> When monorepo wins</h2>
+<p>A monorepo earns its keep when <strong>at least one</strong> of these is true:</p>
+<ul>
+<li>2+ deployables (e.g., <code>apps/web</code> + <code>apps/api</code> + <code>apps/admin</code>).</li>
+<li>Genuine shared packages (UI lib, schemas, domain) reused by 2+ apps.</li>
+<li>Graph-aware CI matters (<code>affected</code> checks, distributed cache).</li>
+<li>A team boundary aligns with a package boundary.</li>
+</ul>
+<p>If none of those are true, <strong>stay single-app</strong>. A monorepo with one <code>apps/web/</code> and an empty <code>packages/</code> is overhead with no payoff.</p>
+<p>This is archetype D in <code>project-archetypes.html</code>.</p>
+<h2 id="turborepo-vs-nx" tabindex="-1"><a class="header-anchor" href="#turborepo-vs-nx" aria-hidden="true">#</a> Turborepo vs Nx</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Choose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Thin orchestration, low ceremony, focus on package + task graph</td>
+<td><strong>Turborepo</strong></td>
+</tr>
+<tr>
+<td>Graph-aware AI workflows (<code>configure-ai-agents</code>, MCP server, generators)</td>
+<td><strong>Nx</strong></td>
+</tr>
+<tr>
+<td>Affected checks + distributed cache + multi-language (Python/Go/JS)</td>
+<td><strong>Nx</strong></td>
+</tr>
+<tr>
+<td>Just need parallel builds and remote cache for JS/TS</td>
+<td><strong>Turborepo</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>Default: <strong>Turborepo</strong> unless the user explicitly wants Nx's AI/affected affordances or runs CI at a scale where graph distribution matters.</p>
+<h2 id="layout" tabindex="-1"><a class="header-anchor" href="#layout" aria-hidden="true">#</a> Layout</h2>
+<pre><code>workspace/
+├─ apps/
+│  ├─ web/                # palier-1 scaffolded per stack-react-vite or stack-nextjs
+│  ├─ admin/              # optional second frontend
+│  ├─ api/                # optional separate API
+│  └─ docs/               # optional docs site
+├─ packages/
+│  ├─ ui/                 # shared component library
+│  ├─ schemas/            # shared Zod schemas (boundary contracts)
+│  ├─ domain/             # shared domain types / pure logic (when DDD applies)
+│  ├─ api-client/         # generated typed client (when api is in-tree)
+│  ├─ config-eslint/      # shared eslint config
+│  ├─ config-typescript/  # shared tsconfig base
+│  └─ utils/              # genuinely shared helpers (small)
+├─ docs/
+│  ├─ architecture.md     # repo-wide architecture
+│  ├─ agent-playbook.md   # how to add a feature, endpoint, package
+│  ├─ decisions/          # ADRs
+│  ├─ testing.md
+│  └─ security.md
+├─ .claude/               # one root .claude — palette shared across apps
+├─ .husky/
+├─ CLAUDE.md              # one root CLAUDE.md; per-app deltas via .claude/rules paths
+├─ pnpm-workspace.yaml
+├─ turbo.json | nx.json
+├─ package.json
+└─ README.md
+</code></pre>
+<h2 id="claude.md-strategy" tabindex="-1"><a class="header-anchor" href="#claude.md-strategy" aria-hidden="true">#</a> CLAUDE.md strategy</h2>
+<p><strong>One root <code>CLAUDE.md</code>.</strong> Per-app deltas live in <code>.claude/rules/&lt;app&gt;-*.md</code> with <code>paths: apps/&lt;app&gt;/**</code> — not in nested <code>apps/&lt;app&gt;/CLAUDE.md</code> files. Reasons:</p>
+<ul>
+<li>Multiple <code>CLAUDE.md</code> files compound standing-context cost.</li>
+<li>The four-tier architecture's path-scoped rules already handle locality.</li>
+<li>Compaction recovery is one file, not N files.</li>
+</ul>
+<p>Exception: if an app has materially different commands (e.g., <code>apps/api</code> uses Bun + drizzle while <code>apps/web</code> uses Node + Next), accept a thin app-level <code>CLAUDE.md</code> that pointer-references the root.</p>
+<h2 id="skills-to-install-(bootstrap)" tabindex="-1"><a class="header-anchor" href="#skills-to-install-(bootstrap)" aria-hidden="true">#</a> Skills to install (BOOTSTRAP)</h2>
+<p>In addition to the 5 core skills:</p>
+<ul>
+<li><code>frontend-design</code>, <code>ship-polished-ui</code>, <code>seo-visibility</code> — when any frontend app exists</li>
+<li><code>simplify</code> (palier 2+) — pruning shared packages</li>
+</ul>
+<h2 id="agents-to-install" tabindex="-1"><a class="header-anchor" href="#agents-to-install" aria-hidden="true">#</a> Agents to install</h2>
+<p>In addition to the 6 core agents:</p>
+<ul>
+<li><code>package-cohesion-reviewer</code> (palier 3+, project-level) — checks that a new shared package has 2+ real consumers before approval</li>
+</ul>
+<h2 id="hooks-to-install" tabindex="-1"><a class="header-anchor" href="#hooks-to-install" aria-hidden="true">#</a> Hooks to install</h2>
+<p>In addition to the 5 core hooks:</p>
+<ul>
+<li>(Optional, palier 3+) <code>package-import-guard.mjs</code> — block PRs that add a new <code>packages/&lt;x&gt;</code> without ≥2 consumers</li>
+</ul>
+<h2 id="path-scoped-rules-to-install" tabindex="-1"><a class="header-anchor" href="#path-scoped-rules-to-install" aria-hidden="true">#</a> Path-scoped rules to install</h2>
+<p>In addition to the 8 core rules:</p>
+<ul>
+<li><code>package-discipline.md</code> (paths: <code>packages/**</code>):
+<ul>
+<li>One package = one cohesive concern</li>
+<li>No app-specific code in packages</li>
+<li>Public API exposed via <code>index.ts</code>; no deep imports from consumers</li>
+<li>Each package has its own tests</li>
+</ul>
+</li>
+<li><code>feature-organization.md</code> (paths: <code>apps/**/src/features/**</code>, <code>apps/**/src/routes/**</code>) — see template</li>
+<li>App-specific path rules per stack pack (Next, Vite)</li>
+</ul>
+<h2 id="tooling-stack" tabindex="-1"><a class="header-anchor" href="#tooling-stack" aria-hidden="true">#</a> Tooling stack</h2>
+<ul>
+<li><strong>pnpm 9+</strong> workspace + catalogs (centralized version management)</li>
+<li><strong>TypeScript strict mode</strong> with shared <code>packages/config-typescript</code></li>
+<li><strong>Turborepo</strong> OR <strong>Nx</strong> (chosen per matrix above)</li>
+<li><strong>Knip + dependency-cruiser + eslint-plugin-boundaries</strong> — palier 1 for archetype D (see <code>tooling-architecture-checks.html</code>)</li>
+<li><strong>Changesets</strong> for versioning (when packages are published)</li>
+</ul>
+<h2 id="validate-command" tabindex="-1"><a class="header-anchor" href="#validate-command" aria-hidden="true">#</a> Validate command</h2>
+<h3 id="turborepo" tabindex="-1"><a class="header-anchor" href="#turborepo" aria-hidden="true">#</a> Turborepo</h3>
+<pre><code class="language-json">{
+  &quot;scripts&quot;: {
+    &quot;dev&quot;: &quot;turbo run dev&quot;,
+    &quot;build&quot;: &quot;turbo run build&quot;,
+    &quot;typecheck&quot;: &quot;turbo run typecheck&quot;,
+    &quot;lint&quot;: &quot;turbo run lint&quot;,
+    &quot;test&quot;: &quot;turbo run test&quot;,
+    &quot;validate&quot;: &quot;turbo run typecheck lint test build &amp;&amp; bun run lint:dead &amp;&amp; bun run lint:deps &amp;&amp; bun run quality:check&quot;,
+    &quot;lint:dead&quot;: &quot;knip&quot;,
+    &quot;lint:deps&quot;: &quot;depcruise --config .dependency-cruiser.cjs apps packages&quot;,
+    &quot;quality:check&quot;: &quot;node .claude/scripts/quality-checks/index.mjs&quot;
+  }
+}
+</code></pre>
+<p><code>turbo.json</code> defines task dependencies (<code>dependsOn: [&quot;^build&quot;]</code>) so the graph is respected.</p>
+<h3 id="nx" tabindex="-1"><a class="header-anchor" href="#nx" aria-hidden="true">#</a> Nx</h3>
+<pre><code class="language-json">{
+  &quot;scripts&quot;: {
+    &quot;validate&quot;: &quot;nx affected -t typecheck lint test build &amp;&amp; bun run quality:check&quot;,
+    &quot;validate:full&quot;: &quot;nx run-many -t typecheck lint test build&quot;,
+    &quot;graph&quot;: &quot;nx graph&quot;
+  }
+}
+</code></pre>
+<p>Nx's <code>affected</code> is the killer feature: only validates packages whose graph is touched by the diff.</p>
+<h2 id="common-gotchas" tabindex="-1"><a class="header-anchor" href="#common-gotchas" aria-hidden="true">#</a> Common gotchas</h2>
+<ul>
+<li><strong>Empty <code>packages/</code> with one config package</strong> — collapse back to single-app until reuse is real.</li>
+<li><strong><code>packages/utils</code> becoming a dump</strong> — split by concern (<code>packages/dates</code>, <code>packages/strings</code>) or push into the consuming app.</li>
+<li><strong>App importing from another app</strong> (<code>apps/web</code> imports from <code>apps/admin</code>) — forbidden; promote the shared code to a package.</li>
+<li><strong>Circular deps between packages</strong> — caught by dependency-cruiser; usually means a package needs splitting or merging.</li>
+<li><strong><code>pnpm install</code> slow</strong> — enable pnpm catalogs to deduplicate version drift.</li>
+<li><strong>Per-app <code>node_modules</code></strong> — fine in pnpm (symlinked); don't try to flatten.</li>
+</ul>
+<h2 id="source-of-truth-doc-structure" tabindex="-1"><a class="header-anchor" href="#source-of-truth-doc-structure" aria-hidden="true">#</a> Source-of-truth doc structure</h2>
+<p>Two layers:</p>
+<ol>
+<li><strong>Repo-wide</strong>: <code>docs/architecture.md</code>, <code>docs/agent-playbook.md</code>, <code>docs/decisions/</code></li>
+<li><strong>Per-app</strong>: <code>apps/&lt;app&gt;/docs/&lt;app&gt;-spec.md</code>, <code>apps/&lt;app&gt;/docs/data-model.md</code>, <code>apps/&lt;app&gt;/docs/composants/catalogue-composants.md</code></li>
+</ol>
+<p>The root CLAUDE.md <code>Source de vérité</code> block points at the repo-wide docs and lists per-app docs.</p>
+<h2 id="promotion-signals" tabindex="-1"><a class="header-anchor" href="#promotion-signals" aria-hidden="true">#</a> Promotion signals</h2>
+<ul>
+<li>Adding a new <code>apps/&lt;x&gt;/</code> → run BOOTSTRAP scoped to that app, reuse the root <code>.claude/</code>.</li>
+<li>Adding a new <code>packages/&lt;x&gt;/</code> → require ≥2 consumers (or document why); add <code>package-cohesion-reviewer</code> review step.</li>
+<li>Going from 2 apps to 5+ apps → promote to palier 4 (CI graph-aware) and lock in Nx if not already.</li>
+</ul>
+<h2 id="reference" tabindex="-1"><a class="header-anchor" href="#reference" aria-hidden="true">#</a> Reference</h2>
+<p><code>architecture-patterns.html</code> § Package-based monorepo for the layout decision.
+<code>project-archetypes.html</code> archetype D for scaffold defaults.
+<code>tooling-architecture-checks.html</code> for Knip / dep-cruiser / eslint-plugin-boundaries config.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/stack-monorepo.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

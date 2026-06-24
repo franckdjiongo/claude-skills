@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Engineering Principles — The User's Canon · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Engineering Principles — The User&#39;s Canon">
+  <meta name="doc-source" content="references/engineering-principles.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#dry-%E2%80%94-don't-repeat-yourself-(threshold-of-three)">DRY — Don't Repeat Yourself (threshold of three)</a></li><li class="lvl-2"><a href="#kiss-%E2%80%94-keep-it-simple%2C-stupid">KISS — Keep It Simple, Stupid</a></li><li class="lvl-2"><a href="#yagni-%E2%80%94-you-aren't-gonna-need-it">YAGNI — You Aren't Gonna Need It</a></li><li class="lvl-2"><a href="#solid-%E2%80%94-pragmatic-interpretation">SOLID — pragmatic interpretation</a></li><li class="lvl-2"><a href="#sine-%E2%80%94-single-side-effect%2C-in%2C-named%2C-explicit">SINE — Single side-effect, In, Named, Explicit</a></li><li class="lvl-2"><a href="#clean-code">Clean Code</a></li><li class="lvl-3"><a href="#meaningful-names">Meaningful names</a></li><li class="lvl-3"><a href="#small-functions">Small functions</a></li><li class="lvl-3"><a href="#comments-explain-why%2C-not-what">Comments explain WHY, not WHAT</a></li><li class="lvl-3"><a href="#fail-fast">Fail fast</a></li><li class="lvl-3"><a href="#boy-scout-rule">Boy Scout Rule</a></li><li class="lvl-2"><a href="#tests-as-documentation">Tests as documentation</a></li><li class="lvl-2"><a href="#when-principles-conflict">When principles conflict</a></li><li class="lvl-2"><a href="#anti-patterns-this-canon-blocks">Anti-patterns this canon blocks</a></li><li class="lvl-2"><a href="#how-meta-govern-enforces">How meta-govern enforces</a></li><li class="lvl-2"><a href="#cross-references">Cross-references</a></li><li class="lvl-2"><a href="#why-this-lives-here">Why this lives here</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">engineering-principles</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Engineering Principles — The User's Canon</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/engineering-principles.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Engineering Principles — The User's Canon</h1>
+<p>The user's foundational engineering principles. Applied across every project. Encoded in <code>templates/rules/clean-code.md.tpl</code>, embedded in agent bodies, enforced via <code>code-quality-reviewer</code>.</p>
+<h2 id="dry-%E2%80%94-don't-repeat-yourself-(threshold-of-three)" tabindex="-1"><a class="header-anchor" href="#dry-%E2%80%94-don't-repeat-yourself-(threshold-of-three)" aria-hidden="true">#</a> DRY — Don't Repeat Yourself (threshold of three)</h2>
+<p>Three identical fragments → extract. NOT two. Premature DRY produces wrong abstractions; lived duplication reveals the right shape.</p>
+<pre><code>1 occurrence  → write it
+2 occurrences → leave it (might diverge)
+3 occurrences → extract (pattern is real)
+</code></pre>
+<p>If extraction reveals the second occurrence diverged: the abstraction was wrong. Inline it back.</p>
+<h2 id="kiss-%E2%80%94-keep-it-simple%2C-stupid" tabindex="-1"><a class="header-anchor" href="#kiss-%E2%80%94-keep-it-simple%2C-stupid" aria-hidden="true">#</a> KISS — Keep It Simple, Stupid</h2>
+<p>Simplest code that satisfies the spec. Not the cleverest. Not the most extensible. The simplest.</p>
+<p>A new reader should grasp the function in 30 seconds. If they need a comment to understand WHAT, the code is too clever.</p>
+<h2 id="yagni-%E2%80%94-you-aren't-gonna-need-it" tabindex="-1"><a class="header-anchor" href="#yagni-%E2%80%94-you-aren't-gonna-need-it" aria-hidden="true">#</a> YAGNI — You Aren't Gonna Need It</h2>
+<p>Don't build for hypothetical future requirements. Build for the current spec.</p>
+<p>Three lines of repetition is BETTER than a premature abstraction.</p>
+<p>When you genuinely need the abstraction, you'll have 3 concrete examples to derive it from. Premature abstraction has only one example — and it's wrong.</p>
+<h2 id="solid-%E2%80%94-pragmatic-interpretation" tabindex="-1"><a class="header-anchor" href="#solid-%E2%80%94-pragmatic-interpretation" aria-hidden="true">#</a> SOLID — pragmatic interpretation</h2>
+<ul>
+<li><strong>S</strong>ingle Responsibility: a function/class does one thing well</li>
+<li><strong>O</strong>pen-Closed: add behavior via composition, not modification</li>
+<li><strong>L</strong>iskov: subtypes don't break parent contracts</li>
+<li><strong>I</strong>nterface Segregation: don't force consumers to depend on what they don't use</li>
+<li><strong>D</strong>ependency Inversion: depend on abstractions; inject implementations</li>
+</ul>
+<p>Don't over-apply. Most YAGNI violations are SOLID over-application.</p>
+<h2 id="sine-%E2%80%94-single-side-effect%2C-in%2C-named%2C-explicit" tabindex="-1"><a class="header-anchor" href="#sine-%E2%80%94-single-side-effect%2C-in%2C-named%2C-explicit" aria-hidden="true">#</a> SINE — Single side-effect, In, Named, Explicit</h2>
+<p>The user's own framing for side-effect discipline:</p>
+<ul>
+<li><strong>S</strong>ingle: a function has one side effect (or zero, or one composed family)</li>
+<li><strong>I</strong>n: side effect is at the boundary (top of call stack, not buried)</li>
+<li><strong>N</strong>amed: the side effect is in the function name (<code>saveOrder</code>, not <code>processOrder</code>)</li>
+<li><strong>E</strong>xplicit: the side effect is documented (return type, JSDoc, or type system)</li>
+</ul>
+<p>Pure functions everywhere except the boundary. Boundaries are explicit.</p>
+<h2 id="clean-code" tabindex="-1"><a class="header-anchor" href="#clean-code" aria-hidden="true">#</a> Clean Code</h2>
+<h3 id="meaningful-names" tabindex="-1"><a class="header-anchor" href="#meaningful-names" aria-hidden="true">#</a> Meaningful names</h3>
+<p>Names reveal intent. The reader shouldn't need to read the implementation to understand the name.</p>
+<pre><code class="language-typescript">// Bad
+const d = 30;
+function fn(x, y) { return x.filter(z =&gt; z.s &gt; y); }
+
+// Good
+const TRIAL_DURATION_DAYS = 30;
+function ordersAboveThreshold(orders, threshold) { return orders.filter(o =&gt; o.subtotal &gt; threshold); }
+</code></pre>
+<h3 id="small-functions" tabindex="-1"><a class="header-anchor" href="#small-functions" aria-hidden="true">#</a> Small functions</h3>
+<p>Functions ≤ 30 lines (target: 10-20). One screen. Larger → extract.</p>
+<p>A 200-line function is a smell. A 500-line function is debt.</p>
+<h3 id="comments-explain-why%2C-not-what" tabindex="-1"><a class="header-anchor" href="#comments-explain-why%2C-not-what" aria-hidden="true">#</a> Comments explain WHY, not WHAT</h3>
+<p>Code says WHAT. Comments say WHY (the surprise, the constraint, the reason).</p>
+<pre><code class="language-typescript">// Bad: comment restates the code
+i++; // increment i
+
+// Good: comment explains the surprise
+i++; // skip the BOM marker on UTF-8 input
+</code></pre>
+<p>If you remove the comment and the reader can't infer the WHY → the comment was load-bearing. Keep it.</p>
+<p>If removing the comment changes nothing → delete it.</p>
+<h3 id="fail-fast" tabindex="-1"><a class="header-anchor" href="#fail-fast" aria-hidden="true">#</a> Fail fast</h3>
+<p>Validate early. Crash visibly. Don't swallow errors.</p>
+<pre><code class="language-typescript">// Bad: silent fallback
+function getUser(id) {
+  return users.find(u =&gt; u.id === id) || {};
+}
+
+// Good: fail fast
+function getUser(id) {
+  const user = users.find(u =&gt; u.id === id);
+  if (!user) throw new UserNotFound(id);
+  return user;
+}
+</code></pre>
+<h3 id="boy-scout-rule" tabindex="-1"><a class="header-anchor" href="#boy-scout-rule" aria-hidden="true">#</a> Boy Scout Rule</h3>
+<p>Leave the codebase cleaner than you found it. Not &quot;perfect&quot; — just incrementally better.</p>
+<p>When fixing a bug, also: fix a typo, rename an unclear variable, extract a duplicated block, delete dead code. Three small improvements per touched file.</p>
+<p>Compounds over time. The codebase tends toward clean.</p>
+<h2 id="tests-as-documentation" tabindex="-1"><a class="header-anchor" href="#tests-as-documentation" aria-hidden="true">#</a> Tests as documentation</h2>
+<p>Tests are the most reliable docs. They're executable; they don't lie.</p>
+<pre><code>class OrderTest {
+  it('rejects orders with negative quantities')
+  it('charges shipping when subtotal &lt; $50')
+  it('rounds prices to 2 decimal places')
+}
+</code></pre>
+<p>A new dev reads these and learns the contract.</p>
+<h2 id="when-principles-conflict" tabindex="-1"><a class="header-anchor" href="#when-principles-conflict" aria-hidden="true">#</a> When principles conflict</h2>
+<p>Order of precedence:</p>
+<ol>
+<li><strong>YAGNI</strong> wins over <strong>DRY</strong> — premature DRY is worse than three concrete copies</li>
+<li><strong>KISS</strong> wins over <strong>SOLID</strong> — premature abstraction is worse than simple repetition</li>
+<li><strong>Explicit</strong> wins over <strong>terse</strong> — verbose-but-clear beats terse-but-cryptic</li>
+<li><strong>Behavior contract</strong> wins over <strong>internal structure</strong> — the test of the contract is sacred; refactor the structure freely</li>
+</ol>
+<h2 id="anti-patterns-this-canon-blocks" tabindex="-1"><a class="header-anchor" href="#anti-patterns-this-canon-blocks" aria-hidden="true">#</a> Anti-patterns this canon blocks</h2>
+<ul>
+<li>Anemic objects: data bags with no behavior (violates Single Responsibility)</li>
+<li>God functions: 300+ lines doing 5 things (violates Small Functions)</li>
+<li>Premature abstraction: extracting a base class with one subclass (violates YAGNI + DRY threshold)</li>
+<li>Defensive null-everywhere: every function checks input is non-null (violates Fail Fast)</li>
+<li>Cleverness for show: ternary chains, regex magic, one-liners (violates KISS)</li>
+<li>Comment-restates-code: line-by-line comments saying what the code already says</li>
+<li>Silent error swallowing: try/catch + return null/empty (violates Fail Fast)</li>
+</ul>
+<h2 id="how-meta-govern-enforces" tabindex="-1"><a class="header-anchor" href="#how-meta-govern-enforces" aria-hidden="true">#</a> How meta-govern enforces</h2>
+<ul>
+<li><code>templates/rules/clean-code.md.tpl</code> — path-scoped rule loaded when source files touched</li>
+<li><code>templates/agents/code-quality-reviewer.md.tpl</code> — explicit DRY/KISS/YAGNI checks in 10-point review focus</li>
+<li><code>templates/agents/implementer.md.tpl</code> — Step 5 (REFACTOR) applies these principles</li>
+<li><code>templates/skills/test-driven-development.SKILL.md.tpl</code> — Stage 5 (REFACTOR) applies these</li>
+<li><code>code-quality-reviewer</code> agent + <code>quality-gate</code> skill — final-pass enforcement</li>
+</ul>
+<h2 id="cross-references" tabindex="-1"><a class="header-anchor" href="#cross-references" aria-hidden="true">#</a> Cross-references</h2>
+<ul>
+<li><code>references/anti-pattern-catalog.html</code> — DDD + Claude Code anti-patterns (different concern)</li>
+<li><code>references/four-tier-architecture.html</code> — architectural progressive disclosure (different concern)</li>
+<li><code>templates/rules/clean-code.md.tpl</code> — the actual project-level rule</li>
+</ul>
+<h2 id="why-this-lives-here" tabindex="-1"><a class="header-anchor" href="#why-this-lives-here" aria-hidden="true">#</a> Why this lives here</h2>
+<p>The user has internalized this canon over years. Rather than re-deriving it per project (and accidentally drifting), meta-govern records it once. Every project gets the same canon. Updates here propagate via MIGRATE.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/engineering-principles.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

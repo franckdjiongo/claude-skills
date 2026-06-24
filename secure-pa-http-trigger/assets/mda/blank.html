@@ -1,0 +1,18 @@
+<!doctype html>
+<!--
+  Companion redirect page for the MDA direct-fetch fallback (7.3b).
+  Deploy as a Web Resource named cont_/blank.html (or your namespace
+  equivalent) and add the same URL to App B SPA's Authentication redirect
+  URIs.
+
+  Why this exists: the model-driven shell occasionally mutates
+  window.location, which clobbers MSAL's iframe checks. Hosting MSAL on a
+  same-origin blank page avoids that. Pattern documented by Honza Hájek
+  (hajekj.net, 2025-04-28).
+-->
+<html>
+  <head>
+    <title>Auth redirect</title>
+  </head>
+  <body></body>
+</html>

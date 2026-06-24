@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>macOS Hook Conventions · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="macOS Hook Conventions">
+  <meta name="doc-source" content="references/macos-hook-conventions.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#the-apple-silicon-problem">The Apple Silicon problem</a></li><li class="lvl-2"><a href="#the-fix%3A-explicit-path">The fix: explicit PATH</a></li><li class="lvl-3"><a href="#node-hook-(.mjs)">Node hook (.mjs)</a></li><li class="lvl-3"><a href="#bash-hook-(.sh)">Bash hook (.sh)</a></li><li class="lvl-3"><a href="#python-hook-(.py)">Python hook (.py)</a></li><li class="lvl-2"><a href="#profile-silence-requirement">Profile silence requirement</a></li><li class="lvl-2"><a href="#never-use-nvm-in-hooks">NEVER use nvm in hooks</a></li><li class="lvl-2"><a href="#use-%23!%2Fusr%2Fbin%2Fenv-%3Ccmd%3E-shebangs">Use #!/usr/bin/env &lt;cmd&gt; shebangs</a></li><li class="lvl-2"><a href="#use-absolute-paths-or-%24claude_project_dir">Use absolute paths or $CLAUDE_PROJECT_DIR</a></li><li class="lvl-2"><a href="#permission-bits">Permission bits</a></li><li class="lvl-2"><a href="#test-the-hook-environment">Test the hook environment</a></li><li class="lvl-2"><a href="#common-apple-silicon-failures-(debug-checklist)">Common Apple Silicon failures (debug checklist)</a></li><li class="lvl-2"><a href="#cross-platform-considerations">Cross-platform considerations</a></li><li class="lvl-2"><a href="#tested-patterns-from-production">Tested patterns from production</a></li><li class="lvl-3"><a href="#brillance-d%C3%A9cor-hook-utils.mjs-skeleton">Brillance Décor hook-utils.mjs skeleton</a></li><li class="lvl-3"><a href="#temps-chantier-lib%2Fhook-utils.mjs-patterns">Temps Chantier lib/hook-utils.mjs patterns</a></li><li class="lvl-2"><a href="#validation">Validation</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">macos-hook-conventions</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">macOS Hook Conventions</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/macos-hook-conventions.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>macOS Hook Conventions</h1>
+<p>Source: <code>Claude Code Architecture Research.md</code> macOS sections, observed Apple Silicon patterns in Brillance Décor's <code>lib/hook-utils.mjs</code>.</p>
+<h2 id="the-apple-silicon-problem" tabindex="-1"><a class="header-anchor" href="#the-apple-silicon-problem" aria-hidden="true">#</a> The Apple Silicon problem</h2>
+<p>When Claude Code spawns hook subprocesses, the environment is <strong>non-interactive and minimal</strong>:</p>
+<ul>
+<li><code>PATH</code> may exclude <code>/opt/homebrew/bin</code> (where Homebrew installs <code>node</code>, <code>git</code>, <code>bun</code>, <code>rg</code> on Apple Silicon)</li>
+<li>No <code>nvm</code> initialization (only available in interactive shells)</li>
+<li>No <code>~/.zshrc</code> / <code>~/.profile</code> initialization (or, worse: those files output to stdout and corrupt JSON responses)</li>
+</ul>
+<p>Result: hooks fail silently. The user observes &quot;the hook didn't fire&quot; without obvious cause.</p>
+<h2 id="the-fix%3A-explicit-path" tabindex="-1"><a class="header-anchor" href="#the-fix%3A-explicit-path" aria-hidden="true">#</a> The fix: explicit PATH</h2>
+<p>Every hook script (<code>.mjs</code>, <code>.sh</code>, <code>.py</code>) must set its own PATH:</p>
+<h3 id="node-hook-(.mjs)" tabindex="-1"><a class="header-anchor" href="#node-hook-(.mjs)" aria-hidden="true">#</a> Node hook (<code>.mjs</code>)</h3>
+<pre><code class="language-javascript">#!/usr/bin/env node
+const PATH_PREFIX = &quot;/opt/homebrew/bin:/usr/local/bin:/opt/homebrew/sbin:/usr/sbin:/usr/bin:/sbin:/bin&quot;;
+process.env.PATH = `${PATH_PREFIX}:${process.env.PATH || &quot;&quot;}`;
+</code></pre>
+<h3 id="bash-hook-(.sh)" tabindex="-1"><a class="header-anchor" href="#bash-hook-(.sh)" aria-hidden="true">#</a> Bash hook (<code>.sh</code>)</h3>
+<pre><code class="language-bash">#!/usr/bin/env bash
+export PATH=&quot;/opt/homebrew/bin:/usr/local/bin:/opt/homebrew/sbin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH&quot;
+</code></pre>
+<h3 id="python-hook-(.py)" tabindex="-1"><a class="header-anchor" href="#python-hook-(.py)" aria-hidden="true">#</a> Python hook (<code>.py</code>)</h3>
+<pre><code class="language-python">#!/usr/bin/env python3
+import os
+PATH_PREFIX = &quot;/opt/homebrew/bin:/usr/local/bin:/opt/homebrew/sbin:/usr/sbin:/usr/bin:/sbin:/bin&quot;
+os.environ[&quot;PATH&quot;] = f&quot;{PATH_PREFIX}:{os.environ.get('PATH', '')}&quot;
+</code></pre>
+<h2 id="profile-silence-requirement" tabindex="-1"><a class="header-anchor" href="#profile-silence-requirement" aria-hidden="true">#</a> Profile silence requirement</h2>
+<p>If <code>~/.zshrc</code> or <code>~/.profile</code> outputs anything at startup (welcome banners, prompt previews, version checks), it corrupts JSON hook responses.</p>
+<p>Audit:</p>
+<pre><code class="language-bash">zsh -c 'exit 0' 2&gt;&amp;1 | head
+bash -c 'exit 0' 2&gt;&amp;1 | head
+</code></pre>
+<p>If output non-empty → fix profile to be silent at startup.</p>
+<h2 id="never-use-nvm-in-hooks" tabindex="-1"><a class="header-anchor" href="#never-use-nvm-in-hooks" aria-hidden="true">#</a> NEVER use nvm in hooks</h2>
+<p><code>nvm</code> is initialized only in interactive shells. Hook subprocesses are not interactive.</p>
+<p>If the user's <code>node</code> is installed via nvm:</p>
+<ul>
+<li>The hook will fail with &quot;node: command not found&quot;</li>
+<li>Even with explicit PATH</li>
+</ul>
+<p>Migration: install Node via Homebrew (<code>brew install node</code>) so it lands in <code>/opt/homebrew/bin/node</code>.</p>
+<h2 id="use-%23!%2Fusr%2Fbin%2Fenv-%3Ccmd%3E-shebangs" tabindex="-1"><a class="header-anchor" href="#use-%23!%2Fusr%2Fbin%2Fenv-%3Ccmd%3E-shebangs" aria-hidden="true">#</a> Use <code>#!/usr/bin/env &lt;cmd&gt;</code> shebangs</h2>
+<p><code>#!/usr/local/bin/node</code> differs between Intel and Apple Silicon. Use <code>#!/usr/bin/env node</code> always — the env-resolver finds whichever is in PATH.</p>
+<h2 id="use-absolute-paths-or-%24claude_project_dir" tabindex="-1"><a class="header-anchor" href="#use-absolute-paths-or-%24claude_project_dir" aria-hidden="true">#</a> Use absolute paths or <code>$CLAUDE_PROJECT_DIR</code></h2>
+<p>NEVER:</p>
+<pre><code class="language-bash">node ./.claude/hooks/my-hook.mjs   # cwd may be unexpected
+</code></pre>
+<p>ALWAYS:</p>
+<pre><code class="language-bash">node &quot;$CLAUDE_PROJECT_DIR/.claude/hooks/my-hook.mjs&quot;   # explicit
+</code></pre>
+<p><code>$CLAUDE_PROJECT_DIR</code> is set by Claude Code to the project root.</p>
+<h2 id="permission-bits" tabindex="-1"><a class="header-anchor" href="#permission-bits" aria-hidden="true">#</a> Permission bits</h2>
+<p>Some hooks need execute bit:</p>
+<ul>
+<li><code>.sh</code> files: <code>chmod +x my-hook.sh</code></li>
+<li><code>.mjs</code> / <code>.js</code> / <code>.py</code>: NOT needed if invoked via <code>node my-hook.mjs</code> / <code>python3 my-hook.py</code></li>
+</ul>
+<p>If you commit a <code>.sh</code> without execute bit, the hook fails silently. Test with: <code>ls -la .claude/hooks/*.sh</code> and verify <code>x</code> permissions.</p>
+<h2 id="test-the-hook-environment" tabindex="-1"><a class="header-anchor" href="#test-the-hook-environment" aria-hidden="true">#</a> Test the hook environment</h2>
+<p><code>SessionStart</code> env-check hook (BOOTSTRAP installs):</p>
+<pre><code class="language-javascript">#!/usr/bin/env node
+// .claude/hooks/session-start-env-check.mjs
+
+import { execSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const PATH_PREFIX = &quot;/opt/homebrew/bin:/usr/local/bin:/opt/homebrew/sbin:/usr/sbin:/usr/bin:/sbin:/bin&quot;;
+process.env.PATH = `${PATH_PREFIX}:${process.env.PATH || &quot;&quot;}`;
+
+const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+const cacheFile = path.join(projectDir, '.claude/tmp/last-env-check.json');
+
+// Cache: skip if checked &lt; 24h ago
+try {
+  const cache = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+  if (Date.now() - cache.timestamp &lt; 24 * 60 * 60 * 1000) {
+    process.exit(0); // silent allow
+  }
+} catch (_) { /* no cache, run check */ }
+
+const required = ['node', 'git'];
+const optional = ['bun', 'rg', 'fd', 'jq'];
+const missing = [];
+const present = [];
+
+for (const cmd of [...required, ...optional]) {
+  try {
+    execSync(`command -v ${cmd}`, { stdio: 'pipe' });
+    present.push(cmd);
+  } catch {
+    missing.push({ cmd, required: required.includes(cmd) });
+  }
+}
+
+const blockingMissing = missing.filter(m =&gt; m.required);
+
+if (blockingMissing.length &gt; 0) {
+  process.stdout.write(JSON.stringify({
+    additionalContext: `⚠️  Missing required tools: ${blockingMissing.map(m =&gt; m.cmd).join(', ')}. Hooks may fail.`,
+  }));
+} else if (missing.length &gt; 0) {
+  process.stdout.write(JSON.stringify({
+    additionalContext: `Optional tools missing: ${missing.map(m =&gt; m.cmd).join(', ')} (some skills may not work).`,
+  }));
+}
+
+// Update cache
+fs.mkdirSync(path.dirname(cacheFile), { recursive: true });
+fs.writeFileSync(cacheFile, JSON.stringify({ timestamp: Date.now(), present, missing }));
+
+process.exit(0);
+</code></pre>
+<h2 id="common-apple-silicon-failures-(debug-checklist)" tabindex="-1"><a class="header-anchor" href="#common-apple-silicon-failures-(debug-checklist)" aria-hidden="true">#</a> Common Apple Silicon failures (debug checklist)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hook fires but does nothing</td>
+<td>Script crashed silently</td>
+<td>Run script manually: <code>cat /tmp/test.json | node .claude/hooks/my-hook.mjs</code></td>
+</tr>
+<tr>
+<td>&quot;node: command not found&quot;</td>
+<td>Missing <code>/opt/homebrew/bin</code> in PATH</td>
+<td>Add PATH_PREFIX to script</td>
+</tr>
+<tr>
+<td>JSON parse error in Claude UI</td>
+<td>Profile output corruption</td>
+<td>Silent profile / use <code>zsh -i -c 'echo silent'</code> to verify</td>
+</tr>
+<tr>
+<td>Hook works on user A, fails on user B</td>
+<td>nvm dependency</td>
+<td>Install Node via Homebrew</td>
+</tr>
+<tr>
+<td>Hook works locally, fails in CI</td>
+<td>Different PATH</td>
+<td>Force PATH in CI env vars</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="cross-platform-considerations" tabindex="-1"><a class="header-anchor" href="#cross-platform-considerations" aria-hidden="true">#</a> Cross-platform considerations</h2>
+<p>If the user ever moves to Linux/WSL2:</p>
+<ul>
+<li><code>/opt/homebrew/bin</code> doesn't exist → use <code>/usr/local/bin</code> priority</li>
+<li><code>bun</code> may not be installed</li>
+<li>Add a platform detection at the top of <code>hook-utils.mjs</code>:</li>
+</ul>
+<pre><code class="language-javascript">const isMacOSAppleSilicon = process.platform === 'darwin' &amp;&amp; process.arch === 'arm64';
+const PATH_PREFIX = isMacOSAppleSilicon
+  ? &quot;/opt/homebrew/bin:/usr/local/bin:/opt/homebrew/sbin:/usr/sbin:/usr/bin:/sbin:/bin&quot;
+  : &quot;/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin&quot;;
+</code></pre>
+<h2 id="tested-patterns-from-production" tabindex="-1"><a class="header-anchor" href="#tested-patterns-from-production" aria-hidden="true">#</a> Tested patterns from production</h2>
+<h3 id="brillance-d%C3%A9cor-hook-utils.mjs-skeleton" tabindex="-1"><a class="header-anchor" href="#brillance-d%C3%A9cor-hook-utils.mjs-skeleton" aria-hidden="true">#</a> Brillance Décor <code>hook-utils.mjs</code> skeleton</h3>
+<pre><code class="language-javascript">import path from 'node:path';
+import fs from 'node:fs';
+
+const PATH_PREFIX = &quot;/opt/homebrew/bin:/usr/local/bin:/opt/homebrew/sbin:/usr/sbin:/usr/bin:/sbin:/bin&quot;;
+process.env.PATH = `${PATH_PREFIX}:${process.env.PATH || &quot;&quot;}`;
+
+export function projectDir() {
+  return process.env.CLAUDE_PROJECT_DIR || process.cwd();
+}
+
+export async function readJsonStdin() {
+  const chunks = [];
+  for await (const chunk of process.stdin) chunks.push(chunk);
+  if (chunks.length === 0) return {};
+  return JSON.parse(Buffer.concat(chunks).toString('utf8'));
+}
+
+export function writeJsonStdout(obj) {
+  process.stdout.write(JSON.stringify(obj));
+}
+
+export function isFeatureFile(filePath) {
+  return /\.(tsx?|jsx?|module\.css|css|mjs|cjs)$/.test(filePath) &amp;&amp;
+         !filePath.includes('node_modules') &amp;&amp;
+         !filePath.includes('/dist/') &amp;&amp;
+         !filePath.includes('/build/');
+}
+
+export function isValidateBash(command) {
+  return /\b(validate|test|build|typecheck|lint|quality:check)\b/.test(command);
+}
+</code></pre>
+<h3 id="temps-chantier-lib%2Fhook-utils.mjs-patterns" tabindex="-1"><a class="header-anchor" href="#temps-chantier-lib%2Fhook-utils.mjs-patterns" aria-hidden="true">#</a> Temps Chantier <code>lib/hook-utils.mjs</code> patterns</h3>
+<ul>
+<li>More complex: includes <code>analyzePlanToolUse</code>, <code>buildPromptRouterContext</code>, <code>buildUiWriteContext</code>, <code>buildDataLayerWriteContext</code>, <code>reduceWorkflowState</code>, <code>shouldBlockOnStop</code>, <code>shouldRequireValidationOnStop</code></li>
+<li>Uses 24h cache via <code>tmp/last-full-scan.json</code></li>
+<li>Detects completion-style words via regex: <code>\b(done|completed|finished|implemented|updated|set up|ready for review|ready to commit|review checklist|what changed|verification|verified|you can review|no commit)\b</code></li>
+</ul>
+<p>meta-govern's <code>templates/hooks/lib/hook-utils.mjs.tpl</code> provides a starting point per palier.</p>
+<h2 id="validation" tabindex="-1"><a class="header-anchor" href="#validation" aria-hidden="true">#</a> Validation</h2>
+<p><code>scripts/audit-project.mjs</code> checks each hook script for:</p>
+<ul class="contains-task-list">
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> PATH_PREFIX export at top</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> No <code>nvm</code> references</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> Uses <code>#!/usr/bin/env &lt;cmd&gt;</code> shebang (not absolute path)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> Reads stdin / writes stdout in JSON</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> No interactive prompts</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> Has executable bit (for <code>.sh</code> files)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> Referenced in settings.json (or documented exception)</label></li>
+</ul>
+<p>Findings emit MEDIUM severity. The user can <code>--fix</code> for some (e.g., adding PATH_PREFIX) but not others (e.g., removing nvm dependency).</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/macos-hook-conventions.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stack Pack — Convex Backend · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Stack Pack — Convex Backend">
+  <meta name="doc-source" content="references/stack-convex.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#layout-reference">Layout reference</a></li><li class="lvl-2"><a href="#skills-to-install-(bootstrap)">Skills to install (BOOTSTRAP)</a></li><li class="lvl-2"><a href="#agents-to-install">Agents to install</a></li><li class="lvl-2"><a href="#path-scoped-rules-to-install">Path-scoped rules to install</a></li><li class="lvl-2"><a href="#source-of-truth-doc-structure">Source-of-truth doc structure</a></li><li class="lvl-2"><a href="#convex-schema-discipline">Convex schema discipline</a></li><li class="lvl-2"><a href="#migration-discipline">Migration discipline</a></li><li class="lvl-2"><a href="#r2-integration">R2 integration</a></li><li class="lvl-2"><a href="#tests">Tests</a></li><li class="lvl-2"><a href="#validate-command">Validate command</a></li><li class="lvl-2"><a href="#common-gotchas">Common gotchas</a></li><li class="lvl-2"><a href="#reference%3A-brillance-d%C3%A9cor-backend-foundation">Reference: Brillance Décor backend foundation</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">stack-convex</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Stack Pack — Convex Backend</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/stack-convex.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Stack Pack — Convex Backend</h1>
+<p>When meta-govern detects: <code>package.json</code> includes <code>convex</code> OR <code>convex/</code> directory exists with <code>_generated/</code>.</p>
+<h2 id="layout-reference" tabindex="-1"><a class="header-anchor" href="#layout-reference" aria-hidden="true">#</a> Layout reference</h2>
+<p>Default architecture pattern: <strong>framework-native + feature-first</strong> on the frontend (per <code>architecture-patterns.html</code>); the <code>convex/</code> directory enforces backend layout (one file per table, schema in <code>convex/schema.ts</code>).</p>
+<h2 id="skills-to-install-(bootstrap)" tabindex="-1"><a class="header-anchor" href="#skills-to-install-(bootstrap)" aria-hidden="true">#</a> Skills to install (BOOTSTRAP)</h2>
+<p>In addition to the 5 core skills:</p>
+<ul>
+<li>All <code>convex-*</code> skills (already vendored from <code>get-convex/agent-skills</code>):
+<ul>
+<li><code>convex</code> (router)</li>
+<li><code>convex-quickstart</code></li>
+<li><code>convex-create-component</code></li>
+<li><code>convex-migration-helper</code></li>
+<li><code>convex-performance-audit</code></li>
+<li><code>convex-setup-auth</code></li>
+<li><code>convex-dev-r2</code></li>
+<li><code>convex-dev-rate-limiter</code></li>
+<li><code>convex-dev-aggregate</code></li>
+<li><code>convex-dev-migrations</code></li>
+<li><code>convex-dev-resend</code></li>
+</ul>
+</li>
+</ul>
+<p>For palier 2+ (when using multiple Convex components):</p>
+<ul>
+<li><code>convex-component-auditor</code> agent</li>
+</ul>
+<h2 id="agents-to-install" tabindex="-1"><a class="header-anchor" href="#agents-to-install" aria-hidden="true">#</a> Agents to install</h2>
+<p>In addition to the 4 core agents:</p>
+<ul>
+<li>(Palier 2+) <code>convex-component-auditor</code> — audits ONE <code>@convex-dev/*</code> component in ONE design</li>
+</ul>
+<h2 id="path-scoped-rules-to-install" tabindex="-1"><a class="header-anchor" href="#path-scoped-rules-to-install" aria-hidden="true">#</a> Path-scoped rules to install</h2>
+<p>In addition to the 8 core rules:</p>
+<ul>
+<li><code>data-layer.md</code> (paths: <code>convex/**/*.ts</code>, <code>src/**/queries/**</code>, <code>src/**/mutations/**</code>):
+<ul>
+<li>Convex hooks only (no <code>fetch</code> direct in components)</li>
+<li>Bilingual columns denormalized (e.g., <code>nameFr</code>, <code>nameEn</code> not <code>name: { fr, en }</code>)</li>
+<li>Money: integer cents, CAD only, <code>Intl.NumberFormat('fr-CA')</code> on client</li>
+<li>Errors: <code>throw new ConvexError({ code, message })</code> with code added to translations</li>
+<li>Repositories one-per-table (NOT generic <code>IRepository&lt;T&gt;</code>)</li>
+<li>Mutations must invalidate query keys</li>
+</ul>
+</li>
+</ul>
+<h2 id="source-of-truth-doc-structure" tabindex="-1"><a class="header-anchor" href="#source-of-truth-doc-structure" aria-hidden="true">#</a> Source-of-truth doc structure</h2>
+<p>Three canonical docs (same as React+Vite stack pack), plus:</p>
+<ul>
+<li><code>docs/data-model.md</code> includes Convex schema + R2 layout + contracts</li>
+</ul>
+<h2 id="convex-schema-discipline" tabindex="-1"><a class="header-anchor" href="#convex-schema-discipline" aria-hidden="true">#</a> Convex schema discipline</h2>
+<ul>
+<li>Schema in <code>convex/schema.ts</code></li>
+<li>One file per table: <code>convex/&lt;table&gt;.ts</code> with queries/mutations/actions</li>
+<li>Generated services in <code>convex/_generated/</code> (DO NOT EDIT)</li>
+<li>Use <code>v.string()</code>, <code>v.number()</code>, <code>v.id(&quot;table&quot;)</code>, <code>v.array(...)</code>, <code>v.object({...})</code></li>
+<li>Index fields used in queries</li>
+</ul>
+<h2 id="migration-discipline" tabindex="-1"><a class="header-anchor" href="#migration-discipline" aria-hidden="true">#</a> Migration discipline</h2>
+<ul>
+<li>Use <code>@convex-dev/migrations</code> for breaking schema changes</li>
+<li>Pattern: widen → migrate → narrow</li>
+<li>Test migrations on a snapshot copy</li>
+</ul>
+<h2 id="r2-integration" tabindex="-1"><a class="header-anchor" href="#r2-integration" aria-hidden="true">#</a> R2 integration</h2>
+<p>If using <code>convex-dev-r2</code>:</p>
+<ul>
+<li>Files served via signed URLs from R2</li>
+<li>Upload flow: client → mutation → R2 → mutation marks complete</li>
+<li>Cleanup: scheduled <code>actions</code> purge orphans</li>
+</ul>
+<h2 id="tests" tabindex="-1"><a class="header-anchor" href="#tests" aria-hidden="true">#</a> Tests</h2>
+<ul>
+<li>Use Convex test harness (<code>@convex-dev/test</code>) for backend tests</li>
+<li>Mock Convex hooks for component tests (use <code>@convex-dev/react</code> test utilities)</li>
+</ul>
+<h2 id="validate-command" tabindex="-1"><a class="header-anchor" href="#validate-command" aria-hidden="true">#</a> Validate command</h2>
+<pre><code class="language-json">{
+  &quot;scripts&quot;: {
+    &quot;convex:dev&quot;: &quot;convex dev&quot;,
+    &quot;convex:codegen&quot;: &quot;convex codegen&quot;,
+    &quot;validate&quot;: &quot;bun run typecheck &amp;&amp; bun run lint &amp;&amp; bun run test &amp;&amp; bun run build &amp;&amp; bun run quality:check &amp;&amp; bun run convex:codegen&quot;
+  }
+}
+</code></pre>
+<h2 id="common-gotchas" tabindex="-1"><a class="header-anchor" href="#common-gotchas" aria-hidden="true">#</a> Common gotchas</h2>
+<ul>
+<li>Don't query inside loops (N+1 problem) — use indexed queries or denormalize</li>
+<li>Watch for OCC (Optimistic Concurrency Conflict) on hot rows — handle retries</li>
+<li>Aggregate counts denormalized via <code>convex-dev-aggregate</code> component</li>
+<li>Subscriptions are reactive — careful with high-frequency updates</li>
+<li>Money is integer cents (avoid floats; use <code>Intl.NumberFormat('fr-CA')</code> for display)</li>
+</ul>
+<h2 id="reference%3A-brillance-d%C3%A9cor-backend-foundation" tabindex="-1"><a class="header-anchor" href="#reference%3A-brillance-d%C3%A9cor-backend-foundation" aria-hidden="true">#</a> Reference: Brillance Décor backend foundation</h2>
+<p>Active design at <code>docs/specs/2026-05-06-backend-foundation-design.md</code> is the canonical Convex bootstrap reference:</p>
+<ul>
+<li>Heavy use of parallel-audit pattern (R2 / Rate Limiter / Migrations)</li>
+<li><code>convex-component-auditor</code> agent dispatched 3x in parallel (one per component)</li>
+<li>Schema sketched in design before code</li>
+</ul>
+<p>When in doubt, read patterns at <code>/Users/elmabi/Desktop/my-projets/brillance-d-cor-inc/convex/</code>.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/stack-convex.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

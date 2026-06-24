@@ -1,0 +1,38 @@
+<!--
+  Plug-in assembly references for the InvokeFlowPlugin (Pattern A) and
+  SecureFlowBrokerPlugin (Pattern B).
+  Drop these <PropertyGroup> and <ItemGroup> blocks into your existing
+  Dataverse plug-in .csproj. Adjust package versions only after verifying
+  sandbox compatibility — Microsoft.Identity.Client 4.83.3 is the current
+  stable for .NET Standard 2.0 / .NET Framework 4.6.2 (May 2026).
+-->
+
+<PropertyGroup>
+  <TargetFramework>net462</TargetFramework>
+  <SignAssembly>true</SignAssembly>
+  <AssemblyOriginatorKeyFile>YourPlugin.snk</AssemblyOriginatorKeyFile>
+  <DeterministicSourcePaths>false</DeterministicSourcePaths>
+</PropertyGroup>
+
+<ItemGroup>
+  <!-- Required: Dataverse SDK -->
+  <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.54" />
+
+  <!-- Pattern A only — MSAL.NET fallback when Managed Identity is unavailable.
+       Targets .NET Standard 2.0 + .NET Framework 4.6.2. Sandbox-compatible. -->
+  <PackageReference Include="Microsoft.Identity.Client" Version="4.83.3" />
+
+  <!-- Pattern B only — for the broker JSON payload -->
+  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+</ItemGroup>
+
+<!--
+  Build & register notes:
+
+  - Use ILMerge or ILRepack only if you absolutely must consolidate dependencies
+    into a single assembly; many teams now ship multi-file plug-in packages.
+  - Register with Plugin Registration Tool or pac plugin push.
+  - For Pattern A, also register the Managed Identity using Plugin Identity
+    Manager (XrmToolBox) or PowerShell `managedidentities` POST. See
+    assets/provisioning/managed-identity-record.http.
+-->

@@ -54,6 +54,9 @@ The `description` field is critical - it determines when Claude Code should invo
 - `code-app-create` - Create, scaffold, and initialize a new Power Apps code app from scratch
 - `code-app-connect` - Connect a Power Apps code app to data sources and implement CRUD operations
 - `code-app-deploy` - Deploy a Power Apps code app, manage ALM, configure security and monitoring
+- `add-dataverse` - Add Dataverse tables to a Power Apps code app with generated TypeScript models and services
+- `pp-solution-sync` - Sync Power Platform solution exports from ~/Downloads into local project folders
+- `secure-pa-http-trigger` - Secure a Power Automate HTTP-trigger flow with Entra ID auth and rewire every caller
 
 **Claude Code Extensibility**
 - `skill-creator` - Guide for creating new skills with proper structure and patterns
@@ -65,6 +68,14 @@ The `description` field is critical - it determines when Claude Code should invo
 - `schedule-plan-execution` - Schedule autonomous Claude Code sessions to execute implementation plans at specific times
 - `screenshot-context-builder` - Rename batches of generic screenshots and embed image references in prompts
 - `session-review` - Generate an honest retrospective of the current Claude Code session
+- `claude-hook-creator` - Create or revise Claude Code hooks in settings.json or subagent frontmatter
+- `create-subagent` - Scaffold a well-formed Claude Code subagent (.claude/agents/<name>.md)
+- `meta-govern` - Master governance skill: bootstrap, audit, migrate, and evolve Claude Code project workflows
+- `setup-insights` - Bootstrap the Insight Coaching System (coaching hooks, logging, quality gates) in a project
+- `loop-autonomy` - Run an autonomous work loop over a backlog using subscription-included mechanisms
+- `cloud-night-shift` - Orchestrate chained autonomous overnight cloud runs via claude.ai routines
+- `pipeline-audit` - Reverse-engineer and grade a project's brainstorm→plan→implementation skill pipeline
+- `handoff` - Compact the current conversation into a handoff document for another agent to pick up
 
 **Convex Database**
 - `convex-queries` - Convex query patterns and best practices
@@ -121,6 +132,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `api-test-script-generator` - Generate API test scripts
 - `github-issue-creator` - Create GitHub issues programmatically
 - `avoid-feature-creep` - Prevent feature creep when building software and AI-powered products
+- `supacode-cli` - Control Supacode from the terminal (worktrees, tabs, and surfaces)
 
 **Specialized Workflows**
 - `bpmn-creator` - Create BPMN 2.0 process diagrams
@@ -135,6 +147,15 @@ The `description` field is critical - it determines when Claude Code should invo
 - `mac-uninstall` - Completely or partially uninstall macOS applications removing all associated files
 - `chatgpt-image-prompt-architect` - Turn a vague visual request into a premium, ready-to-paste ChatGPT image prompt (gpt-image-2) for logos, flyers, ads, mockups, and more, with automatic AutoMintech branding on marketing assets
 - `design-forge` - UX/UI Quality Analyst and Design Brief Architect with three modes: AUDIT (analyze screenshots/video for defects and AI slop, emit a scored report with paste-ready correction prompts), TEST (actively drive a live app with computer-use tools), and BRIEF (turn a non-designer's idea into a premium design prompt); includes a brief→build→verify pipeline
+- `galley` - HTML artifact review subsystem: read, edit, reply to, and resolve anchored comments living inside an HTML file
+- `ship-polished-ui` - Design then browser-QA premium, production-grade UI with a non-negotiable visual test loop
+
+**Email (Resend)**
+- `resend` - Resend email platform umbrella that routes to send, inbound, agent inbox, and template sub-skills
+- `resend-send-email` - Send transactional, notification, and bulk emails via the Resend API
+- `resend-templates` - Create, update, publish, and manage Resend email templates via the API
+- `resend-inbound` - Receive emails with Resend: inbound domains, webhooks, and content/attachment retrieval
+- `resend-agent-email-inbox` - Set up a secure email inbox for an AI agent with content safety measures
 
 ## Creating New Skills
 

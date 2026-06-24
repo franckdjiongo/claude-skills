@@ -1,0 +1,642 @@
+/* ==========================================================================
+   {{PROJECT_NAME}} — Système de documentation HTML (thème premium)
+   Un seul fichier, zéro build. Light mode = mode de lecture principal.
+
+   Thème : light par défaut (:root). Dark = automatique (prefers-color-scheme)
+   OU forcé via [data-theme="dark"]. L'utilisateur peut verrouiller le mode via
+   le bouton ☼/☾/auto (persisté en localStorage → data-theme sur <html>).
+
+   Design : élévation Stripe/Linear/Mintlify pour un contexte ENTREPRISE —
+   confiance, sobriété, précision. Police Segoe UI. Grille 8 px, palette
+   60-30-10, accent par TYPE de doc.
+   ========================================================================== */
+
+/* ============================ TOKENS — LIGHT ============================== */
+:root {
+  /* Charte projet (couleurs de marque, rendues par meta-govern au bootstrap) */
+  --brand-1: {{BRAND_PRIMARY}};
+  --brand-2: {{BRAND_ACCENT}};
+
+  /* Accent injecté par page selon le type (fallback couleur de marque) */
+  --doc-accent: var(--brand-1);
+  --doc-accent-soft: color-mix(in srgb, var(--doc-accent) 9%, #ffffff);
+  --doc-accent-tint: color-mix(in srgb, var(--doc-accent) 5%, #ffffff);
+  --doc-accent-line: color-mix(in srgb, var(--doc-accent) 22%, #ffffff);
+  --doc-accent-ink: color-mix(in srgb, var(--doc-accent) 78%, #11151c);
+
+  /* Canvas & surfaces (light) */
+  --bg: #eef1f5;
+  --bg-grad-1: #eef1f5;
+  --bg-grad-2: #e7ebf1;
+  --surface: #ffffff;
+  --surface-2: #fbfcfe;
+  --surface-sunken: #f3f5f9;
+  --canvas-dot: rgba(16, 26, 45, 0.025);
+
+  /* Texte */
+  --ink: #161c26;
+  --ink-strong: #0c111a;
+  --ink-soft: #495466;
+  --ink-muted: #8893a4;
+
+  /* Bordures */
+  --border: #e6eaf0;
+  --border-strong: #d3dae4;
+  --hairline: rgba(16, 26, 45, 0.06);
+
+  /* Code (sombre, contraste premium sur page claire — façon Stripe) */
+  --code-bg: #0d1726;
+  --code-bar: #0a121e;
+  --code-ink: #e8eef7;
+  --code-dim: #7e8ba3;
+  --code-inline-bg: color-mix(in srgb, var(--doc-accent) 8%, #f1f4f8);
+  --code-inline-ink: var(--doc-accent-ink);
+  --code-inline-border: color-mix(in srgb, var(--doc-accent) 16%, transparent);
+
+  /* Rayons & ombres */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 18px;
+  --shadow-xs: 0 1px 2px rgba(16, 26, 45, 0.05);
+  --shadow-sm: 0 1px 3px rgba(16, 26, 45, 0.07), 0 1px 2px rgba(16, 26, 45, 0.04);
+  --shadow-md: 0 8px 24px -8px rgba(16, 26, 45, 0.14), 0 2px 6px rgba(16, 26, 45, 0.05);
+  --shadow-lg: 0 24px 56px -16px rgba(16, 26, 45, 0.28);
+  --ring: 0 0 0 3px color-mix(in srgb, var(--doc-accent) 30%, transparent);
+
+  /* Typo */
+  --font-sans: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "SFMono-Regular", "JetBrains Mono", "Cascadia Code", Consolas, "Liberation Mono", monospace;
+  /* Motif "bleed" : la carte est large (--content-max) mais la PROSE garde une
+     mesure de lecture confortable (--measure ≈ 68-72 car.). Tableaux, blocs de
+     code et images s'étendent sur toute la largeur de la carte → données denses
+     lisibles sans gaspiller l'espace horizontal. */
+  --content-max: 64rem;
+  --measure: 47rem;
+  --toc-w: 14.5rem;
+
+  color-scheme: light;
+}
+
+/* ============================ TOKENS — DARK ============================== */
+/* Bloc dark partagé : appliqué AUTO (système) sauf si l'utilisateur force light,
+   et appliqué quand l'utilisateur force dark. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --doc-accent-soft: color-mix(in srgb, var(--doc-accent) 24%, #0b0f17);
+    --doc-accent-tint: color-mix(in srgb, var(--doc-accent) 13%, #0b0f17);
+    --doc-accent-line: color-mix(in srgb, var(--doc-accent) 42%, #0b0f17);
+    --doc-accent-ink: color-mix(in srgb, var(--doc-accent) 42%, #e7ecf3);
+    --bg: #080b11;
+    --bg-grad-1: #0a0e16;
+    --bg-grad-2: #070a10;
+    --surface: #11161f;
+    --surface-2: #0d121a;
+    --surface-sunken: #0a0e16;
+    --canvas-dot: rgba(255, 255, 255, 0.02);
+    --ink: #e6ecf4;
+    --ink-strong: #f4f7fb;
+    --ink-soft: #aab4c4;
+    --ink-muted: #6b7686;
+    --border: #1e2735;
+    --border-strong: #2b3749;
+    --hairline: rgba(255, 255, 255, 0.05);
+    --code-bg: #070b12;
+    --code-bar: #05080d;
+    --code-ink: #e8eef7;
+    --code-inline-bg: color-mix(in srgb, var(--doc-accent) 22%, #0c111a);
+    --code-inline-ink: color-mix(in srgb, var(--doc-accent) 50%, #e6ecf4);
+    --code-inline-border: color-mix(in srgb, var(--doc-accent) 30%, transparent);
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+    --shadow-lg: 0 28px 64px -18px rgba(0, 0, 0, 0.75);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --doc-accent-soft: color-mix(in srgb, var(--doc-accent) 24%, #0b0f17);
+  --doc-accent-tint: color-mix(in srgb, var(--doc-accent) 13%, #0b0f17);
+  --doc-accent-line: color-mix(in srgb, var(--doc-accent) 42%, #0b0f17);
+  --doc-accent-ink: color-mix(in srgb, var(--doc-accent) 42%, #e7ecf3);
+  --bg: #080b11;
+  --bg-grad-1: #0a0e16;
+  --bg-grad-2: #070a10;
+  --surface: #11161f;
+  --surface-2: #0d121a;
+  --surface-sunken: #0a0e16;
+  --canvas-dot: rgba(255, 255, 255, 0.02);
+  --ink: #e6ecf4;
+  --ink-strong: #f4f7fb;
+  --ink-soft: #aab4c4;
+  --ink-muted: #6b7686;
+  --border: #1e2735;
+  --border-strong: #2b3749;
+  --hairline: rgba(255, 255, 255, 0.05);
+  --code-bg: #070b12;
+  --code-bar: #05080d;
+  --code-ink: #e8eef7;
+  --code-inline-bg: color-mix(in srgb, var(--doc-accent) 22%, #0c111a);
+  --code-inline-ink: color-mix(in srgb, var(--doc-accent) 50%, #e6ecf4);
+  --code-inline-border: color-mix(in srgb, var(--doc-accent) 30%, transparent);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 28px 64px -18px rgba(0, 0, 0, 0.75);
+}
+
+/* ================================ BASE ================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 2rem; -webkit-text-size-adjust: 100%; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 16.5px;
+  line-height: 1.72;
+  color: var(--ink);
+  background:
+    radial-gradient(var(--canvas-dot) 1px, transparent 1.5px) 0 0 / 26px 26px,
+    radial-gradient(1200px 600px at 100% -5%, var(--doc-accent-tint), transparent 55%),
+    radial-gradient(900px 500px at -10% 0%, color-mix(in srgb, var(--doc-accent) 4%, transparent), transparent 60%),
+    linear-gradient(180deg, var(--bg-grad-1), var(--bg-grad-2));
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern", "liga", "calt";
+}
+::selection { background: color-mix(in srgb, var(--doc-accent) 24%, transparent); }
+:focus-visible { outline: none; box-shadow: var(--ring); border-radius: 4px; }
+
+/* Barre de progression de lecture */
+.docs-progress {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0;
+  background: linear-gradient(90deg, var(--doc-accent), color-mix(in srgb, var(--doc-accent) 45%, #fff));
+  z-index: 60; transition: width 0.1s linear;
+}
+
+/* =============================== OSSATURE ================================ */
+.docs-shell {
+  display: grid;
+  grid-template-columns: var(--toc-w) minmax(0, 1fr);
+  gap: clamp(1.25rem, 2.4vw, 2.5rem);
+  max-width: 88rem;
+  margin: 0 auto;
+  padding: 2.75rem clamp(0.9rem, 2.6vw, 2.4rem) 6rem;
+}
+
+/* ================================= TOC ================================== */
+.docs-toc {
+  position: sticky; top: 1.75rem; align-self: start;
+  max-height: calc(100vh - 3.5rem); overflow-y: auto;
+  padding: 0.25rem 0.5rem 1rem 0; font-size: 0.86rem;
+}
+.docs-toc__label {
+  display: flex; align-items: center; gap: 0.5rem;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  font-size: 0.67rem; font-weight: 700; color: var(--ink-muted);
+  margin: 0 0 0.9rem 0.85rem;
+}
+.docs-toc__label::before {
+  content: ""; width: 0.5rem; height: 0.5rem; border-radius: 2px;
+  background: var(--doc-accent); box-shadow: 0 0 0 3px var(--doc-accent-soft);
+}
+.docs-toc nav ul { list-style: none; margin: 0; padding: 0; }
+.docs-toc nav a {
+  display: block; position: relative;
+  padding: 0.32rem 0.85rem; margin: 1px 0;
+  border-left: 2px solid var(--border);
+  color: var(--ink-soft); text-decoration: none; line-height: 1.4;
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  /* Long camelCase identifiers (repository names) must wrap, never clip:
+     without this, `tempsMachineSousTraitanceRepository` overflowed the rail
+     and was cut at the aside's right edge. */
+  overflow-wrap: anywhere; word-break: break-word; hyphens: none;
+}
+.docs-toc nav a:hover { color: var(--ink-strong); background: var(--surface-sunken); }
+.docs-toc nav a.is-active {
+  color: var(--doc-accent-ink); border-left-color: var(--doc-accent);
+  font-weight: 600; background: var(--doc-accent-soft);
+}
+.docs-toc nav .lvl-3 a { padding-left: 1.7rem; font-size: 0.82rem; }
+.docs-toc__empty { color: var(--ink-muted); padding-left: 0.85rem; font-style: italic; }
+
+/* =============================== CONTENU ================================ */
+.docs-main { min-width: 0; }
+.docs-article {
+  max-width: var(--content-max);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+/* En-tête typé */
+.docs-header {
+  position: relative;
+  padding: clamp(1.9rem, 4vw, 3rem) clamp(1.5rem, 4vw, 3.25rem) 1.85rem;
+  background:
+    radial-gradient(900px 280px at 0% 0%, var(--doc-accent-soft), transparent 60%),
+    var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.docs-header::before {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 4px;
+  background: linear-gradient(90deg, var(--doc-accent), color-mix(in srgb, var(--doc-accent) 30%, transparent) 75%, transparent);
+  z-index: 2;
+}
+/* Filigrane : grand glyphe du TYPE de doc, très estompé, ancré dans le coin —
+   profondeur discrète qui relie l'en-tête au système d'accent par type.
+   Inerte tant que le gabarit n'injecte pas --doc-glyph (fallback "" = invisible). */
+.docs-header::after {
+  content: var(--doc-glyph, "");
+  position: absolute; top: -0.34em; right: 0.06em; z-index: 0;
+  font-size: clamp(7rem, 17vw, 12rem); line-height: 0.8; font-weight: 400;
+  color: var(--doc-accent); opacity: 0.06;
+  pointer-events: none; -webkit-user-select: none; user-select: none;
+}
+.docs-header > * { position: relative; z-index: 1; }
+.docs-breadcrumb {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.15rem 0.4rem;
+  font-size: 0.76rem; color: var(--ink-muted); margin-bottom: 1.05rem;
+  font-variant-numeric: tabular-nums;
+}
+.docs-breadcrumb .sep { opacity: 0.4; }
+.docs-breadcrumb a {
+  color: var(--ink-muted); text-decoration: none;
+  padding: 0.08rem 0.3rem; margin: 0 -0.05rem; border-radius: var(--r-sm);
+  transition: color 0.15s, background 0.15s;
+}
+.docs-breadcrumb a:hover { color: var(--doc-accent-ink); background: var(--doc-accent-soft); }
+.docs-breadcrumb [aria-current="page"] { color: var(--ink-soft); font-weight: 600; }
+.docs-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.32rem 0.78rem; border-radius: 999px;
+  background: var(--doc-accent); color: #fff;
+  font-size: 0.71rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.docs-badge .ico { font-size: 0.9rem; line-height: 1; }
+.docs-title {
+  margin: 1.05rem 0 0.5rem; font-size: clamp(1.75rem, 3.4vw, 2.45rem);
+  line-height: 1.12; letter-spacing: -0.022em; font-weight: 800; color: var(--ink-strong);
+}
+.docs-blurb { margin: 0; color: var(--ink-soft); font-size: 1.02rem; max-width: 44rem; }
+.docs-meta {
+  display: flex; flex-wrap: wrap; gap: 0.45rem 1.3rem;
+  margin-top: 1.3rem; padding-top: 1.05rem;
+  border-top: 1px solid var(--hairline);
+  font-size: 0.78rem; color: var(--ink-muted);
+}
+.docs-meta b { color: var(--ink-soft); font-weight: 600; }
+.docs-meta code { background: none; padding: 0; border: 0; color: var(--ink-soft); font-size: 0.92em; }
+
+/* Corps */
+.docs-content { padding: clamp(1.6rem, 4vw, 3rem) clamp(1.5rem, 4vw, 3.25rem) 3.25rem; }
+.docs-content > *:first-child { margin-top: 0; }
+/* Mesure de lecture : la PROSE de premier niveau garde une largeur confortable
+   (~68-72 caractères). Les titres servent de filets pleine largeur ; tableaux,
+   blocs de code et images s'étendent sur toute la carte (motif "bleed"). */
+.docs-content > :is(p, ul, ol, blockquote, dl, .footnotes) { max-width: var(--measure); }
+.docs-content > :is(.table-wrap, pre, img, hr) { max-width: 100%; }
+/* Empêche les longues chaînes insécables (séparateurs ====, URLs, identifiants)
+   de déborder de la PROSE : elles s'enroulent au lieu de dépasser la colonne.
+   Volontairement PAS sur td/th (géré plus bas, sans casser les identifiants). */
+.docs-content :is(p, li, h1, h2, h3, h4, h5, h6, blockquote, dd, dt) { overflow-wrap: anywhere; }
+.docs-content > h1:first-of-type { display: none; } /* le H1 est déjà dans .docs-title */
+
+.docs-content h1, .docs-content h2, .docs-content h3,
+.docs-content h4, .docs-content h5, .docs-content h6 {
+  scroll-margin-top: 1.5rem; line-height: 1.25; letter-spacing: -0.014em;
+  color: var(--ink-strong); font-weight: 700; position: relative;
+}
+.docs-content h1 { font-size: 1.9rem; margin: 2.6rem 0 1rem; }
+.docs-content h2 {
+  font-size: 1.48rem; margin: 2.9rem 0 1.05rem; padding-bottom: 0.45rem;
+  border-bottom: 1px solid var(--border);
+}
+.docs-content h2::after {
+  content: ""; position: absolute; left: 0; bottom: -1px; width: 2.5rem; height: 2px;
+  background: var(--doc-accent); border-radius: 2px;
+}
+.docs-content h3 { font-size: 1.2rem; margin: 2.1rem 0 0.8rem; }
+.docs-content h4 { font-size: 1.03rem; margin: 1.65rem 0 0.6rem; color: var(--ink-soft); }
+.docs-content h5, .docs-content h6 {
+  font-size: 0.9rem; margin: 1.35rem 0 0.5rem; color: var(--ink-soft);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+
+.docs-content :is(h2, h3, h4) .header-anchor {
+  position: absolute; left: -1.45rem; opacity: 0; color: var(--doc-accent);
+  text-decoration: none; font-weight: 400; transition: opacity 0.15s;
+}
+.docs-content :is(h2, h3, h4):hover .header-anchor { opacity: 0.65; }
+.docs-content :is(h2, h3, h4) .header-anchor:hover { opacity: 1; }
+
+.docs-content p {
+  margin: 0 0 1.15rem;
+  text-align: justify;
+  text-justify: inter-word;
+  -webkit-hyphens: auto; hyphens: auto;
+  -webkit-hyphenate-limit-before: 3; -webkit-hyphenate-limit-after: 2;
+  hyphenate-limit-chars: 6 3 2; /* coupe les mots ≥ 6 lettres → moins de rivières en colonne dense */
+}
+/* Justification désactivée là où elle nuit : cellules, listes de tâches, légendes. */
+.docs-content td p, .docs-content th p, .docs-content li p { text-align: left; hyphens: manual; }
+.docs-content a {
+  color: var(--doc-accent-ink); text-decoration: none;
+  background-image: linear-gradient(var(--doc-accent-line), var(--doc-accent-line));
+  background-size: 100% 1px; background-position: 0 1.15em; background-repeat: no-repeat;
+  transition: background-size 0.15s, color 0.15s;
+}
+.docs-content a:hover { color: var(--doc-accent); background-image: linear-gradient(var(--doc-accent), var(--doc-accent)); }
+.docs-content strong { font-weight: 700; color: var(--ink-strong); }
+
+/* Listes */
+.docs-content ul, .docs-content ol { margin: 0 0 1.15rem; padding-left: 1.45rem; }
+.docs-content li { margin: 0.32rem 0; }
+.docs-content li > ul, .docs-content li > ol { margin: 0.32rem 0; }
+.docs-content ul { list-style: none; }
+.docs-content ul > li { position: relative; }
+.docs-content ul > li::before {
+  content: ""; position: absolute; left: -1.05rem; top: 0.66em;
+  width: 6px; height: 6px; border-radius: 2px;
+  background: var(--doc-accent-line); border: 1px solid var(--doc-accent-line);
+}
+.docs-content ol { list-style: decimal; }
+.docs-content ol > li::marker { color: var(--doc-accent); font-weight: 700; }
+
+/* Task lists */
+.docs-content ul.contains-task-list { padding-left: 0.2rem; }
+.docs-content li.task-list-item { list-style: none; padding-left: 0; }
+.docs-content li.task-list-item::before { display: none; }
+.docs-content input.task-list-item-checkbox {
+  appearance: none; -webkit-appearance: none;
+  width: 1.1rem; height: 1.1rem; margin-right: 0.55rem; vertical-align: -0.2rem;
+  border: 1.5px solid var(--border-strong); border-radius: 5px;
+  background: var(--surface); position: relative; cursor: default;
+}
+.docs-content input.task-list-item-checkbox:checked { background: var(--doc-accent); border-color: var(--doc-accent); }
+.docs-content input.task-list-item-checkbox:checked::after {
+  content: "✓"; position: absolute; inset: 0; color: #fff;
+  font-size: 0.8rem; line-height: 1.06rem; text-align: center; font-weight: 700;
+}
+
+/* Citations / callouts */
+.docs-content blockquote {
+  position: relative;
+  margin: 1.6rem 0; padding: 1rem 1.35rem 1rem 1.45rem;
+  border: 1px solid var(--doc-accent-line); border-left: 3px solid var(--doc-accent);
+  background: linear-gradient(180deg, var(--doc-accent-soft), var(--doc-accent-tint));
+  border-radius: var(--r-sm) var(--r-md) var(--r-md) var(--r-sm);
+  color: var(--ink-soft); box-shadow: var(--shadow-xs), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+.docs-content blockquote p { text-align: left; }
+.docs-content blockquote p:last-child { margin-bottom: 0; }
+.docs-content blockquote strong { color: var(--doc-accent-ink); }
+
+/* Code */
+.docs-content :not(pre) > code {
+  font-family: var(--font-mono); font-size: 0.85em;
+  background: var(--code-inline-bg); color: var(--code-inline-ink);
+  padding: 0.13em 0.42em; border-radius: 5px;
+  border: 1px solid var(--code-inline-border);
+}
+.docs-content pre {
+  margin: 1.5rem 0; padding: 1.15rem 1.3rem;
+  background: var(--code-bg); color: var(--code-ink);
+  border: 1px solid color-mix(in srgb, #ffffff 7%, var(--code-bg));
+  border-radius: var(--r-md); overflow-x: auto;
+  font-size: 0.855rem; line-height: 1.62;
+  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.docs-content pre code { font-family: var(--font-mono); background: none; border: 0; padding: 0; color: inherit; }
+
+/* Tableaux — données de référence denses (matrices FUNC/RA/VAL, lexiques). */
+.docs-content .table-wrap {
+  margin: 1.7rem 0; overflow-x: auto; overscroll-behavior-x: contain;
+  border: 1px solid var(--border-strong); border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  background: var(--surface);
+}
+.docs-content .table-wrap table { margin: 0; border: 0; border-radius: 0; box-shadow: none; }
+.docs-content table {
+  width: 100%; border-collapse: collapse; font-size: 0.875rem; line-height: 1.5;
+  font-variant-numeric: tabular-nums; display: table;
+}
+.docs-content thead th {
+  background: linear-gradient(var(--surface-sunken), color-mix(in srgb, var(--surface-sunken) 60%, var(--surface)));
+  color: var(--ink-strong); font-weight: 700;
+  text-align: left; padding: 0.7rem 0.95rem; border-bottom: 2px solid var(--border-strong);
+  white-space: nowrap; letter-spacing: -0.005em;
+}
+.docs-content tbody td { padding: 0.62rem 0.95rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.docs-content tbody tr:nth-child(even) { background: var(--surface-2); }
+.docs-content tbody tr:hover { background: var(--doc-accent-soft); }
+.docs-content tbody tr:last-child td { border-bottom: 0; }
+/* Lisibilité des cellules : on enroule aux espaces, JAMAIS caractère-par-caractère.
+   Les identifiants (FUNC-01, RA-NEW-32, gg_xxx) et le code restent entiers ; si le
+   tableau dépasse, le conteneur défile horizontalement plutôt que de tout broyer. */
+.docs-content :is(td, th) { overflow-wrap: normal; word-break: normal; -webkit-hyphens: none; hyphens: none; }
+.docs-content :is(td, th) code { white-space: nowrap; }
+.docs-content tbody td:first-child, .docs-content thead th:first-child { white-space: nowrap; }
+/* La 1re colonne sert souvent d'identifiant : on l'affirme typographiquement. */
+.docs-content tbody td:first-child { font-variant-numeric: tabular-nums; color: var(--ink-strong); }
+.docs-content table.front-matter { font-size: 0.84rem; }
+.docs-content table.front-matter th { width: 11rem; color: var(--ink-soft); white-space: normal; }
+
+/* Colonne 1 FIGÉE pendant le défilement horizontal : on ne perd jamais la ligne
+   (FUNC-01, RA-NEW-27…) en lisant les colonnes denses à droite. Fond opaque +
+   liseré de séparation pour matérialiser le gel. */
+.docs-content thead th:first-child,
+.docs-content tbody td:first-child {
+  position: sticky; left: 0; z-index: 1;
+  box-shadow: 1px 0 0 var(--border-strong);
+}
+.docs-content thead th:first-child { z-index: 2; }
+.docs-content tbody td:first-child { background: var(--surface); }
+.docs-content tbody tr:nth-child(even) td:first-child { background: var(--surface-2); }
+.docs-content tbody tr:hover td:first-child { background: var(--doc-accent-soft); }
+
+/* Bouton « Agrandir » (injecté par JS sur les tables qui débordent). */
+.table-block { margin: 1.7rem 0; }
+.table-block .table-wrap { margin: 0; }
+.table-wrap__expand {
+  display: flex; align-items: center; gap: 0.4rem; width: fit-content;
+  margin: 0 0 0.55rem auto; padding: 0.34rem 0.7rem;
+  font-family: var(--font-sans); font-size: 0.745rem; font-weight: 600; line-height: 1;
+  color: var(--ink-soft); background: var(--surface);
+  border: 1px solid var(--border-strong); border-radius: 999px; cursor: pointer;
+  box-shadow: var(--shadow-xs); transition: color 0.15s, border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.table-wrap__expand .ico { font-size: 0.92rem; }
+.table-wrap__expand:hover { color: var(--doc-accent); border-color: var(--doc-accent-line); background: var(--doc-accent-soft); transform: translateY(-1px); }
+
+/* Modal plein écran pour lire une table large sans défilement horizontal. */
+.tc-modal {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  padding: clamp(0.75rem, 3vw, 2.5rem);
+  background: color-mix(in srgb, #060a12 58%, transparent);
+  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+  animation: tc-modal-in 0.16s ease-out;
+}
+@keyframes tc-modal-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .tc-modal { animation: none; } }
+.tc-modal__panel {
+  display: flex; flex-direction: column;
+  width: min(97vw, 105rem); max-height: 92vh;
+  background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: var(--r-lg); box-shadow: var(--shadow-lg); overflow: hidden;
+}
+.tc-modal__bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 0.7rem 0.8rem 0.7rem 1.1rem; flex: none;
+  border-bottom: 1px solid var(--border); background: var(--surface-sunken);
+}
+.tc-modal__title {
+  font-size: 0.74rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tc-modal__close {
+  flex: none; width: 2.1rem; height: 2.1rem; display: grid; place-items: center;
+  background: var(--surface); color: var(--ink-soft); border: 1px solid var(--border-strong);
+  border-radius: 50%; cursor: pointer; font-size: 1rem; line-height: 1;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.tc-modal__close:hover { color: var(--doc-accent); border-color: var(--doc-accent-line); }
+.tc-modal__body { overflow: auto; padding: clamp(0.75rem, 2vw, 1.4rem); }
+/* Dans le modal : la table occupe toute la largeur et s'enroule → pas de scroll horizontal. */
+.tc-modal__body .table-wrap { max-width: 100%; overflow: visible; border: 0; box-shadow: none; }
+.tc-modal__body table { width: 100%; }
+.tc-modal__body :is(td, th) { overflow-wrap: anywhere; }        /* enroule pour tenir en largeur */
+.tc-modal__body :is(td, th) code { white-space: normal; }       /* le code s'enroule aussi */
+.tc-modal__body thead th:first-child,
+.tc-modal__body tbody td:first-child { position: static; box-shadow: none; } /* 1re col : reste insécable (ID) mais ne fige plus */
+
+/* Divers */
+.docs-content hr { border: 0; height: 1px; background: var(--border); margin: 2.6rem 0; }
+.docs-content img { max-width: 100%; height: auto; border-radius: var(--r-md); box-shadow: var(--shadow-sm); }
+.docs-content kbd {
+  font-family: var(--font-mono); font-size: 0.8em;
+  background: var(--surface-sunken); border: 1px solid var(--border-strong);
+  border-bottom-width: 2px; border-radius: 5px; padding: 0.1em 0.45em; color: var(--ink-strong);
+}
+.docs-content .footnotes { margin-top: 2.6rem; padding-top: 1.3rem; border-top: 1px solid var(--border); font-size: 0.86rem; color: var(--ink-soft); }
+
+/* Pied */
+.docs-footer {
+  margin-top: 1.8rem; max-width: var(--content-max);
+  display: flex; flex-wrap: wrap; gap: 0.5rem 1.3rem;
+  justify-content: space-between; align-items: center;
+  padding: 1.15rem 0.4rem 0; font-size: 0.76rem; color: var(--ink-muted);
+  border-top: 1px solid var(--border);
+}
+.docs-footer .brand { display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700; color: var(--ink-soft); }
+.docs-footer .brand::before {
+  content: ""; width: 0.55rem; height: 0.55rem; border-radius: 2px;
+  background: var(--doc-accent); box-shadow: 0 0 0 3px var(--doc-accent-soft);
+}
+.docs-footer code { color: var(--ink-muted); }
+
+/* ============================ CONTRÔLES =============================== */
+/* Cluster top-right : thème + haut de page */
+.docs-controls {
+  position: fixed; top: 1rem; right: 1.15rem; z-index: 55;
+  display: flex; gap: 0.5rem;
+}
+.docs-iconbtn {
+  width: 2.4rem; height: 2.4rem; display: grid; place-items: center;
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  color: var(--ink-soft); border: 1px solid var(--border);
+  border-radius: 50%; cursor: pointer; font-size: 1rem; text-decoration: none; line-height: 1;
+  box-shadow: var(--shadow-sm); transition: color 0.15s, border-color 0.15s, transform 0.15s, background 0.15s;
+}
+.docs-iconbtn:hover { color: var(--doc-accent); border-color: var(--doc-accent-line); transform: translateY(-1px); }
+.docs-home { font-size: 1.15rem; }
+.docs-top { opacity: 0; pointer-events: none; transform: translateY(-4px); transition: opacity 0.2s, transform 0.2s, color 0.15s; }
+.docs-top.is-visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+/* Bascule TOC mobile */
+.docs-toc-toggle {
+  display: none; position: sticky; top: 0; z-index: 40; width: 100%;
+  padding: 0.75rem 1rem; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-md); color: var(--ink); font-weight: 600; font-size: 0.86rem;
+  cursor: pointer; box-shadow: var(--shadow-sm); margin-bottom: 1rem;
+}
+
+/* ============================== HUB (index) ============================ */
+.docs-content .hub-intro { text-align: left; }
+.hub-section { margin: 0 0 2.5rem; }
+.hub-section:last-child { margin-bottom: 0; }
+.docs-content .hub-section h2 { margin-top: 2.6rem; }
+.hub-h2-ico { font-size: 0.92em; }
+.hub-count {
+  display: inline-block; margin-left: 0.15rem;
+  padding: 0.08rem 0.5rem; border-radius: 999px;
+  background: var(--doc-accent-soft); color: var(--doc-accent-ink);
+  border: 1px solid var(--doc-accent-line);
+  font-size: 0.72rem; font-weight: 700; vertical-align: 0.12em;
+  font-variant-numeric: tabular-nums;
+}
+.docs-content .hub-grid {
+  display: grid; gap: 0.7rem; margin: 1.1rem 0 0; max-width: 100%;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20.5rem), 1fr));
+}
+.docs-content a.hub-card {
+  display: flex; flex-direction: column; gap: 0.28rem;
+  padding: 0.82rem 1rem 0.9rem;
+  background: var(--surface); background-image: none;
+  border: 1px solid var(--border); border-left: 3px solid var(--doc-accent);
+  border-radius: var(--r-md); box-shadow: var(--shadow-xs);
+  color: var(--ink); text-decoration: none;
+  transition: transform 0.16s, box-shadow 0.16s, border-color 0.16s, background 0.16s;
+}
+.docs-content a.hub-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--doc-accent-line);
+  box-shadow: var(--shadow-md);
+  background: linear-gradient(180deg, var(--surface), var(--doc-accent-tint));
+}
+.docs-content a.hub-card:focus-visible { box-shadow: var(--ring); }
+.hub-card__title {
+  color: var(--ink-strong); font-weight: 650; font-size: 0.93rem;
+  line-height: 1.34; letter-spacing: -0.005em;
+}
+.hub-card__path {
+  color: var(--ink-muted); font-family: var(--font-mono);
+  font-size: 0.705rem; line-height: 1.4; overflow-wrap: anywhere;
+}
+
+/* ============================== RESPONSIVE ============================== */
+@media (max-width: 60rem) {
+  .docs-shell { grid-template-columns: 1fr; padding-top: 1rem; }
+  .docs-toc {
+    position: static; max-height: none; order: -1; display: none;
+    border: 1px solid var(--border); border-radius: var(--r-md);
+    padding: 1rem; background: var(--surface);
+  }
+  .docs-toc.is-open { display: block; }
+  .docs-toc-toggle { display: block; }
+  .docs-controls { top: auto; bottom: 1rem; right: 1rem; }
+}
+
+/* =============================== IMPRESSION ============================= */
+@media print {
+  body { background: #fff; }
+  .docs-toc, .docs-toc-toggle, .docs-controls, .docs-progress { display: none !important; }
+  .docs-shell { display: block; max-width: none; padding: 0; }
+  .docs-article { border: 0; box-shadow: none; border-radius: 0; }
+  .docs-content a { color: inherit; background: none; }
+  .docs-content pre { white-space: pre-wrap; word-break: break-word; }
+}
+
+/* ============================== SCROLLBARS ============================= */
+.docs-toc::-webkit-scrollbar, .docs-content pre::-webkit-scrollbar, .table-wrap::-webkit-scrollbar { height: 9px; width: 9px; }
+.docs-toc::-webkit-scrollbar-thumb, .docs-content pre::-webkit-scrollbar-thumb, .table-wrap::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--ink-muted) 38%, transparent); border-radius: 9px;
+}
+.docs-content pre::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.18); }

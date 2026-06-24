@@ -1,0 +1,106 @@
+# Primary OpenAPI 2.0 definition for a Power Platform custom connector that
+# wraps a protected Power Automate HTTP-triggered flow. Imports cleanly via
+# make.powerapps.com → Custom connectors → + New custom connector → Import an
+# OpenAPI file. After import, set the Security tab to OAuth 2.0 / Microsoft
+# Entra ID with Resource URL https://service.flow.microsoft.com/.
+#
+# Replace before importing:
+#   host:                 prod-XX.westeurope.logic.azure.com  ← from your flow URL
+#   workflowId default:   the flow's GUID (path segment in the trigger URL)
+#   info.contact:         your team contact
+
+swagger: "2.0"
+info:
+  title: Contoso Flow Wrapper
+  description: Custom connector wrapping the HTTP-triggered Power Automate flow `pa_ContosoCoreProcess`.
+  version: "1.0"
+  contact:
+    name: Power Platform Team
+    email: powerplatform@contoso.com
+host: prod-XX.westeurope.logic.azure.com
+basePath: /
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /workflows/{workflowId}/triggers/manual/paths/invoke:
+    post:
+      summary: Trigger Contoso core process
+      description: |
+        Invokes the protected Power Automate flow.
+        Caller must hold a delegated Entra ID token for service.flow.microsoft.com.
+      operationId: TriggerFlow
+      x-ms-visibility: important
+      parameters:
+        - name: workflowId
+          in: path
+          required: true
+          type: string
+          x-ms-summary: Workflow ID
+          x-ms-visibility: internal
+          default: "00000000-0000-0000-0000-000000000000"
+        - name: api-version
+          in: query
+          required: true
+          type: string
+          default: "2016-06-01"
+          x-ms-visibility: internal
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/TriggerFlowRequest"
+      responses:
+        "202":
+          description: Accepted — flow run started
+          schema:
+            $ref: "#/definitions/TriggerFlowResponse"
+        "401":
+          description: Authentication failed (DirectApiAuthorizationRequired or MisMatchingOAuthClaims)
+        "403":
+          description: User not in allowed list (only when trigger uses Specific users in my tenant)
+definitions:
+  TriggerFlowRequest:
+    type: object
+    required: [accountId, correlationId]
+    properties:
+      accountId:
+        type: string
+        format: uuid
+        x-ms-summary: Account ID
+      source:
+        type: string
+        x-ms-summary: Source
+        enum: [code-app, mda-button, plugin, external]
+      correlationId:
+        type: string
+        format: uuid
+        x-ms-summary: Correlation ID
+  TriggerFlowResponse:
+    type: object
+    properties:
+      runId:
+        type: string
+      status:
+        type: string
+securityDefinitions:
+  oauth2_auth:
+    type: oauth2
+    flow: accessCode
+    authorizationUrl: https://login.microsoftonline.com/common/oauth2/v2.0/authorize
+    tokenUrl: https://login.microsoftonline.com/common/oauth2/v2.0/token
+    scopes:
+      "https://service.flow.microsoft.com/User": Access Microsoft Flow as signed in user
+security:
+  - oauth2_auth:
+      - "https://service.flow.microsoft.com/User"
+x-ms-connector-metadata:
+  - propertyName: Website
+    propertyValue: "https://contoso.com"
+  - propertyName: Privacy policy
+    propertyValue: "https://contoso.com/privacy"
+  - propertyName: Categories
+    propertyValue: "Productivity"

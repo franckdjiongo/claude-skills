@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Seven Primitives — Placement Framework · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="The Seven Primitives — Placement Framework">
+  <meta name="doc-source" content="references/seven-primitives.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#the-seven-primitives">The seven primitives</a></li><li class="lvl-2"><a href="#cost-%26-reliability-profile">Cost &amp; reliability profile</a></li><li class="lvl-2"><a href="#placement-decision-matrix">Placement decision matrix</a></li><li class="lvl-3"><a href="#examples">Examples</a></li><li class="lvl-2"><a href="#anti-patterns-by-primitive">Anti-patterns by primitive</a></li><li class="lvl-3"><a href="#claude.md-anti-patterns">CLAUDE.md anti-patterns</a></li><li class="lvl-3"><a href="#rules-anti-patterns">Rules anti-patterns</a></li><li class="lvl-3"><a href="#skills-anti-patterns">Skills anti-patterns</a></li><li class="lvl-3"><a href="#subagents-anti-patterns">Subagents anti-patterns</a></li><li class="lvl-3"><a href="#hooks-anti-patterns">Hooks anti-patterns</a></li><li class="lvl-3"><a href="#mcp-anti-patterns">MCP anti-patterns</a></li><li class="lvl-3"><a href="#plugin-anti-patterns">Plugin anti-patterns</a></li><li class="lvl-2"><a href="#quick-reference">Quick reference</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">seven-primitives</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">The Seven Primitives — Placement Framework</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/seven-primitives.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>The Seven Primitives — Placement Framework</h1>
+<p>Source: synthesis of <code>Claude Code Architecture Research.md</code>, <code>Progressive Context Disclosure for Claude Code on Windows.md</code>, and 2 production projects.</p>
+<h2 id="the-seven-primitives" tabindex="-1"><a class="header-anchor" href="#the-seven-primitives" aria-hidden="true">#</a> The seven primitives</h2>
+<p>Claude Code offers seven distinct primitives for shaping behavior. Each has a different cost, reliability, and scope. Misplacing a rule wastes tokens and produces drift.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Primitive</th>
+<th>Standing context cost</th>
+<th>Reliability</th>
+<th>Best for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>CLAUDE.md</code></td>
+<td>Highest (always loaded)</td>
+<td>70-85%</td>
+<td>Identity, source-of-truth pointers, invariants, default model+effort, compaction recovery</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>.claude/rules/*.md</code></td>
+<td>Low (path-scoped via <code>paths:</code> frontmatter)</td>
+<td>70-85%</td>
+<td>File-type / directory conventions, naming, accessibility, testing rules</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Skills</td>
+<td>Metadata always loaded (~50 tokens), body lazy</td>
+<td>50-84% auto-trigger</td>
+<td>Repeatable workflows, domain knowledge, multi-step processes</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Subagents</td>
+<td>Zero main-thread cost; cost isolated to subagent</td>
+<td>100% (when explicitly invoked)</td>
+<td>Verbose specialist work, code review, deep analysis, parallel dispatch</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Hooks</td>
+<td>Zero context cost (run outside LLM)</td>
+<td>100% deterministic</td>
+<td>Critical rules that MUST be enforced, env checks, format-on-edit, completion gates</td>
+</tr>
+<tr>
+<td>6</td>
+<td>MCP servers</td>
+<td>Tool-definition cost when active</td>
+<td>Tool-specific</td>
+<td>External system access (Notion, Vercel, GitHub, Convex)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Plugins</td>
+<td>Whatever they install</td>
+<td>Inherited</td>
+<td>Distribution, sharing</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="cost-%26-reliability-profile" tabindex="-1"><a class="header-anchor" href="#cost-%26-reliability-profile" aria-hidden="true">#</a> Cost &amp; reliability profile</h2>
+<pre><code>Reliability:
+   100% ████████████ Hooks
+   100% ████████████ Subagents (explicit invocation)
+   85%  █████████░░░ CLAUDE.md
+   85%  █████████░░░ Path-scoped rules
+   84%  ████████░░░░ Skills (best case, with markers + UPS hook)
+   50%  █████░░░░░░░ Skills (worst case, no markers)
+
+Standing-context cost (small project, indicative):
+   2000+ tokens  CLAUDE.md (≤120 lines)
+   200/file      .claude/rules/*.md (loaded only when path matches)
+   50/skill      Skill metadata (always loaded if skill enabled)
+   5K when active Skill body (loaded on trigger)
+   0             Subagent (cost in its own context)
+   0             Hooks (run as separate processes)
+   variable      MCP tool definitions (only when MCP active)
+</code></pre>
+<h2 id="placement-decision-matrix" tabindex="-1"><a class="header-anchor" href="#placement-decision-matrix" aria-hidden="true">#</a> Placement decision matrix</h2>
+<p>For every rule, ask 5 questions to find the right primitive:</p>
+<ol>
+<li><strong>Must it be followed 100% of the time?</strong> → Hook</li>
+<li><strong>Is it path/file-type specific?</strong> → Rules file</li>
+<li><strong>Is it always-on foundational identity / pointer?</strong> → CLAUDE.md</li>
+<li><strong>Is it a repeatable multi-step workflow with domain knowledge?</strong> → Skill</li>
+<li><strong>Does it require expensive reasoning that should not pollute the main context?</strong> → Subagent</li>
+</ol>
+<p>If the rule fits multiple, pick the one that optimizes (cost × reliability × scope).</p>
+<h3 id="examples" tabindex="-1"><a class="header-anchor" href="#examples" aria-hidden="true">#</a> Examples</h3>
+<ul>
+<li><em>&quot;Block <code>console.log</code> from being committed&quot;</em> → <strong>Hook</strong> (100% deterministic, cheap, scoped to commits)</li>
+<li><em>&quot;Component files use <code>LocalizedString</code>&quot;</em> → <strong>Rules file</strong> with <code>paths: ['components/**/*.tsx']</code> (path-specific)</li>
+<li><em>&quot;This project uses Convex + R2&quot;</em> → <strong>CLAUDE.md</strong> (identity, always loaded)</li>
+<li><em>&quot;Run brainstorm before writing a plan&quot;</em> → <strong>Skill</strong> (workflow, multi-step)</li>
+<li><em>&quot;Audit the entire <code>.claude/</code> for drift&quot;</em> → <strong>Subagent</strong> (verbose, would flood main context)</li>
+<li><em>&quot;Log each session to a JSON file&quot;</em> → <strong>Hook</strong></li>
+<li><em>&quot;Look up the latest Anthropic docs before answering&quot;</em> → <strong>MCP</strong> (external system)</li>
+</ul>
+<h2 id="anti-patterns-by-primitive" tabindex="-1"><a class="header-anchor" href="#anti-patterns-by-primitive" aria-hidden="true">#</a> Anti-patterns by primitive</h2>
+<h3 id="claude.md-anti-patterns" tabindex="-1"><a class="header-anchor" href="#claude.md-anti-patterns" aria-hidden="true">#</a> CLAUDE.md anti-patterns</h3>
+<ul>
+<li>Long style guides, architecture explanations, file-type-specific procedures (use rules dir or skills instead)</li>
+<li><code>@filename</code> imports (embeds full file every session start; use declarative pointers instead)</li>
+<li>Defensive scaffolding (&quot;MUST&quot;, &quot;ALWAYS&quot;, &quot;double-check&quot;, &quot;verify before returning&quot;) — Opus 4.7 follows these literally and underperforms</li>
+<li>Over 150-200 instructions (HumanLayer research: adherence degrades uniformly past this)</li>
+</ul>
+<h3 id="rules-anti-patterns" tabindex="-1"><a class="header-anchor" href="#rules-anti-patterns" aria-hidden="true">#</a> Rules anti-patterns</h3>
+<ul>
+<li>Missing <code>paths:</code> frontmatter (always loads → defeats path-scoping)</li>
+<li>Files &gt;50 lines (they pollute when loaded)</li>
+<li>Negative-only rules (&quot;Never use X&quot;) without providing the alternative</li>
+</ul>
+<h3 id="skills-anti-patterns" tabindex="-1"><a class="header-anchor" href="#skills-anti-patterns" aria-hidden="true">#</a> Skills anti-patterns</h3>
+<ul>
+<li>Vague descriptions without trigger phrases (50% activation)</li>
+<li>Variations of SKILL.md name (must be exact, case-sensitive)</li>
+<li>README.md inside skill folder (forbidden)</li>
+<li>&quot;claude&quot; or &quot;anthropic&quot; in skill name (reserved)</li>
+<li>XML angle brackets in frontmatter (security: prompt injection vector)</li>
+<li>Bodies &gt;5000 words (degraded triggering, slow loading)</li>
+<li><code>disable-model-invocation: false</code> on side-effect skills (deploys, schema mutations)</li>
+</ul>
+<h3 id="subagents-anti-patterns" tabindex="-1"><a class="header-anchor" href="#subagents-anti-patterns" aria-hidden="true">#</a> Subagents anti-patterns</h3>
+<ul>
+<li>Subagent-from-subagent dispatch (forbidden — 1-level only)</li>
+<li>Plugin subagents declaring <code>hooks</code>, <code>mcpServers</code>, or <code>permissionMode</code> (silently ignored)</li>
+<li>Running review agents in background (output may be 0-byte, fail silently)</li>
+<li>Per-agent skills not declared in frontmatter (subagents don't auto-inherit skills)</li>
+</ul>
+<h3 id="hooks-anti-patterns" tabindex="-1"><a class="header-anchor" href="#hooks-anti-patterns" aria-hidden="true">#</a> Hooks anti-patterns</h3>
+<ul>
+<li>Relying on interactive shell behavior or <code>nvm</code> initialization</li>
+<li>Outputting to stdout from <code>~/.profile</code>/<code>~/.bashrc</code> (breaks JSON hook responses)</li>
+<li>Missing <code>/opt/homebrew/bin</code> on Apple Silicon (<code>node</code>, <code>git</code>, etc. not found)</li>
+<li>Skipping <code>--no-verify</code> checks (&quot;just bypass this once&quot;)</li>
+<li>Treating hooks as scripts (they're production infrastructure)</li>
+</ul>
+<h3 id="mcp-anti-patterns" tabindex="-1"><a class="header-anchor" href="#mcp-anti-patterns" aria-hidden="true">#</a> MCP anti-patterns</h3>
+<ul>
+<li>Running MCP servers for capabilities better solved with bash + scripts</li>
+<li>Letting tool definitions bloat idle context (disable when not in use)</li>
+<li>Hardcoding credentials in MCP config</li>
+</ul>
+<h3 id="plugin-anti-patterns" tabindex="-1"><a class="header-anchor" href="#plugin-anti-patterns" aria-hidden="true">#</a> Plugin anti-patterns</h3>
+<ul>
+<li>Submodule-based plugin distribution (not reliably cloned)</li>
+<li>Distributing plugins that contain hard-coded user paths or secrets</li>
+</ul>
+<h2 id="quick-reference" tabindex="-1"><a class="header-anchor" href="#quick-reference" aria-hidden="true">#</a> Quick reference</h2>
+<pre><code>&quot;Where does this rule belong?&quot;
+│
+├─ Must be 100%?            → Hook
+├─ Path/file-type specific? → Rules file
+├─ Always-on identity?      → CLAUDE.md (≤120 lines)
+├─ Multi-step workflow?     → Skill
+├─ Verbose specialist?      → Subagent
+├─ External system?         → MCP
+└─ Distribution?            → Plugin
+</code></pre>
+<p>If still unsure, re-read this file and the placement matrix. Defer the decision rather than guess. <strong>Misplacement is harder to detect than absence.</strong></p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/seven-primitives.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

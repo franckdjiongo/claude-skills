@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Opus 4.7 Defaults — Model &amp; Effort Selection · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Opus 4.7 Defaults — Model &amp; Effort Selection">
+  <meta name="doc-source" content="references/opus-4-7-defaults.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#the-3-%2B-1-heuristics">The 3 + 1 heuristics</a></li><li class="lvl-2"><a href="#default-tier-per-task">Default tier per task</a></li><li class="lvl-2"><a href="#per-task-playbook">Per-task playbook</a></li><li class="lvl-2"><a href="#per-subagent-effort-frontmatter">Per-subagent effort frontmatter</a></li><li class="lvl-2"><a href="#in-session-diagnostic-matrix">In-session diagnostic matrix</a></li><li class="lvl-2"><a href="#anti-patterns-specific-to-opus-4.7">Anti-patterns specific to Opus 4.7</a></li><li class="lvl-2"><a href="#effort-precedence">Effort precedence</a></li><li class="lvl-2"><a href="#bedrock-%2F-vertex-%2F-foundry-deployments">Bedrock / Vertex / Foundry deployments</a></li><li class="lvl-2"><a href="#when-xhigh-pays-for-itself">When xhigh pays for itself</a></li><li class="lvl-2"><a href="#claude.md-skeleton-block-(bootstrap-injects)">CLAUDE.md skeleton block (BOOTSTRAP injects)</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">opus-4-7-defaults</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Opus 4.7 Defaults — Model &amp; Effort Selection</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/opus-4-7-defaults.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Opus 4.7 Defaults — Model &amp; Effort Selection</h1>
+<p>Source: <code>effort-level-decision-framework-claude-code-opus-4-7-sonnet-4-6.md</code>. Critical for any session that uses Claude Code as of May 2026.</p>
+<h2 id="the-3-%2B-1-heuristics" tabindex="-1"><a class="header-anchor" href="#the-3-%2B-1-heuristics" aria-hidden="true">#</a> The 3 + 1 heuristics</h2>
+<ol>
+<li><strong>Default to xhigh on Opus 4.7, high on Sonnet 4.6</strong> for Claude Code.</li>
+<li><strong>Pick the model first, the effort second.</strong> Use <code>opusplan</code> for any session with both planning and execution.</li>
+<li><strong><code>max</code> is per-subproblem rescue, not session default.</strong></li>
+<li><strong><code>low</code> on Opus 4.7 ≈ <code>medium</code> on Opus 4.6</strong> (Caitlin Colgrove, Hex CTO). Cost floor moved up.</li>
+</ol>
+<h2 id="default-tier-per-task" tabindex="-1"><a class="header-anchor" href="#default-tier-per-task" aria-hidden="true">#</a> Default tier per task</h2>
+<pre><code>DESIGN / DEBUG / REFACTOR / MIGRATE / PLUGIN AUTHOR
+└─ Opus 4.7 + xhigh ────────────── default for serious work
+
+WELL-SPECIFIED SINGLE-FILE FEATURE
+└─ Sonnet 4.6 + high ──────────── faster, cheaper, sufficient
+
+TESTS / DOCS / UTILITY SCRIPTS
+└─ Sonnet 4.6 + medium ────────── over-thinking is wasted
+
+CLASSIFICATION / FORMATTING / SIMPLE RENAMES
+└─ Sonnet 4.6 + low ──────────── /effort low for the duration
+
+PLAN-THEN-BUILD SESSIONS
+└─ opusplan ──────────────────── auto-switches model
+
+STUCK PROBLEM (one turn)
+└─ /effort max for ONE turn ─── then drop back; max ≠ session default
+</code></pre>
+<h2 id="per-task-playbook" tabindex="-1"><a class="header-anchor" href="#per-task-playbook" aria-hidden="true">#</a> Per-task playbook</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Task type</th>
+<th>Model + effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Architectural planning</td>
+<td>opusplan</td>
+</tr>
+<tr>
+<td>Greenfield single-file</td>
+<td>Sonnet 4.6 + high</td>
+</tr>
+<tr>
+<td>Multi-file refactor</td>
+<td>Opus 4.7 + xhigh</td>
+</tr>
+<tr>
+<td>Intermittent debugging</td>
+<td>Opus 4.7 + xhigh</td>
+</tr>
+<tr>
+<td>Long-horizon agentic</td>
+<td>Opus 4.7 + xhigh + auto mode</td>
+</tr>
+<tr>
+<td>Code review</td>
+<td>Sonnet 4.6 + high (Opus 4.7 + xhigh for architecture review)</td>
+</tr>
+<tr>
+<td>Tests</td>
+<td>Sonnet 4.6 + medium</td>
+</tr>
+<tr>
+<td>Documentation</td>
+<td>Sonnet 4.6 + medium</td>
+</tr>
+<tr>
+<td>Utility scripts</td>
+<td>Sonnet 4.6 + low or medium</td>
+</tr>
+<tr>
+<td>Classification</td>
+<td>Sonnet 4.6 + low</td>
+</tr>
+<tr>
+<td>Plugin / connector</td>
+<td>opusplan</td>
+</tr>
+<tr>
+<td>Migration</td>
+<td>Opus 4.7 + xhigh</td>
+</tr>
+<tr>
+<td>Failing / looping</td>
+<td>Bump one level (don't add scaffolding)</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="per-subagent-effort-frontmatter" tabindex="-1"><a class="header-anchor" href="#per-subagent-effort-frontmatter" aria-hidden="true">#</a> Per-subagent effort frontmatter</h2>
+<p>Subagents do NOT inherit session effort by default — set explicitly in frontmatter:</p>
+<pre><code class="language-yaml">---
+name: lint-fix
+model: sonnet
+effort: low
+---
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Subagent role</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mechanical (lint-fix, git-publisher, CLI caller)</td>
+<td>low</td>
+</tr>
+<tr>
+<td>Bulk implementer (per-task TDD-light)</td>
+<td>medium</td>
+</tr>
+<tr>
+<td>Reviewer / researcher</td>
+<td>high</td>
+</tr>
+<tr>
+<td>Planner / architect</td>
+<td>xhigh</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="in-session-diagnostic-matrix" tabindex="-1"><a class="header-anchor" href="#in-session-diagnostic-matrix" aria-hidden="true">#</a> In-session diagnostic matrix</h2>
+<p>When something feels off, diagnose before raising effort:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Diagnosis</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spec ambiguous</td>
+<td>Need plan first</td>
+<td>Switch to opusplan</td>
+</tr>
+<tr>
+<td>Solution too shallow</td>
+<td>Underpowered</td>
+<td>Bump effort one level</td>
+</tr>
+<tr>
+<td>Solution overengineered</td>
+<td>Overpowered</td>
+<td>Drop one level</td>
+</tr>
+<tr>
+<td>Long sessions getting expensive</td>
+<td>Opus 4.7 thinks more on later turns at high effort</td>
+<td><code>/clear</code> more often or drop to high</td>
+</tr>
+<tr>
+<td>Subagent under-tools</td>
+<td>Default behavior on Opus 4.7</td>
+<td>Add positive prompt example, not &quot;MUST use X&quot;</td>
+</tr>
+<tr>
+<td>Reviewer reports trivial issues</td>
+<td>Defensive scaffolding in prompt</td>
+<td>Rewrite prompt: explicit AC + scope + severity matrix</td>
+</tr>
+<tr>
+<td>Failing repeatedly</td>
+<td>Probably underpowered</td>
+<td>One-turn <code>/effort max</code>, then drop back</td>
+</tr>
+<tr>
+<td>Code subtly wrong but spec satisfied</td>
+<td>Underpowered medium on multi-step</td>
+<td>Bump to high or xhigh</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="anti-patterns-specific-to-opus-4.7" tabindex="-1"><a class="header-anchor" href="#anti-patterns-specific-to-opus-4.7" aria-hidden="true">#</a> Anti-patterns specific to Opus 4.7</h2>
+<ul>
+<li><strong>Defaulting a long session to <code>max</code></strong> — most &quot;4.7 feels slow&quot; reports trace here. ~2x the spend for ~3-4 percentage points of quality.</li>
+<li><strong>Adding prompt scaffolding</strong> to compensate for shallow reasoning → &quot;raise effort, not scaffolding.&quot;</li>
+<li><strong>Migrating Opus 4.6 prompts unchanged</strong> — defensive language (&quot;don't nitpick&quot;, &quot;only critical issues&quot;) is now obeyed literally and you lose recall.</li>
+<li><strong>Letting mechanical subagents inherit session xhigh</strong> → set <code>effort: low</code> in their frontmatter.</li>
+<li><strong>Running medium effort on multi-step work</strong> — silent failure mode where Opus 4.7 satisfies the literal spec and breaks downstream.</li>
+<li><strong>Treating <code>task-budgets-2026-03-13</code> as a Claude Code feature</strong> — it's Messages-API only.</li>
+<li><strong>Setting <code>thinking: {budget_tokens: N}</code> on Opus 4.7</strong> — returns 400. Adaptive thinking is the only mode.</li>
+</ul>
+<h2 id="effort-precedence" tabindex="-1"><a class="header-anchor" href="#effort-precedence" aria-hidden="true">#</a> Effort precedence</h2>
+<pre><code>ENV var ($CLAUDE_CODE_EFFORT_LEVEL)
+    ↓
+Skill or subagent frontmatter (effort: ...)
+    ↓
+Session-level /effort
+    ↓
+settings.json effortLevel
+    ↓
+Model default
+</code></pre>
+<p>To pin xhigh permanently for a project, set in <code>~/.claude/settings.json</code>:</p>
+<pre><code class="language-json">{&quot;effortLevel&quot;: &quot;xhigh&quot;}
+</code></pre>
+<h2 id="bedrock-%2F-vertex-%2F-foundry-deployments" tabindex="-1"><a class="header-anchor" href="#bedrock-%2F-vertex-%2F-foundry-deployments" aria-hidden="true">#</a> Bedrock / Vertex / Foundry deployments</h2>
+<p>The alias <code>opus</code> does NOT auto-resolve to Opus 4.7 on these deployments. <strong>Pin <code>claude-opus-4-7</code> explicitly.</strong> Confirm in <code>~/.claude/settings.json</code> or per-deployment config.</p>
+<h2 id="when-xhigh-pays-for-itself" tabindex="-1"><a class="header-anchor" href="#when-xhigh-pays-for-itself" aria-hidden="true">#</a> When xhigh pays for itself</h2>
+<p>xhigh pays back when retries are expensive — <strong>xhigh's 2× token cost is lower than high's 1.25× expected runs × debugging overhead</strong> for tasks where:</p>
+<ul>
+<li>Acceptance criteria are partially ambiguous</li>
+<li>Multiple files need to coordinate</li>
+<li>Edge cases matter (state machines, transactions, refunds)</li>
+<li>Migration risk is real</li>
+</ul>
+<p>xhigh does NOT pay when:</p>
+<ul>
+<li>Task is mechanical / unambiguous</li>
+<li>Concurrent Max-plan sessions where weekly quota constrains you</li>
+<li>You're already inside Plan Mode (Opus already concentrates effort there; <code>max</code> is the trap)</li>
+</ul>
+<h2 id="claude.md-skeleton-block-(bootstrap-injects)" tabindex="-1"><a class="header-anchor" href="#claude.md-skeleton-block-(bootstrap-injects)" aria-hidden="true">#</a> CLAUDE.md skeleton block (BOOTSTRAP injects)</h2>
+<pre><code class="language-markdown">## Default model + effort
+
+- Default: opus (Opus 4.7) at xhigh for design, debug, refactor, migration, plugin work.
+- Switch: sonnet (Sonnet 4.6) at high for tests, docs, single-file features, scripts.
+- Plan then build: `opusplan` for any session with both phases.
+- Drop: `/effort low` for classification, formatting, simple renames.
+- Rescue: `/effort max` for ONE turn on stuck problems, then drop back.
+- Subagents declare their own effort. Mechanical → low. Implementer → medium. Reviewer → high. Planner → xhigh.
+- Spawn multiple subagents in the same turn when fanning out across items or files.
+- State explicit intent, constraints, acceptance criteria, file paths. Don't generalize silently.
+</code></pre>
+<p>This block is the user's contract with Opus 4.7 and Sonnet 4.6. meta-govern ensures it appears in every project's CLAUDE.md.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/opus-4-7-defaults.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

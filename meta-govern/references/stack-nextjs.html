@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stack Pack — Next.js (App Router) + TypeScript · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Stack Pack — Next.js (App Router) + TypeScript">
+  <meta name="doc-source" content="references/stack-nextjs.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#layout-reference">Layout reference</a></li><li class="lvl-2"><a href="#skills-to-install-(bootstrap)">Skills to install (BOOTSTRAP)</a></li><li class="lvl-2"><a href="#agents-to-install">Agents to install</a></li><li class="lvl-2"><a href="#hooks-to-install">Hooks to install</a></li><li class="lvl-2"><a href="#path-scoped-rules-to-install">Path-scoped rules to install</a></li><li class="lvl-2"><a href="#source-of-truth-doc-structure">Source-of-truth doc structure</a></li><li class="lvl-2"><a href="#tooling-stack">Tooling stack</a></li><li class="lvl-2"><a href="#tests">Tests</a></li><li class="lvl-2"><a href="#validate-command">Validate command</a></li><li class="lvl-2"><a href="#pre-commit-(.husky%2Fpre-commit)">Pre-commit (.husky/pre-commit)</a></li><li class="lvl-2"><a href="#common-gotchas">Common gotchas</a></li><li class="lvl-2"><a href="#archetype-defaults-(see-project-archetypes.html)">Archetype defaults (see project-archetypes.html)</a></li><li class="lvl-2"><a href="#reference">Reference</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">stack-nextjs</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Stack Pack — Next.js (App Router) + TypeScript</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/stack-nextjs.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Stack Pack — Next.js (App Router) + TypeScript</h1>
+<p>When meta-govern detects: <code>package.json</code> includes <code>next</code> AND <code>typescript</code> AND <code>next.config.{ts,js,mjs}</code> exists at root.</p>
+<h2 id="layout-reference" tabindex="-1"><a class="header-anchor" href="#layout-reference" aria-hidden="true">#</a> Layout reference</h2>
+<p>Default architecture pattern: <strong>framework-native + feature-first</strong> (see <code>architecture-patterns.html</code>). For full layout: <code>architecture-patterns.html</code> § Next.js App Router.</p>
+<h2 id="skills-to-install-(bootstrap)" tabindex="-1"><a class="header-anchor" href="#skills-to-install-(bootstrap)" aria-hidden="true">#</a> Skills to install (BOOTSTRAP)</h2>
+<p>In addition to the 5 core skills:</p>
+<ul>
+<li><code>frontend-design</code> (plugin) — distinctive frontend code generation</li>
+<li><code>ship-polished-ui</code> — premium UI + browser visual QA loop</li>
+<li><code>seo-visibility</code> — SEO + structured data + llms.txt + sitemap (Next.js benefits the most from this)</li>
+</ul>
+<p>For palier 2+:</p>
+<ul>
+<li>(Optional) <code>simplify</code> — review changed code for reuse + quality</li>
+</ul>
+<h2 id="agents-to-install" tabindex="-1"><a class="header-anchor" href="#agents-to-install" aria-hidden="true">#</a> Agents to install</h2>
+<p>In addition to the 6 core agents:</p>
+<ul>
+<li><code>visual-qa-inspector</code> — already global at user-level</li>
+</ul>
+<h2 id="hooks-to-install" tabindex="-1"><a class="header-anchor" href="#hooks-to-install" aria-hidden="true">#</a> Hooks to install</h2>
+<p>In addition to the 5 core hooks:</p>
+<ul>
+<li>(none specific; reuse default hook set)</li>
+</ul>
+<h2 id="path-scoped-rules-to-install" tabindex="-1"><a class="header-anchor" href="#path-scoped-rules-to-install" aria-hidden="true">#</a> Path-scoped rules to install</h2>
+<p>In addition to the 8 core rules:</p>
+<ul>
+<li><code>ui-components.md</code> (paths: <code>src/app/**/*.tsx</code>, <code>src/features/**/*.tsx</code>, <code>src/shared/ui/**</code>):
+<ul>
+<li>Tailwind tokens only (no inline hex/rgba)</li>
+<li><code>dark:</code> variants where dark mode applies</li>
+<li>Accessibility: aria-label, alt text, semantic HTML, keyboard navigation</li>
+<li>Touch targets 44px minimum (36px for dense controls)</li>
+<li>Use Next <code>&lt;Link&gt;</code> for in-app navigation; <code>&lt;a href&gt;</code> only for external URLs</li>
+</ul>
+</li>
+<li><code>server-client-boundary.md</code> (paths: <code>src/app/**/*.tsx</code>, <code>src/app/**/route.ts</code>, <code>src/server/**/*.ts</code>) — see <code>templates/rules/server-client-boundary.md.tpl</code>:
+<ul>
+<li><code>'use client'</code> at the smallest interactive boundary, never at the page top</li>
+<li><code>route.ts</code> parses, validates, calls a service, responds — no DB calls, no auth logic, no transformations</li>
+<li>Durable backend logic in <code>src/server/&lt;area&gt;/</code></li>
+<li>Server Components by default; client components are exceptions, not the norm</li>
+</ul>
+</li>
+<li><code>data-layer.md</code> (paths: <code>src/server/**/*.ts</code>):
+<ul>
+<li>Repositories per aggregate root (when DDD score ≥10)</li>
+<li>Boundary schemas (Zod) at every server-action / route-handler entry</li>
+<li>No business logic in repositories — they read/write only</li>
+</ul>
+</li>
+</ul>
+<h2 id="source-of-truth-doc-structure" tabindex="-1"><a class="header-anchor" href="#source-of-truth-doc-structure" aria-hidden="true">#</a> Source-of-truth doc structure</h2>
+<p>Three canonical docs (same as React+Vite):</p>
+<ol>
+<li><code>docs/&lt;project&gt;-spec.md</code> — FUNC-XX, RA-XX, VAL-XX</li>
+<li><code>docs/data-model.md</code> — schema, contracts (server entities, client DTOs)</li>
+<li><code>docs/composants/catalogue-composants.md</code> — C-XX components</li>
+</ol>
+<h2 id="tooling-stack" tabindex="-1"><a class="header-anchor" href="#tooling-stack" aria-hidden="true">#</a> Tooling stack</h2>
+<ul>
+<li><strong>Next.js 15+</strong> with App Router (Server Components default)</li>
+<li><strong>TypeScript strict mode</strong></li>
+<li><strong>ESLint 9 flat config</strong> with <code>@next/eslint-plugin-next</code></li>
+<li><strong>Prettier 3+</strong></li>
+<li><strong>Vitest 4</strong> for unit/component (preferred) OR <strong>Jest 30</strong> if existing</li>
+<li><strong>Playwright</strong> for e2e (lives in <code>tests/e2e/</code>)</li>
+<li><strong>Tailwind 3-4</strong> with design tokens</li>
+<li><strong>Husky 9 + lint-staged 16</strong> for pre-commit</li>
+<li><strong>Zod</strong> for boundary schemas</li>
+</ul>
+<h2 id="tests" tabindex="-1"><a class="header-anchor" href="#tests" aria-hidden="true">#</a> Tests</h2>
+<pre><code class="language-typescript">// src/features/&lt;feature&gt;/__tests__/&lt;feature&gt;.test.tsx
+import { render, screen } from '@testing-library/react';
+import Page from '../page';
+
+it('renders the dashboard heading', async () =&gt; {
+  render(await Page());
+  expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
+});
+</code></pre>
+<p>Forbidden:</p>
+<ul>
+<li><code>container.querySelector</code> — use Testing Library queries</li>
+<li><code>.toMatchSnapshot()</code> — brittle</li>
+<li>DB mocks at the component level — mock at the service layer</li>
+</ul>
+<h2 id="validate-command" tabindex="-1"><a class="header-anchor" href="#validate-command" aria-hidden="true">#</a> Validate command</h2>
+<pre><code class="language-json">{
+  &quot;scripts&quot;: {
+    &quot;dev&quot;: &quot;next dev&quot;,
+    &quot;typecheck&quot;: &quot;tsc --noEmit&quot;,
+    &quot;build&quot;: &quot;next build&quot;,
+    &quot;start&quot;: &quot;next start&quot;,
+    &quot;lint&quot;: &quot;next lint&quot;,
+    &quot;lint:fix&quot;: &quot;next lint --fix&quot;,
+    &quot;format&quot;: &quot;prettier --write .&quot;,
+    &quot;format:check&quot;: &quot;prettier --check .&quot;,
+    &quot;test&quot;: &quot;vitest run&quot;,
+    &quot;test:watch&quot;: &quot;vitest&quot;,
+    &quot;test:e2e&quot;: &quot;playwright test&quot;,
+    &quot;validate&quot;: &quot;bun run typecheck &amp;&amp; bun run lint &amp;&amp; bun run test &amp;&amp; bun run build &amp;&amp; bun run quality:check&quot;,
+    &quot;validate:fast&quot;: &quot;bun run typecheck &amp;&amp; bun run lint &amp;&amp; bun run test&quot;,
+    &quot;quality:check&quot;: &quot;node .claude/scripts/quality-checks/index.mjs&quot;,
+    &quot;size-guard&quot;: &quot;node .claude/scripts/file-size-growth-guard.mjs&quot;
+  }
+}
+</code></pre>
+<p>For palier 3+: add <code>&quot;lint:dead&quot;: &quot;knip&quot;</code> and <code>&quot;lint:deps&quot;: &quot;depcruise --config .dependency-cruiser.cjs src&quot;</code> per <code>tooling-architecture-checks.html</code>.</p>
+<h2 id="pre-commit-(.husky%2Fpre-commit)" tabindex="-1"><a class="header-anchor" href="#pre-commit-(.husky%2Fpre-commit)" aria-hidden="true">#</a> Pre-commit (<code>.husky/pre-commit</code>)</h2>
+<pre><code class="language-bash">bunx lint-staged
+bun .claude/scripts/file-size-growth-guard.mjs
+bun .claude/scripts/quality-checks/index.mjs --scope staged --fail-level high
+</code></pre>
+<h2 id="common-gotchas" tabindex="-1"><a class="header-anchor" href="#common-gotchas" aria-hidden="true">#</a> Common gotchas</h2>
+<ul>
+<li><strong>Route handler bloat</strong>: <code>route.ts</code> accumulating DB calls + auth + validation + transformations = 200-line hotspot. Extract to <code>src/server/&lt;area&gt;/</code>.</li>
+<li><strong><code>'use client'</code> cascade</strong>: marking a parent client makes the entire subtree client. Mark the smallest interactive leaf instead.</li>
+<li><strong>Server Components reading from <code>localStorage</code> / <code>window</code></strong>: server-side execution has no DOM. Move to client component or pass as prop.</li>
+<li><strong><code>next/image</code> size</strong>: not setting <code>width</code>/<code>height</code> blocks LCP. Always specify or use <code>fill</code> with a sized parent.</li>
+<li><strong>Cache mistakes</strong>: <code>fetch()</code> in Server Components caches by default; <code>unstable_noStore()</code> or <code>cache: 'no-store'</code> for dynamic data.</li>
+<li><strong>ISR / revalidate</strong>: forgetting <code>export const revalidate = 60</code> on a page that needs freshness → stale forever.</li>
+<li><strong><code>useEffect</code> + <code>setState</code> for derived data</strong>: a quality-checks anti-pattern. Compute during render, or use a selector.</li>
+<li><strong>File size &gt; 300 lines</strong>: caught by <code>file-size</code> check.</li>
+</ul>
+<h2 id="archetype-defaults-(see-project-archetypes.html)" tabindex="-1"><a class="header-anchor" href="#archetype-defaults-(see-project-archetypes.html)" aria-hidden="true">#</a> Archetype defaults (see <code>project-archetypes.html</code>)</h2>
+<ul>
+<li>Archetype A (prototype): rare for Next.js — usually overkill. Consider React+Vite first.</li>
+<li>Archetype B (internal dashboard): Next.js with <code>src/app/(app)/</code> route group + minimal marketing.</li>
+<li>Archetype C (production SaaS): <strong>default Next.js home</strong>. Marketing route group + app route group + API route handlers + shared schemas.</li>
+<li>Archetype D (larger system): Next.js as one app inside a monorepo (<code>apps/web/</code> or <code>apps/admin/</code>); see <code>stack-monorepo.html</code>.</li>
+</ul>
+<h2 id="reference" tabindex="-1"><a class="header-anchor" href="#reference" aria-hidden="true">#</a> Reference</h2>
+<p>When in doubt, read the layout in <code>architecture-patterns.html</code> § Next.js App Router. Both reference docs stay aligned.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/stack-nextjs.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

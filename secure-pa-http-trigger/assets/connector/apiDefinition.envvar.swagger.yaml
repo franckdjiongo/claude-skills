@@ -1,0 +1,132 @@
+# Env-parameterised OpenAPI 2.0 variant — wraps an existing flow URL with
+# placeholders. Useful when bridging a legacy SAS-bearing URL during cutover,
+# or when you want a single connector definition templated across
+# environments. Power Platform connector UI is the runtime source of truth
+# for auth; the securityDefinitions block is here so the file remains
+# self-describing.
+#
+# Placeholders to substitute before importing:
+#   {{FLOW_HOST}}    — e.g. prod-129.westeurope.logic.azure.com
+#   {{TENANT_ID}}    — Entra Directory ID
+#   {{WORKFLOW_ID}}  — the flow's GUID
+#   {{FLOW_SIG}}     — the SAS sig query value (legacy URLs only; remove
+#                       after migration to "Any user in my tenant")
+#
+# `[Inference]`: scopes left empty — Microsoft does not currently document
+# the exact delegated scope name for this feature. Set the scope in the
+# connector UI's Security tab instead (recommended:
+# https://service.flow.microsoft.com/User).
+
+swagger: "2.0"
+info:
+  title: Secure Power Automate Flow Wrapper
+  description: >
+    Custom connector wrapper for a Power Automate HTTP-triggered flow
+    secured with "Who can trigger the flow = Any user in my tenant".
+  version: "1.0.0"
+
+host: "{{FLOW_HOST}}"
+basePath: "/workflows"
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+
+securityDefinitions:
+  azuread_auth:
+    type: oauth2
+    flow: accessCode
+    authorizationUrl: "https://login.microsoftonline.com/{{TENANT_ID}}/oauth2/authorize"
+    tokenUrl: "https://login.microsoftonline.com/{{TENANT_ID}}/oauth2/token"
+    scopes: {}
+
+security:
+  - azuread_auth: []
+
+paths:
+  "/{{WORKFLOW_ID}}/triggers/manual/paths/invoke":
+    post:
+      summary: Invoke secured flow
+      description: Invoke the wrapped Power Automate HTTP trigger.
+      operationId: InvokeSecuredFlow
+      parameters:
+        - name: api-version
+          in: query
+          required: true
+          type: string
+          default: "2016-06-01"
+        - name: sp
+          in: query
+          required: true
+          type: string
+          default: "/triggers/manual/run"
+        - name: sv
+          in: query
+          required: true
+          type: string
+          default: "1.0"
+        - name: sig
+          in: query
+          required: true
+          type: string
+          default: "{{FLOW_SIG}}"
+          x-ms-visibility: internal
+        - name: x-correlation-id
+          in: header
+          required: false
+          type: string
+          description: Optional client correlation ID for diagnostics.
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/FlowRequest"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/FlowResponse"
+        "202":
+          description: Accepted
+          schema:
+            $ref: "#/definitions/FlowResponse"
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "500":
+          description: Server error
+
+definitions:
+  FlowRequest:
+    type: object
+    required:
+      - correlationId
+      - action
+    properties:
+      correlationId:
+        type: string
+      action:
+        type: string
+      recordId:
+        type: string
+      payload:
+        type: object
+        additionalProperties: true
+
+  FlowResponse:
+    type: object
+    properties:
+      status:
+        type: string
+      referenceId:
+        type: string
+      message:
+        type: string
+      data:
+        type: object
+        additionalProperties: true

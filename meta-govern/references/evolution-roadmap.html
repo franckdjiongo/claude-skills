@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Evolution Roadmap — Paliers 0-6 · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Evolution Roadmap — Paliers 0-6">
+  <meta name="doc-source" content="references/evolution-roadmap.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#what's-a-palier%3F">What's a palier?</a></li><li class="lvl-2"><a href="#indicators-(measured-by-analyze-project.mjs)">Indicators (measured by analyze-project.mjs)</a></li><li class="lvl-2"><a href="#the-paliers">The paliers</a></li><li class="lvl-3"><a href="#palier-0-%E2%80%94-greenfield">Palier 0 — Greenfield</a></li><li class="lvl-3"><a href="#palier-1-%E2%80%94-initial-bootstrap">Palier 1 — Initial bootstrap</a></li><li class="lvl-3"><a href="#palier-2-%E2%80%94-spec-maturity">Palier 2 — Spec maturity</a></li><li class="lvl-3"><a href="#palier-3-%E2%80%94-multi-dev">Palier 3 — Multi-dev</a></li><li class="lvl-3"><a href="#palier-4-%E2%80%94-ci-ready">Palier 4 — CI ready</a></li><li class="lvl-3"><a href="#palier-5-%E2%80%94-dual-runtime">Palier 5 — Dual-runtime</a></li><li class="lvl-3"><a href="#palier-6-%E2%80%94-backlog-automation">Palier 6 — Backlog automation</a></li><li class="lvl-2"><a href="#promotion-is-not-free">Promotion is not free</a></li><li class="lvl-2"><a href="#demotion-%2F-pruning">Demotion / pruning</a></li><li class="lvl-2"><a href="#per-project-palier-file">Per-project palier file</a></li><li class="lvl-2"><a href="#when-meta-govern-bumps-major-version">When meta-govern bumps major version</a></li><li class="lvl-2"><a href="#trigger-checklists-summary">Trigger checklists summary</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">evolution-roadmap</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Evolution Roadmap — Paliers 0-6</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/evolution-roadmap.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Evolution Roadmap — Paliers 0-6</h1>
+<p>Source: adaptation of Brillance Décor's <code>evolution-roadmap.html</code> palier system, generalized for any project.</p>
+<h2 id="what's-a-palier%3F" tabindex="-1"><a class="header-anchor" href="#what's-a-palier%3F" aria-hidden="true">#</a> What's a palier?</h2>
+<p>A <strong>palier</strong> is an evolutionary stage of a project's Claude Code setup. Higher paliers add capabilities; lower paliers stay simple. Promotion is <strong>trigger-driven</strong> — never preemptive.</p>
+<h2 id="indicators-(measured-by-analyze-project.mjs)" tabindex="-1"><a class="header-anchor" href="#indicators-(measured-by-analyze-project.mjs)" aria-hidden="true">#</a> Indicators (measured by <code>analyze-project.mjs</code>)</h2>
+<p>For each project, meta-govern measures:</p>
+<ul>
+<li>LOC (lines of code)</li>
+<li>FUNC IDs (count of <code>FUNC-XX</code> references in spec)</li>
+<li>C-XX components (count in catalog)</li>
+<li>Test files</li>
+<li>Devs (1 = solo, ≥2 = multi-dev)</li>
+<li>Backend: absent / in-progress / mature</li>
+<li>CI: absent / GitHub Actions / GitLab / other</li>
+<li>DEFERRED entries in backlog</li>
+<li>Multi-runtime (Codex + Claude.ai dual): no / yes</li>
+<li>Archetype (A=prototype | B=internal-dashboard | C=production-saas | D=larger-system) — see <code>project-archetypes.html</code></li>
+<li>Architecture pattern (framework-native-feature-first | feature-sliced | vertical-slice | modular-monolith | clean-hexagonal | package-monorepo) — see <code>architecture-patterns.html</code></li>
+</ul>
+<h2 id="the-paliers" tabindex="-1"><a class="header-anchor" href="#the-paliers" aria-hidden="true">#</a> The paliers</h2>
+<h3 id="palier-0-%E2%80%94-greenfield" tabindex="-1"><a class="header-anchor" href="#palier-0-%E2%80%94-greenfield" aria-hidden="true">#</a> Palier 0 — Greenfield</h3>
+<p><strong>State</strong>: No <code>.claude/</code> directory yet. Maybe a <code>package.json</code>, maybe nothing.</p>
+<p><strong>Indicators</strong>:</p>
+<ul>
+<li>LOC &lt; 100</li>
+<li>No CLAUDE.md</li>
+<li>No <code>.claude/</code></li>
+</ul>
+<p><strong>Trigger to promote</strong>: User invokes BOOTSTRAP.</p>
+<h3 id="palier-1-%E2%80%94-initial-bootstrap" tabindex="-1"><a class="header-anchor" href="#palier-1-%E2%80%94-initial-bootstrap" aria-hidden="true">#</a> Palier 1 — Initial bootstrap</h3>
+<p><strong>State</strong>: Standard meta-govern bootstrap installed. Project is ready for serious work.</p>
+<p><strong>Installed</strong>:</p>
+<ul>
+<li><code>CLAUDE.md</code> (≤120 lines)</li>
+<li><code>.claude/settings.json</code> (3 hooks)</li>
+<li><code>.claude/rules/</code> (8 path-scoped rules)</li>
+<li><code>.claude/skills/</code> (5 core: brainstorm, write-plan, execute-plan, quality-gate, govern-claude)</li>
+<li><code>.claude/agents/</code> (6: implementer, ui-implementer, spec-reviewer, code-quality-reviewer, persona-simulator, codebase-reality-check)</li>
+<li><code>.claude/hooks/</code> (5: track-workflow, enforce-workflow, precompact-handoff, postcompact-reinject, session-start-env-check)</li>
+<li><code>.claude/scripts/</code> (file-size-growth-guard + quality-checks suite)</li>
+<li>3 source-of-truth docs (spec, data-model, catalog)</li>
+<li><code>package.json</code> validate scripts</li>
+<li><code>.husky/pre-commit</code></li>
+<li><code>docs/backlog-deferred.md</code></li>
+</ul>
+<p><strong>Trigger to promote to Palier 2</strong>:</p>
+<ul>
+<li>≥30 FUNC IDs in spec</li>
+<li>OR ≥10 C-XX components</li>
+<li>OR live users / production deployment</li>
+<li>OR ≥30 components + tests</li>
+</ul>
+<h3 id="palier-2-%E2%80%94-spec-maturity" tabindex="-1"><a class="header-anchor" href="#palier-2-%E2%80%94-spec-maturity" aria-hidden="true">#</a> Palier 2 — Spec maturity</h3>
+<p><strong>State</strong>: Project has substantial scope. Spec coverage and QA matter.</p>
+<p><strong>Adds</strong>:</p>
+<ul>
+<li><code>spec-tracer</code> skill (generates <code>docs/traceability/trace-global.md</code>)</li>
+<li><code>qa-plan</code> skill (generates manual QA docs)</li>
+<li>(Optional) <code>update-manifest</code> skill if data model has machine-readable manifest</li>
+</ul>
+<p><strong>Trigger to promote to Palier 3</strong>:</p>
+<ul>
+<li>2+ devs</li>
+<li>OR worktree workflow needed (parallel feature branches)</li>
+<li>OR spec violations recur</li>
+</ul>
+<h3 id="palier-3-%E2%80%94-multi-dev" tabindex="-1"><a class="header-anchor" href="#palier-3-%E2%80%94-multi-dev" aria-hidden="true">#</a> Palier 3 — Multi-dev</h3>
+<p><strong>State</strong>: Multiple developers. Coordination matters.</p>
+<p><strong>Adds</strong>:</p>
+<ul>
+<li><code>spec-reviewer</code> agent (split from generic reviewer)</li>
+<li><code>subagent-plan-edit-guard</code> hook (scoped to implementer agents)</li>
+<li><code>setup-worktree.mjs</code> script</li>
+<li><code>agent-dispatch-preflight.mjs</code> hook (file-size warnings on dispatch)</li>
+<li>Worktree workflow documentation</li>
+</ul>
+<p><strong>Trigger to promote to Palier 4</strong>:</p>
+<ul>
+<li>PR opened on remote (GitHub/GitLab)</li>
+<li>OR CI requested</li>
+</ul>
+<h3 id="palier-4-%E2%80%94-ci-ready" tabindex="-1"><a class="header-anchor" href="#palier-4-%E2%80%94-ci-ready" aria-hidden="true">#</a> Palier 4 — CI ready</h3>
+<p><strong>State</strong>: Project ships through CI; release notes matter.</p>
+<p><strong>Adds</strong>:</p>
+<ul>
+<li><code>.github/workflows/</code> (or GitLab CI) for: lint, typecheck, test, build, quality:check</li>
+<li><code>release-notes</code> skill</li>
+<li>Coverage gate in <code>validate</code></li>
+<li>Branch protection rules (documented; not auto-applied)</li>
+</ul>
+<p><strong>Trigger to promote to Palier 5</strong>:</p>
+<ul>
+<li>Codex / Claude.ai dual-runtime needed (e.g., for non-MCP integrations)</li>
+<li>OR project served from multiple Claude surfaces</li>
+</ul>
+<h3 id="palier-5-%E2%80%94-dual-runtime" tabindex="-1"><a class="header-anchor" href="#palier-5-%E2%80%94-dual-runtime" aria-hidden="true">#</a> Palier 5 — Dual-runtime</h3>
+<p><strong>State</strong>: Project supported by Claude Code AND Codex (or another runtime).</p>
+<p><strong>Adds</strong>:</p>
+<ul>
+<li><code>.codex/</code> adapter</li>
+<li><code>AGENTS.md</code> (Codex equivalent of CLAUDE.md)</li>
+<li><code>.agents/</code> shared core (mirrors of skills/rules accessible to both runtimes)</li>
+<li><code>sync-claude-mirrors.mjs</code> script</li>
+<li><code>govern-runtime-sync</code> skill</li>
+</ul>
+<p><strong>Trigger to promote to Palier 6</strong>:</p>
+<ul>
+<li>30+ DEFERRED entries in backlog</li>
+<li>OR backlog overhead &gt;1h/week</li>
+</ul>
+<h3 id="palier-6-%E2%80%94-backlog-automation" tabindex="-1"><a class="header-anchor" href="#palier-6-%E2%80%94-backlog-automation" aria-hidden="true">#</a> Palier 6 — Backlog automation</h3>
+<p><strong>State</strong>: Mature project with substantial accumulated debt.</p>
+<p><strong>Adds</strong>:</p>
+<ul>
+<li><code>next-deferred-id.mjs</code> script (allocates DEFERRED-XXX IDs)</li>
+<li><code>backlog-cleanup</code> skill (or scheduled task)</li>
+<li>Auto-categorization of deferred items by severity / area</li>
+<li>Periodic backlog review cadence (monthly)</li>
+</ul>
+<p><strong>Beyond Palier 6</strong>: Custom evolution. meta-govern proposes per-project; user decides.</p>
+<h2 id="promotion-is-not-free" tabindex="-1"><a class="header-anchor" href="#promotion-is-not-free" aria-hidden="true">#</a> Promotion is not free</h2>
+<p>Each palier adds standing-context cost. Promote only when triggers are met.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Palier</th>
+<th>Cumulative artifacts</th>
+<th>Approx. standing-context overhead</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>0 tokens</td>
+</tr>
+<tr>
+<td>1</td>
+<td>5 skills + 4 agents + 5 hooks + 8 rules + CLAUDE.md</td>
+<td>~3-4K tokens (CLAUDE.md + skill metadata + rule headers)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>+2 skills</td>
+<td>+100 tokens</td>
+</tr>
+<tr>
+<td>3</td>
+<td>+1 agent + 2 hooks + worktree</td>
+<td>+200 tokens</td>
+</tr>
+<tr>
+<td>4</td>
+<td>+1 skill + CI files</td>
+<td>+50 tokens</td>
+</tr>
+<tr>
+<td>5</td>
+<td>+adapter + sync script + AGENTS.md mirror</td>
+<td>+500 tokens</td>
+</tr>
+<tr>
+<td>6</td>
+<td>+1 script</td>
+<td>+50 tokens</td>
+</tr>
+</tbody>
+</table></div>
+<p>The user's CLAUDE.md still budget is ≤120 lines regardless of palier.</p>
+<h2 id="demotion-%2F-pruning" tabindex="-1"><a class="header-anchor" href="#demotion-%2F-pruning" aria-hidden="true">#</a> Demotion / pruning</h2>
+<p>Sometimes a palier feature isn't paying off. meta-govern AUDIT detects:</p>
+<ul>
+<li>Skills with 0 invocations in 90 days → propose retirement</li>
+<li>Hooks that never fired → propose deletion</li>
+<li>Rules with no matching paths → propose deletion or path correction</li>
+<li>Agents not invoked in 90 days → propose retirement</li>
+</ul>
+<p>Demotion is opt-in. The user reviews proposals.</p>
+<h2 id="per-project-palier-file" tabindex="-1"><a class="header-anchor" href="#per-project-palier-file" aria-hidden="true">#</a> Per-project palier file</h2>
+<p>Each project tracks its palier in <code>.claude/.meta-govern.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;metaGovernVersion&quot;: &quot;1.2.0&quot;,
+  &quot;palier&quot;: 1,
+  &quot;archetype&quot;: &quot;B&quot;,
+  &quot;architecturePattern&quot;: &quot;framework-native-feature-first&quot;,
+  &quot;lastAudit&quot;: &quot;2026-05-06&quot;,
+  &quot;lastBootstrap&quot;: &quot;2026-05-06&quot;,
+  &quot;stack&quot;: &quot;react-vite-convex&quot;,
+  &quot;dddScore&quot;: 6,
+  &quot;indicators&quot;: {
+    &quot;loc&quot;: 3450,
+    &quot;funcIds&quot;: 28,
+    &quot;components&quot;: 18,
+    &quot;tests&quot;: 12,
+    &quot;devs&quot;: 1,
+    &quot;backend&quot;: &quot;in-progress&quot;,
+    &quot;ci&quot;: &quot;absent&quot;,
+    &quot;deferred&quot;: 4,
+    &quot;multiRuntime&quot;: false
+  }
+}
+</code></pre>
+<p><code>analyze-project.mjs</code> reads &amp; writes this file.</p>
+<h2 id="when-meta-govern-bumps-major-version" tabindex="-1"><a class="header-anchor" href="#when-meta-govern-bumps-major-version" aria-hidden="true">#</a> When meta-govern bumps major version</h2>
+<p>If a meta-govern major version requires re-scaffolding (e.g., template structure changed), every project's <code>metaGovernVersion</code> is now stale → MIGRATE candidates.</p>
+<p>The migration is incremental:</p>
+<ol>
+<li>Read project's current palier</li>
+<li>Compute the diff for that palier between old and new meta-govern version</li>
+<li>Apply step-by-step</li>
+<li>Update <code>metaGovernVersion</code> in <code>.meta-govern.json</code></li>
+</ol>
+<p>NEVER bulk-migrate across paliers. Promote by trigger; migrate by version.</p>
+<h2 id="trigger-checklists-summary" tabindex="-1"><a class="header-anchor" href="#trigger-checklists-summary" aria-hidden="true">#</a> Trigger checklists summary</h2>
+<pre><code>0 → 1: User invokes BOOTSTRAP. Always-promote-on-request.
+1 → 2: ≥30 FUNC IDs OR ≥10 C-XX OR live users.
+2 → 3: 2+ devs OR worktree needed.
+3 → 4: PR on remote OR CI requested.
+4 → 5: Dual-runtime needed.
+5 → 6: 30+ DEFERRED entries.
+</code></pre>
+<p>If a trigger is partially met (e.g., 25 FUNC IDs out of 30), AUDIT recommends &quot;stay at palier N; promote in ~2 weeks&quot; rather than promoting prematurely.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/evolution-roadmap.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

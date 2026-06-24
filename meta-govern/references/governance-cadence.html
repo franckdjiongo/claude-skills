@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Governance Cadence — Audit Rhythm &amp; Self-Healing · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Governance Cadence — Audit Rhythm &amp; Self-Healing">
+  <meta name="doc-source" content="references/governance-cadence.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#the-cadence-(what-to-audit-when)">The cadence (what to audit when)</a></li><li class="lvl-2"><a href="#self-healing%3A-the-lesson-lifecycle">Self-healing: the lesson lifecycle</a></li><li class="lvl-2"><a href="#lessons-log-discipline">Lessons-log discipline</a></li><li class="lvl-2"><a href="#periodic-re-evaluation">Periodic re-evaluation</a></li><li class="lvl-2"><a href="#anti-fatigue-principles">Anti-fatigue principles</a></li><li class="lvl-2"><a href="#audit-output-contract">Audit output contract</a></li><li class="lvl-2"><a href="#self-audit-(meta-govern-auditing-itself)">Self-audit (meta-govern auditing itself)</a></li><li class="lvl-2"><a href="#automating-the-cadence-(optional)">Automating the cadence (optional)</a></li><li class="lvl-2"><a href="#final-principle">Final principle</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">governance-cadence</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Governance Cadence — Audit Rhythm &amp; Self-Healing</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/governance-cadence.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Governance Cadence — Audit Rhythm &amp; Self-Healing</h1>
+<p>Source: synthesis of <code>Claude Code Architecture Research.md</code>, observation of Temps Chantier's <code>governance-matrix.md</code> (60+ lessons) and Brillance Décor's <code>evolution-roadmap.html</code> + <code>session-lessons.md</code>.</p>
+<h2 id="the-cadence-(what-to-audit-when)" tabindex="-1"><a class="header-anchor" href="#the-cadence-(what-to-audit-when)" aria-hidden="true">#</a> The cadence (what to audit when)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Trigger</th>
+<th>What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Every <strong>2-4 weeks</strong> during active dev</td>
+<td>Run AUDIT mode on each active project</td>
+</tr>
+<tr>
+<td>After <strong>major refactor</strong> (≥10 files)</td>
+<td>Run AUDIT</td>
+</tr>
+<tr>
+<td>After <strong>adding any skill / agent / hook / rule</strong></td>
+<td>Run AUDIT (specifically check wiring)</td>
+</tr>
+<tr>
+<td>Before a <strong>milestone</strong> (feature ship, backend launch, multi-runtime)</td>
+<td>Run AUDIT</td>
+</tr>
+<tr>
+<td>When <strong>Claude Code version bumps</strong> with new feature</td>
+<td>Run EVOLVE on meta-govern; consider MIGRATE per project</td>
+</tr>
+<tr>
+<td>When <strong>Claude model ships</strong> (Opus 4.8, etc.)</td>
+<td>Run EVOLVE; rewrite Opus-4.7-specific defaults; MIGRATE projects</td>
+</tr>
+<tr>
+<td>When <strong>session-review</strong> surfaces a recurring pattern</td>
+<td>Append to lessons-log.html; consider EVOLVE</td>
+</tr>
+<tr>
+<td>When the user <strong>says &quot;drift&quot; / &quot;audit&quot; / &quot;what's missing&quot;</strong></td>
+<td>Run AUDIT</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="self-healing%3A-the-lesson-lifecycle" tabindex="-1"><a class="header-anchor" href="#self-healing%3A-the-lesson-lifecycle" aria-hidden="true">#</a> Self-healing: the lesson lifecycle</h2>
+<p>The user's institutional memory grows by accumulating lessons. The lifecycle is precise:</p>
+<pre><code>1. Observed (during work or session-review)
+   ↓
+2. Recorded as TEXTUAL RULE
+   - In CLAUDE.md if always-on
+   - In a path-scoped rule if file-type-specific
+   - In a skill body if multi-step workflow
+   - In an agent system prompt if role-specific
+   ↓
+3. Recurs despite the textual rule
+   ↓
+4. Promoted to PATH-SCOPED RULE (if not already)
+   - Add `paths:` frontmatter
+   - Loaded only when relevant
+   ↓
+5. Still violated under load
+   ↓
+6. Promoted to DETERMINISTIC HOOK
+   - 100% enforcement at the cost of zero context
+</code></pre>
+<p>This is the &quot;rule emerges from violation&quot; cycle observed in Temps Chantier:</p>
+<ul>
+<li><code>state-context-leak.md</code> (rule) → emerged after BUG-03, BUG-06, BUG-04, #5a, #5b, #8 all reproduced the same class</li>
+<li><code>subagent-plan-edit-guard.mjs</code> (hook) → emerged after textual rule violations under load</li>
+<li><code>agent-dispatch-preflight.mjs</code> (hook) → emerged after manual rituals were skipped</li>
+</ul>
+<p>meta-govern's job is to <strong>detect</strong> when a lesson recurs (via the lessons-log.html append-only journal) and <strong>propose</strong> the promotion to a higher tier.</p>
+<h2 id="lessons-log-discipline" tabindex="-1"><a class="header-anchor" href="#lessons-log-discipline" aria-hidden="true">#</a> Lessons-log discipline</h2>
+<p>Located at <code>~/.claude/skills/meta-govern/references/lessons-log.html</code>.</p>
+<pre><code class="language-markdown">## YYYY-MM-DD — &lt;project&gt; — &lt;one-line lesson title&gt;
+
+**Project:** &lt;project-name&gt;
+**Severity:** [BLOCKING|HIGH|MEDIUM|LOW]
+**Type:** [WORKFLOW|ANTI-PATTERN|TOOLING|MODEL|ARCHITECTURE|RULE]
+**Recurrence:** N (1st observation, 2nd, 3rd…)
+
+### What happened
+&lt;2-3 sentences: the failure mode&gt;
+
+### Root cause
+&lt;1-2 sentences: why it happened&gt;
+
+### Action taken
+- [ ] Updated reference: &lt;reference-file&gt;
+- [ ] Updated template: &lt;template-file&gt;
+- [ ] Updated script: &lt;script-file&gt;
+- [ ] Promoted from rule → hook
+- [ ] Bumped meta-govern version: &lt;new-version&gt;
+- [ ] Documented for MIGRATE: &lt;description&gt;
+
+### Lesson generalized
+&lt;the universal principle, in one sentence — usable across projects&gt;
+</code></pre>
+<p>Append-only. No rewriting. The journal is the audit trail.</p>
+<h2 id="periodic-re-evaluation" tabindex="-1"><a class="header-anchor" href="#periodic-re-evaluation" aria-hidden="true">#</a> Periodic re-evaluation</h2>
+<p>Every 6 months OR when the user runs EVOLVE mode:</p>
+<ol>
+<li>Read all lessons since last re-eval</li>
+<li>Classify by <code>Recurrence</code></li>
+<li>For Recurrence ≥ 3 → check whether the lesson has been promoted (rule → hook)</li>
+<li>For Type=ARCHITECTURE → check whether a new reference is justified</li>
+<li>For Type=MODEL → check whether existing references are stale (e.g., Opus 4.7 → 4.8)</li>
+<li>Bump version per semver</li>
+</ol>
+<h2 id="anti-fatigue-principles" tabindex="-1"><a class="header-anchor" href="#anti-fatigue-principles" aria-hidden="true">#</a> Anti-fatigue principles</h2>
+<p>The user said: <em>&quot;à chaque nouveau projet, j'ai l'impression de toujours recommencer les mêmes choses&quot;</em>. The cadence above prevents this:</p>
+<ul>
+<li><strong>Once promoted, lessons stay promoted.</strong> No &quot;I'll do it manually this time.&quot;</li>
+<li><strong>BOOTSTRAP installs the full stack.</strong> Never partial. Reduce decisions per project.</li>
+<li><strong>EVOLVE mode handles model upgrades</strong>. The user doesn't manually rewrite prompts when Opus N+1 ships.</li>
+<li><strong>Stack convention packs</strong> (Power Platform, Convex, Vite) keep stack-specific lessons in one place.</li>
+<li><strong>Periodic AUDIT detects drift early.</strong> A 3-line drift caught in week 2 is faster to fix than a 50-line rewrite in month 3.</li>
+</ul>
+<h2 id="audit-output-contract" tabindex="-1"><a class="header-anchor" href="#audit-output-contract" aria-hidden="true">#</a> Audit output contract</h2>
+<p>Every AUDIT produces <code>docs/audit/YYYY-MM-DD-meta-govern-audit.md</code>:</p>
+<pre><code class="language-markdown"># Audit — &lt;project&gt; — &lt;date&gt;
+
+meta-govern version: &lt;semver&gt;
+Project palier: &lt;0-6&gt;
+Audit type: [scheduled|triggered|migration-prep]
+
+## Severity-tagged findings
+
+### [BLOCKING] (resolve before next session)
+- ...
+
+### [HIGH] (resolve within 1 week)
+- ...
+
+### [MEDIUM] (resolve within 1 month)
+- ...
+
+### [LOW] (advisory)
+- ...
+
+## Inventory snapshot
+
+| Artifact | Count | LOC | Over budget |
+|---|---|---|---|
+| Skills | 5 | 850 | 0 |
+| Agents | 4 | 720 | 0 |
+| Hooks | 3 | 245 | 0 |
+| Rules | 8 | 320 | 0 |
+| CLAUDE.md | 1 | 56 | 0 |
+
+## Recommended next palier
+- Current: &lt;N&gt;
+- Triggers met: &lt;list&gt;
+- Triggers pending: &lt;list&gt;
+- Recommendation: [stay|promote to N+1|reconsider]
+
+## Diff plan (if any)
+&lt;unified diff per file, with rationale&gt;
+</code></pre>
+<p>The user reviews, approves, then meta-govern applies (one file at a time, with checkpoint commits).</p>
+<h2 id="self-audit-(meta-govern-auditing-itself)" tabindex="-1"><a class="header-anchor" href="#self-audit-(meta-govern-auditing-itself)" aria-hidden="true">#</a> Self-audit (meta-govern auditing itself)</h2>
+<p>Quarterly OR on EVOLVE invocation:</p>
+<ol>
+<li>Run <code>node scripts/self-audit.mjs</code></li>
+<li>Check own <code>~/.claude/skills/meta-govern/SKILL.md</code> against the same rules it enforces (≤5K words, valid frontmatter, no defensive scaffolding, etc.)</li>
+<li>Check templates haven't drifted (templates should be representative of what user actually uses now)</li>
+<li>Check lessons-log.html is being maintained</li>
+<li>Check version.json changelog matches actual changes since last bump</li>
+<li>Output <code>~/.claude/skills/meta-govern/SELF-AUDIT.md</code> with findings</li>
+</ol>
+<p>If meta-govern fails its own audit → that's a P0. Fix immediately.</p>
+<h2 id="automating-the-cadence-(optional)" tabindex="-1"><a class="header-anchor" href="#automating-the-cadence-(optional)" aria-hidden="true">#</a> Automating the cadence (optional)</h2>
+<p>The cadence above is documented as ritual. To make it autonomous:</p>
+<ul>
+<li>Use <code>/schedule</code> (built-in) to create a recurring scheduled task that runs a meta-govern AUDIT every 2-4 weeks per active project.</li>
+<li>Use <code>/loop</code> for ad-hoc polling within a session.</li>
+<li>Use <code>CronCreate</code> for cron-style scheduled remote agents.</li>
+</ul>
+<p>Sample <code>/schedule</code> invocation:</p>
+<pre><code>/schedule &quot;Run meta-govern AUDIT on the active project; report findings; if any CRITICAL/HIGH, summarize at top.&quot; --cron &quot;0 9 * * 1&quot; --branch main
+</code></pre>
+<p>(The user owns the scheduling decision. meta-govern documents the cadence; it does not auto-create scheduled tasks. Self-evolution stays under human control.)</p>
+<h2 id="final-principle" tabindex="-1"><a class="header-anchor" href="#final-principle" aria-hidden="true">#</a> Final principle</h2>
+<blockquote>
+<p>&quot;Inventories rot, grep stays fresh.&quot;</p>
+</blockquote>
+<p>Don't pre-compute the user's project state into the skill. Discover it on every invocation. The skill's intelligence is in patterns + decision trees + scripts that <strong>observe</strong> the project, not in cached snapshots that <strong>describe</strong> it.</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/governance-cadence.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

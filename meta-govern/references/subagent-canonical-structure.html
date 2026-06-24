@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Subagent — Canonical Structure · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Subagent — Canonical Structure">
+  <meta name="doc-source" content="references/subagent-canonical-structure.md">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Référence canonique meta-govern (doctrine, patterns, stacks)">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#file-structure">File structure</a></li><li class="lvl-2"><a href="#frontmatter-%E2%80%94-required">Frontmatter — required</a></li><li class="lvl-2"><a href="#frontmatter-%E2%80%94-common-optional-fields">Frontmatter — common optional fields</a></li><li class="lvl-2"><a href="#effort-frontmatter-%E2%80%94-by-role">Effort frontmatter — by role</a></li><li class="lvl-2"><a href="#description-shape">Description shape</a></li><li class="lvl-2"><a href="#body-%E2%80%94-recommended-structure">Body — recommended structure</a></li><li class="lvl-2"><a href="#findings">Findings</a></li><li class="lvl-2"><a href="#notes-(advisory%3B-not-blocking)">Notes (advisory; not blocking)</a></li><li class="lvl-2"><a href="#verdict">Verdict</a></li><li class="lvl-2"><a href="#pre-existing-(out-of-scope)">Pre-existing (out of scope)</a></li><li class="lvl-2"><a href="#body-length">Body length</a></li><li class="lvl-2"><a href="#subagent-doesn't-auto-inherit">Subagent doesn't auto-inherit</a></li><li class="lvl-2"><a href="#subagent-context-isolation">Subagent context isolation</a></li><li class="lvl-2"><a href="#subagents-as-skills-confusion-(don't)">Subagents-as-skills confusion (DON'T)</a></li><li class="lvl-2"><a href="#plugin-subagent-restrictions">Plugin subagent restrictions</a></li><li class="lvl-2"><a href="#memory-pattern">Memory pattern</a></li><li class="lvl-2"><a href="#hooks-attached-to-subagents">Hooks attached to subagents</a></li><li class="lvl-2"><a href="#worktree-isolation">Worktree isolation</a></li><li class="lvl-2"><a href="#standard-agent-set-(bootstrap-installs)">Standard agent set (BOOTSTRAP installs)</a></li><li class="lvl-2"><a href="#authority-hierarchy-(in-agent-prompts)">Authority hierarchy (in agent prompts)</a></li><li class="lvl-2"><a href="#anti-patterns-recap">Anti-patterns recap</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">subagent-canonical-structure</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Subagent — Canonical Structure</h1>
+          <p class="docs-blurb">Référence canonique meta-govern (doctrine, patterns, stacks)</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/subagent-canonical-structure.md</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h1>Subagent — Canonical Structure</h1>
+<p>Source: <code>Claude Code Architecture Research.md</code>, <code>Progressive Context Disclosure for Claude Code on Windows.md</code>, observed patterns in user's existing agents.</p>
+<h2 id="file-structure" tabindex="-1"><a class="header-anchor" href="#file-structure" aria-hidden="true">#</a> File structure</h2>
+<p>A subagent is a single <code>.md</code> file:</p>
+<pre><code>.claude/agents/&lt;agent-name&gt;.md      # project-level
+~/.claude/agents/&lt;agent-name&gt;.md    # user-level
+</code></pre>
+<p>There is no folder structure. All content lives in the single file.</p>
+<h2 id="frontmatter-%E2%80%94-required" tabindex="-1"><a class="header-anchor" href="#frontmatter-%E2%80%94-required" aria-hidden="true">#</a> Frontmatter — required</h2>
+<pre><code class="language-yaml">---
+name: agent-name                    # kebab-case
+description: |                      # describes role + when to invoke + required context
+  [Role / expertise — 1 sentence].
+  Use this subagent for [task type]. Required context: [list of inputs].
+  Returns [output shape]. [Verdict / disposition options].
+tools: Read, Grep, Glob, Bash       # tools the agent can use
+---
+</code></pre>
+<h2 id="frontmatter-%E2%80%94-common-optional-fields" tabindex="-1"><a class="header-anchor" href="#frontmatter-%E2%80%94-common-optional-fields" aria-hidden="true">#</a> Frontmatter — common optional fields</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Use when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>model: opus|sonnet|haiku</code></td>
+<td>Pin model independent of session default</td>
+</tr>
+<tr>
+<td><code>effort: low|medium|high|xhigh</code></td>
+<td><strong>Always set this.</strong> Subagents do not inherit session effort.</td>
+</tr>
+<tr>
+<td><code>permissionMode: plan|edit|...</code></td>
+<td>Constrain agent to plan-mode (read-only) or edit-mode</td>
+</tr>
+<tr>
+<td><code>color: red|green|blue|purple|...</code></td>
+<td>Visual distinction in dispatch UI</td>
+</tr>
+<tr>
+<td><code>memory: project|user|local</code></td>
+<td>Persistent memory file scope</td>
+</tr>
+<tr>
+<td><code>isolation: worktree</code></td>
+<td>Run in a temporary git worktree (isolated copy of repo)</td>
+</tr>
+<tr>
+<td><code>hooks:</code></td>
+<td>Subagent-scoped hooks (only fire when this agent is active)</td>
+</tr>
+<tr>
+<td><code>mcpServers: ...</code></td>
+<td>List of MCP servers this agent can access</td>
+</tr>
+<tr>
+<td><code>skills: skill-1, skill-2</code></td>
+<td>Skills available to this agent (NOT inherited from parent)</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="effort-frontmatter-%E2%80%94-by-role" tabindex="-1"><a class="header-anchor" href="#effort-frontmatter-%E2%80%94-by-role" aria-hidden="true">#</a> Effort frontmatter — by role</h2>
+<p>Per <code>opus-4-7-defaults.html</code>:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Suggested effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mechanical (lint-fix, git-publisher, file-mover)</td>
+<td><code>low</code></td>
+</tr>
+<tr>
+<td>Bulk implementer (per-task TDD-light)</td>
+<td><code>medium</code></td>
+</tr>
+<tr>
+<td>Reviewer / researcher / auditor</td>
+<td><code>high</code></td>
+</tr>
+<tr>
+<td>Planner / architect / migration orchestrator</td>
+<td><code>xhigh</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="description-shape" tabindex="-1"><a class="header-anchor" href="#description-shape" aria-hidden="true">#</a> Description shape</h2>
+<pre><code>[Role expertise — 1 sentence with strong verb].
+Use this subagent when [task triggers].
+Required context: [list of inputs the caller MUST provide].
+Returns [structured output shape].
+Verdict / disposition: [e.g., PASS|FAIL|FINDINGS|BLOCKED].
+Distinct from [sibling agent] (which does X) — this agent [unique purpose].
+</code></pre>
+<p><strong>Good description</strong> (TC reviewer):</p>
+<pre><code>Foreground-only code reviewer for Temps Chantier per RIGOROUS task or per group.
+Required context: scope contract (diff-only / files-modified / full-audit), the
+plan task being reviewed, the diff range. Returns 3 sections (Findings / Notes /
+Verdict). Verdict: PASS | FINDINGS | BLOCKED. Severity-tagged findings (C/H/M/L).
+Pre-existing issues go under `## Pre-existing (out of scope)` at INFO. Distinct
+from spec-reviewer (which checks against spec/AC) — this agent reviews code
+quality (correctness, regressions, testing, dead code, data contracts).
+</code></pre>
+<p><strong>Bad description</strong>:</p>
+<pre><code>Reviews code.
+</code></pre>
+<h2 id="body-%E2%80%94-recommended-structure" tabindex="-1"><a class="header-anchor" href="#body-%E2%80%94-recommended-structure" aria-hidden="true">#</a> Body — recommended structure</h2>
+<pre><code class="language-markdown"># &lt;agent-name&gt; — &lt;role&gt;
+
+You are &lt;role description&gt;. Your job is &lt;core responsibility&gt;.
+
+## Context check
+
+Before starting, confirm the caller provided:
+- [ ] Required input 1
+- [ ] Required input 2
+
+If any input is missing → return verdict `BLOCKED` with reason.
+
+## Workflow
+
+### Step 0: [Setup]
+[How to read the inputs, what to look at first.]
+
+### Step 1: [Core work]
+[Detailed instructions.]
+
+### Step 2: [Verify / produce output]
+[How to format the output.]
+
+## Output contract
+
+</code></pre>
+<h2 id="findings" tabindex="-1"><a class="header-anchor" href="#findings" aria-hidden="true">#</a> Findings</h2>
+<ul>
+<li>[SEVERITY] file:line — finding description
+<ul>
+<li>Suggested fix: ...</li>
+</ul>
+</li>
+</ul>
+<h2 id="notes-(advisory%3B-not-blocking)" tabindex="-1"><a class="header-anchor" href="#notes-(advisory%3B-not-blocking)" aria-hidden="true">#</a> Notes (advisory; not blocking)</h2>
+<ul>
+<li>...</li>
+</ul>
+<h2 id="verdict" tabindex="-1"><a class="header-anchor" href="#verdict" aria-hidden="true">#</a> Verdict</h2>
+<p>PASS | FINDINGS | BLOCKED</p>
+<h2 id="pre-existing-(out-of-scope)" tabindex="-1"><a class="header-anchor" href="#pre-existing-(out-of-scope)" aria-hidden="true">#</a> Pre-existing (out of scope)</h2>
+<ul>
+<li>...</li>
+</ul>
+<pre><code>
+## Authority hierarchy
+
+Order of precedence when sources conflict:
+1. Task acceptance criteria
+2. Plan
+3. Design (spec)
+4. Canonical docs (source-of-truth trio)
+5. CLAUDE.md
+6. Common sense
+
+## Gotchas
+
+[Concrete pitfalls observed in production with fix.]
+</code></pre>
+<h2 id="body-length" tabindex="-1"><a class="header-anchor" href="#body-length" aria-hidden="true">#</a> Body length</h2>
+<ul>
+<li><strong>Recommended</strong>: ≤500 lines</li>
+<li><strong>Hard cap</strong>: ≤1000 lines (the user's project agents max around 200 lines)</li>
+</ul>
+<h2 id="subagent-doesn't-auto-inherit" tabindex="-1"><a class="header-anchor" href="#subagent-doesn't-auto-inherit" aria-hidden="true">#</a> Subagent doesn't auto-inherit</h2>
+<p>Subagents do <strong>NOT</strong> inherit:</p>
+<ul>
+<li>Skills (must list in <code>skills:</code> frontmatter)</li>
+<li>Session effort (must set <code>effort:</code> frontmatter)</li>
+<li>Hooks (must declare in <code>hooks:</code> frontmatter, scoped to this agent)</li>
+<li>MCP servers (must list in <code>mcpServers:</code> frontmatter)</li>
+<li>CLAUDE.md (separate context entirely)</li>
+</ul>
+<p>The subagent starts fresh. The agent's <code>description</code> + body is the entire prompt.</p>
+<h2 id="subagent-context-isolation" tabindex="-1"><a class="header-anchor" href="#subagent-context-isolation" aria-hidden="true">#</a> Subagent context isolation</h2>
+<p>Subagents have <strong>fresh context</strong>:</p>
+<ul>
+<li>They cannot see the session that dispatched them</li>
+<li>They cannot see other subagents' work</li>
+<li>They cannot delegate to other subagents (1-level only)</li>
+<li>They produce a single summary back to the parent</li>
+</ul>
+<p>This is the <strong>isolation principle</strong> — the user gets parallel, independent specialists.</p>
+<h2 id="subagents-as-skills-confusion-(don't)" tabindex="-1"><a class="header-anchor" href="#subagents-as-skills-confusion-(don't)" aria-hidden="true">#</a> Subagents-as-skills confusion (DON'T)</h2>
+<p>A skill teaches the <em>current</em> context how to do something.
+A subagent delegates the work to <em>another</em> context and gets a summary back.</p>
+<p>If you need:</p>
+<ul>
+<li>Skill activation from main context → skill</li>
+<li>Fresh isolated specialist → subagent</li>
+<li>Both → skill that explicitly dispatches a subagent (<code>agent:</code> frontmatter or in-body Agent call)</li>
+</ul>
+<h2 id="plugin-subagent-restrictions" tabindex="-1"><a class="header-anchor" href="#plugin-subagent-restrictions" aria-hidden="true">#</a> Plugin subagent restrictions</h2>
+<p>If the agent ships in a plugin:</p>
+<ul>
+<li>❌ <code>hooks:</code> is silently ignored</li>
+<li>❌ <code>mcpServers:</code> is silently ignored</li>
+<li>❌ <code>permissionMode:</code> is silently ignored</li>
+</ul>
+<p>Plugin agents must rely on tools + body. For full control, ship as user/project agent.</p>
+<h2 id="memory-pattern" tabindex="-1"><a class="header-anchor" href="#memory-pattern" aria-hidden="true">#</a> Memory pattern</h2>
+<pre><code class="language-yaml">---
+name: long-running-researcher
+memory: project           # writes to .claude/memory/long-running-researcher/MEMORY.md
+---
+</code></pre>
+<p>First 200 lines of <code>MEMORY.md</code> are auto-injected on each invocation. If exceeds 200 → agent is instructed to curate.</p>
+<h2 id="hooks-attached-to-subagents" tabindex="-1"><a class="header-anchor" href="#hooks-attached-to-subagents" aria-hidden="true">#</a> Hooks attached to subagents</h2>
+<pre><code class="language-yaml">---
+name: my-implementer
+hooks:
+  PreToolUse:
+    Edit|MultiEdit:
+      - command: &quot;.claude/hooks/subagent-plan-edit-guard.mjs&quot;
+---
+</code></pre>
+<p>The hook only fires when THIS agent is the one calling Edit/MultiEdit. Used for scoped enforcement (e.g., implementers blocked from editing plan files).</p>
+<h2 id="worktree-isolation" tabindex="-1"><a class="header-anchor" href="#worktree-isolation" aria-hidden="true">#</a> Worktree isolation</h2>
+<pre><code class="language-yaml">---
+name: speculative-refactorer
+isolation: worktree       # creates temp git worktree; agent works on isolated copy
+---
+</code></pre>
+<p>If the agent makes no changes → worktree auto-cleaned.
+If it makes changes → worktree path + branch returned in result.</p>
+<p>Used for: speculative refactors, risky experiments, A/B implementations.</p>
+<h2 id="standard-agent-set-(bootstrap-installs)" tabindex="-1"><a class="header-anchor" href="#standard-agent-set-(bootstrap-installs)" aria-hidden="true">#</a> Standard agent set (BOOTSTRAP installs)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Agent</th>
+<th>Role</th>
+<th>Effort</th>
+<th>Permission</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>implementer</code></td>
+<td>Bulk task implementer (TDD-light)</td>
+<td>medium</td>
+<td>edit</td>
+</tr>
+<tr>
+<td><code>reviewer</code></td>
+<td>Foreground code reviewer</td>
+<td>high</td>
+<td>plan</td>
+</tr>
+<tr>
+<td><code>persona-simulator</code></td>
+<td>UX role-play between brainstorm sections</td>
+<td>high</td>
+<td>plan</td>
+</tr>
+<tr>
+<td><code>codebase-reality-check</code></td>
+<td>Pre-Step-1 reality check for brainstorm</td>
+<td>medium</td>
+<td>plan</td>
+</tr>
+</tbody>
+</table></div>
+<p>Higher-palier additions: <code>spec-reviewer</code> (split from reviewer at palier 3).</p>
+<h2 id="authority-hierarchy-(in-agent-prompts)" tabindex="-1"><a class="header-anchor" href="#authority-hierarchy-(in-agent-prompts)" aria-hidden="true">#</a> Authority hierarchy (in agent prompts)</h2>
+<p>For reviewers/auditors, embed:</p>
+<pre><code>## Authority hierarchy
+
+When sources conflict, follow this order:
+1. Task acceptance criteria
+2. Plan
+3. Design (spec)
+4. Canonical docs (3 sources of truth)
+5. CLAUDE.md
+6. Common sense / engineering principles
+</code></pre>
+<p>Without this, the agent will arbitrate poorly.</p>
+<h2 id="anti-patterns-recap" tabindex="-1"><a class="header-anchor" href="#anti-patterns-recap" aria-hidden="true">#</a> Anti-patterns recap</h2>
+<p>❌ Subagent-from-subagent dispatch (forbidden, fails)
+❌ Background reviewers (0-byte output)
+❌ Skills not declared in frontmatter (subagents don't auto-inherit)
+❌ No <code>effort:</code> set (inherits session xhigh; mechanical agents waste tokens)
+❌ Defensive scaffolding in agent body (&quot;MUST always&quot;, &quot;double-check&quot;) — Opus 4.7 anti-pattern
+❌ Plugin agents with <code>hooks:</code> / <code>mcpServers:</code> / <code>permissionMode:</code> (silently ignored)
+❌ Required context not documented in description (callers dispatch without context, agent flounders)</p>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/subagent-canonical-structure.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>
