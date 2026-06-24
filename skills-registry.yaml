@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-06-18"
+last_updated: "2026-06-24"
 
 # =============================================================================
 # REPOSITORIES
@@ -618,6 +618,12 @@ categories:
         path: chatgpt-image-prompt-architect/SKILL.md
         description: Turn a vague visual request into a premium, ready-to-paste ChatGPT image prompt (gpt-image-2) for logos, flyers, ads, mockups, and more — with automatic AutoMintech branding on marketing assets
         tags: [image-generation, prompting, chatgpt, gpt-image-2, branding, marketing, logos, premium]
+
+      - name: design-forge
+        repository: claude-skills
+        path: design-forge/SKILL.md
+        description: UX/UI quality analyst and design brief architect — audit screenshots and video for defects and AI slop with scored reports and paste-ready fix prompts, actively test live apps with computer-use tools, or turn a plain app idea into a premium design brief
+        tags: [ux, ui, design-audit, accessibility, ai-slop, design-brief, qa, multimodal]
 
   # ---------------------------------------------------------------------------
   # EXTERNAL: SUPERPOWERS (obra/superpowers)
@@ -1850,6 +1856,7 @@ skill_index:
   design-elevation: { repo: claude-skills, category: specialized }
   app-blueprint: { repo: claude-skills, category: specialized }
   brand-forge: { repo: claude-skills, category: specialized }
+  design-forge: { repo: claude-skills, category: specialized }
   seo-visibility: { repo: claude-skills, category: specialized }
   domain-driven-design: { repo: claude-skills, category: specialized }
   mac-uninstall: { repo: claude-skills, category: specialized }

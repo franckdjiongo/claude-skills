@@ -94,6 +94,30 @@ You can explicitly invoke a skill:
 claude "Use the whatsapp-formatter skill to format: ..."
 ```
 
+### Install as a plugin (Claude Code & Codex)
+
+Skills can also be installed as plugins. **Design Forge** (`design-forge`) — a UX/UI quality analyst and design-brief architect — is packaged for both tools.
+
+**Claude Code** — this repository is a plugin marketplace. From inside Claude Code:
+
+```bash
+/plugin marketplace add franckdjiongo/claude-skills
+/plugin install design-forge@claude-skills
+```
+
+This installs the `design-forge` skill (invocable as `/design-forge`) plus its three specialist sub-agents (`design-forge-audit`, `design-forge-test`, `design-forge-brief`).
+
+**Codex** — install as an Agent Skill (recommended; Codex uses the same `SKILL.md` format):
+
+```bash
+# Personal (available in every project):
+cp -r design-forge ~/.agents/skills/design-forge
+# …or project-scoped (checked into a repo Codex opens):
+cp -r design-forge .agents/skills/design-forge
+```
+
+Codex's `$skill-installer` works too. The repo also ships a Codex plugin manifest (`design-forge/.codex-plugin/plugin.json`) and marketplace (`.agents/plugins/marketplace.json`) for `codex plugin marketplace add franckdjiongo/claude-skills` where Codex plugin install is available.
+
 ## Creating New Skills
 
 1. Create a directory with a kebab-case name
