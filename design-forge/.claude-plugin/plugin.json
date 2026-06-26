@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "design-forge",
   "displayName": "Design Forge",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "UX/UI Quality Analyst and Design Brief Architect. Three modes — AUDIT screenshots/video for defects and AI slop with a scored report and paste-ready correction prompts; TEST a live app with computer-use tools; BRIEF a plain app idea into a premium design prompt — sharing one scoring framework, report format, and anti-slop ruleset, with a brief-to-build-to-verify pipeline.",
   "author": {
     "name": "Franck Djiongo",

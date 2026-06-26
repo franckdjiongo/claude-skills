@@ -30,6 +30,8 @@ Run phases **in order** — each builds context for the next. Times assume a typ
 
 **Time-boxed priority order:** Phase 1 → 6 (critical path) → 2 → 3 → 4 → 8 → 5 → 7 → 9.
 
+> **Standing rule — Settle animations before every capture.** This applies to *every* screenshot in *every* phase below, not just one step. Before each capture: (1) scroll to the intended rest position and stop; (2) wait for any entrance, scroll-reveal, parallax, or layout transition to finish — `await` the relevant `transitionend`/`animationend` events on the in-view animated elements, with a **bounded fallback timeout** (e.g. `~600 ms`, never more than `~1.5 s`) for animations that never emit an end event (infinite loops, interrupted transitions); (3) only then capture. Never screenshot mid-animation: mid-flight frames produce blank or half-rendered captures (cause of *false* blank frames) and trigger *false* visual regressions in odiff/burst comparisons. For scroll-reveal content this is mandatory — a card captured while still `opacity: 0` will be misread as a missing-content defect. When an environment can only burst-capture, take the **last** settled frame, not the first. (Capture-method differences per environment: `references/environment-adaptation.md`.)
+
 ### Phase 1 — Reconnaissance (~8 min)
 
 **Actions:**
@@ -60,7 +62,7 @@ Run phases **in order** — each builds context for the next. Times assume a typ
 
 ### Phase 2 — Viewport Sweep (~12 min)
 
-Resize + screenshot at `375, 390, 414, 768, 834, 1024, 1280, 1440, 1920px` (mobile-first ascending). At each width capture above-the-fold + one full-page. Note layout breaks. Full protocol in [§2](#2-viewport-sweep-protocol). Maps to *responsive* (`references/defect-taxonomy.md`) + *overflow/clipping* (`references/edge-cases.md`). ~75 s/breakpoint.
+Resize + screenshot at `320, 360, 375, 390, 414, 768, 834, 1024, 1280, 1440, 1920px` (mobile-first ascending, starting at the **small-mobile** class — see `references/design-system-reference.md` Responsive Viewport Matrix). At each width capture above-the-fold + one full-page. Note layout breaks. At every breakpoint also run the per-breakpoint checklist below (incl. hero-fills-viewport + header-density + the **TEST-MOBILE-REFLOW** single-column reading-order check). Full protocol in [§2](#2-viewport-sweep-protocol). Maps to *responsive* + V5-06 + V2-07 (`references/defect-taxonomy.md`) + *overflow/clipping* (`references/edge-cases.md`). ~75 s/breakpoint.
 
 ### Phase 3 — Component-Level Audit (~15 min)
 
@@ -100,9 +102,11 @@ Aggregate findings, score, generate correction prompts, output a unified report.
 
 ### Resize Sequence & Order
 
-Use **mobile-first ascending**: `375 → 390 → 414 → 768 → 834 → 1024 → 1280 → 1440 → 1920px`.
+Use **mobile-first ascending**, starting at the **small-mobile** class: `320 → 360 → 375 → 390 → 414 → 768 → 834 → 1024 → 1280 → 1440 → 1920px`.
 
-Rationale: ascending matches the cascade order of `min-width` media queries (the dominant modern convention), so you observe the same progressive-enhancement path the CSS author designed; it also surfaces mobile overflow first — the highest-traffic failure class. Use **descending** (`1920 → 375`) only when the app is a desktop-first internal tool built on `max-width` queries.
+`320` and `360` are the small-mobile widths (smallest phones / cramped split-view) where desktop-derived spacing leaks and single-column collapse failures surface first; they map to the Small-mobile class in the `references/design-system-reference.md` Responsive Viewport Matrix. Never start the sweep above `360` — most reading-order and gap-leak defects only appear when the layout is forced to its narrowest column.
+
+Rationale: ascending matches the cascade order of `min-width` media queries (the dominant modern convention), so you observe the same progressive-enhancement path the CSS author designed; it also surfaces mobile overflow first — the highest-traffic failure class. Use **descending** (`1920 → 320`) only when the app is a desktop-first internal tool built on `max-width` queries.
 
 ### Per-Breakpoint Actions
 
@@ -117,10 +121,28 @@ Rationale: ascending matches the cascade order of `min-width` media queries (the
 
 - Does nav adapt (hamburger appears `≤768px`)?
 - Do grid columns reflow?
+- **Does the hero fill the viewport (`svh`/`dvh`) at this width?** The first viewport should read as a deliberate hero, not a half-filled band with content jammed at the top — measure the hero section height against `100svh`/`100dvh` at this breakpoint (maps to V0-01, `references/defect-taxonomy.md`). Flag any width where the hero leaves a large dead gap below the fold or, conversely, pushes the first real content far below the fold.
+- **Is the header overloaded / does its hierarchy hold at this width?** Count the visible header affordances (logo, nav items, CTAs, icons) and confirm the hierarchy still reads at this width — no wrapping into two cramped rows, no nav items colliding, no CTA truncated (maps to V7 header density per breakpoint, `references/defect-taxonomy.md`).
 - Does type scale?
 - Are touch targets `≥24×24 CSS px` (WCAG 2.2 SC 2.5.8 Target Size (Minimum), Level AA)?
 - Any horizontal scroll?
 - Any element wider than the viewport?
+
+### TEST-MOBILE-REFLOW — Single-Column Reading-Order & Grouping Check
+
+Run at **every** breakpoint where containers collapse to a single column (most critical at `320` and `360`). For any container using responsive grid/flex column utilities (`grid-cols-*` → `grid-cols-1`, `flex-row` → `flex-col`, `md:`/`lg:` column variants), after the collapse verify both:
+
+- **(a) Logical vertical reading order** — no icon, index/step number, badge, or decorative element is stranded as its own full-width row *above* the heading it belongs to. A step labelled `02` must sit beside or immediately above its title as one visual unit, not float alone on its own line with the title pushed a full row down. Read top-to-bottom and confirm the order matches the intended narrative (icon → label → heading → body, or whatever the desktop unit implied).
+- **(b) Grouping integrity per repeated unit** — each repeated unit (card, feature, step, stat) keeps its `{icon, index number, label, heading}` grouped together, **not** split apart by oversized gaps. Desktop layouts often set large `gap`/`row-gap` values that, once the row becomes a column, become huge vertical voids that visually divorce an icon from its heading. Measure the intra-unit vertical gap: it must stay tighter than the inter-unit gap so units read as distinct groups.
+
+**How to test:** at `320`/`360`, screenshot each reflowed container full-page; for each repeated unit confirm (a) reading order and (b) that intra-unit spacing < inter-unit spacing. Flag any stranded element or any intra-unit gap that exceeds the gap separating whole units.
+
+**Pass:** every collapsed unit reads top-to-bottom in narrative order; no orphaned icon/index row; intra-unit gaps are visibly tighter than inter-unit gaps.
+**Fail:** an icon or step number stranded on its own full-width row above its heading, or desktop-derived gaps splitting a unit so its parts no longer read as one group. Maps to V5-06 (mobile single-column collapse reading order) + V2-07 (desktop-only spacing leak) in `references/defect-taxonomy.md`.
+
+#### Self-contained fix prompt — stranded icon row + gap leak on mobile reflow
+
+> At `320px` and `360px` the `.steps-grid` container (desktop `grid-template-columns: repeat(3, 1fr); gap: 4rem;`) collapses to a single column via `@media (max-width: 640px) { grid-template-columns: 1fr; }`, but each `.step` card keeps the desktop `gap: 4rem` between its `.step__index` (the `02` number), `.step__icon`, and `.step__heading`, so the index number floats alone as a full-width row and an 64px void separates it from its heading — the unit no longer reads as one group. Inside `.step`, set a tight intra-unit gap (`gap: 0.5rem`, token `--space-2`) and keep the index/icon inline with or directly hugging the heading (e.g. wrap `{icon, index, label}` in a `.step__eyebrow` flex row with `align-items: center; gap: var(--space-2)` placed immediately above `.step__heading`); reserve the large `gap: var(--space-12)` (`3rem`) for the **inter**-`.step` spacing on the collapsed grid only. After the change, at `320`/`360` the vertical reading order per step must be eyebrow(icon+index+label) → heading → body with no element stranded on its own row, and the gap *within* a step must be visibly smaller than the gap *between* steps. Do not reorder the DOM so screen-reader order diverges from visual order, do not hide the index number to "fix" the gap, and do not reuse the desktop `gap` value inside the collapsed unit.
 
 ### Breakpoint-Transition Testing (binary search)
 
@@ -318,6 +340,27 @@ Observe motion quality during **active interaction**. Maps to *motion/animation 
 - **Pull-to-refresh:** at mobile viewport, test the gesture if implemented.
 - **Scroll snap:** carousels and full-page sections — verify snap points engage, momentum feels natural, and keyboard arrows move between slides.
 - **Animation interruption:** start an animation (e.g. open a drawer) then immediately click elsewhere; expect graceful completion/cancellation, not a glitch or stuck half-state.
+
+### TEST-SCROLL-HEADER — Sticky/Fixed-Header Scroll-Composite Contrast Sweep
+
+A translucent (`backdrop-filter`, `rgba`, low-opacity) sticky/fixed header passes contrast against its *token* surface but fails against what actually composites behind it as content scrolls underneath. Test the **composited** pixels, not the token.
+
+For **every** top-pinned `position: sticky` / `position: fixed` element (header, nav bar, toolbar):
+
+1. Identify the page's **busiest** content — large `h1`/`h2` display or serif headings, hero imagery, high-contrast color bands, dense photography.
+2. Scroll incrementally so each busy region passes **directly under the header band**. At each step, settle animations (see *Settle animations before capture* in [§1](#1-master-test-protocol--10-phase-sequence) / below) then sample the **composited** header-band pixels — what the eye actually sees, *including* the content bleeding through, not the nominal `--color-surface` token.
+3. For the header's own text/icons, compute WCAG contrast against that **local composited background** at each scroll step.
+4. **Fail < `4.5:1` normal / `3:1` large** (`≥24px`, or `≥18.7px` bold) at **any** step — evaluate in **both** color schemes (light + dark) and at **both** mobile and desktop widths.
+5. Also flag **perceptible ghosting**: busy content readable *through* the header to the point of muddying the header's own label, even if the numeric ratio passes — log as a MINOR readability finding.
+
+Sampling tip: capture the header band at each scroll step and read the composited pixels directly under each glyph of the header text (DevTools color picker on the screenshot, or eyedrop the rendered frame) — do **not** read `getComputedStyle` on the header background, which returns the pre-composite token. Maps to V3-09 (translucent sticky-header bleed-through) in `references/defect-taxonomy.md`; see the binary gate "Viewport coverage" and "Evidence-gated scoring" in `references/scoring-and-report.md`.
+
+**Pass:** header text/icons hold `≥4.5:1` (normal) / `≥3:1` (large) against the worst-case composited background at every scroll step, in both schemes, at mobile + desktop; no perceptible ghosting.
+**Fail:** any scroll position where composited contrast drops below threshold in either scheme/width, or content ghosts through legibly.
+
+#### Self-contained fix prompt — translucent sticky header loses contrast over busy content
+
+> The `.site-header` is `position: sticky; top: 0; background: rgba(255,255,255,0.6); backdrop-filter: blur(8px);` with header text `color: #6b7280` (gray-500). Against the token surface this reads fine, but when the hero `h1` (large dark display type) and the hero image scroll directly beneath it, the composited background behind the header text drops well below `4.5:1` and the heading ghosts through the bar. Make the header legible against worst-case scrolled content: either (a) raise the background opacity so the composite stays opaque enough — `background: rgba(255,255,255,0.92)` (token `--color-surface` at high alpha) — keeping the blur, or (b) add a solid scrolled-state background via an `IntersectionObserver`/scroll listener that swaps to `var(--color-surface)` once scrolled, and darken the header text to `var(--color-text, #111827)` so it holds `≥4.5:1` against the composited band at every scroll step. Verify in BOTH light and dark schemes and at mobile + desktop that the header's own text measures `≥4.5:1` normal / `≥3:1` large against the composited (bleed-through-inclusive) background at every scroll position, and that no underlying heading ghosts through legibly. Do not measure contrast against the static token surface, do not remove the sticky behavior, and do not drop the blur for a flat opaque bar unless the design system already specifies an opaque scrolled header.
 
 ### Reduced Motion (DevTools toggle)
 

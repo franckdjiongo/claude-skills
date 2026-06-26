@@ -15,6 +15,7 @@ This file is the **defect catalog only**. For related concepts, link out:
 ## Table of Contents
 
 **Visual defects**
+- [V0. Hero & First Viewport](#v0-hero--first-viewport)
 - [V1. Typography](#v1-typography)
 - [V2. Spacing & Layout](#v2-spacing--layout)
 - [V3. Color](#v3-color)
@@ -35,6 +36,23 @@ This file is the **defect catalog only**. For related concepts, link out:
 ---
 
 # VISUAL DEFECTS
+
+## V0. Hero & First Viewport
+
+The first viewport (the hero / above-the-fold landing region) is the highest-weight first impression. Measure the rendered hero block height against the viewport height **per device class** (small-mobile 320/360, mobile, tablet, desktop — the matrix in `references/design-system-reference.md`). Capture only after entrance animations have settled (see `references/testing-protocol.md`, *settle-animations-before-capture*).
+
+| Defect | Detect when | Why it matters | Severity |
+|---|---|---|---|
+| V0-01 Hero does not fill the viewport | Rendered hero block height is materially less than the viewport (≤ ~80% of viewport block-size) — or overflows it, clipping the headline/CTA — at a given device width; measure hero height vs viewport height per device class | A short hero wastes the strongest first impression and reads as a fragment; an overflowing hero hides the headline or CTA below the fold | MAJOR |
+| V0-02 Missing scroll-down cue | A full-viewport landing hero with no affordance signalling that content continues below (no chevron, arrow, "scroll", or peeking next-section edge) | A 100vh hero with no cue reads as a dead end; users don't know to scroll | MAJOR |
+| V0-03 Weak hero engagement | Flat/static hero — no background imagery, no depth (gradient/layering/parallax), no entrance motion, OR a focal subject obstructed by overlaid text/controls | The hero carries the brand's first emotional beat; a bare centered headline on a flat fill reads as a generic template, not a product | MAJOR / ENHANCEMENT |
+
+**Fix directions:**
+- V0-01 hero height → `"The hero in [.hero] renders ~620px tall inside a 900px viewport, leaving the fold half-empty. Set min-block-size: 100svh (use the small/dynamic viewport unit svh or dvh, never bare vh — vh ignores mobile browser chrome and over/undershoots). Vertically center the hero content (display: grid; place-content: center) and keep a visible scroll cue anchored to the bottom. Do not exceed 100svh or let the headline/CTA overflow below the fold. Tokens: --space-* scale for internal padding."`
+- V0-02 scroll cue → `"The full-viewport hero in [.hero] gives no signal that content continues below. Add a scroll-down indicator (a chevron/arrow or 'Scroll' label) anchored to the hero's bottom (position: absolute; inset-block-end: var(--space-6); inset-inline: 0; margin-inline: auto), with a restrained 2s ease-in-out bob wrapped in @media (prefers-reduced-motion: no-preference). Give it an aria-label='Scroll to content' and ≥3:1 contrast against the hero. Do not animate it under reduced-motion; do not let it cover the CTA."`
+- V0-03 hero engagement → `"The hero in [.hero] is a centered headline on a flat #0B0B0F fill — no imagery, depth, or motion. Add an on-brand background (a real product/scene image with object-fit: cover, or a layered depth treatment) plus a restrained entrance: opacity 0→1 + 12px translateY over 500ms ease-out, staggered headline→sub→CTA, wrapped in @media (prefers-reduced-motion: no-preference). Keep the focal subject unobstructed (text on a scrim, not on the subject's face). 'Engaging' must NOT mean AI slop — no purple→blue gradient mesh, no glassmorphism, no generic abstract blobs (see references/anti-slop-rules.md). Tokens: --color-bg, --color-accent, --space-* for stagger offsets."`
+
+---
 
 ## V1. Typography
 
@@ -85,12 +103,14 @@ A scale ratio **≥ 1.25** is the floor for a perceptible hierarchy. Example Maj
 | Cramped or over-sparse density | UI feels cramped, or so sparse it reads as empty; premium products use 64–120px section padding | Density signals craft and trust; wrong density degrades perceived quality | MAJOR |
 | Nested cards | Cards inside cards inside cards | Boxes-in-boxes is visual noise; depth should come from spacing/typography | MAJOR |
 | Unexpected margin collapse | Vertical margins collapsing between blocks, producing gaps smaller than authored | Spacing reads as broken/inconsistent | MINOR |
+| V2-07 Desktop-only spacing leaking into the mobile stack | Gaps/margins set with **no** responsive override (`mt-5`, `gap-6`, `gap-8` with no `lg:` variant) inside a container that collapses to one column, inserting a ≥ ~`1rem` gap between a group member (icon/index/label) and the heading it modifies | Spacing tuned for a horizontal desktop layout is wrong once the container stacks: the large gap breaks Gestalt proximity, so the icon/number no longer reads as grouped with its heading. Pairs with V5-06 on the same collapse; verify at 320/360 per *TEST-MOBILE-REFLOW* (`references/testing-protocol.md` §2) | MAJOR |
 
 **Fix directions:**
 - Off-grid → `"Padding in [selector] is 13px and 27px. Snap all spacing to a 4px/8px scale: use 12px or 16px (not 13px) and 24px or 32px (not 27px). Apply the same scale to margins and gaps."`
 - Inconsistent padding → `"The cards in [section] use 16px, 20px, and 24px padding. Set all sibling cards to a single value: padding: var(--space-6) (24px). Match across the whole section."`
 - Cramped section → `"The [section] feels cramped and untrustworthy. Set section padding to 96px desktop / 48px mobile, 32px gap between cards, body copy max-width 65ch. Goal: a calm, premium, Stripe-like density. Do not reduce below 8px-grid values."`
 - Nested cards → `"[Component] nests cards three levels deep. Flatten to a single card; separate inner groups with 24px spacing and a hairline divider (1px, var(--border)) or a heading instead of another bordered container."`
+- V2-07 desktop spacing leak → `"In [.feature-item], gap-8 (32px) and mt-5 (20px) have no responsive override, so when the row collapses to one column on mobile a 32px gap is inserted between the icon (.feature-icon) and its heading, breaking the grouping. Move the large gaps behind lg: (e.g. lg:gap-8) and set tighter mobile values so each {icon, number, label, heading} group reads within ~0.5rem: gap: var(--space-2) (8px) at mobile, escalating to var(--space-8) at lg. Verify at 320/360px that related members sit within ~0.5rem and section-level separation stays generous. Do not apply one gap value across both axes/breakpoints. Tokens: --space-2 (intra-group), --space-8 (desktop inter-column)."`
 
 ---
 
@@ -106,6 +126,7 @@ A scale ratio **≥ 1.25** is the floor for a perceptible hierarchy. Example Maj
 | Accent overuse | More than ~10% of the screen in the saturated brand accent | Dilutes the accent; it should mark the single most important action | MAJOR |
 | Semantic color misuse | Red used for non-destructive, green for errors, etc. (expected: red=error/destructive, amber=warning, green/blue=success/links) | Miscommunicates state; users misread outcomes | MAJOR |
 | Muddy neutrals / temperature drift | Grays mix warm and cool inconsistently; foreground/background separation feels muddy | Inconsistent temperature reads as unpolished | MINOR |
+| V3-09 Translucent sticky/fixed-header bleed-through | A top-pinned `sticky`/`fixed` element has a translucent fill (rgba/hsla alpha < ~0.9, 8-digit hex last byte < ~`E6`, or Tailwind `bg-*/NN` with `NN < 90`) and/or `backdrop-filter: blur`, with **no** opaque `@supports` fallback and **no** opaque scrim; its own nav/logo text must hold ≥ `4.5:1` against the *worst* content that scrolls beneath it, not just the resting page background | Fails WCAG 1.4.3 once high-contrast content slides under the glass header: nav/logo text that passed at rest drops below `4.5:1`. Must be verified by scrolling high-contrast content under the header (`references/testing-protocol.md` §7 *TEST-SCROLL-HEADER*), never judged from the resting state alone | CRITICAL (WCAG 1.4.3) |
 
 Contrast ratio formula: `ρ = (L_lighter + 0.05) / (L_darker + 0.05)`, where `L` is relative luminance. Estimate from sampled foreground/background pairs; confirm with a tool (`references/automated-tools.md` for axe/pa11y).
 
@@ -113,6 +134,7 @@ Contrast ratio formula: `ρ = (L_lighter + 0.05) / (L_darker + 0.05)`, where `L`
 - Body contrast → `"In [selector], helper text is #9CA3AF on #FFFFFF (2.8:1, fails AA). Darken to #4B5563 (~7:1 on white). Keep the same hue family; do not lighten the background to compensate."`
 - Color-only state → `"The error state in [field] is signaled only by a red border. Add an inline error message and a warning icon adjacent to the field. Do not rely on color alone (WCAG 1.4.1)."`
 - Accent overuse → `"The brand accent (var(--primary)) fills >40% of [view] (multiple buttons, badges, links). Limit saturated accent to ~10% of the screen — reserve it for the single primary action. Use neutral surfaces and a neutral border for the rest."`
+- V3-09 translucent header bleed-through → `"The sticky header [header.site-header] uses background: rgba(255,255,255,0.6) + backdrop-filter: blur(12px) with no opaque fallback, so its nav text drops to ~2.9:1 when the dark hero image scrolls under it. Add a scrolled variant at ~0.92–0.94 alpha (background: rgba(255,255,255,0.93)) applied once the page scrolls past the hero, AND an @supports not (backdrop-filter: blur(1px)) { background: var(--color-surface); } opaque fallback (or an opaque scrim layer behind the content). Verify nav/logo text holds ≥4.5:1 against the worst content that passes beneath, not just the resting background. Do not raise the alpha on a .glass utility shared with modals/overlays — scope this to the header only. Never rely on backdrop-filter alone for legibility (WCAG 1.4.3). Tokens: --color-surface, --color-on-surface."`
 
 Brand-specific palettes, OKLCH/HCT tokens, and exact hex values live in `references/design-system-reference.md`. Purple→blue / indigo→violet gradients and gradient text are AI-slop tells — see `references/anti-slop-rules.md`.
 
@@ -142,12 +164,14 @@ Brand-specific palettes, OKLCH/HCT tokens, and exact hex values live in `referen
 | Touch target too small | Interactive target < `44×44` CSS px (Apple HIG / WCAG AAA 2.5.5); WCAG AA floor (2.5.8) is `24×24` px or `24px` spacing; Material recommends `48×48` dp | Below 44×44 is hard to tap; below the 24×24 AA floor fails law | CRITICAL (mobile) |
 | Adjacent targets too close | Less than `8px` between adjacent tap targets | Mis-taps; fails spacing route of WCAG 2.5.8 | CRITICAL (mobile) |
 | Reflow loss at zoom | Content doesn't reflow without loss at 400% zoom (WCAG 1.4.10) | Fails reflow requirement; low-vision users lose content | MAJOR |
+| V5-06 Mobile single-column collapse: illogical reading order / orphaned affordance | A responsive grid/flex split (`md:`/`lg:`/`sm:grid-cols-*`, `lg:grid-cols-[…fr…]`, `sm:flex-row`) with **no** `order-*` or `grid-template-areas` scoping the mobile order, so it collapses to raw DOM source order; flag when a small icon or an index/step number becomes its own full-width row *above* the heading it labels | The leading icon/number and its heading are one Gestalt unit; when the column collapse strands the icon on its own row, the affordance reads as orphaned and the step sequence becomes ambiguous. Confirm via the single-column reading-order pass (`references/testing-protocol.md` §2 *TEST-MOBILE-REFLOW* at 320/360) | MAJOR |
 
-Per-viewport expected columns / padding / type / nav targets are owned by the responsive matrix in `references/design-system-reference.md`. Drive these viewports live per `references/testing-protocol.md`.
+Per-viewport expected columns / padding / type / nav targets are owned by the responsive matrix in `references/design-system-reference.md` (small-mobile 320/360 class included). Drive these viewports live per `references/testing-protocol.md`.
 
 **Fix directions:**
 - Touch target → `"The .icon-button is 16×16px. Set min-width: 44px; min-height: 44px with the icon centered. Ensure ≥8px gap from neighboring targets. Do not shrink the icon glyph — pad the hit area."`
 - Horizontal scroll → `"At 375px, [section] forces horizontal scroll because [element] has a fixed width: 480px. Replace with max-width: 100% and fluid units; allow the row to wrap. Verify no horizontal scrollbar at 375px."`
+- V5-06 orphaned affordance on collapse → `"In [.step-grid], the lg:grid-cols-[auto_1fr] layout collapses to one column at mobile, leaving the step number (.step-index) stranded as its own full-width row above its heading. Regroup the leading number/icon to share a row with its heading on mobile: wrap {number, heading} in a flex container (display: flex; align-items: center; gap: var(--space-2)) for small widths, OR render an inline lg:hidden number prefix beside the heading and keep the hidden lg:block number column for desktop. Verify at 320 and 360px that each {icon/number, heading} reads as one unit, top-down, in logical step order. Do not rely on raw DOM source order. Tokens: --space-2 for the icon-to-heading gap."`
 
 ---
 
@@ -163,12 +187,14 @@ Per-viewport expected columns / padding / type / nav targets are owned by the re
 | Blank empty state | A list/container that can be empty shows a blank screen instead of guidance to the first action | Dead end; user doesn't know what to do next | MAJOR |
 | Weak error state | Error not inline, not specific, or not actionable | User can't recover; generic errors erode trust | MAJOR |
 | Missing skeleton loader | Container loads with no skeleton/placeholder (skeleton should be neutral with a subtle wave/pulse) | Perceived slowness; content pops in jarringly | MINOR / ENHANCEMENT |
+| Inconsistent button placement / positioning | Repeated and floating buttons (CTAs, FABs, scroll-to-top, chat launcher) don't share size, corner radius, icon treatment AND screen position across pages and breakpoints — e.g. the FAB sits bottom-right on one page and bottom-left on another | Inconsistent placement breaks muscle memory and reads as assembled from parts; floating controls must land in the same place everywhere. Confirm with the cross-region comparison in `references/analysis-protocol.md` | MAJOR |
 
 **Fix directions:**
 - Button states → `"Apply across all buttons: default; :hover (lighten fill 4%); :focus-visible (2px ring, ≥3:1 contrast vs background); :active (transform: scale(0.98)); :disabled (40% opacity, pointer-events: none); and a loading state with a spinner and aria-busy. Use 150ms ease-out transitions. Never remove the outline without a visible replacement."`
 - Radius drift → `"Border-radius is inconsistent across [components]. Differentiate by role: cards 12–16px, inputs 6–8px, pills/tags 9999px. Do not apply one uniform radius, and do not exceed 16px on small cards."`
 - Empty state → `"The deployments list shows a blank panel when empty. Add an empty state: a short heading, one line of guidance, and a primary CTA — e.g. 'No deployments yet. Push to your Git repository to create one.' Do not leave the container blank."`
 - Flat shadows → `"Every card uses the same box-shadow. Build a progressive elevation scale (--elevation-1…3) where raised surfaces get more diffuse, larger-offset shadows. Do not combine a 1px border with a wide diffuse shadow on the same element."`
+- Inconsistent button placement → `"The floating controls — scroll-to-top (.to-top), chat launcher (.chat-fab), and the page CTA (.cta-fab) — vary in size, radius, and screen corner across routes (bottom-right on /home, bottom-left on /pricing). Standardise: pin all bottom-anchored floating buttons to the same corner (inset-block-end: var(--space-6); inset-inline-end: var(--space-6)), give them one shared size (≥44×44px) and radius, and a consistent icon treatment (same stroke weight/optical size). Stack multiples in a fixed order with a consistent gap. Keep the same placement at every breakpoint. Cross-check against the cross-region comparison in references/analysis-protocol.md so placement matches across pages. Tokens: --space-6 (inset), --radius-full, --shadow-2."`
 
 Uniform border-radius everywhere, glassmorphism, colored glow shadows on dark, and side-tab accent borders are AI-slop tells — see `references/anti-slop-rules.md`.
 
@@ -181,11 +207,15 @@ Uniform border-radius everywhere, glassmorphism, colored glow shadows on dark, a
 | Broken stacking / elevation logic | Overlays sit below content, or stacking context is inconsistent so elements layer wrongly | Modals/dropdowns hidden behind content; broken interactions | MAJOR |
 | Competing focal points | Two (or more) filled, equal-weight primary CTAs in one view; no single clear primary action | Splits attention; user doesn't know the intended next step | MAJOR |
 | Ignored scan pattern | Key info not placed for the natural scan path — F-pattern for text-dense screens, Z-pattern for landing pages (lead top-left / leading edge) | Important content lands where eyes don't go first | MINOR |
+| Header information overload / weak hierarchy (per breakpoint) | Evaluate the header at desktop, tablet AND mobile: too many competing primary items, no clear single emphasis, or secondary actions that should collapse into a menu at smaller widths still shown inline | A header crammed with equal-weight items has no scan anchor and overflows or crowds tap targets as the viewport narrows; check at every breakpoint, not just desktop (`references/testing-protocol.md`, Phase 2 *header-density*) | MAJOR / MINOR |
+| Footer structure / composition | Footer is a flat link dumping-ground — no logical groups (nav / legal / social / contact), no group headings, uneven density | An unorganised footer buries wayfinding and legal links; grouped, headed columns with balanced density read as finished | MINOR / MAJOR |
 
 Deep z-index conflicts, stacking-context bugs, and sticky-overlay collisions are implementation defects — see `references/edge-cases.md`.
 
-**Fix direction:**
+**Fix directions:**
 - Competing CTAs → `"This view has two filled primary buttons of equal weight ('Save' and 'Publish'). Keep one filled primary (the single most important action) and demote the other to a secondary/outline style. Do not use two competing filled CTAs in one view."`
+- Header overload per breakpoint → `"The header [header.site-header] shows 7 equal-weight items (logo, 5 nav links, 2 filled buttons) with no hierarchy, and keeps them all inline down to mobile. Rank the items: one primary CTA stays filled, demote the secondary button to a text/outline style, and collapse the nav links + secondary actions into a disclosure menu (hamburger) below the tablet breakpoint. Verify density at desktop, tablet AND mobile so nothing overflows or crowds below 44×44px targets. Do not show every action inline at mobile. Tokens: --color-accent (single primary), --space-* for inter-item gaps."`
+- Footer composition → `"The footer [footer.site-footer] is a single flat list of 14 links. Reorganise into logical columns with group headings — Product / Company / Legal / Social — each heading at a clear step above its links (e.g. label weight 600, links weight 400, ~3:1+ size or color separation). Balance column density (roughly even link counts), keep contact/social as their own group, and stack columns vertically on mobile. Do not dump all links into one undifferentiated row. Tokens: --space-8 (inter-column gap), --color-on-surface-muted (links), --color-on-surface (headings)."`
 
 ---
 
@@ -216,9 +246,11 @@ CLS from images and the layout-shift mechanics are covered in `references/edge-c
 | Missing active state | The current section/page has no active indication in the nav | Users lose their place; navigation feels unresponsive | MAJOR |
 | Dead ends / orphan pages | A page with no clear path back or onward; no safe back navigation | Users get stranded with no way forward | MAJOR |
 | Overloaded tab bar | More than 5 tabs in a mobile tab/bottom bar | Cramped targets; exceeds the iPhone tab-bar guideline | MINOR |
+| Missing scroll-to-top affordance | A page taller than ~2 viewports (content scroll height ≥ ~2× viewport) with no back-to-top control | After a long scroll, returning to the top means a long manual drag; a back-to-top control is the expected escape hatch on long pages | MAJOR |
 
 **Fix direction:**
 - Missing active state → `"The primary nav gives no active indication for the current page. Add an active state (e.g. accent text color + 2px bottom indicator) to the link matching the current route. Maintain the active state across all breakpoints."`
+- Missing scroll-to-top → `"[main] scrolls ~4 viewports tall with no way back to the top. Add a back-to-top button (a fixed bottom-end <button> with an up-chevron) that reveals once the page has scrolled past ~1.5 viewports (toggle a .is-visible class via an IntersectionObserver/scroll listener, opacity+pointer-events transition) and on click smooth-scrolls to top. Give it an aria-label='Back to top', a ≥44×44px hit area, and keep it clear of any sticky footer/CTA. Respect prefers-reduced-motion by using an instant scroll under reduce. Tokens: --color-surface, --shadow-2, --space-6 for inset."`
 
 ---
 
@@ -292,11 +324,13 @@ axe-core and similar automated scanners catch only ~40% of WCAG barriers and no 
 | Defect | Detect when | Why it matters | Severity |
 |---|---|---|---|
 | No perceived-performance treatment | Slow loads (op > ~300ms) with no skeleton/progress; no progressive/lazy loading; no optimistic UI where it would help | Waits feel longer than they are; app feels sluggish | ENHANCEMENT |
+| Flat / lifeless page (no motion or imagery) | The page has no entrance/scroll motion, no background or supporting imagery, and no depth (everything is flat fills on a static layout) | A page with zero motion, imagery, or depth reads as a generic, lifeless template rather than a crafted product — especially damning above the fold. Escalate to MAJOR when it reads as a stock template; keep 'engaging' on the right side of slop (`references/anti-slop-rules.md`) | ENHANCEMENT (MAJOR when generic-template) |
 
 A slow left-to-right shimmer wave tests best for perceived duration on skeletons. Show loaders only when an operation exceeds ~300ms (a flash of loader on a fast op looks worse than none).
 
-**Fix direction:**
+**Fix directions:**
 - Missing skeleton → `"The dashboard renders a blank panel for ~1.2s while data loads. Add neutral skeleton placeholders matching the final layout, with a subtle left-to-right shimmer. Show the skeleton only when load exceeds ~300ms; use optimistic UI for instant-feeling writes."`
+- Flat / lifeless page → `"The [main] page is entirely static — flat fills, no imagery, no motion, no depth. Introduce restrained life: real on-brand imagery or a layered/depth treatment in key sections, plus subtle scroll-reveal entrances (opacity 0→1 + 8–12px translateY over ~400ms ease-out, staggered) wrapped in @media (prefers-reduced-motion: no-preference). Keep it tasteful and on-brand — NOT AI slop: no purple→blue gradient meshes, no glassmorphism, no generic abstract blobs or floating-orb backgrounds (see references/anti-slop-rules.md). Motion must be optional and degrade to a plain fade under reduced-motion. Tokens: --space-* for stagger offsets, --color-accent for any motion-revealed emphasis."`
 
 ---
 

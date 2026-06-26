@@ -23,6 +23,16 @@ Installing this plugin adds **one skill** and **three specialist agents**:
 
 ---
 
+## What's new in v1.1
+
+- **Viewport-coverage gate + evidence-gated scoring** — a responsive / footer / motion verdict is now invalid unless every device class (small-mobile 320/360, mobile, tablet, desktop) was actually rendered, and any dimension that was never observed is reported as *not evidenced* instead of silently passing.
+- **New `V0 — Hero & First Viewport` group** — hero fills the viewport (`svh`/`dvh`), a visible scroll-down cue, and hero engagement (imagery / depth / motion).
+- **Five field-confirmed checks** — translucent sticky-header bleed-through (`V3-09`) with a scroll-composite contrast sweep, mobile single-column reflow ordering (`V5-06`) and desktop-spacing-leak (`V2-07`) with a single-column-stack test — plus scroll-to-top, footer composition, per-breakpoint header density, button-placement consistency, text-alignment, and visual-richness checks.
+- **Small-mobile (320/360)** added to the viewport matrix; a **settle-animations-before-capture** step ends mid-animation false frames.
+- **Optional orchestrated-audit mode** for large apps (route-sharded, live-first, provenance-stamped) — a scale tool that inherits the coverage + honesty guardrails.
+
+---
+
 ## The three modes
 
 | Mode | You provide | You get back |

@@ -241,18 +241,25 @@ Pure-black background → use `#121212`. Pure-white text → use `rgba(255,255,2
 ### Viewport checkpoints
 | Class | Widths |
 |---|---|
+| Small mobile | 320px (older/small Android, iPhone SE 1st gen), 360px (common Android) |
 | Mobile | 375px (iPhone SE/standard), 390px (iPhone 13/14/15), 414px (Plus/Max) |
 | Tablet | 768px (iPad portrait), 834px (iPad Air/Pro 11"), 1024px (iPad landscape) |
 | Desktop | 1280px, 1440px, 1920px |
 
+**Small mobile is a REQUIRED checkpoint** — 320/360px is the narrowest realistic field width and the first place single-column reflow, padding, and touch-target floors break. A responsive review that never observes ≤360px **cannot** pass the responsive dimension: the "Viewport coverage" binary gate in `references/scoring-and-report.md` fails if 320 (or 360) is unobserved, and per `Evidence-gated scoring (no pass on an unobserved dimension)` the dimension stays unscored, not passed. Drive both widths per `testing-protocol.md` §2 (`TEST-MOBILE-REFLOW`).
+
 ### Per-viewport expected values
-| Concern | Mobile (375–414) | Tablet (768–1024) | Desktop (1280–1920) |
-|---|---|---|---|
-| Columns | 1 stacked | 2 | 3–4 / 12-col |
-| Section padding | 24–32px | 48px | 64–120px |
-| Component padding | 16px | 20px | 24px |
-| Type (display/H1) | 32px | 40px | 48–64px |
-| Nav | hamburger / bottom nav | collapsed sidebar | full horizontal / sidebar |
+| Concern | Small mobile (320–360) | Mobile (375–414) | Tablet (768–1024) | Desktop (1280–1920) |
+|---|---|---|---|---|
+| Columns | 1 stacked | 1 stacked | 2 | 3–4 / 12-col |
+| Section padding | 16–24px | 24–32px | 48px | 64–120px |
+| Component padding | 12–16px | 16px | 20px | 24px |
+| Type (display/H1) | 28–32px | 32px | 40px | 48–64px |
+| Body | ≥16px (never below) | ≥16px (never below) | 16px | 16–18px |
+| Touch target | ≥24px AA / 44px AAA | ≥24px AA / 44px AAA | ≥44px | ≥44px |
+| Nav | hamburger / bottom nav | hamburger / bottom nav | collapsed sidebar | full horizontal / sidebar |
+
+At 320–360px the layout **must** be a true single column with correct reading order (no desktop-only spacing leaking down — see `defect-taxonomy.md` V2-07; reflow/reading-order failures are V5-06). Body text stays **≥16px** even after `clamp()` floors, and adjacent targets keep the **≥8px** gap. Verify against the `Body` and `Touch target` rows above when auditing the narrowest field width.
 
 ### Touch-target compliance
 - **`44×44` CSS px** minimum (Apple / WCAG AAA 2.5.5).

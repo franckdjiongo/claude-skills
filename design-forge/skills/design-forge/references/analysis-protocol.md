@@ -45,10 +45,18 @@ Record the first impression before you start measuring — it is the user's firs
 - **Letter-spacing (tracking):** large display headings should carry slight negative tracking; small caps/labels positive. Flag crushed glyphs.
 - **Measure (line length):** estimate characters per line; target 45–75ch. Flag lines past ~80ch.
 
-### Pass 3 — Spacing
+### Pass 3 — Spacing & text alignment
 - Overlay a **mental 8px grid** (4px for icon-level/tight gaps). Flag arbitrary values that snap to neither (13px, 27px).
 - **Padding consistency:** compare padding on same-type elements across the screen (e.g., every card). Flag one page mixing 16/20/24px on the same component.
 - **Region-to-region rhythm:** measure section-to-section and group-to-group gaps. Flag monotonous identical spacing everywhere (no rhythm) and flag cramped vs over-sparse regions.
+
+**Text alignment is a first-class check, not an afterthought.** Centering is the single most common AI-slop layout tell; treat any centered block longer than one line as suspect until proven deliberate. Walk every text block and flag:
+- **Centered multi-line body copy.** Body paragraphs of ≥ 2 lines should be left-aligned (ragged-right). Centered multi-line copy creates jagged left edges that destroy scan-ability. Flag any centered paragraph past one line.
+- **Centered long-form blocks.** Any centered run of body text wider than ~`50ch` or taller than ~3 lines — feature descriptions, card body text, full-width prose sections — is a defect regardless of line count.
+- **Mismatched alignment between adjacent sections.** Two stacked sections (e.g., a centered hero followed by a left-aligned feature list, then a re-centered CTA block) that flip alignment with no deliberate rhythm read as inconsistent. Flag alignment that toggles section-to-section.
+- **Measure & margins under centering.** Confirm centered text still respects the 45–75ch measure from Pass 2; centered blocks frequently stretch to full container width (90ch+) because no `max-width`/`measure` constraint is set. Flag centered copy with no measure cap.
+
+Confirm centered-vs-left is **deliberate**: centering is legitimate only for short hero headlines, eyebrows/kickers, single-line CTAs, and isolated quotes/stats — never for long-form reading. **Fix direction:** left-align all multi-line and long-form body copy (`text-align: left`), and reserve `text-align: center` for short hero/eyebrow text under ~`40ch`; cap centered blocks with an explicit `max-width` token honoring the 45–75ch measure. Record each as a four-part annotation (this maps to the alignment defects in `references/defect-taxonomy.md`).
 
 ### Pass 4 — Color / contrast
 - **Sample foreground/background pairs** for every text block and UI component. Estimate the contrast ratio `ρ = (L_lighter + 0.05) / (L_darker + 0.05)`. Compare against the AA/AAA thresholds in `references/design-system-reference.md`.
@@ -114,7 +122,10 @@ When given multiple screens of the same product, audit for **consistency drift**
 - **Type scale** (same sizes for the same roles on every page)
 - **Spacing tokens** (section and component padding)
 - **Button styles** (fill, radius, height, state treatments)
+- **Button placement & position** (repeated and floating buttons share size, corner, icon, and on-screen position across pages and breakpoints)
 - **Color tokens** (same surface/border/accent values everywhere)
+
+For **button placement & position**, audit beyond style into where the control lives: a primary CTA, a "Back"/"Next" pair, a floating action button, or a scroll-to-top control that is bottom-right on one page must not jump to bottom-left, top-right, or mid-column on another — and its size, corner radius, icon, and offset from the viewport edge must hold across both pages and every breakpoint. Flag a floating button that drifts position between screens, a repeated CTA whose label/icon order or alignment changes, and a fixed control whose edge offset (e.g., `24px` inset) is inconsistent. This maps to the button-placement check in `references/defect-taxonomy.md` (cross-region V6/V7 button-placement consistency and the U1 scroll-to-top control).
 
 Report each inconsistency as a drift finding naming **both** instances and the property that differs (see annotation format). A value that is internally consistent on one page but differs on another is still a defect.
 
@@ -144,3 +155,5 @@ State these constraints in the report whenever they apply; they change what you 
 - **Contrast, font metrics, and computed boxes are estimated** from pixels. Flag borderline values for tool confirmation (`references/automated-tools.md`); never report an estimate as a measured ratio.
 - **No accessibility tree, no DOM, no keyboard.** From a static image you cannot verify tab order, ARIA, semantic HTML, or screen-reader behavior — only what is visually implied. Recommend the accessibility-tree inspection and manual AT pass that AUDIT cannot perform.
 - **Responsive behavior needs multiple captures.** One viewport shows one layout. Do not infer reflow, breakpoints, or touch-target sizing at other widths from a single screenshot; request the missing viewports (matrix in `references/design-system-reference.md`).
+- **Do not score a dimension you did not observe as a pass — report it NOT EVIDENCED.** Absence of evidence is not a passing grade. If the captures supplied never exercised a dimension (no mobile width, no footer/below-fold capture, no hover/focus/error state, no motion clip), that dimension is **NOT EVIDENCED**, not "OK". Leaving it unmentioned silently reads as a pass and inflates the score; name it explicitly as not evidenced and list the capture that would close the gap. This mirrors the **Evidence-gated scoring (no pass on an unobserved dimension)** rule and the **Viewport coverage** binary gate in `references/scoring-and-report.md`.
+- **Responsive reflow ordering/grouping and footer/below-fold cannot be judged from a single desktop screenshot.** A desktop capture cannot show how a multi-column grid collapses to one column, what reading order the stacked items take, how groups regroup, or what sits below the fold (footer composition, scroll-to-top, late-loading sections). **Never certify a responsive-grid section, a single-column reflow order, or footer/below-fold composition from a desktop screenshot alone.** Mark these NOT EVIDENCED and either request the small-mobile captures (320 / 360 widths — Small-mobile class in `references/design-system-reference.md`) plus a full-height/footer capture, or drive the live app (TEST mode: `references/testing-protocol.md`, single-column reading-order check `TEST-MOBILE-REFLOW`).

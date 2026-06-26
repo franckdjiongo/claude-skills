@@ -5,6 +5,7 @@ The single source for severity definitions, the scoring math, the report structu
 ## Table of Contents
 - [Severity Legend](#severity-legend)
 - [Scoring Model](#scoring-model)
+  - [Evidence-Gated Scoring (no pass on an unobserved dimension)](#evidence-gated-scoring-no-pass-on-an-unobserved-dimension)
   - [Binary Gates (pass/fail)](#binary-gates-passfail)
   - [Severity-Weighted Composite](#severity-weighted-composite)
   - [Category Weights (optional)](#category-weights-optional)
@@ -41,6 +42,17 @@ Severity is per-finding and independent of category. A `CRITICAL` finding caps s
 
 Two complementary models run together: strict **binary gates** for non-negotiables, then a graded **severity-weighted composite** for everything else.
 
+### Evidence-Gated Scoring (no pass on an unobserved dimension)
+
+A score is a claim about evidence. A category that was never rendered, scrolled, or driven into the state where its defects live MUST be reported as **NOT EVIDENCED** — never `pass` and never folded into the composite as if it earned points. Absence of findings is not a pass.
+
+- **"No findings" is ambiguous — disambiguate it.** Always distinguish "looked and found nothing" (an evidenced pass) from "never looked" (NOT EVIDENCED). A responsive verdict with no small-mobile screenshot, a footer verdict where the page was never scrolled to the bottom, or a motion verdict where animations were never observed settling are all NOT EVIDENCED, not clean.
+- **Downgrade, never inflate, on observation gaps.** If the environment cannot resize, scroll, or drive states (static single-screenshot input; a host that pins one viewport; a tool that cannot reach the footer or trigger hover/focus), DOWNGRADE the affected dimension's verdict to NOT EVIDENCED and surface the gap in the report. Never award a pass to compensate for what you could not see, and never silently assume a width/route/state you did not render.
+- **NOT EVIDENCED is not a passing score.** A screen with required dimensions unevidenced is **not shippable on those dimensions** (see the [Viewport coverage](#binary-gates-passfail) gate). The composite is reported only over evidenced dimensions, annotated with the coverage gap; do not present a composite as app-wide-complete while dimensions remain unobserved.
+- This rule binds all three modes. In AUDIT over static screenshots, mark every dimension the input cannot show as NOT EVIDENCED. In TEST, the whole point is to convert NOT EVIDENCED into evidenced verdicts by actually rendering each viewport class and driving each state (see references/testing-protocol.md §2, §7 and Phase 2). Findings and gates may only cite a width, route, or state that was actually rendered/observed (see references/analysis-protocol.md, evidence-limits: no-pass-on-unobserved + responsive-reflow caveat).
+
+Record what was and was not observed in the `coverage` object of the [JSON schema](#machine-readable-json-schema) and in the [Report Structure](#report-structure) coverage line.
+
 ### Binary Gates (pass/fail)
 
 Run these FIRST. Each is a strict pass/fail gate. **Any single gate failure caps the screen at `NOT SHIPPABLE`** regardless of the composite score (strict AND-gate — one failure blocks ship).
@@ -53,8 +65,11 @@ Run these FIRST. Each is a strict pass/fail gate. **Any single gate failure caps
 | Non-text contrast | UI components and graphical objects (icons, borders, focus rings) `>=3:1` (WCAG 1.4.11). |
 | No horizontal overflow | No unintended horizontal scroll at any viewport from `375px` to `1920px`. |
 | No critical CLS | No layout shift that moves an actionable control after first paint; target `CLS <= 0.1` at p75. |
+| Viewport coverage | The audit actually rendered every required viewport class — small-mobile (`320`/`360`), mobile (`375`/`390`/`414`), tablet (`768`/`834`/`1024`), desktop (`1280`/`1440`/`1920`) — and recorded which states were driven. No gate or finding references a width/route/state that was never rendered/observed. |
 
 > The "one failure blocks ship" pattern mirrors strict quality-gate systems (SonarQube Quality Gates; the Hallmark slop-gate model). The exact gate count in third-party tools is corroborated only via secondary coverage — never cite a specific external gate count as a first-party figure. The thresholds above (`4.5:1`, `3:1`, `CLS <= 0.1`) are first-party normative (WCAG 2.2 / Core Web Vitals).
+
+> **Viewport-coverage note.** This gate enforces the [Evidence-Gated Scoring](#evidence-gated-scoring-no-pass-on-an-unobserved-dimension) rule for the responsive-, footer-, and motion-dependent dimensions. Those verdicts are **INVALID — reported as NOT EVIDENCED, not pass** — unless the matching viewport class was actually rendered: the responsive verdict requires small-mobile + mobile + tablet + desktop renders (single-column reflow and reading order live at small-mobile — see references/testing-protocol.md §2 `TEST-MOBILE-REFLOW` at `320`/`360`, and references/defect-taxonomy.md V5-06); the footer/composition verdict requires scrolling to the bottom at each class; the motion verdict requires animations observed after settling (references/testing-protocol.md settle-animations-before-capture). Each class also requires the per-breakpoint hero-fills-viewport and header-density passes (references/testing-protocol.md Phase 2; references/defect-taxonomy.md V0-01, V7). The report MUST list which viewports and states were **covered vs not covered**. Any required class not rendered ⇒ that dimension is **not evidenced** and the screen is **not shippable on that dimension** — a missing small-mobile render alone caps the responsive dimension at NOT SHIPPABLE even when every observed width is clean. The Responsive Viewport Matrix that defines these classes (including the Small-mobile class) lives in references/design-system-reference.md. Hosts that cannot resize to a class DOWNGRADE that dimension (never inflate it) per the evidence rule; for orchestrating per-viewport renders on large apps, see references/environment-adaptation.md ("Orchestrated audit").
 
 For what to look for under each gate, see references/defect-taxonomy.md and references/edge-cases.md. Do not restate those checklists here.
 
@@ -116,11 +131,12 @@ Three-tier band (mirrors the Core Web Vitals Good / Needs-Improvement / Poor mod
 Order the report exactly:
 
 1. **Executive summary + overall score** — one paragraph, the composite, the shippable flag, and the single highest-leverage fix.
-2. **Critical issues (ship-blockers) first** — every failed gate and every `CRITICAL` finding, before anything else.
-3. **Category breakdown with sub-scores** — Accessibility / Layout / Typography / Interaction / Performance, each with its sub-score and a one-line summary.
-4. **Detailed findings** — full per-finding blocks, ordered by [Pareto priority](#pareto-priority-ordering).
-5. **Copy-paste fix prompts** — one self-contained, paste-ready prompt per finding (see [anatomy](#anatomy-of-a-self-contained-correction-prompt)).
-6. **Progress checklist** — the [tracking table](#progress-tracking-checklist).
+2. **Coverage line** — one line stating which viewport classes (small-mobile `320`/`360`, mobile `375`/`390`/`414`, tablet `768`/`834`/`1024`, desktop `1280`/`1440`/`1920`) and which states (hover/focus/error/empty, scrolled-to-footer, animations-settled) were **covered vs not covered**, and which dimensions are therefore **evidenced vs NOT EVIDENCED** (see [Evidence-Gated Scoring](#evidence-gated-scoring-no-pass-on-an-unobserved-dimension) and the [Viewport coverage](#binary-gates-passfail) gate). Mirrors the `coverage` object in the [JSON schema](#machine-readable-json-schema).
+3. **Critical issues (ship-blockers) first** — every failed gate and every `CRITICAL` finding, before anything else.
+4. **Category breakdown with sub-scores** — Accessibility / Layout / Typography / Interaction / Performance, each with its sub-score and a one-line summary. A category whose evidence was never captured shows **NOT EVIDENCED** in place of a sub-score, never a pass.
+5. **Detailed findings** — full per-finding blocks, ordered by [Pareto priority](#pareto-priority-ordering).
+6. **Copy-paste fix prompts** — one self-contained, paste-ready prompt per finding (see [anatomy](#anatomy-of-a-self-contained-correction-prompt)).
+7. **Progress checklist** — the [tracking table](#progress-tracking-checklist).
 
 Blank fill-in skeleton: assets/audit-report-template.md.
 
@@ -164,6 +180,16 @@ Emit this alongside the human report so downstream tooling can parse findings, t
   "screen": "checkout",
   "score": 78,
   "shippable": false,
+  "coverage": {
+    "viewports_rendered": ["375", "390", "768", "1280", "1440"],
+    "viewports_required": ["320", "360", "375", "390", "414", "768", "834", "1024", "1280", "1440", "1920"],
+    "viewports_not_rendered": ["320", "360", "414", "834", "1024", "1920"],
+    "states_observed": ["default", "hover", "focus", "scrolled-to-footer", "animations-settled"],
+    "states_not_observed": ["error", "empty"],
+    "dimensions_evidenced": ["accessibility", "typography", "interaction"],
+    "dimensions_not_evidenced": ["responsive", "footer", "motion"],
+    "environment_limits": ["host pinned to a single viewport; could not resize to small-mobile"]
+  },
   "findings": [
     {
       "id": "A11Y-003",
@@ -179,8 +205,13 @@ Emit this alongside the human report so downstream tooling can parse findings, t
 ```
 
 Field rules:
-- `score`: composite per [Scoring Model](#scoring-model), 0–100.
-- `shippable`: `false` if any binary gate fails on this screen, else derived from the threshold band.
+- `score`: composite per [Scoring Model](#scoring-model), 0–100, computed over **evidenced dimensions only**.
+- `shippable`: `false` if any binary gate fails on this screen (including [Viewport coverage](#binary-gates-passfail)), else derived from the threshold band.
+- `coverage`: required. Records what was observed so a verdict can never silently rest on an unobserved width or state (see [Evidence-Gated Scoring](#evidence-gated-scoring-no-pass-on-an-unobserved-dimension)).
+  - `viewports_rendered` / `viewports_required` / `viewports_not_rendered`: width strings in px. `viewports_required` enumerates the four classes — small-mobile (`320`/`360`), mobile (`375`/`390`/`414`), tablet (`768`/`834`/`1024`), desktop (`1280`/`1440`/`1920`) — per the Responsive Viewport Matrix in references/design-system-reference.md. A non-empty `viewports_not_rendered` that includes a required class ⇒ the Viewport coverage gate fails for the dimensions that depend on it.
+  - `states_observed` / `states_not_observed`: from `default` / `hover` / `focus` / `error` / `empty` / `scrolled-to-footer` / `animations-settled`.
+  - `dimensions_evidenced` / `dimensions_not_evidenced`: partition of the dimensions; any in `dimensions_not_evidenced` is reported as **NOT EVIDENCED**, never scored as `pass`, and renders the screen not shippable on that dimension.
+  - `environment_limits`: free-text notes on why a class/state could not be observed (drives the DOWNGRADE-never-inflate handling; see references/environment-adaptation.md).
 - `location`: include `component` and/or `region` (`[x,y,w,h]`); at least one is required.
 - `severity` / `category`: lowercase, from the enumerations above.
 - `status`: `open` / `fixed` / `wontfix`.

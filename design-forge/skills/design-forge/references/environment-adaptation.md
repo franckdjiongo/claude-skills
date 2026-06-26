@@ -14,6 +14,7 @@ How TEST mode adapts to its host platform. Before any test runs, **detect the en
 - [Phase automatability matrix](#phase-automatability-matrix)
 - [Screenshot optimization tactics](#screenshot-optimization-tactics)
 - [Fallback strategy](#fallback-strategy)
+- [Orchestrated audit (optional — large apps only)](#orchestrated-audit-optional--large-apps-only)
 
 ---
 
@@ -129,3 +130,56 @@ When a test cannot be performed in the current environment (e.g. pixel resize in
 3. **Recommend manual verification** for the residual that no substitute covers.
 
 Score and format every finding (including documented gaps) per `references/scoring-and-report.md`. Always surface the three structural gaps — no real screen reader, no haptics, and any deferred phase — with a concrete manual-verification recommendation for each.
+
+---
+
+## Orchestrated audit (optional — large apps only)
+
+**Default is inline single-agent.** One TEST specialist drives the live app end-to-end in a single context — that is the canonical loop and the substrate of `references/testing-protocol.md`. Orchestration below is an **optional** structure for genuinely large live apps (≈ **15+ routes × 4 device classes**, i.e. ~60+ route×viewport cells) where one context window cannot hold the route map, the per-cell evidence, and the findings without overflow. **It is a SCALE tool, not a fix for coverage or honesty** — those stay enforced by the viewport-coverage gate and the evidence-gated-scoring rule, which orchestration *inherits*, never relaxes. If the app fits one context, do **not** orchestrate; the coordination cost buys nothing.
+
+### When it applies (and when it does NOT)
+
+| Use orchestration | Stay inline (DEFAULT) |
+|---|---|
+| ≈15+ routes × 4 device classes on a **live, navigable** app; single-context overflow is observed or near-certain | Anything that fits one context (< ~15 routes) |
+| The host environment can spawn route-sharded TEST sub-agents that each **drive the live app** | **Pasted screenshots** (AUDIT-from-stills): no live app to shard — always inline |
+| Provenance + a run-scoped capture folder are available | **BRIEF mode**: no app exists yet — always inline |
+
+Orchestration **never** changes what counts as evidence. A still image is evidence *about* a state; it is never the substrate. Per the **live-first** constraint, screenshots cannot reveal hover/focus states, scroll affordances, animation/motion, keyboard tab order, or reflow at a width that was never rendered — so a shard that only collects stills has **not** evidenced those dimensions (mirrors the universal "no real screen reader" gap above: name what the evidence is, never overclaim).
+
+### Topology
+
+- **Route-shard the TEST specialist.** Partition the route map into a few disjoint slices (size each slice to a comfortable per-context budget, e.g. ~4–6 routes × 4 viewports). Spawn one sub-agent ("lens") per slice. Each lens **drives the live app over its slice** — resize to each viewport class (small-mobile `320`/`360`, mobile, tablet, desktop per `references/design-system-reference.md` Responsive Viewport Matrix), settle animations before capture (`references/testing-protocol.md` *settle-animations-before-capture*), and run the relevant phases of `references/testing-protocol.md` (including `TEST-MOBILE-REFLOW` §2 and `TEST-SCROLL-HEADER` §7) on its routes.
+- **Aggregator.** A single deduping aggregator collects every lens's findings + manifest, dedupes, then re-applies the **Viewport coverage** binary gate (`references/scoring-and-report.md`) and the **Evidence-gated scoring (no pass on an unobserved dimension)** rule over the **UNION** of all lenses' evidence — not per-shard. A dimension passes only if some lens actually rendered/drove the state that evidences it; the composite is reported only over the union-evidenced dimensions, annotated with any coverage gap.
+
+### Provenance manifest (mandatory on every capture)
+
+Every capture — screenshot, burst frame, video artifact, DOM/console dump — is stamped with a provenance record. **No finding and no pass may reference a state absent from the manifest** (this is the union-level form of the Viewport coverage gate).
+
+| Field | Value |
+|---|---|
+| `route` | The exact route/URL path captured. |
+| `viewport` | Width × height + device class (`320`/`360` small-mobile, `375`/`390`/`414` mobile, `768`/`834`/`1024` tablet, `1280`/`1440`/`1920` desktop). |
+| `scrollY` | Scroll offset in px at capture time (0 = top; record the value for sticky-header / scroll-composite captures). |
+| `animations_settled` | `true` only after entrance/transition animations have quiesced (`settle-animations-before-capture`); `false` captures are motion-in-progress evidence, labelled as such. |
+| `captured_at` | ISO-8601 timestamp; orders bursts and disambiguates re-captures. |
+
+### Capture storage
+
+- Write all captures to a **run-scoped folder** keyed by run id (e.g. `.design-forge/runs/<run-id>/`). Add the run-root to `.gitignore` — captures are transient evidence, not source.
+- **NEVER delete evidence on a successful run.** Cleanup is **opt-in** only. Any automatic pruning targets **old runs only** (e.g. retain the last N run folders), never the current run, and never on success. A passing audit whose evidence was deleted cannot be re-verified — that breaks the manifest contract.
+
+### Dedupe + cost + fail-closed
+
+- **Dedupe before aggregation** by `(selector + defect-nature)`: two lenses reporting the same off-grid spacing on the same shared `.site-header` are one finding, not two. Keep the union of evidencing manifest records on the survivor so coverage credit is not lost.
+- **Bound cost.** Cap the lens count and the per-lens slice size; orchestration that spawns more coordination than it saves is a net loss — re-check the "fits one context" test before scaling out.
+- **FAIL CLOSED.** A lens that crashes, returns empty, or never rendered a cell marks that route×viewport cell **NOT EVIDENCED** for its dimensions — **never a silent pass**. Per `Evidence-gated scoring`, NOT EVIDENCED is not a passing score; the aggregator surfaces the gap and the Viewport coverage gate fails on the union if any required cell stayed unrendered. A dropped lens degrades coverage, never quality claims.
+
+### Hard constraints (the guardrails)
+
+1. **Live-first.** The lenses drive the live app; screenshots are evidence, never the substrate. Stills cannot reveal hover/focus, scroll affordances, animation, keyboard order, or reflow at unseen widths — do not assert any of these from a still alone.
+2. **Provenance on every capture.** Every capture carries `{route, viewport, scrollY, animations_settled, captured_at}`; no finding/pass may reference a state not in the manifest.
+3. **Never delete evidence on success.** Cleanup is opt-in; auto-prune touches old runs only.
+4. **Dedupe + bound + fail closed.** Dedupe by `(selector + defect-nature)`; cap cost; a crashed/empty lens marks its dimension NOT EVIDENCED, never a silent pass.
+5. **Inherit the gates.** Orchestration inherits the **Viewport coverage** binary gate and the **Evidence-gated scoring (no pass on an unobserved dimension)** rule (`references/scoring-and-report.md`) — applied over the UNION of evidence. It cannot relax either.
+6. **Inline stays the DEFAULT.** Single-agent inline is the default and is **required** for pasted screenshots (AUDIT-from-stills) and for BRIEF mode. Orchestration is a scale tool only — never the path to a pass that inline could not earn.
