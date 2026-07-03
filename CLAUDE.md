@@ -57,6 +57,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `add-dataverse` - Add Dataverse tables to a Power Apps code app with generated TypeScript models and services
 - `pp-solution-sync` - Sync Power Platform solution exports from ~/Downloads into local project folders
 - `secure-pa-http-trigger` - Secure a Power Automate HTTP-trigger flow with Entra ID auth and rewire every caller
+- `sync-to-azure` - Syncs the current Power Apps Code App to the Fernand Gilbert Ltée Azure DevOps repository under code-apps/<app-name>/.
 
 **Claude Code Extensibility**
 - `skill-creator` - Guide for creating new skills with proper structure and patterns
@@ -76,6 +77,8 @@ The `description` field is critical - it determines when Claude Code should invo
 - `cloud-night-shift` - Orchestrate chained autonomous overnight cloud runs via claude.ai routines
 - `pipeline-audit` - Reverse-engineer and grade a project's brainstorm→plan→implementation skill pipeline
 - `handoff` - Compact the current conversation into a handoff document for another agent to pick up
+- `adversarial-pr-review` - Run an ultracode multi-agent ADVERSARIAL review over the working diff so a change is bulletproof and "compliant" BEFORE its pull request is opened,…
+- `update-dev-tools` - Autonomously update this macOS machine's local developer toolchain — Python (current stable) + its doc libraries and Node (LTS), both via mise, plus…
 
 **Convex Database**
 - `convex-queries` - Convex query patterns and best practices
@@ -107,6 +110,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `convex-schema-validator` - Schema definition, typing, index configuration, and validation
 - `convex-security-audit` - Deep security review for authorization and data access boundaries
 - `convex-security-check` - Quick security audit checklist for Convex apps
+- `convex-remote-mcp` - Build a production-ready REMOTE MCP server (Streamable HTTP) hosted INSIDE an EXISTING Convex backend — exposing your Convex functions as…
 
 **Text & Document Processing**
 - `whatsapp-formatter` - Format text for WhatsApp with proper syntax

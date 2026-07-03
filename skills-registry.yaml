@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-06-26"
+last_updated: "2026-07-03"
 
 # =============================================================================
 # REPOSITORIES
@@ -169,6 +169,12 @@ categories:
         description: Secure a Power Automate HTTP-trigger flow with Entra ID auth and rewire every caller
         tags: [power-automate, security, entra-id, oauth, http-trigger]
 
+      - name: sync-to-azure
+        repository: claude-skills
+        path: sync-to-azure/SKILL.md
+        description: "Syncs the current Power Apps Code App to the Fernand Gilbert Ltée Azure DevOps repository under code-apps/<app-name>/."
+        tags: [power-platform, power-apps]
+
   # ---------------------------------------------------------------------------
   # CLAUDE CODE & AI EXTENSIBILITY
   # ---------------------------------------------------------------------------
@@ -294,6 +300,18 @@ categories:
         path: handoff/SKILL.md
         description: Compact the current conversation into a handoff document for another agent to pick up
         tags: [handoff, context, compaction, claude-code]
+
+      - name: adversarial-pr-review
+        repository: claude-skills
+        path: adversarial-pr-review/SKILL.md
+        description: "Run an ultracode multi-agent ADVERSARIAL review over the working diff so a change is bulletproof and \"compliant\" BEFORE its pull request is opened,…"
+        tags: [claude-code]
+
+      - name: update-dev-tools
+        repository: claude-skills
+        path: update-dev-tools/SKILL.md
+        description: "Autonomously update this macOS machine's local developer toolchain — Python (current stable) + its doc libraries and Node (LTS), both via mise, plus…"
+        tags: [claude-code]
 
   # ---------------------------------------------------------------------------
   # CONVEX DATABASE
@@ -474,6 +492,12 @@ categories:
         path: convex-security-check/SKILL.md
         description: Quick security audit checklist covering authentication, function exposure, argument validation, and row-level access control
         tags: [convex, security, checklist, quick-audit]
+
+      - name: convex-remote-mcp
+        repository: claude-skills
+        path: convex-remote-mcp/SKILL.md
+        description: "Build a production-ready REMOTE MCP server (Streamable HTTP) hosted INSIDE an EXISTING Convex backend — exposing your Convex functions as…"
+        tags: [convex]
 
   # ---------------------------------------------------------------------------
   # TEXT & DOCUMENT PROCESSING
@@ -2004,6 +2028,10 @@ skill_index:
   resend-templates: { repo: claude-skills, category: email }
   resend-inbound: { repo: claude-skills, category: email }
   resend-agent-email-inbox: { repo: claude-skills, category: email }
+  adversarial-pr-review: { repo: claude-skills, category: claude-code }
+  convex-remote-mcp: { repo: claude-skills, category: convex }
+  sync-to-azure: { repo: claude-skills, category: power-platform }
+  update-dev-tools: { repo: claude-skills, category: claude-code }
   # External skills (superpowers)
   test-driven-development: { repo: superpowers, category: superpowers-testing }
   systematic-debugging: { repo: superpowers, category: superpowers-testing }
