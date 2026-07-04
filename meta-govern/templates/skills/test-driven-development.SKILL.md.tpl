@@ -179,7 +179,7 @@ If any unchecked → not complete.
 
 - `~/.claude/skills/meta-govern/references/engineering-principles.html` — DRY/KISS/YAGNI/SOLID/SINE/Boy Scout
 - `.claude/agents/implementer.md` — uses this skill via `agent:` frontmatter
-- `.claude/agents/ui-implementer.md` — uses this skill plus `frontend-design`
+- `.claude/agents/ui-implementer.md` — uses this skill plus `ship-polished-ui` (its design doctrine)
 - `.claude/skills/quality-gate/SKILL.md` — post-merge audit (different concern)
 
 ## Gotchas
