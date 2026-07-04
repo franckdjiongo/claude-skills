@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Aperture — Field Notes</title>
+<style>
+  :root {
+    --ink: #14171f;
+    --muted: #4a5163;
+    --paper: #f7f5ef;
+    --surface: #ffffff;
+    --accent: #1f5f4f;
+    --accent-ink: #ffffff;
+    --line: #e2ded2;
+    --shadow: 0 1px 2px rgba(20,23,31,.06), 0 8px 24px rgba(20,23,31,.08);
+    --radius: 14px;
+    --measure: 66ch;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+  /* Hero */
+  .hero {
+    padding: 88px 0 72px;
+    border-bottom: 1px solid var(--line);
+    background:
+      radial-gradient(120% 90% at 85% -10%, rgba(31,95,79,.10), transparent 60%),
+      var(--paper);
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 13px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); font-weight: 600; margin: 0 0 18px;
+  }
+  .hero h1 {
+    font-size: clamp(34px, 6vw, 60px); line-height: 1.05; margin: 0 0 20px;
+    letter-spacing: -0.02em; max-width: 14ch;
+  }
+  .hero p { font-size: clamp(17px, 2.2vw, 20px); color: var(--muted); margin: 0 0 32px; max-width: 52ch; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    min-height: 48px; padding: 12px 26px;
+    background: var(--accent); color: var(--accent-ink);
+    border: 0; border-radius: 999px;
+    font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer;
+    transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease;
+    box-shadow: 0 6px 18px rgba(31,95,79,.28);
+  }
+  .btn:hover { transform: translateY(-2px); background: #18513f; box-shadow: 0 10px 26px rgba(31,95,79,.34); }
+  .btn:focus-visible { outline: 3px solid #0b3b2e; outline-offset: 3px; }
+  .btn:active { transform: translateY(0); }
+
+  /* Sections */
+  section.block { padding: 64px 0; border-bottom: 1px solid var(--line); }
+  section.block h2 { font-size: clamp(24px, 3.4vw, 34px); letter-spacing: -0.01em; margin: 0 0 14px; }
+  section.block p.lede { color: var(--muted); max-width: var(--measure); margin: 0 0 28px; font-size: 17px; }
+
+  .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow);
+  }
+  .card .n { font-size: 13px; color: var(--accent); font-weight: 700; letter-spacing: .1em; }
+  .card h3 { margin: 10px 0 8px; font-size: 18px; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+
+  .stat-row { display: flex; flex-wrap: wrap; gap: 40px; }
+  .stat .k { font-size: clamp(30px, 5vw, 44px); font-weight: 700; letter-spacing: -0.02em; }
+  .stat .l { color: var(--muted); font-size: 14px; }
+
+  footer { padding: 40px 0 56px; color: var(--muted); font-size: 14px; }
+
+  @media (max-width: 720px) { .cards { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) {
+    .btn { transition: none; }
+    .btn:hover { transform: none; }
+  }
+</style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Field Notes · 2026</span>
+      <h1>A quiet log for work that happens outdoors.</h1>
+      <p>Aperture keeps the observations, coordinates, and small decisions of fieldwork in one place — legible on a phone in the rain, exportable at the desk.</p>
+      <a class="btn" href="#start">Start a logbook</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="block" id="start">
+      <div class="wrap">
+        <h2>Built for the moment you can't type much.</h2>
+        <p class="lede">Three primitives cover most of what a day in the field needs. Everything else is export.</p>
+        <div class="cards">
+          <article class="card">
+            <span class="n">01</span>
+            <h3>Pinned notes</h3>
+            <p>Drop a note on the map; it carries its coordinates, time, and light level without a form.</p>
+          </article>
+          <article class="card">
+            <span class="n">02</span>
+            <h3>Voice-first capture</h3>
+            <p>Hold, speak, release. Transcription runs later; the audio stays as the source of truth.</p>
+          </article>
+          <article class="card">
+            <span class="n">03</span>
+            <h3>Offline by default</h3>
+            <p>Nothing needs a signal. The log syncs the next time you're near coverage.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="wrap">
+        <h2>The numbers so far.</h2>
+        <p class="lede">A small tool, used seriously by the people it was built for.</p>
+        <div class="stat-row">
+          <div class="stat"><div class="k">12,400</div><div class="l">logbooks kept</div></div>
+          <div class="stat"><div class="k">98.6%</div><div class="l">offline capture rate</div></div>
+          <div class="stat"><div class="k">31</div><div class="l">field seasons shipped</div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">Aperture — a field notes fixture for the run-témoin. No tracking, no signal required.</div>
+  </footer>
+</body>
+</html>

@@ -2,9 +2,9 @@
 
 The `visual-qa-inspector` agent lives at `~/.claude/agents/visual-qa-inspector.md` (user-scope) and runs on Sonnet for cost-effective verification. Dispatch it via the Agent tool with `subagent_type: visual-qa-inspector` (or `general-purpose` if the agent file isn't installed yet — pass the same prompt).
 
-It's a fresh-context QA pass on UI changes you just made. Use it when:
+It's a fresh-context QA pass on UI changes you just made. Its deliverable is the **Verification Ledger** (checklist §1/§12), posted in full — not a short prose summary. Use it when:
 
-- The change affects more than ~3 components
+- **The change affects more than 3 components — this is a blocking dispatch, not a suggestion.** Above 3 components, verifying inline in a context already saturated with design decisions is precisely where ledger cells get rubber-stamped; hand it to a fresh context.
 - You're deep into a session and feel context fatigue
 - You catch yourself rationalizing skipped checklist items
 - The user has previously caught visual bugs in this session — you want a second pair of eyes
@@ -68,12 +68,20 @@ If you find a bug:
 
 ### 6. What to return
 
+The agent's return **is the Verification Ledger** — the accountable table from checklist §1e, posted under a heading containing the exact string `VERIFICATION LEDGER`. There is **no word limit** on it (the ledger is the deliverable; truncating it would defeat the point). Requirements:
+
 ```
-Return:
-- Verdict: PASS / FAIL / FAIL-WITH-MINOR
-- For each checklist section, a one-line note (what you actually did + outcome)
-- For any FAIL: file path, line guess, screenshot ID, exact symptom
-- Total time spent on the verification (rough estimate)
+Return the Verification Ledger:
+- Post it under a "VERIFICATION LEDGER — ..." heading (exact marker string).
+- Per-cell rows (surface × viewport × state, incl. 320/360) + transverse rows
+  (contrast, reduced-motion, perf, Design-Spec conformance).
+- A real screenshot ID in every PASS cell — REQUIRED, not just on FAILs, for
+  the critical cells: every mobile (320/360/375) cell and every
+  interaction-reached cell. A "PASS" with no proof is a not-evidenced, not a PASS.
+- not-evidenced (never PASS) for any cell you could not actually render;
+  a missing device class makes the whole verdict INVALID.
+- For any FAIL: file path, line guess, screenshot ID, exact symptom in one sentence.
+- One-line overall verdict + rough time spent, appended after the table.
 ```
 
 ## Full briefing template
@@ -103,12 +111,19 @@ Context to be aware of:
 
 Do NOT fix anything yourself. If you find a bug, stop, document it, and return.
 
-Return format:
-- One-line verdict (PASS / FAIL / FAIL-WITH-MINOR)
-- Per-section notes: "S1 (scope) — listed 4 surfaces, all verified. S2 (open browser) — connected to [tab]. S3 (multi-scroll) — top/mid/bottom screenshots OK except <issue>. S4 (zoom edges) — clean except <issue>. S5 (interactive) — dropdown click → renders behind cards [bug]. S6 (cross-check) — OK. S7 (label/value pairs) — OK. S8 (edge cases, if applicable) — empty state OK." etc.
-- For each failure: file (best guess), line, screenshot ID, exact symptom in one sentence.
-
-Report under 300 words.
+Return format — your deliverable is the Verification Ledger, posted in full
+(NO word limit):
+- Post it under a heading containing the exact string "VERIFICATION LEDGER".
+- Build the scope matrix first (surfaces × viewports 320/360/375/768/desktop ×
+  states), then fill one row per cell you actually rendered, plus transverse
+  rows (contrast, reduced-motion, perf, Design-Spec conformance).
+- Every PASS cell carries a real proof (screenshot ID + measured value where it
+  applies). A screenshot ID is REQUIRED even on PASS for the critical cells:
+  all mobile (320/360/375) cells and all interaction-reached cells.
+- A cell you could not render is "not-evidenced", never PASS. A device class
+  never rendered makes the whole verdict INVALID.
+- For each FAIL: file (best guess), line, screenshot ID, one-sentence symptom.
+- Append a one-line overall verdict + rough time spent after the table.
 ```
 
 ## Why "don't fix yourself"

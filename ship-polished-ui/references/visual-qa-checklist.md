@@ -6,17 +6,60 @@ The checklist has **twelve sections**. Sections marked `★` are non-negotiable 
 
 ---
 
-## ★ Section 1 — Define the scope before opening the browser
+## ★ Section 1 — Build the scope matrix and post it *before* the first screenshot
 
-Before any screenshots, write down (in your own working notes / TODO / chat reply, doesn't have to be a file):
+The output of the whole verify phase is one artifact — the **Verification Ledger**, an accountable table posted in the chat. This section builds its skeleton: the scope matrix. **The matrix must be posted as a table in the chat before you take the first screenshot.** A matrix "in your head" does not exist; a run that screenshots first and reconstructs scope afterward is exactly the self-attestation this skill exists to kill.
 
-1. **Which CSS properties did you change?** Name them. `overflow`, `padding`, `background`, `z-index`, etc.
-2. **Which selectors / class names?** `.card`, `.surface::before`, `.container`, etc.
-3. **What does each change visually affect?** Be specific: "this changes the bar's vertical padding from 16px to 24px, which makes the bar taller, which means the clip area for the brand rail extends further" — that chain of reasoning is what lets you predict regressions.
-4. **What adjacent elements / states could regress?** Anything inside the changed container, anything stacking against it, anything that inherits its sizing or stacking context. **List them.**
-5. **Which surfaces × which viewports?** Verification is a grid, not a list: every surface above × every viewport that matters (mobile ~375px, tablet ~768px, desktop) × light/dark if the app themes. Run the checklist top-to-bottom once and you test each surface at whatever viewport you happened to be in when you reached it. So mark which surfaces are **interaction-reached** — modals, drawers, detail views, popovers, expanded rows, anything behind a click or a route. Those get reached late and end up verified at one viewport only. Listing them here is what makes the Section 8 responsive sweep actually cover them.
+### 1a — Enumerate the surfaces
 
-If you can't write this down, you don't yet understand your own change well enough to verify it.
+- **Edit / retouche mode** — start from the change: which CSS properties (`overflow`, `padding`, `background`, `z-index`, …), which selectors (`.card`, `.surface::before`, …), what each change visually affects (spell out the chain: "padding 16→24px makes the bar taller, so the brand-rail clip area extends further"), and what adjacent elements/states could regress (anything inside the changed container, anything stacking against it, anything inheriting its sizing/stacking context). List them all.
+- **Full-site build mode** — there is no "changed CSS" scope on greenfield. The matrix is the **inventory: pages × sections × viewports**. Enumerate every page, every major section within it.
+
+### 1b — Make it a grid: surfaces × viewports × states
+
+Verification is a grid, not a list. Every surface × every viewport that matters × light/dark if the app themes:
+
+- Viewports: **320/360 (small-mobile)**, ~375px mobile, ~768px tablet, desktop. **A device class that was never actually rendered makes the entire verdict `INVALID`** — this is a binary gate carried from design-forge v1.1, not a soft preference.
+- Mark which surfaces are **interaction-reached** — modals, drawers, detail views, popovers, expanded rows, anything behind a click or a route. Those get reached late and end up verified at one viewport only; listing them here is what makes the Section 8 responsive sweep actually cover them.
+
+### 1c — Two families of ledger rows
+
+The ledger carries two kinds of rows, and the honesty rule (below) applies to **both**:
+
+- **Per-cell rows** — one row per `surface × viewport × state` (e.g. `hero · 320 · menu-open`).
+- **Transverse rows** — one row per property that is not tied to a single cell: palette contrast, reduced-motion, performance (LCP/CLS/INP), Design-Spec conformance. Their Viewport/State columns read `—`.
+
+### 1d — The honesty rule (governs every cell)
+
+- **A cell that was not actually rendered is `not-evidenced`, never PASS.** Silence is not a pass.
+- **A PASS requires a real proof:** a screenshot ID that resolves to a real file, plus the measured value where applicable (`scrollWidth/clientWidth`, contrast ratio, touch-target px).
+- **Settle before every capture:** scroll to rest and wait for in-flight transitions/animations to finish before the screenshot — mid-animation frames are a confirmed source of false positives. A capture taken before the surface settles does not evidence a cell.
+
+### 1e — The ledger format
+
+The completed ledger is posted in Section 12 under a heading containing the exact string `VERIFICATION LEDGER`. Use this table shape (one row per cell actually executed):
+
+```
+| Surface        | Viewport | État          | Verdict        | Preuve                        |
+|----------------|----------|---------------|----------------|-------------------------------|
+| hero           | 320      | initial       | PASS           | shot_a3f2 · scrollW 320=320   |
+| hero           | 320      | menu ouvert   | PASS           | shot_b81c                     |
+| pricing modal  | 768      | ouvert        | FAIL→fix→PASS  | shot_c4d9 → shot_e2a1         |
+| footer         | 1440     | —             | not-evidenced  | (viewport non re-rendu après fix — à couvrir) |
+| contraste corps| —        | palette       | PASS 7.2:1     | contrast-check.mjs            |
+| focus clavier  | —        | tab sweep     | PASS           | shot_d5e6 (ring visible, no trap)|
+| reduced-motion | —        | OS activé     | PASS           | shot_f7b3 (fades, site complet)|
+| LCP mobile     | —        | load          | PASS 1.9s      | lighthouse mobile / web-vitals |
+| CLS            | —        | load          | PASS 0.02      | idem                          |
+| INP            | —        | interactions  | not-evidenced  | (outil indisponible ce run)   |
+| WebKit hero    | —        | livraison     | PASS           | shot_g8h9 (playwright webkit) |
+| Design Spec §1 | —        | typo nommée   | PASS           | @font-face chargé, grep       |
+```
+
+Deux familles de lignes : PAR CELLULE (surface×viewport×état) et TRANSVERSES (palette/a11y/perf/spec, Viewport = « — ») — not-evidenced s'applique aux deux.
+Règles : cellule sans preuve = not-evidenced ≠ PASS · classe d'appareil manquante = verdict global INVALIDE · réduction de scope = approbation utilisateur consignée ici.
+
+If you can't build this matrix, you don't yet understand your own change well enough to verify it.
 
 ---
 
@@ -131,6 +174,7 @@ A viewport pass is **not** "resize the browser and glance at whatever page is op
 
 So treat this as a sweep. For each viewport that matters —
 
+- **Small-mobile** (320 / 360 px) — the narrowest real devices; overflow and cramped controls surface here first. **A device class that was never rendered makes the whole verdict `INVALID`** (Section 1 binary gate), so this class is not optional.
 - **Mobile** (~375 px) — catches the most. Always do this one.
 - **Tablet** (~768 px) — catches the awkward mid-range where a two-column grid is too tight.
 - **Desktop** — your baseline.
@@ -213,18 +257,71 @@ When you add persistence (sticky), immediately re-check Section 6 (does it now t
 
 ---
 
-## ★ Section 12 — Final declaration
+## ★ Section 12 — Post the Verification Ledger (the definition of done)
 
-Before declaring "done":
+There is no prose "done." The build is done when — and only when — you **post the completed Verification Ledger** built in Section 1. Before you post it:
 
-1. **Run the project's automated checks.** Quality gate, typecheck, tests. If the project has a `npm run validate` (or equivalent), run it.
-2. **Re-read your scope from Section 1.** Did you actually verify each surface — at each viewport, including the interaction-reached ones? If not, go back.
-3. **For any component you designed/restyled, confirm the craft + intent pass (Section 11) ran.** Did you put it next to the page's nicest element and judge depth/containment/detail/accent? Did you ask what the component is *for* over a long surface (sticky? persistent? reachable?)? If your log only mentions overflow and viewports, you verified correctness, not premium — and that is the bounce-back the user keeps sending.
-4. **Write a short verification log** to the user — not just "looks good" but the actual checklist items you ran, *including the craft judgment*. Example:
+1. **Run the project's automated checks.** Quality gate, typecheck, tests. If the project has a `npm run validate` (or equivalent), run it. Add a transverse ledger row for the result.
+2. **Re-read your scope from Section 1.** Did you actually render and evidence each cell — at each viewport (including 320/360 and the interaction-reached ones)? Any cell you cannot back with a real screenshot ID + measured value stays `not-evidenced`, never PASS.
+3. **For any component you designed/restyled, confirm the craft + intent pass (Section 11) ran** and that it produced Design-Spec-conformance transverse rows. Did you put it next to the page's nicest element and judge depth/containment/detail/accent? Did you ask what the component is *for* over a long surface (sticky? persistent? reachable?)? If the ledger only carries overflow and viewport rows, you verified correctness, not premium — and that is the bounce-back the user keeps sending.
 
-   > Scrolled top → bottom (no canvas falloff). Zoomed each card edge (rounded corners clean, no rail overflow). Exercised dropdown (now in front of cards), hover state (lift + accent reveal works). Re-walked every surface at 375 px including re-opening the product detail — no horizontal overflow. Re-read all label/value pairs in the period bar — value renders. **Craft:** put the progress bar beside a premium card — added matching shadow + accent rail + inset so it stops looking flat; made it sticky since a plan is long and progress should stay visible; re-checked it doesn't collide with the mobile header. Tests still 46/46. Quality gate clean.
+The three gates below (accessibility, performance, WebKit) are **transverse gates** — they are not tied to one surface×viewport cell. Run them here, before posting, and record each as a transverse ledger row (`Viewport = —`). Their thresholds live in this section; their *measured values* live in the ledger. A gate you could not measure this run is `not-evidenced`, never a declarative PASS.
 
-That report is honest. The user can immediately tell if you missed something — for instance, if your log never mentions a viewport, they know you only checked desktop; if it never mentions craft, they know you only checked correctness.
+### 12a — Accessibility, measured — contrast is CALCULATED, never estimated
+
+"Stays legible" judged by eye is **not** a contrast check. For **every** text/background pair in the palette, compute the WCAG ratio and record the number.
+
+- **Compute the ratio, don't eyeball it.** Two paths: (a) run `node scripts/contrast-check.mjs <fg> <bg> …` from the claude-skills repo — it takes hex pairs and prints ratio + AA verdict; or (b) inject the luminance formula in the running page via `preview_eval` / axe-core (`getComputedStyle` the real rendered colors, then apply the same `(L1+0.05)/(L2+0.05)` math). Prefer measuring the **rendered** colors when tokens resolve through CSS variables or alpha compositing — a token value in the source is not always the pixel a user sees.
+- **Blocking thresholds (WCAG AA):** **≥ 4.5:1** for body text, **≥ 3:1** for large text (≥ 24px, or ≥ 19px bold). Below the applicable threshold **fails the gate** — it is not a soft preference. Record the calculated ratio in a transverse row (`contraste corps · PASS 7.2:1 · contrast-check.mjs`).
+- **APCA is the complementary compass, not the gate.** For dark palettes and fine type, WCAG 2.x under-predicts real legibility; **APCA Lc ≥ 75 for body text** is the perceptual target worth aiming at. But **WCAG AA (the ratio above) remains the blocking gate** — APCA guides palette choices, it does not override the numeric gate.
+- **Keyboard focus.** Tab through **every** interactive element on the surface: each must show a **visible focus ring** (not clipped by an `overflow:hidden` ancestor — see Section 5), and there must be **no keyboard trap** (Tab always escapes; focus order is sane). A control reachable only by mouse fails.
+- **`prefers-reduced-motion` — test it once before delivery.** Enable the emulation (DevTools rendering panel, `preview_resize` colorScheme's motion sibling, or the OS setting) **one time before you ship** and reload. The site must stay **complete and usable**: parallax / scroll-zoom / auto-play replaced by plain fades or held stills — never content that vanishes or a layout that collapses. Screenshot it and record `reduced-motion · OS activé · PASS · shot_… (fades, site complet)`.
+
+### 12b — Performance budget — Web Vitals thresholds are non-conditional
+
+Any **new or animated** page carries a performance budget. These thresholds are **not conditional** on the project "feeling fast" — they are gates, and their measured values go in the transverse perf rows of the ledger.
+
+- **Blocking floor (minimum gate — every animated/new page):**
+  - **LCP < 2.5 s** on **mobile** (mobile is the floor, not desktop — a site that LCPs at 2 s on a laptop and 4 s on a phone fails).
+  - **CLS < 0.1**.
+  - **INP < 200 ms**.
+  - **Compositor-only animation:** animate `transform` and `opacity` **only**. Verify in the DevTools performance trace that **no purple "Layout" bars** appear during scroll/interaction. **Interdits** (never animate continuously): `width`, `height`, `top`/`left`/`right`/`bottom`, `margin`, `padding` — they trigger layout every frame and are the usual cause of jank.
+- **Award target (documented, distinct from the floor) — for an ambitious showcase:** **LCP < 1.5 s · CLS < 0.05 · INP < 100 ms**, with sustained **60 fps** on a mid-range mobile. This is the bar seen at award juries. It is a *target to aim at*, **not** the blocking gate — the floor above is what blocks; this is the ambition documented so the floor is never mistaken for the goal.
+- **Method of measurement (in order, and be honest about which one you got):**
+  1. **Lighthouse mobile** when the tooling allows it (Chrome MCP, or `npx lighthouse <url> --preset=perf --form-factor=mobile`).
+  2. Else **read `web-vitals` in the console** (import the library or the runtime already exposes LCP/CLS/INP).
+  3. Else **`not-evidenced`** in the ledger — **never** a declarative PASS. An un-measured vital is not a passing vital.
+- **Static checks always possible (no runtime needed):** images carry `width`/`height` **or** `aspect-ratio` (prevents CLS); `font-display: swap` with a metric-compatible fallback (prevents FOIT/late LCP); explicit JS budget if Three.js / heavy bundles (record the bundle weight).
+- **Watch the load, don't just trust the number.** Reload with the network throttled and **screenshot during the first render** to catch layout shift *visually* — a CLS number can pass while a hero visibly jumps; the eye catches what the metric averages out.
+
+### 12c — WebKit / Safari pass before client delivery
+
+Before **any client delivery**, run a WebKit pass on the **key surfaces** — because Safari is the majority browser on the iOS phones that visit showcase sites, and `backdrop-filter`, viewport units, and `position: sticky` diverge from Chrome there **regularly**.
+
+- **Key surfaces to re-verify in WebKit:** the **hero**, the **sticky nav**, **forms**, and **any surface** using `backdrop-filter`, `position: sticky`, `100vh`/`100dvh`, or scroll-driven animations. These are exactly where Chrome-green does not imply Safari-green.
+- **Method, in order of preference:**
+  1. **Playwright WebKit headless** — `npx playwright screenshot --browser=webkit <url> shot.png` (or a short Playwright script driving `webkit` for interaction states).
+  2. **Safari via computer-use** if Playwright's WebKit is unavailable.
+  3. Else **`not-evidenced`** consigned in the ledger — never a declarative "works in Safari."
+- Record a transverse row per key surface checked (`hero · WebKit · PASS · shot_…` or `not-evidenced`).
+
+### Post the ledger under the exact `VERIFICATION LEDGER` marker
+
+Post it under a heading that contains the **exact** string `VERIFICATION LEDGER` — e.g. `## VERIFICATION LEDGER — {project} — {date}`. This exact marker is how the user and tooling locate the ledger; paraphrases ("verification table", "QA ledger") do not count. Use the table shape from Section 1e: per-cell rows + transverse rows, one row per cell actually executed, a real proof in every PASS cell, `not-evidenced` on every cell you could not render.
+
+### The objective exit condition
+
+The ledger is a valid "done" only when **every cell is PASS with evidence**. Specifically:
+
+- No cell is left `not-evidenced` (each is either PASS-with-proof, or an explicitly recorded, user-approved scope reduction).
+- No device class (320/360/375/768/desktop) was skipped — a missing class makes the whole verdict `INVALID`, not merely incomplete.
+- Any reduction of scope is written into the ledger with the user's approval noted — you do not silently narrow what "done" means.
+
+This replaces the old subjective "zero issues at the scope level the user cares about." The ledger, not a feeling, is the exit gate.
+
+### Auditable escape hatch — `LEDGER-EXEMPT`, never silent
+
+If a turn that runs after this skill was invoked is legitimately **not** a UI turn — the user pivoted to an unrelated question, or the work was a pure non-visual change with nothing to render — you may skip the ledger, but only by writing the exact line `LEDGER-EXEMPT: <reason>` on that turn, stating why no ledger applies. Every turn that would otherwise declare UI work done must carry **either** a `VERIFICATION LEDGER` heading **or** a `LEDGER-EXEMPT:` line. An omission with neither is a protocol violation, not a shortcut.
 
 ---
 

@@ -60,7 +60,7 @@ For any request that triggers this skill, run the loop:
    loop back       declare done
 ```
 
-Repeat until the verify phase finds zero issues at the scope level the user cares about. **Do not declare a UI change "done" without completing the verify phase at least once.**
+Repeat until **every cell of the Verification Ledger is PASS with evidence** (see Phase 2). The exit condition is objective, not a feeling: not "zero issues at the scope the user cares about," but a posted ledger in which no cell is left `not-evidenced` and any scope reduction was explicitly approved by the user and recorded. **Do not declare a UI change "done" without posting a completed Verification Ledger** — the ledger *is* the definition of done.
 
 ## Phase 1 — Design
 
@@ -97,6 +97,19 @@ When phase 1 is "complete enough to look at," move immediately to phase 2 — do
 
 ## Phase 2 — Verify (the non-negotiable loop)
 
+The output of this phase is one artifact: the **Verification Ledger** — an accountable table posted in the chat, not a prose "looks good." It replaces self-attestation. The full format, the two families of rows, the honesty rule, and the objective exit condition live in **[references/visual-qa-checklist.md](references/visual-qa-checklist.md)** Sections 1 (build the matrix → ledger) and 12 (post the completed ledger). The essentials:
+
+- **Post the scope matrix as a table in the chat *before* the first screenshot.** A matrix "in your head" does not exist. On a **full-site build**, the matrix is the inventory pages × sections × viewports (there is no "changed CSS" scope on greenfield).
+- **Viewports include 320/360 (small-mobile).** The verdict is **invalid** if a device class was never actually rendered — a binary gate, not a nicety.
+- **A cell that was not rendered is `not-evidenced`, never PASS.** A PASS requires a real proof: a screenshot ID plus the measured value where applicable (`scrollWidth/clientWidth`, contrast ratio, touch-target px).
+- **Objective exit condition:** every ledger cell is PASS with evidence; any scope reduction is explicitly approved by the user and recorded in the ledger. There is no subjective "scope the user cares about."
+
+### The VERIFICATION LEDGER marker (mandatory, machine-checkable)
+
+Post the ledger under a heading that contains the **exact** string `VERIFICATION LEDGER` (e.g. `## VERIFICATION LEDGER — {project} — {date}`). This exact marker is how tooling (and the user) locate the ledger; do not paraphrase it ("verification table", "QA ledger", etc. do not count).
+
+**Auditable escape hatch — never silent.** If a turn that runs after this skill was invoked is legitimately **not** a UI turn (e.g. the user pivoted to an unrelated question, or the work was a pure non-visual refactor with nothing to render), you may skip the ledger — but only by writing, in that turn, the exact line `LEDGER-EXEMPT: <reason>` stating why no ledger applies. This is an explicit, logged exception, never an implicit omission: either a `VERIFICATION LEDGER` heading or a `LEDGER-EXEMPT:` line must appear on any turn that would otherwise declare UI work done.
+
 **Consume the design-intent contract.** If Phase 1 loaded a `design-intent.md`, its **TESTABLE CRITERIA become additional lines of the Verification Ledger** — one ledger row per criterion, each demanding a real measured proof, never a declarative PASS. The design-intent's motion stance and art direction are checked here the same way.
 
 **Tooling correspondence — measure, don't guess from a screenshot:**
@@ -113,7 +126,7 @@ Every fallback actually used is recorded in the ledger (which tool produced whic
 
 Read **[references/visual-qa-checklist.md](references/visual-qa-checklist.md)** — that file is the operational core of this skill. The headlines:
 
-1. **Identify what's in scope — as a matrix, not a list.** List every visual surface the change could plausibly affect, not just the one you intended to fix (removing `overflow: hidden` changes clipping for descendants; `isolation: isolate` can hide popups; a parent background can leak through a now-transparent child). Then make it two-dimensional: verification runs over **surfaces × viewports** (mobile ~375px, tablet ~768px, desktop) — and × theme if the app has light/dark. A surface seen at one viewport is not verified. Critically, mark which surfaces are **interaction-reached** — modals, drawers, detail views, popovers, expanded rows, anything behind a click or a route change. Resizing the browser does not re-open those, so they are the cells most often left untested. Write the matrix down before opening the browser.
+1. **Identify what's in scope — as a matrix posted in the chat, not a list in your head.** List every visual surface the change could plausibly affect, not just the one you intended to fix (removing `overflow: hidden` changes clipping for descendants; `isolation: isolate` can hide popups; a parent background can leak through a now-transparent child). Then make it two-dimensional: verification runs over **surfaces × viewports** (**320/360 small-mobile**, 375px mobile, ~768px tablet, desktop) — and × theme if the app has light/dark. On a **full-site build** the matrix is the inventory pages × sections × viewports. A surface seen at one viewport is not verified; a device class never rendered makes the whole verdict **invalid** (binary gate). Mark which surfaces are **interaction-reached** — modals, drawers, detail views, popovers, expanded rows, anything behind a click or a route change. Resizing the browser does not re-open those, so they are the cells most often left untested. **Post this matrix as a table in the chat *before* the first screenshot** — the ledger grows from it (checklist §1).
 
 2. **Open the running app — never trust HMR alone.** Connect via the appropriate browser MCP (Chrome MCP for web apps, computer-use for native apps, whatever the user's setup uses). If a dev server is already running, use it. If the app is in an iframe (Power Apps, Salesforce embeds, etc.), read **[references/iframe-and-host-shells.md](references/iframe-and-host-shells.md)** before debugging — iframe context flips a lot of normal CSS behavior.
 
@@ -137,7 +150,7 @@ Read **[references/visual-qa-checklist.md](references/visual-qa-checklist.md)** 
 
 7. **Read every label/value pair and counter.** Silent text disappearance is one of the most embarrassing failure modes. After any layout change near text content, visually confirm that every label has its value, every counter has its number, every chip has its content.
 
-8. **Run the responsive sweep, then stress-test data states.** A viewport pass is not "resize the browser and glance at the current page." Resizing does not re-open a modal, a drawer, or a detail view — the interaction that opened it has to be redone. So for each viewport (~375px mobile, ~768px tablet, desktop), re-walk the full surface list from step 1, and **re-trigger every interaction-reached view at that viewport**. Check each surface for horizontal overflow (`scrollWidth` should equal `clientWidth` — a page wider than the viewport spills images, buttons and text off the right edge), adapting layout, non-overlapping controls, and touch targets (**gate: ≥ 24×24 px, WCAG 2.5.8 AA**; **premium target: ≥ 44×44 px, WCAG 2.5.5 AAA / Apple HIG**). Then stress-test data states: empty (layout shouldn't collapse), single item, many items (scroll past a viewport — background still covers? state leaking between rows?), and long strings (ellipsize gracefully, or break the layout?).
+8. **Run the responsive sweep, then stress-test data states.** A viewport pass is not "resize the browser and glance at the current page." Resizing does not re-open a modal, a drawer, or a detail view — the interaction that opened it has to be redone. So for each viewport (**320/360 small-mobile**, ~375px mobile, ~768px tablet, desktop), re-walk the full surface list from step 1, and **re-trigger every interaction-reached view at that viewport**. Check each surface for horizontal overflow (`scrollWidth` should equal `clientWidth` — a page wider than the viewport spills images, buttons and text off the right edge), adapting layout, non-overlapping controls, and touch targets (**gate: ≥ 24×24 px, WCAG 2.5.8 AA**; **premium target: ≥ 44×44 px, WCAG 2.5.5 AAA / Apple HIG**). Then stress-test data states: empty (layout shouldn't collapse), single item, many items (scroll past a viewport — background still covers? state leaking between rows?), and long strings (ellipsize gracefully, or break the layout?).
 
 9. **Run the reading-ergonomics pass.** Correctness (no overflow, no clip, no regression) is table stakes, not the finish line. For any surface a user *reads or scans* — docs, tables, dashboards, forms — ask whether it's comfortable to live in for ten minutes: reading measure (~50–90 chars/line), chrome-to-content ratio (is a fat sidebar crowding a cramped reading column?), and scroll-cost of dense content (does a wide table force panning for *every* row?). These pass every correctness check and still get bounced back. Crucially: **if you measure a deficiency, apply the fix this pass or surface it — never ship a flaw you already diagnosed.**
 
@@ -157,9 +170,9 @@ The two-phase loop above is the **incremental** QA that runs *during* the build 
 
 The skill ships with a paired sub-agent — `visual-qa-inspector` — defined at `~/.claude/agents/visual-qa-inspector.md`. **The agent file MUST live in `.claude/agents/`, not inside this skill folder** — Claude Code only auto-discovers sub-agents at that path (or in plugin `agents/` folders). Skills and sub-agents are separate primitives by design: a skill teaches the current context how to do something, a sub-agent delegates the task to an isolated context that returns only a final report. See **[references/agent-dispatch.md](references/agent-dispatch.md)** for the full briefing template and **[references/packaging-as-plugin.md](references/packaging-as-plugin.md)** if you want to ship the skill + agent as one distributable unit.
 
-Dispatch the agent via the Agent tool with `subagent_type: visual-qa-inspector`. Use it when:
+Dispatch the agent via the Agent tool with `subagent_type: visual-qa-inspector`. Its **output is the Verification Ledger itself** (see agent-dispatch.md) — not a 300-word summary. Use it when:
 
-- The change touches more than ~3 components.
+- **The change touches more than 3 components — dispatch is blocking, not optional** (above that count, verifying inline in a context already loaded with design decisions is exactly where cells get rubber-stamped).
 - You're under heavy context pressure (long session, many open threads).
 - You catch yourself thinking *"the design probably works, I'll just take one screenshot to confirm"* — that exact thought is the cue to delegate. The agent runs Sonnet in a fresh context, which makes it cheaper and more disciplined than the parent that's been juggling design decisions for an hour.
 
