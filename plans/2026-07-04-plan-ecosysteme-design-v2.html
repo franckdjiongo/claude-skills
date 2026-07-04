@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<script type="application/json" id="ws-review-state">{"schemaVersion":1,"updatedAt":"2026-07-04T14:08:03.867Z","threads":[{"id":"th-641a7b86","resolved":false,"messages":[{"id":"m-62b7e72c","author":"user","body":"Je pense que je vais désactiver le front-end design skill, parce que c'est un skill qui a été développé par Anthropic globalement. Je vais le désactiver, je vais utiliser que mes propres skills. Maintenant penses-tu que les trois skills là, Brand Forge, Ship Policy UI et le Design Elevation, penses-tu qu'on doit tous les merger à un seul plugin? Je dis juste. Et aussi, c'est vrai que j'utilise ça pour mon entreprise, pour développer les sites web, mais je peux aussi utiliser pour mon travail. Par exemple, dans Gilbert, je pourrais l'utiliser pour les projets que je fais sur Gilbert, par exemple le temps chantier, le projet temps chantier. Et aussi, qu'est-ce que tu en penses du fait qu'actuellement dans chaque projet, le meta-govern skill, lui, va set up des agents de développement pour faire le UI. Penses-tu qu'au lieu d'utiliser les agents de UI, on utilise plutôt nos skills pour faire le UI? Je dis juste tout ça comme ça. C'est à toi de me dire ce que tu en penses. Parce que je veux un workflow complet, en fait, de design, comme ce que tu es en train de me proposer là. J'adore un peu l'architecture cible du pipeline que tu me proposes là. Mais j'essaie maintenant beaucoup plus de voir comment globaliser ça pour que ça soit mon système de design complet quoi. Tu vois un peu?","createdAt":"2026-07-04T06:37:07.112Z"},{"id":"m-1681b665","author":"claude","body":"Intégré au plan (v2.1). Mes réponses : (1) frontend-design désactivé → OUI, et le plan en tire les conséquences : WP-09 crée references/design-direction.md, la doctrine de goût MAISON de ship-polished-ui (les 12 règles award de l'annexe A1 + references-first + stratégie média) ; WP-03 supprime toute dépendance au skill Anthropic. Ton système devient 100 % tes skills. (2) Merger en un plugin unique → OUI mais pas tout de suite : nouvelle décision D6 — un plugin « design-studio » (3 skills distincts + l'agent visual-qa-inspector, structure identique à design-forge) en Phase G, APRÈS stabilisation A-F. Les fusionner en un seul skill recréerait le problème de routage qu'on vient de résoudre ; les empaqueter ensemble, oui. (3) Gilbert/Temps Chantier → §05 précise la portée : skills user-level, pipeline valable partout ; pour un outil interne, brand-forge optionnel (la charte de l'employeur sert de brand-package). (4) meta-govern → nouvelle décision D7 : le bon modèle est « l'agent invoque le skill » — les agents UI scaffoldés par meta-govern deviennent de minces exécutants qui suivent ship-polished-ui, au lieu de dupliquer une doctrine qui dérive. Chantier séparé dans meta-govern, après la Phase F.","createdAt":"2026-07-04T13:42:49.317Z"}],"createdAt":"2026-07-04T06:37:07.112Z","updatedAt":"2026-07-04T13:42:49.317Z","lastResolvedStatus":"general"},{"id":"th-4eff0b9f","resolved":false,"messages":[{"id":"m-361c69ec","author":"user","body":"Il y a aussi certaines choses que j'ai oublié de te mentionner. J'ai remarqué aussi que sur certains sites, et c'est ce que je fais le moins, je veux commencer aussi à beaucoup faire. Les gens utilisent beaucoup des images, utilisent beaucoup des vidéos animées en arrière-plan, et des vidéos et images animées et tout. J'aime aussi beaucoup cette ça. Et comme moi j'ai accès à ChatGPT et Gemini pour créer les images, ça pourrait aussi m'aider. Ou peut-être que je pourrais aussi, il y a un outil qui permet d'utiliser Sidence 2 pour créer les vidéos. Je dis juste comme ça, peut-être c'est aussi quelque chose que je devais intégrer aussi dans mes designs. Mais c'est quelque chose qui devait être décidé, car à chaque fois que je veux, quand je suis déjà dans un site ou une application web ou une application mobile, mon blogu ou mes skills vont savoir c'est quoi le choix du design qu'il faut. Ça doit toujours être adapté au site, au produit et au projet sur lequel je travaille. Tu vois un peu ce que je veux dire?","createdAt":"2026-07-04T06:39:03.695Z"},{"id":"m-7d9dab56","author":"claude","body":"Intégré au plan (v2.1) — et c'est exactement le bon réflexe : le média riche est un choix de direction artistique, pas un défaut. Concrètement : (1) la Design Spec (WP-09, gabarit A4) gagne une rubrique 7 « Stratégie média » — photo client / images IA / vidéo d'ambiance / illustration / 3D / aucun — TOUJOURS justifiée par le produit (nouvelle règle A1-14 : vidéo de fond sur un portail dense = erreur ; sur une vitrine émotionnelle = différenciateur). (2) Nouvelle section A2-⑨ du playbook : règles techniques des vidéos d'ambiance (autoplay muted playsinline + poster obligatoire comme élément LCP, H.265/AV1 ≤ 4-6 Mo, pause si prefers-reduced-motion, image fixe servie sur mobile) et des images IA (série cohérente même seed stylistique — une série incohérente est un tell IA aussi fort qu'Inter ; AVIF/WebP, aspect-ratio systématique). (3) Production routée vers TES skills existants : chatgpt-image-prompt-architect (OpenAI) et nano-banana-prompt-engineer (Gemini) pour les images, ton outil vidéo (Seedance/équivalent) pour les vidéos — toujours À PARTIR de la direction artistique de la Spec, jamais un prompt improvisé.","createdAt":"2026-07-04T13:42:56.864Z"}],"createdAt":"2026-07-04T06:39:03.695Z","updatedAt":"2026-07-04T13:42:56.864Z","lastResolvedStatus":"general"},{"id":"th-7f5d55e0","anchor":{"quote":"D1 — Re-scoper design-elevation aux artefacts documentaires : OK ? C'est le changement de rôle le plus visible du plan. Il résout la collision de déclenchement (constat 01) et reste compatible avec ta règle « plans HTML via design-elevation ». L'alternative (garder design-elevation généraliste) maintient le risque qu'un site client parte sans QA navigateur. Recommandation : OUI — design-elevation devient le skill des livrables documentaires ; ship-polished-ui l'entrée unique des sites."},"resolved":false,"messages":[{"id":"m-791159b7","author":"user","body":"OUI suis daccord","createdAt":"2026-07-04T14:02:20.153Z"}],"createdAt":"2026-07-04T14:02:20.153Z","updatedAt":"2026-07-04T14:02:20.153Z","lastResolvedStatus":"anchored"},{"id":"th-176000f8","anchor":{"quote":"D2 — Hook Stop de blocage du « done » sans ledger : maintenant ou plus tard ? Le ledger (WP-04) fonctionne par discipline de skill ; un hook le rend inviolable (même mécanique que tes quality-gates). Coût : un script hook + wiring settings.json, et un risque de friction sur les sessions non-UI s'il est mal ciblé (il faut détecter que ship-polished-ui est actif dans la session). Recommandation : PLUS TARD — livrer d'abord le ledger par skill (phases A-F), observer 2-3 sessions réelles, puis créer le hook via claude-hook-creator si la dérive persiste. Le run-témoin commité du WP-04 et la gate verify-e2e.mjs du WP-16 couvrent la fenêtre intermédiaire : le mécanisme est prouvé fonctionnel même sans hook."},"resolved":false,"messages":[{"id":"m-344423da","author":"user","body":"Tu sais que je préfère toujours la solution optimale et que on a pensé à tous les cas critiques. Donc tu peux recommander plus tard, mais si tu réévalues et que tu vois qu'il faut le faire plus tôt, je pense qu'il faut, tu le fais. Parce que actuellement, tous les hooks que j'ai sur place sur cette machine fonctionnent très bien. Tu vois un peu ce que je veux dire.","createdAt":"2026-07-04T14:03:30.900Z"}],"createdAt":"2026-07-04T14:03:30.900Z","updatedAt":"2026-07-04T14:03:30.900Z","lastResolvedStatus":"anchored"},{"id":"th-c2aa7942","anchor":{"quote":"D3 — Toucher design-forge (design-intent : critères perf + motion stance enrichie ; phrase de répartition QA) ? design-forge v1.1 vient d'être livré et il est hors périmètre déclaré. Mais deux items du plan (WP-06, WP-08) gagneraient à enrichir le template design-intent (TESTABLE CRITERIA perf, motion stance structurée), et le WP-02 écrit la répartition QA côté ship seulement. Recommandation : OUI, en phase F uniquement — un WP-17 optionnel, petit et isolé (template design-intent + 1 phrase dans la description design-forge), une fois les phases A-E validées."},"resolved":false,"messages":[{"id":"m-91b0ce87","author":"user","body":"Oui","createdAt":"2026-07-04T14:04:03.472Z"}],"createdAt":"2026-07-04T14:04:03.472Z","updatedAt":"2026-07-04T14:04:03.472Z","lastResolvedStatus":"anchored"},{"id":"th-06e3dadf","anchor":{"quote":"D4 — brand-forge : garder le mode « équipe » en option si l'API revient ? Le WP-12 fait du séquentiel le mode principal. On peut garder un paragraphe « si un mécanisme d'équipes est disponible, les rôles peuvent tourner en parallèle » — ou purger complètement pour la simplicité. Recommandation : PURGER — le pipeline est intrinsèquement séquentiel (chaque rôle dépend du précédent) ; le parallélisme n'apportait rien que de la fragilité."},"resolved":false,"messages":[{"id":"m-b8e69ed0","author":"user","body":"Parfait","createdAt":"2026-07-04T14:04:32.217Z"}],"createdAt":"2026-07-04T14:04:32.217Z","updatedAt":"2026-07-04T14:04:32.217Z","lastResolvedStatus":"anchored"},{"id":"th-0ba5a36a","anchor":{"quote":"D5 — Périmètre du test de bout en bout (WP-16) : projet jetable ou vrai projet ? Le plan prévoit une landing jetable. Alternative : utiliser un vrai besoin (ex. la landing HtmlShare jamais lancée, ou une page Brillance Décor) pour que le test produise de la valeur réelle. Recommandation : VRAI PROJET (HtmlShare) SI tu annotes ce fil avec le chemin du repo HtmlShare — même effort, valeur doublée. Défaut en session autonome sans annotation : landing jetable minimale (le plan ne fournit pas le chemin HtmlShare ; un exécutant ne doit pas le deviner)."},"resolved":false,"messages":[{"id":"m-e0d17820","author":"user","body":"/Users/elmabi/Desktop/my-projets/htmlshare","createdAt":"2026-07-04T14:06:02.392Z"}],"createdAt":"2026-07-04T14:06:02.392Z","updatedAt":"2026-07-04T14:06:02.392Z","lastResolvedStatus":"anchored"},{"id":"th-7a2ba59d","anchor":{"quote":"D6 — Merger les 3 skills en un plugin unique « design-studio » ? (question Galley th-641a7b86) Un plugin peut embarquer plusieurs skills + agents (c'est la structure de design-forge : skills/ + agents/ + .claude-plugin/plugin.json). Merger ≠ fusionner : les 3 skills gardent leurs déclencheurs et responsabilités distincts (les fusionner en un seul SKILL.md recréerait le problème de routage qu'on vient de résoudre), mais un plugin unique donne : versionnage cohérent de l'écosystème, distribution en un geste (autres machines, cloud runs), et l'agent visual-qa-inspector embarqué proprement dans agents/ au lieu de ~/.claude/agents/. Recommandation : OUI, mais en Phase G séparée, APRÈS validation des phases A-F — empaqueter des skills encore instables figerait des bugs. Suivre references/packaging-as-plugin.md (mis à jour au WP-03). Ce sera alors ton système de design complet, distributable : brand-forge + ship-polished-ui + design-elevation + visual-qa-inspector sous un même toit, aux côtés du plugin design-forge."},"resolved":false,"messages":[{"id":"m-240cd226","author":"user","body":"Je valide. Aussi, j'ai un skill qui me permet de créer le plugin. Il faut aussi évaluer ce skill-là pour s'assurer qu'il est bon.","createdAt":"2026-07-04T14:07:14.196Z"}],"createdAt":"2026-07-04T14:07:14.196Z","updatedAt":"2026-07-04T14:07:14.196Z","lastResolvedStatus":"anchored"},{"id":"th-07a0d77c","anchor":{"quote":"D7 — meta-govern : les agents UI des projets doivent-ils être remplacés par ces skills ? (question Galley th-641a7b86) Aujourd'hui meta-govern scaffolde des agents de développement UI par projet, avec leur propre doctrine embarquée — un troisième endroit où du savoir design vit et dérive. Skills et agents ne s'opposent pas : le bon modèle est l'agent invoque le skill — les agents UI générés par meta-govern deviennent de minces exécutants dont le prompt dit « suis ship-polished-ui (Design Spec → build → Verification Ledger) », au lieu de dupliquer des règles design qui vieilliront. Recommandation : OUI, chantier séparé dans meta-govern (hors périmètre de ce plan) : mettre à jour les templates d'agents UI de meta-govern pour référencer les skills comme source de doctrine unique. À lancer après la Phase F, quand les skills seront stabilisés — sinon meta-govern pointerait vers une cible mouvante."},"resolved":false,"messages":[{"id":"m-58c6d3e1","author":"user","body":"Excellent, c'est bon. Je l'inclus dans ce plan. Il faudrait que tu le fasses. Merci.","createdAt":"2026-07-04T14:08:03.783Z"}],"createdAt":"2026-07-04T14:08:03.783Z","updatedAt":"2026-07-04T14:08:03.783Z","lastResolvedStatus":"anchored"}]}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan — Écosystème design AutoMintech v2 (design-elevation · ship-polished-ui · brand-forge)</title>
+<style>
+  :root{
+    --paper:#f7f3ea; --paper-deep:#efe8da; --ink:#211d17; --ink-soft:#5c554a;
+    --oxide:#a63d1a; --oxide-soft:#c96a45; --oxide-wash:#f3e0d6;
+    --moss:#4a5d3a; --moss-wash:#e6ead9;
+    --slate:#2e3a45; --slate-wash:#e3e8ec;
+    --gold:#8a6d1f;
+    --line:#d8cfbd; --line-strong:#b8ab90;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    --serif:"Iowan Old Style","Palatino Nova",Palatino,"Book Antiqua",Georgia,serif;
+    --sans:"Avenir Next",Avenir,"Segoe UI",Frutiger,Corbel,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:var(--serif); font-size:17px; line-height:1.62;
+    background-image:radial-gradient(rgba(33,29,23,.028) 1px, transparent 1.2px);
+    background-size:26px 26px;
+  }
+  .wrap{max-width:1060px;margin:0 auto;padding:0 clamp(18px,4vw,56px) 120px}
+
+  /* ---------- Masthead ---------- */
+  header.masthead{padding:clamp(40px,7vw,88px) 0 40px;border-bottom:3px double var(--line-strong)}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--oxide);display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .kicker .dot{width:7px;height:7px;border-radius:50%;background:var(--oxide);display:inline-block}
+  h1{font-size:clamp(34px,5.4vw,58px);line-height:1.06;font-weight:700;letter-spacing:-.015em;margin:20px 0 14px;max-width:19ch}
+  h1 em{font-style:italic;color:var(--oxide)}
+  .standfirst{font-size:clamp(17px,2vw,21px);color:var(--ink-soft);max-width:62ch;font-style:italic}
+  .meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:34px}
+  .meta-grid>div{background:var(--paper);padding:12px 16px}
+  .meta-grid .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+  .meta-grid .v{font-family:var(--sans);font-size:14.5px;font-weight:600;margin-top:3px}
+
+  /* ---------- TOC ---------- */
+  nav.toc{margin:36px 0 0;border:1px solid var(--line);background:var(--paper-deep);padding:22px 26px}
+  nav.toc .t{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:12px}
+  nav.toc ol{list-style:none;columns:2;column-gap:40px}
+  nav.toc li{margin:5px 0;break-inside:avoid;font-family:var(--sans);font-size:14.5px}
+  nav.toc a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line-strong)}
+  nav.toc a:hover{color:var(--oxide);border-color:var(--oxide)}
+  nav.toc .num{font-family:var(--mono);color:var(--oxide);font-size:12px;margin-right:8px}
+  @media(max-width:700px){nav.toc ol{columns:1}}
+
+  /* ---------- Sections ---------- */
+  section{margin-top:clamp(56px,8vw,96px)}
+  .sec-head{display:flex;align-items:baseline;gap:18px;border-bottom:1px solid var(--line-strong);padding-bottom:12px;margin-bottom:30px}
+  .sec-head .no{font-family:var(--mono);font-size:14px;color:var(--oxide);letter-spacing:.08em}
+  h2{font-size:clamp(24px,3.4vw,34px);letter-spacing:-.01em;font-weight:700}
+  h3{font-family:var(--sans);font-size:19px;font-weight:700;margin:34px 0 12px;letter-spacing:-.005em}
+  p{margin:12px 0;max-width:74ch}
+  p.lede{font-size:18.5px}
+  strong{font-weight:700}
+  ul,ol{margin:12px 0 12px 26px;max-width:72ch}
+  li{margin:6px 0}
+  code{font-family:var(--mono);font-size:.84em;background:var(--slate-wash);padding:1px 6px;border-radius:3px;color:var(--slate)}
+  pre{background:#26221c;color:#efe8da;font-family:var(--mono);font-size:13px;line-height:1.55;padding:18px 20px;overflow-x:auto;margin:16px 0;border-left:3px solid var(--oxide)}
+  pre code{background:none;color:inherit;padding:0;font-size:inherit}
+  a{color:var(--oxide)}
+
+  /* ---------- Scorecards ---------- */
+  .scorecards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin:26px 0}
+  .scorecard{border:1px solid var(--line-strong);background:#fffdf8;padding:22px 24px;position:relative}
+  .scorecard::before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--card-c,var(--oxide))}
+  .scorecard h4{font-family:var(--mono);font-size:14px;letter-spacing:.04em;margin-bottom:4px}
+  .scorecard .verdict{font-family:var(--sans);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--card-c,var(--oxide))}
+  .scorecard .bar{height:8px;background:var(--paper-deep);border:1px solid var(--line);margin:14px 0 6px;position:relative}
+  .scorecard .bar i{position:absolute;inset:0 auto 0 0;background:var(--card-c,var(--oxide));width:var(--pct)}
+  .scorecard .pct{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft)}
+  .scorecard p{font-size:14.5px;font-family:var(--sans);color:var(--ink-soft);margin-top:10px;line-height:1.5}
+
+  /* ---------- Constats ---------- */
+  .constats{counter-reset:c;margin:20px 0}
+  .constat{display:grid;grid-template-columns:52px 1fr;gap:16px;padding:16px 0;border-bottom:1px solid var(--line)}
+  .constat::before{counter-increment:c;content:counter(c,decimal-leading-zero);font-family:var(--mono);font-size:22px;color:var(--oxide);line-height:1.2}
+  .constat b{font-family:var(--sans);font-size:16px;display:block;margin-bottom:3px}
+  .constat span{font-family:var(--sans);font-size:14.5px;color:var(--ink-soft);line-height:1.55;display:block;max-width:80ch}
+
+  /* ---------- Pipeline diagram ---------- */
+  .pipeline{margin:30px 0;overflow-x:auto;padding-bottom:8px}
+  .pipe-row{display:flex;align-items:stretch;gap:0;min-width:900px}
+  .pipe-node{flex:1;border:1.5px solid var(--ink);background:#fffdf8;padding:16px 18px;position:relative}
+  .pipe-node+.pipe-node{margin-left:34px}
+  .pipe-node+.pipe-node::before{content:"";position:absolute;left:-35px;top:50%;width:34px;height:1.5px;background:var(--ink)}
+  .pipe-node+.pipe-node::after{content:"";position:absolute;left:-9px;top:50%;transform:translateY(-50%) rotate(45deg);width:7px;height:7px;border-top:1.5px solid var(--ink);border-right:1.5px solid var(--ink)}
+  .pipe-node .role{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--oxide)}
+  .pipe-node .name{font-family:var(--sans);font-weight:700;font-size:15.5px;margin:4px 0 6px}
+  .pipe-node .does{font-family:var(--sans);font-size:12.5px;color:var(--ink-soft);line-height:1.45}
+  .pipe-artifacts{display:flex;min-width:900px;margin-top:10px}
+  .pipe-artifacts .art{flex:1;font-family:var(--mono);font-size:11px;color:var(--moss);padding:0 6px}
+  .pipe-artifacts .art+.art{margin-left:34px}
+  .pipe-artifacts .art::before{content:"⭳ ";color:var(--moss)}
+
+  /* ---------- Tables ---------- */
+  table{border-collapse:collapse;width:100%;margin:18px 0;font-family:var(--sans);font-size:14px}
+  .tbl-scroll{overflow-x:auto}
+  th{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;text-align:left;color:var(--ink-soft);border-bottom:2px solid var(--ink);padding:8px 12px 8px 0;white-space:nowrap}
+  td{border-bottom:1px solid var(--line);padding:9px 12px 9px 0;vertical-align:top;line-height:1.5}
+  td code{white-space:nowrap}
+
+  /* ---------- Phases & WP cards ---------- */
+  .phase{margin-top:48px;border-top:3px solid var(--ink);padding-top:8px}
+  .phase-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+  .phase-head h3{margin:6px 0 4px;font-size:22px}
+  .phase-head .tag{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:4px 10px}
+  .phase-intro{font-family:var(--sans);font-size:14.5px;color:var(--ink-soft);max-width:78ch;margin-bottom:8px}
+  .wp{border:1px solid var(--line-strong);background:#fffdf8;margin:22px 0;position:relative}
+  .wp-head{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .wp-id{font-family:var(--mono);font-size:13px;font-weight:700;color:#fffdf8;background:var(--oxide);padding:5px 10px;letter-spacing:.05em}
+  .wp-title{font-family:var(--sans);font-weight:700;font-size:16.5px;flex:1;min-width:220px}
+  .wp-effort{font-family:var(--mono);font-size:11px;color:var(--ink-soft);border:1px solid var(--line-strong);padding:3px 9px;white-space:nowrap}
+  .wp-body{padding:16px 22px 20px}
+  .wp-body .files{font-family:var(--mono);font-size:12px;color:var(--slate);background:var(--slate-wash);padding:8px 12px;margin:8px 0 14px;line-height:1.7;overflow-x:auto}
+  .wp-body h5{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--oxide);margin:16px 0 6px}
+  .wp-body ul,.wp-body ol{font-family:var(--sans);font-size:14.5px;margin-left:22px}
+  .wp-body p{font-family:var(--sans);font-size:14.5px}
+  .ac{list-style:none;margin-left:0 !important}
+  .ac li{padding-left:28px;position:relative}
+  .ac li::before{content:"";position:absolute;left:2px;top:5px;width:13px;height:13px;border:1.5px solid var(--moss);background:var(--moss-wash)}
+  .trace{font-family:var(--mono);font-size:11px;color:var(--ink-soft);margin-top:14px;border-top:1px dashed var(--line);padding-top:8px}
+  .trace b{color:var(--moss);font-weight:600}
+
+  /* ---------- Callouts ---------- */
+  .callout{border:1px solid var(--line-strong);border-left:5px solid var(--oxide);background:var(--oxide-wash);padding:16px 20px;margin:22px 0;font-family:var(--sans);font-size:14.5px;max-width:none}
+  .callout.moss{border-left-color:var(--moss);background:var(--moss-wash)}
+  .callout.slate{border-left-color:var(--slate);background:var(--slate-wash)}
+  .callout b{display:block;margin-bottom:4px;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+
+  /* ---------- Annexe rules ---------- */
+  .rulebook{counter-reset:r}
+  .rule{display:grid;grid-template-columns:88px 1fr;gap:14px;padding:12px 0;border-bottom:1px solid var(--line);font-family:var(--sans);font-size:14.5px}
+  .rule .rid{font-family:var(--mono);font-size:12px;color:var(--oxide);font-weight:700;padding-top:2px}
+  .rule b{font-weight:700}
+  .rule .why{color:var(--ink-soft);font-size:13.5px;display:block;margin-top:3px}
+
+  /* ---------- Decisions ouvertes ---------- */
+  .decision{border:1.5px dashed var(--oxide);background:#fffdf8;padding:16px 20px;margin:16px 0;font-family:var(--sans);font-size:14.5px}
+  .decision .q{font-weight:700;margin-bottom:6px}
+  .decision .rec{margin-top:8px}
+  .decision .rec b{color:var(--moss)}
+
+  footer{margin-top:90px;border-top:3px double var(--line-strong);padding-top:22px;font-family:var(--mono);font-size:12px;color:var(--ink-soft);line-height:1.8}
+  @media(max-width:640px){
+    .constat{grid-template-columns:38px 1fr}
+    .rule{grid-template-columns:70px 1fr}
+    body{font-size:16px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="kicker"><span class="dot"></span> AutoMintech — Atelier design <span class="dot"></span> Plan d'exécution autonome <span class="dot"></span> claude-skills</div>
+  <h1>Écosystème design <em>v2</em> — du « déclaré testé » au <em>prouvé pixel-perfect</em></h1>
+  <p class="standfirst">Refonte coordonnée de design-elevation, ship-polished-ui et brand-forge pour que chaque site livré par l'agence semble sorti des mains d'un designer de 15 ans d'expérience — animations, scroll effects et 3D compris — même quand c'est Sonnet 5 qui exécute.</p>
+  <div class="meta-grid">
+    <div><div class="k">Date</div><div class="v">4 juillet 2026</div></div>
+    <div><div class="k">Auteur</div><div class="v">Fable 5 (audit ultracode ×2)</div></div>
+    <div><div class="k">Exécutant cible</div><div class="v">Sonnet 5 — sessions autonomes</div></div>
+    <div><div class="k">Périmètre modifiable</div><div class="v">3 skills + scripts + registres</div></div>
+    <div><div class="k">Base d'évidence</div><div class="v">11 agents · 3 recherches · 79 findings</div></div>
+    <div><div class="k">Statut</div><div class="v">v2.2 — validé ultracode 5/5 lentilles · 25 correctifs appliqués</div></div>
+  </div>
+
+  <nav class="toc">
+    <div class="t">Sommaire</div>
+    <ol>
+      <li><span class="num">§00</span><a href="#verdict">Verdict &amp; constats structurants</a></li>
+      <li><span class="num">§01</span><a href="#objectifs">Objectifs traduits en critères mesurables</a></li>
+      <li><span class="num">§02</span><a href="#architecture">Architecture cible du pipeline</a></li>
+      <li><span class="num">§03</span><a href="#phases">Les 6 phases — 16 work packages</a></li>
+      <li><span class="num">§04</span><a href="#annexes">Annexes payload (contenu prêt à encoder)</a></li>
+      <li><span class="num">§05</span><a href="#gouvernance">Gouvernance, sync &amp; protocole de test</a></li>
+      <li><span class="num">§06</span><a href="#decisions">Décisions ouvertes pour Franck</a></li>
+    </ol>
+  </nav>
+</header>
+
+<!-- ================================================================ -->
+<section id="verdict">
+  <div class="sec-head"><span class="no">§00</span><h2>Verdict &amp; constats structurants</h2></div>
+
+  <p class="lede">Deux passes ultracode (11 agents d'audit et de recherche, puis un panel adversarial de validation) ont disséqué les trois outils. Le diagnostic est net : <strong>la connaissance design existe, la discipline de vérification existe — mais rien ne relie les deux, et rien n'empêche un modèle moyen de tout contourner en silence.</strong></p>
+
+  <div class="scorecards">
+    <div class="scorecard" style="--card-c:var(--moss);--pct:72%">
+      <h4>ship-polished-ui</h4>
+      <div class="verdict">Le plus mûr — à durcir</div>
+      <div class="bar"><i></i></div><div class="pct">≈ 72 % de l'objectif</div>
+      <p>Discipline QA exceptionnelle (3 axes, leçons terrain), mais vérification auto-attestée, calibré pour l'édition (pas le greenfield), zéro motion/3D, zéro perf, zéro anti-slop vérifié.</p>
+    </div>
+    <div class="scorecard" style="--card-c:var(--gold);--pct:55%">
+      <h4>design-elevation</h4>
+      <div class="verdict">Bon fond — à re-scoper</div>
+      <div class="bar"><i></i></div><div class="pct">≈ 55 % de l'objectif</div>
+      <p>Références riches (WCAG, responsive) mais validation 100 % mentale, contradictions internes (Inter banni puis recommandé), tables figées génératrices de slop, collision de territoire avec frontend-design.</p>
+    </div>
+    <div class="scorecard" style="--card-c:var(--oxide);--pct:40%">
+      <h4>brand-forge</h4>
+      <div class="verdict">Cassé en exécution — à réécrire</div>
+      <div class="bar"><i></i></div><div class="pct">≈ 40 % de l'objectif</div>
+      <p>Bonne discipline de gate sur les noms, mais dépend d'une API d'équipes disparue (TeamCreate), identité visuelle sans savoir encodé, aucun handoff vers le build, anglophone-only pour des clients québécois.</p>
+    </div>
+  </div>
+
+  <h3>Les 5 constats qui charpentent ce plan</h3>
+  <div class="constats">
+    <div class="constat"><div><b>Routage non déterministe — le meilleur skill peut ne jamais se déclencher.</b>
+    <span>« Fais-moi un beau site » matche aujourd'hui 4 skills (design-elevation, frontend-design, ship-polished-ui, design-forge BRIEF) sans arbitrage. Si Sonnet 5 choisit design-elevation — le plus faible, zéro QA navigateur — le site part sans aucune gate. Aucun trigger français nulle part, alors que Franck dicte en français.</span></div></div>
+    <div class="constat"><div><b>Vérification auto-attestée — le skill enseigne à quoi ressemble un mensonge crédible.</b>
+    <span>La boucle verify de ship-polished-ui n'exige aucune preuve : la matrice peut rester « dans la tête », la sortie de boucle est subjective (« scope the user cares about »), et la checklist fournit un exemple de log complet que Sonnet 5 peut recopier mot à mot sans avoir ouvert le navigateur. C'est exactement le « déclaré testé » que Franck subit.</span></div></div>
+    <div class="constat"><div><b>Motion &amp; 3D : l'objectif n°1 de Franck n'a aucun propriétaire.</b>
+    <span>0 mention de GSAP/Lenis/Motion, 1 mention de Three.js/WebGL dans tout le corpus. Une page 100 % statique passe toutes les gates existantes. Aucun skill ne sait ni décider (quand la 3D est pertinente) ni implémenter (boilerplate, pièges React, reduced-motion) ni vérifier (jank, resize, StrictMode) le motion premium.</span></div></div>
+    <div class="constat"><div><b>Des artefacts orphelins — le pipeline n'échange aucun contrat.</b>
+    <span>brand-forge produit un package que personne ne lit. design-forge produit un design-intent avec critères testables que le constructeur (ship-polished-ui) ne mentionne jamais. Les tokens sont exigés partout et produits nulle part. Chaque maillon fonctionne seul ; la chaîne n'existe pas.</span></div></div>
+    <div class="constat"><div><b>Le slop de deuxième ordre — les skills génèrent leur propre uniformité.</b>
+    <span>Tables de palettes figées par secteur (chaque site finance en navy #1a1f36 + or), 4 archétypes brand-forge → 4 recettes couleur fixes, Inter à la fois banni et recommandé avec code prêt à copier. Sans étape de décision par projet, on remplace l'AI slop générique par un « AutoMintech slop » reconnaissable.</span></div></div>
+  </div>
+
+  <div class="callout"><b>Le principe directeur du plan</b>
+  Chaque amélioration suit la même loi, tirée de l'audit terrain de design-forge v1.1 : <strong>une exhortation ne survit pas à Sonnet 5 ; seul un artefact obligatoire, comptable et vérifiable survit.</strong> Partout où l'audit a trouvé « non négociable » écrit en prose, ce plan le remplace par : un artefact exigé, un format imposé, une règle « cellule non rendue = not-evidenced, jamais PASS », et une condition de sortie objective.</div>
+</section>
+
+<!-- ================================================================ -->
+<section id="objectifs">
+  <div class="sec-head"><span class="no">§01</span><h2>Objectifs traduits en critères mesurables</h2></div>
+  <p>Les objectifs de Franck, reformulés en définitions falsifiables. Chaque WP de la §03 se rattache à au moins une de ces lignes ; c'est la définition de « done » de tout le plan.</p>
+  <div class="tbl-scroll"><table>
+    <tr><th>Objectif exprimé</th><th>Définition mesurable (après ce plan)</th><th>Où c'est gate-é</th></tr>
+    <tr><td><b>« Responsive, pixel-perfect »</b></td><td>Verification Ledger complet : chaque surface rendue à 320/360 + 375 + 768 + desktop, <code>scrollWidth === clientWidth</code> mesuré, touch targets mesurés (gate AA : ≥ 24 px WCAG 2.5.8 · cible premium : 44 px AAA/Apple HIG), vues interaction-reached re-ouvertes par viewport.</td><td>WP-04</td></tr>
+    <tr><td><b>« Tout a été testé »</b></td><td>Aucun « done » sans ledger posté ; chaque cellule PASS porte une preuve (screenshot ID + valeur mesurée) ; cellule non rendue = « not-evidenced », jamais PASS ; passe WebKit avant livraison client.</td><td>WP-04 · WP-07</td></tr>
+    <tr><td><b>« Animations, scroll effects, 3D »</b></td><td>Motion inventory minimal obligatoire en phase design (feedback sur chaque interactif, entrance hero, reveals au scroll) ; playbook motion-craft.md avec stack décidée par type de projet ; QA motion dédiée (jank, resize, reduced-motion, StrictMode) ; arbre de décision 3D avec fallback.</td><td>WP-08</td></tr>
+    <tr><td><b>« Effet 15 ans d'expérience »</b></td><td>Design Spec écrite avant le code : 3 décisions nommées (typo, palette, primitive de layout) + 1 signature moment + 1-3 références réelles nommées avec gabarit Match/Change ; validation par grille scorée, pas par auto-questions.</td><td>WP-09 · WP-11</td></tr>
+    <tr><td><b>« Design unique, zéro AI slop »</b></td><td>Section ★ « Signature &amp; slop » dans le verify : swap-brand test, slop-lint déterministe (seuil 4+ tells = refonte), référent externe en greenfield, tables de palettes reléguées en calibration.</td><td>WP-10 · WP-14</td></tr>
+    <tr><td><b>« Un site qui ne rame pas » (implicite)</b></td><td>Budget perf exécutoire : LCP &lt; 2,5 s mobile, CLS &lt; 0,1, INP &lt; 200 ms, animations compositor-only — relevés dans le ledger. Un site « wow » janky sur mobile est un échec, pas un wow.</td><td>WP-06</td></tr>
+    <tr><td><b>« Branding cohérent du nom au pixel »</b></td><td>brand-forge livre un brand-package machine-lisible + brand-tokens.css que ship-polished-ui charge obligatoirement ; zéro re-saisie de hex à la main.</td><td>WP-15 · WP-02</td></tr>
+  </table></div>
+</section>
+
+<!-- ================================================================ -->
+<section id="architecture">
+  <div class="sec-head"><span class="no">§02</span><h2>Architecture cible du pipeline</h2></div>
+
+  <p class="lede">Quatre rôles nets, quatre artefacts-contrats. Chaque skill garde une responsabilité unique ; ce sont les <strong>fichiers échangés</strong> qui font la chaîne — pas la mémoire de session.</p>
+
+  <div class="pipeline">
+    <div class="pipe-row">
+      <div class="pipe-node"><div class="role">Identité</div><div class="name">brand-forge</div><div class="does">Nom vérifié (RDAP + bases officielles), identité visuelle gate-ée, FR/EN. Produit le contrat de marque.</div></div>
+      <div class="pipe-node"><div class="role">Direction</div><div class="name">design-forge BRIEF</div><div class="does">Transforme brief + brand-package en design-intent : direction artistique, critères testables, motion stance.</div></div>
+      <div class="pipe-node"><div class="role">Build + QA incrémentale</div><div class="name">ship-polished-ui</div><div class="does">Entrée unique « construire / améliorer un site ». Design Spec → design-direction + motion-craft (doctrines maison) → Verification Ledger.</div></div>
+      <div class="pipe-node"><div class="role">Gate pré-livraison</div><div class="name">design-forge AUDIT/TEST</div><div class="does">Audit complet scoré contre le design-intent avant toute livraison client. Verdict indépendant du constructeur.</div></div>
+    </div>
+    <div class="pipe-artifacts">
+      <div class="art">brand-package.md<br>brand-tokens.css<br>assets web (svg, favicon, og)</div>
+      <div class="art">design-intent.md<br>(+ critères perf &amp; motion)</div>
+      <div class="art">Design Spec (pré-code)<br>tokens.css<br>Verification Ledger</div>
+      <div class="art">Rapport scoré<br>verdict livraison</div>
+    </div>
+  </div>
+
+  <div class="callout moss"><b>Ce qui change de rôle</b>
+  <strong>design-elevation sort du chemin des sites clients.</strong> Il est re-scopé à son vrai territoire sur cette machine : les artefacts documentaires (plans HTML, rapports, dashboards, présentations — dont ce document même). Cela résout la collision de déclenchement, et reste 100 % compatible avec la règle globale de Franck « les plans sont livrés en HTML soigné via design-elevation ». <strong>Et depuis l'annotation Galley de Franck : le skill Anthropic frontend-design sera désactivé</strong> — le goût des sites clients appartient désormais à la doctrine maison de ship-polished-ui (<code>references/design-direction.md</code>, WP-09), la discipline à sa boucle verify. Le système devient 100 % constitué des skills de Franck.</div>
+
+  <h3>Contrats d'artefacts (résumé normatif)</h3>
+  <div class="tbl-scroll"><table>
+    <tr><th>Artefact</th><th>Producteur</th><th>Consommateurs obligés</th><th>Règle de consommation</th></tr>
+    <tr><td><code>docs/branding/brand-package.md</code></td><td>brand-forge (étape finale)</td><td>design-forge BRIEF · ship-polished-ui P1</td><td>S'il existe, palette/typo sont <b>brand-fixed</b> : toute dérogation doit être écrite et justifiée.</td></tr>
+    <tr><td><code>docs/branding/brand-tokens.css</code></td><td>brand-forge</td><td>ship-polished-ui P1 (bootstrap de <code>tokens.css</code>)</td><td>Zéro hex retapé à la main ; le build importe ou copie les custom properties.</td></tr>
+    <tr><td><code>design-intent.md</code></td><td>design-forge BRIEF</td><td>ship-polished-ui P1 (contraintes) &amp; P2 (critères)</td><td>Ses TESTABLE CRITERIA deviennent des lignes du Verification Ledger.</td></tr>
+    <tr><td>Design Spec (bloc posté avant le code)</td><td>ship-polished-ui P1</td><td>ship-polished-ui P2 · design-forge AUDIT</td><td>Interdit d'écrire du CSS avant que la Spec soit postée (3 décisions + signature moment + références).</td></tr>
+    <tr><td>Verification Ledger (tableau posté)</td><td>ship-polished-ui P2</td><td>l'utilisateur · design-forge AUDIT</td><td>Le « done » est invalide sans ledger ; cellules = surfaces × viewports × états, preuve par cellule.</td></tr>
+  </table></div>
+</section>
+
+<!-- ================================================================ -->
+<section id="phases">
+  <div class="sec-head"><span class="no">§03</span><h2>Les 6 phases — 16 work packages</h2></div>
+
+  <p class="lede">Ordre d'exécution pensé pour Sonnet 5 : chaque phase est une session autonome qui se termine par un commit vérifié (gate PASS). Les WP d'une même phase sont indépendants entre eux ; les phases sont séquentielles. <strong>Convention d'édition : modifier les copies vivantes sous <code>~/.claude/skills/</code>, puis miroir vers le repo (§05).</strong></p>
+
+  <div class="callout slate"><b>Traçabilité</b>
+  Chaque WP cite ses findings sources (DE-xx = design-elevation, F-xx = ship-polished-ui, BF-xx = brand-forge, P-xx = pipeline, R1/R2/R3 = recherches web). Le détail complet des 79 findings est archivé dans <code>plans/annexes/2026-07-04-audit-findings.md</code> (généré avec ce plan).</div>
+
+  <!-- ============ PHASE A ============ -->
+  <div class="phase">
+    <div class="phase-head"><h3>Phase A — Routage &amp; contrats <span style="color:var(--ink-soft);font-weight:400">(la chaîne existe)</span></h3><span class="tag">Session 1 · quick wins</span></div>
+    <p class="phase-intro">Rendre le déclenchement déterministe et brancher les artefacts entre skills. Aucune nouvelle connaissance design — uniquement du câblage. Impact maximal pour l'effort minimal : après cette phase, le bon skill se déclenche et lit les bons fichiers.</p>
+
+    <div class="wp" id="wp-01">
+      <div class="wp-head"><span class="wp-id">WP-01</span><span class="wp-title">Réécrire les 3 descriptions YAML — routage unique et triggers FR</span><span class="wp-effort">S · ~1 h</span></div>
+      <div class="wp-body">
+        <div class="files">~/.claude/skills/ship-polished-ui/SKILL.md (frontmatter)<br>~/.claude/skills/design-elevation/SKILL.md (frontmatter)<br>~/.claude/skills/brand-forge/SKILL.md (frontmatter)</div>
+        <h5>Quoi faire</h5>
+        <ul>
+          <li><b>ship-polished-ui</b> — réécrire la description sous <b>900 caractères</b> (l'actuelle fait 1 549 et se tronque exactement sur la phrase qui force la QA proactive). Front-loader : (1) triggers de <b>création</b> ET d'amélioration — « crée un site », « fais-moi un site vitrine », « build a landing page », « nouveau site client », « code this design » ; (2) la règle « QA navigateur non négociable même si l'utilisateur ne demande pas de test » ; (3) 4-5 phrases-triggers FR/EN. Déplacer la justification narrative (les bugs vécus) dans le corps.</li>
+          <li><b>design-elevation</b> — re-scoper aux artefacts documentaires : retirer « HTML pages, landing pages, components » ; mettre en tête « presentations, plans HTML, rapports, dashboards, PDFs » ; ajouter la ligne de démarcation « For client websites and application UIs, use ship-polished-ui ». Ajouter triggers FR (« plan HTML », « rapport », « présentation »).</li>
+          <li><b>brand-forge</b> — délimiter : « Use for a FULL brand package (name + identity). If the user only wants a logo image/prompt for an EXISTING name, use chatgpt-image-prompt-architect. » Ajouter triggers FR : « trouve-moi un nom », « branding pour mon projet », « identité de marque ».</li>
+          <li>Dans le <b>corps</b> de ship-polished-ui, ajouter une <b>étape 0 de routage</b> : site neuf sans <code>design-intent.md</code> → proposer design-forge BRIEF d'abord ; retouche → boucle directe ; demande purement documentaire → renvoyer à design-elevation.</li>
+        </ul>
+        <h5>Critères d'acceptation</h5>
+        <ul class="ac">
+          <li>Description ship-polished-ui ≤ 900 caractères, contient « crée un site » et « site vitrine », et n'est plus tronquée dans le listing (<code>wc -c</code> sur la valeur YAML).</li>
+          <li>Description design-elevation ne contient plus « landing pages » ni « components » ; contient le renvoi vers ship-polished-ui.</li>
+          <li>Test de routage <b>par disjonction lexicale</b> (falsifiable, pas d'auto-approbation) : pour chacune des 6 phrases de test (WP-16), la description du skill attendu contient un trigger qui matche des mots de la phrase ET les descriptions des skills concurrents ne le contiennent pas. La preuve définitive reste un test live par Franck (6 sessions fraîches) — en autonome, consigner « disjonction vérifiée, routage live non prouvé », jamais un PASS déclaratif.</li>
+        </ul>
+        <div class="trace"><b>Sources :</b> P1 · P6 · F1 · F2 · DE-09 · BF-11 — backlog #1</div>
+      </div>
+    </div>
+
+    <div class="wp" id="wp-02">
+      <div class="wp-head"><span class="wp-id">WP-02</span><span class="wp-title">Brancher les contrats : design-intent + brand-package + tokens dans ship-polished-ui</span><span class="wp-effort">S · ~1-2 h</span></div>
+      <div class="wp-body">
+        <div class="files">~/.claude/skills/ship-polished-ui/SKILL.md (Phase 1 + Phase 2 + nouvelle étape finale)</div>
+        <h5>Quoi faire</h5>
+        <ul>
+          <li>Phase 1 : ajouter une étape obligatoire « <b>charger les contrats</b> » — <code>Glob</code> de <code>design-intent.md</code> et <code>docs/branding/brand-package.md</code> / <code>brand-tokens.css</code>. S'ils existent : contraintes contractuelles au même rang que <code>tokens.css</code> (palette/typo brand-fixed). S'ils n'existent pas sur un site neuf : le déclarer et proposer design-forge BRIEF (lien WP-01 étape 0).</li>
+          <li>Phase 2 : « importer les TESTABLE CRITERIA du design-intent comme lignes supplémentaires du Verification Ledger » (le format ledger arrive au WP-04 ; ici on écrit la règle de consommation).</li>
+          <li>Sur projet neuf : ship-polished-ui P1 <b>bootstrappe <code>tokens.css</code></b> à partir du brand-package/design-intent — c'est désormais le producteur canonique des tokens (résout l'orphelin P10).</li>
+          <li>Nouvelle étape finale « avant livraison client » : lancer design-forge AUDIT (ou TEST si computer-use disponible) contre le design-intent ; une phrase symétrique sera proposée pour design-forge en §06 (décision D3).</li>
+        </ul>
+        <h5>Critères d'acceptation</h5>
+        <ul class="ac">
+          <li>ship-polished-ui contient les <b>règles de consommation formulées</b> — « si <code>docs/branding/brand-package.md</code> existe → palette/typo brand-fixed » et « les TESTABLE CRITERIA du design-intent deviennent des lignes du ledger » — avec l'appel Glob d'exemple, pas une simple mention des noms de fichiers.</li>
+          <li>La répartition QA est écrite : « ship = boucle incrémentale pendant le build ; design-forge = audit complet pré-livraison ».</li>
+        </ul>
+        <div class="trace"><b>Sources :</b> P2 · P3 · P9 · P10 — backlog #4, #18, #9 (partie réciproque)</div>
+      </div>
+    </div>
+
+    <div class="wp" id="wp-03">
+      <div class="wp-head"><span class="wp-id">WP-03</span><span class="wp-title">Pré-flight outillage, fallbacks déclarés &amp; lot de micro-cohérence</span><span class="wp-effort">S · ~1-2 h</span></div>
+      <div class="wp-body">
+        <div class="files">~/.claude/skills/ship-polished-ui/SKILL.md · references/visual-qa-checklist.md · references/css-side-effects.md · references/agent-dispatch.md · references/packaging-as-plugin.md</div>
+        <h5>Quoi faire</h5>
+        <ul>
+          <li><b>Décision Franck (annotation Galley) : le skill Anthropic frontend-design sera désactivé.</b> Supprimer toute dépendance : retirer le chemin codé en dur et l'injonction « Always invoke frontend-design » ; la Phase 1 s'appuie désormais sur la doctrine maison <code>references/design-direction.md</code> (créée au WP-09). Si frontend-design est présent malgré tout, il peut compléter — il n'est <b>jamais requis</b>. Pour l'agent <code>visual-qa-inspector</code> : s'il est absent, exécuter la checklist inline <b>sans réduire la couverture</b> et le déclarer dans le ledger.</li>
+          <li><b>Entrée « Top layer » dans css-side-effects.md</b> : pour tout dropdown/tooltip/menu/modal, préférer <code>popover="auto"</code> + anchor positioning CSS (ou <code>&lt;dialog&gt;</code>) — le top layer échappe par construction au clipping overflow ET aux stacking contexts, rendant impossible toute la classe de bugs « dropdown derrière les cartes ». Chirurgie z-index conservée en fallback legacy ; mentionner <code>overflow: clip</code> comme alternative moderne à <code>hidden</code>.</li>
+          <li>Ajouter en ouverture de Phase 2 une table de correspondance outillage : Claude Preview (<code>preview_inspect</code> = styles calculés — « mesure via inspect, ne devine pas au screenshot » ; <code>preview_resize</code> = viewports + dark mode), Chrome MCP, computer-use, Playwright en fallback. Tout fallback utilisé est consigné.</li>
+          <li><b>Chaîne de lecteurs de frontend-design (anti-référence-orpheline)</b> : avant de considérer frontend-design désactivable, grep global (<code>~/.claude</code> + repo) de tous ses lecteurs. Connu : <code>meta-govern/SKILL.md:269</code> déclare le template d'agent <code>ui-implementer</code> avec <code>skills: [frontend-design]</code> — patcher cette ligne vers <code>ship-polished-ui</code> fait partie de CE WP (une ligne, sinon meta-govern scaffolde des agents pointant vers un skill désactivé). Préciser aussi : « désactiver » = retirer les dépendances dans les skills de Franck — ne PAS supprimer la copie <code>.claude/skills/frontend-design</code> du repo claude-skills ni sa publication marketplace (miroir passif, aucune modification requise).</li>
+          <li>Micro-corrections (une passe d'édition) : clarifier les touch targets — <b>gate bloquante = 24×24 px (WCAG 2.5.8 AA)</b>, <b>cible tactile premium = 44×44 px (WCAG 2.5.5 AAA / Apple HIG)</b> ; remplacer les deux seuils flous actuels (44 vs ~40) par cette paire explicite, jamais « 44 px = norme WCAG ». Numérotation SKILL.md ↔ checklist : le décalage réel est <b>progressif (+2 à partir du step 9)</b> — la Section 9 de la checklist (data states) n'a aucun step correspondant dans le SKILL.md ; correction : ne référencer que « checklist §N » partout dans le SKILL.md. Compléter l'arborescence de packaging-as-plugin.md (2 fichiers de leçons manquants → écrire « references/ (tout le dossier) ») ; ★ sur la Section 12 (déclaration finale) et la Section 9 (données dynamiques). <b>Ce WP est un pré-requis de la Phase B.</b></li>
+        </ul>
+        <h5>Critères d'acceptation</h5>
+        <ul class="ac">
+          <li>Zéro chemin absolu machine-spécifique dans les 3 skills (grep <code>~/.claude/plugins/marketplaces</code> = 0) ; grep « frontend-design » ne retourne plus aucune dépendance obligatoire.</li>
+          <li>Une seule valeur de touch target (44 px) dans tout le corpus ship-polished-ui.</li>
+          <li>Sections 9 et 12 portent ★ ; plus aucune référence à « Section N » ambiguë.</li>
+          <li>css-side-effects.md contient l'entrée Top layer (grep <code>popover</code> ≥ 1) avec l'exemple anchor positioning.</li>
+        </ul>
+        <div class="trace"><b>Sources :</b> F12 · F10(ship2) · P12 · F10 · F8 · F11 · F9(ship2) · F7(ship1 — top layer) · annotation Galley th-641a7b86 — backlog #16, #20, #15 (partie ★), #17 (partie ship)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PHASE B ============ -->
+  <div class="phase">
+    <div class="phase-head"><h3>Phase B — Le Verification Ledger <span style="color:var(--ink-soft);font-weight:400">(tuer le « déclaré testé »)</span></h3><span class="tag">Session 2 · cœur du plan</span></div>
+    <p class="phase-intro">La pièce maîtresse. On remplace l'auto-attestation par un artefact comptable : le ledger. C'est le mécanisme qui a fait ses preuves dans design-forge v1.1 (gate binaire viewport + règle d'honnêteté « not evidenced »), porté dans le skill exécuté à chaque build.<br><br><b>Pré-requis : le WP-03 (alignement de numérotation) doit être terminé AVANT cette phase.</b> Structure cible de visual-qa-checklist.md après toutes les phases — pour que chaque WP sache où insérer sans renuméroter au petit bonheur : les sections existantes 1-12 gardent leurs numéros ; les seuils perf (WP-06) et la passe WebKit (WP-07) s'ajoutent <b>DANS la Section 12 existante</b> (« Final declaration ») — pas de nouvelle section ; deux nouvelles sections ★ s'ajoutent <b>en fin de fichier, à la suite</b> : « Motion QA » (WP-08) puis « Signature &amp; slop » (WP-10) ; le WP-04 réécrit le contenu des Sections 1 (matrice → ledger) et 12 (déclaration → ledger posté) sans changer leur numéro.</p>
+
+    <div class="wp" id="wp-04">
+      <div class="wp-head"><span class="wp-id">WP-04</span><span class="wp-title">Verification Ledger obligatoire — matrice prouvée, gate 320/360, sortie objective</span><span class="wp-effort">M · ~3-4 h</span></div>
+      <div class="wp-body">
+        <div class="files">~/.claude/skills/ship-polished-ui/SKILL.md · references/visual-qa-checklist.md (Sections 1, 8, 12) · references/agent-dispatch.md</div>
+        <h5>Quoi faire</h5>
+        <ul>
+          <li><b>Avant le premier screenshot</b> : la matrice de scope (Section 1) doit être <b>postée en table dans le chat</b> — surfaces × viewports × états, avec colonne « interaction-reached ». Une matrice « dans la tête » n'existe pas. En mode <b>full-site build</b>, la matrice devient l'inventaire pages × sections × viewports (le scope « CSS changé » n'a pas de sens en greenfield).</li>
+          <li><b>Viewports</b> : ajouter <b>320/360 (small-mobile)</b> à la matrice — porter la gate binaire de design-forge v1.1 : un verdict est <b>invalide</b> si une classe d'appareil n'a pas été réellement rendue.</li>
+          <li><b>Règle d'honnêteté</b> : une cellule non rendue = <code>not-evidenced</code>, jamais PASS. Un PASS exige une preuve : screenshot ID réel + valeur mesurée quand applicable (<code>scrollWidth/clientWidth</code>, ratio de contraste, touch target px).</li>
+          <li><b>Settle avant capture</b> : scroll to rest + attendre la fin des transitions avant chaque screenshot (cause de faux positifs confirmée 3× dans l'audit terrain design-forge).</li>
+          <li><b>Condition de sortie objective</b> : remplacer « zero issues at the scope level the user cares about » par « toutes les cellules du ledger sont PASS avec preuve ; toute réduction de scope est explicitement approuvée par l'utilisateur et consignée ».</li>
+          <li><b>Supprimer l'exemple de log recopiable</b> de la checklist (il enseigne le mensonge crédible) ; le remplacer par le gabarit de ledger vide (format en annexe A4) dont les cellules ne peuvent être remplies que par des valeurs spécifiques au run.</li>
+          <li><b>Agent visual-qa-inspector</b> : sa sortie devient le ledger lui-même (exempté de la limite de 300 mots) ; screenshot ID exigé aussi sur les cellules PASS critiques (mobile + interaction-reached) ; dispatch bloquant au-delà de 3 composants touchés.</li>
+          <li><b>Deux familles de lignes dans le ledger</b> (à écrire dans la Section 1) : lignes <b>par cellule</b> (surface × viewport × état) et lignes <b>transverses</b> (contraste palette, reduced-motion, perf, conformité Design Spec — Viewport/État = « — »). Les deux coexistent ; la règle not-evidenced s'applique aux deux.</li>
+          <li><b>Option recommandée</b> (décision D2, §06) : hook Stop léger qui détecte un tour ship-polished-ui déclarant « done » sans ledger posté et le bloque — même mécanique que les quality-gates déjà en place chez Franck.</li>
+        </ul>
+        <h5>Critères d'acceptation</h5>
+        <ul class="ac">
+          <li>La checklist ne contient plus aucun exemple de log final pré-rédigé.</li>
+          <li>Le mot <code>not-evidenced</code> apparaît dans SKILL.md ET la checklist avec la règle « jamais PASS ».</li>
+          <li>320 et 360 figurent dans la matrice de viewports ; « invalide si classe manquante » est écrit.</li>
+          <li>agent-dispatch.md n'impose plus « under 300 words » et exige le ledger en sortie.</li>
+          <li><b>Run-témoin commité</b> : une page HTML triviale servie localement, le skill réellement appliqué, et le ledger généré archivé comme fixture (<code>plans/fixtures/run-temoin-ledger.md</code> + screenshots réels) — preuve que le mécanisme fonctionne, pas seulement que le texte du skill a changé.</li>
+        </ul>
+        <div class="trace"><b>Sources :</b> F1 · F5 · F6 · F4 · F8(ship2) · P4 · P5 — backlog #2, #15 (partie agent)</div>
+      </div>
+    </div>
+
+    <div class="wp" id="wp-05">
+      <div class="wp-head"><span class="wp-id">WP-05</span><span class="wp-title">Accessibilité mesurée — contraste calculé, focus, reduced-motion testé</span><span class="wp-effort">S · ~2 h</span></div>
+      <div class="wp-body">
+        <div class="files">~/.claude/skills/ship-polished-ui/references/visual-qa-checklist.md · nouveau script repo : scripts/contrast-check.mjs</div>
+        <h5>Quoi faire</h5>
+        <ul>
+          <li>Interdire l'estimation visuelle du contraste (« stays legible » à l'œil) : pour chaque paire texte/fond de la palette, <b>calculer</b> le ratio WCAG via <code>preview_eval</code>/JS injecté (formule de luminance relative — snippet en annexe A4) ou axe-core. Seuils : ≥ 4,5:1 corps, ≥ 3:1 texte large. Valeurs consignées dans le ledger.</li>
+          <li>Focus clavier : tab sur tous les interactifs d'une surface — focus visible exigé, pas de piège clavier.</li>
+          <li><code>prefers-reduced-motion</code> : activer l'émulation (DevTools/preview) une fois avant livraison — le site doit rester complet et utilisable, parallax/zoom remplacés par des fades.</li>
+          <li>Livrer <code>scripts/contrast-check.mjs</code> (autonome, stdlib) : prend une liste de paires hex, sort les ratios + verdict — utilisable aussi par brand-forge (WP-14). <b>Robustesse d'entrée obligatoire</b> : normalisation (# optionnel, short-hex #abc → #aabbcc, validation regex avec throw explicite sinon) et mode <code>--selftest</code> avec cas intégrés aux valeurs connues (#000/#fff = 21:1, short-hex, entrée sans #). Le snippet A4 est le cœur mathématique, pas la fonction complète.</li>
+          <li>Mentionner APCA (Lc ≥ 75 pour le corps) comme cible complémentaire documentée — WCAG AA reste la gate bloquante, APCA la boussole perceptuelle pour les palettes sombres.</li>
+        </ul>
+        <h5>Critères d'acceptation</h5>
+        <ul class="ac">
+          <li>Le mot « legible » n'est plus un critère ; un ratio chiffré l'a remplacé partout.</li>
+          <li><code>node scripts/contrast-check.mjs --selftest</code> retourne exit 0 (cas intégrés vérifiés en interne, aucune comparaison manuelle externe requise).</li>
+          <li>Le ledger (WP-04) a des colonnes contraste / focus / reduced-motion.</li>
+        </ul>
+        <div class="trace"><b>Sources :</b> F6 · F11(ship2) · DE-12 · R1 (usability 30 % des jurys) — backlog #14</div>
+      </div>
+    </div>
+
+    <div class="wp" id="wp-06">
+      <div class="wp-head"><span class="wp-id">WP-06</span><span class="wp-title">Budget performance exécutoire</span><span class="wp-effort">S-M · ~2 h</span></div>
+      <div class="wp-body">
+        <div class="files">~/.claude/skills/ship-polished-ui/references/visual-qa-checklist.md (Section 12)</div>
+        <h5>Quoi faire</h5>
+        <ul>
+          <li>Ajouter <b>DANS la Section 12 existante</b> (« Final declaration » — pas de nouvelle section) des seuils <b>non conditionnels</b> pour toute page nouvelle ou animée : LCP &lt; 2,5 s mobile · CLS &lt; 0,1 · INP &lt; 200 ms · animations sur <code>transform/opacity</code> uniquement (vérifier dans la trace DevTools qu'aucun layout violet ne s'affiche pendant le scroll). Les <b>valeurs relevées</b> vont dans les lignes transverses perf du ledger (gabarit A4) : la Section 12 porte les seuils, le ledger porte les mesures.</li>
+          <li>Mesure : Lighthouse mobile quand l'outillage le permet (Chrome MCP / <code>npx lighthouse</code>), sinon lecture des web-vitals en console — et sinon <code>not-evidenced</code> dans le ledger, jamais un PASS déclaratif.</li>
+          <li>Checks statiques toujours possibles : images avec <code>width/height</code> ou <code>aspect-ratio</code>, <code>font-display</code> avec fallback métrique, poids du bundle si Three.js (budget JS explicite).</li>
+          <li>Recharger la page en observant le premier rendu (screenshot pendant le load) pour attraper le layout shift visuellement.</li>
+          <li><b>Deux paliers à écrire explicitement</b> : les seuils standards (2,5 s / 0,1 / 200 ms) sont la <b>gate bloquante minimale</b> — un plancher, pas l'objectif ; pour une vitrine ambitieuse, la cible documentée est le palier « award » relevé chez les jurys : LCP &lt; 1,5 s, CLS &lt; 0,05, INP &lt; 100 ms, 60 fps soutenus sur mobile milieu de gamme.</li>
+        </ul>
+        <h5>Critères d'acceptation</h5>
+        <ul class="ac">
+          <li>Les 3 seuils Web Vitals chiffrés figurent dans la Section 12 avec la méthode de mesure et la règle not-evidenced, plus la cible « award » distincte du plancher.</li>
+          <li>La whitelist de propriétés animables (transform/opacity) est écrite avec l'interdit inverse (width/height/top/margin en continu).</li>
+        </ul>
+        <div class="trace"><b>Sources :</b> P8 · F7(ship2) · F9 · DE-10(budget) · R1 · R2 — backlog #8 (partie design-intent → décision D3)</div>
+      </div>
+    </div>
+
+    <div class="wp" id="wp-07">
+      <div class="wp-head"><span class="wp-id">WP-07</span><span class="wp-title">Passe WebKit/Safari minimale avant livraison client</span><span class="wp-effort">S · ~1 h</span></div>
+      <div class="wp-body">
+        <div class="files">~/.claude/skills/ship-polished-ui/references/visual-qa-checklist.md (Section 12)</div>
+        <h5>Quoi faire</h5>
+        <ul>
+          <li>Ajouter <b>DANS la Section 12 existante</b> : avant toute livraison client, une passe WebKit sur les surfaces clés — hero, nav sticky, formulaires, toute surface avec <code>backdrop-filter</code>, <code>position:sticky</code>, 100vh/dvh ou animations scroll. Méthodes par ordre de préférence : Playwright webkit headless (<code>npx playwright screenshot --browser=webkit</code>), Safari via computer-use, sinon <code>not-evidenced</code> consigné.</li>
+          <li>Justification à écrire dans le skill : Safari est majoritaire sur l'iOS des visiteurs mobiles des sites vitrines, et <code>backdrop-filter</code>/viewport units/sticky y divergent régulièrement de Chrome.</li>
+        </ul>
+        <h5>Critères d'acceptation</h5>
+        <ul class="ac"><li>La Section 12 contient la passe WebKit avec la liste des surfaces clés et la commande Playwright de fallback.</li></ul>
+        <div class="trace"><b>Sources :</b> F12(ship2) — backlog #19</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PHASE C ============ -->
+  <div class="phase">
+    <div class="phase-head"><h3>Phase C — Motion &amp; 3D <span style="color:var(--ink-soft);font-weight:400">(le chantier signature)</span></h3><span class="tag">Session 3 · différenciateur</span></div>
+    <p class="phase-intro">Donner un propriétaire à l'objectif le plus cher de Franck. Un nouveau fichier de référence encode le playbook complet (annexe A2 = contenu prêt à coller), la Phase 1 exige un motion inventory, la Phase 2 gagne une QA motion. Après cette phase, une page statique ne passe plus.</p>
+
+    <div class="wp" id="wp-08">
+      <div class="wp-head"><span class="wp-id">WP-08</span><span class="wp-title">motion-craft.md : playbook motion &amp; 3D + inventory obligatoire + QA motion</span><span class="wp-effort">L · ~1 session</span></div>
+      <div class="wp-body">
+        <div class="files">NOUVEAU : ~/.claude/skills/ship-polished-ui/references/motion-craft.md<br>~/.claude/skills/ship-polished-ui/SKILL.md (Phase 1 + index des références)<br>~/.claude/skills/ship-polished-ui/references/visual-qa-checklist.md (nouvelle section ★ Motion QA)</div>
+        <h5>Quoi faire</h5>
+        <ul>
+          <li>Créer <code>references/motion-craft.md</code> à partir de l'annexe A2 de ce plan (contenu distillé de la recherche 2026, prêt à structurer). Sections imposées : ① hiérarchie d'escalade minimale (CSS natif → Motion → GSAP → 3D, justification exigée à chaque étage) ; ② stack par type de projet ; ③ boilerplates canoniques (Lenis+ScrollTrigger, useGSAP, guard @supports scroll-driven, View Transitions) ; ④ arbre de décision 3D + checklist R3F ; ⑤ gate <code>prefers-reduced-motion</code> ; ⑥ whitelist de propriétés ; ⑦ les 5 tests de non-régression motion ; ⑧ règle du signature moment.</li>
+          <li>Phase 1 : ajouter le <b>motion inventory obligatoire</b> — avant de coder, lister : feedback hover/press de chaque famille d'interactifs, entrance du hero, reveals au scroll des sections, LE signature moment (un seul), comportement reduced-motion. <b>Séquencement inter-phases</b> : ce WP n'écrit QUE l'exigence de la ligne motion-inventory en Phase 1 ; la structure complète de la Design Spec (8 rubriques, gabarit A4) est posée au WP-09 en Phase D — pas de conflit, le WP-16 vérifie la présence finale des 8 rubriques.</li>
+          <li>Phase 2 : nouvelle section ★ « Motion QA » dans la checklist : captures pendant l'animation scroll-triggered (3 positions), test resize après scroll complet (les pins tiennent), navigation aller-retour (pas de triggers dupliqués — <code>ScrollTrigger.getAll().length</code>), reduced-motion OS activé, StrictMode sans double animation, jank check (compositor only).</li>
+          <li>Indexer motion-craft.md dans le SKILL.md comme <b>lecture obligatoire</b> dès que la demande touche un site vitrine, une landing ou toute surface avec animations (« MUST read before Phase 1 coding »).</li>
+        </ul>
+        <h5>Critères d'acceptation</h5>
+        <ul class="ac">
+          <li><code>motion-craft.md</code> existe avec ses <b>8 sections repérables par leurs headings nommés</b> (grep des 8 titres ①-⑧, pas des mots-clés isolés) — une simple mention de « Lenis » dans une liste ne satisfait PAS ce critère.</li>
+          <li>Chaque boilerplate de l'annexe A2 est présent comme <b>bloc de code complet et syntaxiquement cohérent</b> : <code>gsap.registerPlugin(ScrollTrigger)</code> appelé, <code>lenis.raf</code> dans un <code>gsap.ticker.add</code>, <code>useGSAP</code> avec <code>scope</code>, <code>@supports (animation-timeline: view())</code> englobant la règle CSS.</li>
+          <li>La checklist a une section Motion QA ★ (en fin de fichier, après les sections existantes) avec les 5 tests de non-régression.</li>
+          <li>La Phase 1 du SKILL.md exige le motion inventory (la Design Spec complète arrive au WP-09).</li>
+        </ul>
+        <div class="trace"><b>Sources :</b> P7 · F3 · F2(ship2) · DE-03 · DE-04(audit2) · R2 (playbook complet) · R1 (signature moment) — backlog #3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PHASE D ============ -->
+  <div class="phase">
+    <div class="phase-head"><h3>Phase D — Design Spec &amp; anti-slop <span style="color:var(--ink-soft);font-weight:400">(l'unicité forcée par la décision)</span></h3><span class="tag">Session 4</span></div>
+    <p class="phase-intro">« La cause racine du slop est l'absence de décision. » Cette phase force les décisions avant le code, et les vérifie après. Elle refond aussi design-elevation autour de son nouveau rôle documentaire.</p>
+
+    <div class="wp" id="wp-09">
+      <div class="wp-head"><span class="wp-id">WP-09</span><span class="wp-title">Design Spec obligatoire avant le code (ship-polished-ui Phase 1)</span><span class="wp-effort">M · ~2-3 h</span></div>
+      <div class="wp-body">
+        <div class="files">~/.claude/skills/ship-polished-ui/SKILL.md (Phase 1 réécrite)<br>NOUVEAU : ~/.claude/skills/ship-polished-ui/references/design-direction.md</div>
+        <h5>Quoi faire</h5>
+        <ul>
+          <li><b>Créer <code>references/design-direction.md</code> — la doctrine de goût MAISON</b> (frontend-design étant désactivé, ship-polished-ui devient autosuffisant) : encoder les 12 règles award-level de l'annexe A1, le protocole references-first avec gabarit Match/Change, l'exploration de 3 directions, et la stratégie média (ci-dessous). Lecture obligatoire en Phase 1 avant toute Design Spec.</li>
+          <li>Remplacer le critère de sortie « complete enough to look at » par : <b>interdit d'écrire du CSS avant d'avoir posté la Design Spec</b> (gabarit annexe A4) : ① direction typographique nommée + justification non générique ; ② palette nommée non-défaut, dérivée de la marque client (brand-package si présent) ; ③ UNE primitive de layout répétée ; ④ le signature moment localisé ; ⑤ 1-3 références réelles NOMMÉES avec gabarit Match/Change ; ⑥ le motion inventory (WP-08) ; ⑦ la <b>stratégie média</b> ; ⑧ persona + seed d'art direction + données réelles. Adjectifs nus (« clean », « modern », « premium ») interdits sans référence nommée.</li>
+          <li><b>Stratégie média (annotation Galley th-4eff0b9f)</b> : la Spec choisit et justifie le registre visuel — photo réelle du client / images générées IA / vidéo d'ambiance en arrière-plan / illustration / 3D / aucun média — <b>adapté au produit et au projet, jamais par défaut</b>. Routage de production : images → skills chatgpt-image-prompt-architect (OpenAI) ou nano-banana-prompt-engineer (Gemini) ; vidéo d'ambiance → outil de génération vidéo de Franck (Seedance/équivalent), avec les règles perf de l'annexe A2-⑨.</li>
+          <li>Leviers anti-moyenne-statistique dans la Spec : une ligne <b>persona</b> (ex. « senior frontend engineer with print-design background »), un <b>seed d'art direction</b> ère/culture (ski lodge 70s, Art déco, estampe japonaise, Swiss…), et l'obligation de <b>données réelles ou mock JSON structuré</b> (le lorem ipsum nourrit le slop).</li>
+          <li>Sur demande ambitieuse (site complet, hero, refonte) : explorer <b>3 directions</b> esquissées en 3 lignes chacune, en choisir une avec justification — jamais implémenter la première idée.</li>
+          <li>La Spec est reprise en Phase 2 : le ledger vérifie que chaque décision annoncée est présente dans le code livré (la typo nommée est chargée, la palette est en tokens, le signature moment existe et fonctionne, le média respecte A2-⑨).</li>
+        </ul>
+        <h5>Critères d'acceptation</h5>
+        <ul class="ac">
+          <li><code>design-direction.md</code> existe, encode les 12 règles A1 + Match/Change + stratégie média, et est en lecture obligatoire Phase 1.</li>
+          <li>La Phase 1 contient le gabarit de Design Spec (8 rubriques) et l'interdit « pas de CSS avant la Spec ».</li>
+          <li>Le ledger (WP-04) contient une ligne « conformité à la Design Spec » par décision.</li>
+        </ul>
+        <div class="trace"><b>Sources :</b> F3(ship2) · DE-01 · R3 (« root cause of slop is no decision », references-first, persona/seeds/données réelles) · R1 (3 décisions préalables) · annotations Galley th-641a7b86 + th-4eff0b9f — backlog #6</div>
+      </div>
+    </div>
+
+    <div class="wp" id="wp-10">
+      <div class="wp-head"><span class="wp-id">WP-10</span><span class="wp-title">Gate anti-slop vérifiable : section ★ Signature &amp; slop + slop-lint déterministe</span><span class="wp-effort">M · ~3 h</span></div>
+      <div class="wp-body">
+        <div class="files">~/.claude/skills/ship-polished-ui/references/visual-qa-checklist.md (nouvelle section ★)<br>NOUVEAU : scripts/slop-lint.mjs (repo claude-skills)</div>
+        <h5>Quoi faire</h5>
+        <ul>
+          <li>Nouvelle section ★ « Signature &amp; slop » dans le verify : <b>flag #0 swap-brand test</b> (masquer le logo : cet écran est-il attribuable à CE client précis ? sinon FAIL distinctivité) ; vérification des décisions de la Design Spec ; en greenfield, le référent craft est <b>EXTERNE</b> (les références nommées de la Spec, jamais la page elle-même — le litmus test actuel est circulaire quand tout est neuf).</li>
+          <li>Créer <code>scripts/slop-lint.mjs</code> (Node, stdlib) : scanne le CSS/HTML livré pour les tells déterministes — <code>font-family</code> Inter/Roboto/Arial en display, <b>proximité chromatique au violet IA par distance OKLCH</b> (pas l'égalité hex exacte — décaler #6366f1 d'un cran ne doit pas suffire à s'évader), emoji dans le markup UI, border-radius uniforme ≥ 24 px partout, bordure 1px identique sur toutes les cards, séquence de sections canonique (hero→3 cards→pricing→FAQ), gradient violet→bleu. Sortie : comptage + verdict 0-1 clean / 2-3 mild / <b>4+ = refonte de direction obligatoire</b>. Livrer deux <b>fixtures de test déterministes</b> : <code>scripts/__fixtures__/sloppy.html</code> (Inter + violet + emoji-icônes + radius 24 uniforme) et <code>clean.html</code>.</li>
+          <li><b>Statut épistémique à écrire dans le skill</b> : slop-lint = condition <b>nécessaire, jamais suffisante</b> — il certifie l'absence de tells connus, pas la présence de distinctivité. Le verdict distinctivité appartient au design-forge AUDIT indépendant, dont le rapport doit inclure un <b>verdict swap-brand argumenté par écrit</b> (jamais un simple PASS).</li>
+          <li>Mettre à jour la liste des tells dans la checklist avec les manquants mesurés (annexe A3) : emojis-icônes, défauts shadcn par défaut, hero centré + badge, orbes/aurora derrière le hero, copy slop (« streamline/empower », « It's not X, it's Y »), dark-mode-réflexe avec gris sous AA.</li>
+        </ul>
+        <h5>Critères d'acceptation</h5>
+        <ul class="ac">
+          <li><code>node scripts/slop-lint.mjs scripts/__fixtures__/</code> sort ≥ 4 sur sloppy.html ET 0 sur clean.html — critère reproductible, pas de fixture improvisée par l'exécutant au moment du test.</li>
+          <li>Le swap-brand test est le flag #0 de la nouvelle section ★.</li>
+          <li>La règle du référent externe en greenfield est écrite dans la Section craft (ex-11).</li>
+        </ul>
+        <div class="trace"><b>Sources :</b> F5(ship2) · F4 · R3 (tells mesurés, lint déterministe, ~13 % « they all look the same ») — backlog #5</div>
+      </div>
+    </div>
+
+    <div class="wp" id="wp-11">
+      <div class="wp-head"><span class="wp-id">WP-11</span><span class="wp-title">design-elevation v2 : audit scoré, purge des contradictions, CSS 2026, délégation QA</span><span class="wp-effort">M-L · ~4 h</span></div>
+      <div class="wp-body">
+        <div class="files">~/.claude/skills/design-elevation/SKILL.md · references/elevation-protocol.md · references/technique-catalog.md · references/reference-library.md · references/interrogation-checklist.md · references/responsive-design.md</div>
+        <h5>Quoi faire</h5>
+        <ul>
+          <li><b>Validation scorée</b> : remplacer les auto-questions (« Would a design director approve this? » — un LLM répond toujours oui) par une grille de 12 critères objectifs avec seuil : ratio display/body ≥ 2,5× · padding vertical de section ≥ 96 px desktop · palette 60-30-10 vérifiée en comptant les surfaces · 1 signature element nommé et localisé · 0 font de la liste interdite · contraste calculé (script WP-05) · etc. Score &lt; 10/12 → passe de correction obligatoire, max 3 itérations, écarts documentés. <b>Anti-auto-complaisance</b> (même discipline que le ledger) : la grille est <b>POSTÉE comme artefact</b> avec, pour chaque critère, la <b>valeur mesurée réelle</b> (ratio calculé, padding relevé, sortie de grep/script) — jamais un score sec ; au moins 3-4 critères sont mesurés mécaniquement via <code>contrast-check.mjs</code> et <code>slop-lint.mjs</code> plutôt qu'auto-jugés.</li>
+          <li><b>Inverser la règle d'invisibilité</b> : SKILL.md ordonne aujourd'hui de garder tout le raisonnement invisible — exiger à la place un bloc « Design Decisions » compact en fin de livraison (fonts + raison, palette + distribution, signature element, résultat de la grille scorée).</li>
+          <li><b>Purge des contradictions</b> : Inter banni par SKILL.md mais recommandé 2× dans les références avec code prêt à copier → règle unique (« interdit en display ; toléré en body uniquement si justifié par écrit ») appliquée aux 3 fichiers ; remplacer l'exemple aurora violet ; marquer les tables de fontes/palettes « <b>calibration uniquement — réutilisation directe interdite</b> » avec obligation de dérivation documentée par projet.</li>
+          <li><b>CSS 2026</b> : ajouter OKLCH + <code>color-mix()</code>, <code>text-wrap: balance/pretty</code>, <code>:has()</code>, <code>dvh/svh</code> (bug 100vh iOS), <code>@starting-style</code>, View Transitions ; supprimer les anti-patterns : <code>html,body{overflow-x:hidden}</code> (masque les bugs → protocole de diagnostic scrollWidth par élément), <code>-webkit-overflow-scrolling</code> (no-op depuis iOS 13), min-width 44px sur checkbox/radio natifs (→ hit-area étendue via pseudo-élément).</li>
+          <li><b>Délégation QA</b> : pour tout rendu web, la vérification navigateur est déléguée à ship-polished-ui (pas de duplication de boucle) ; supprimer « Test on real devices » (inexécutable, invite au mensonge).</li>
+          <li><b>Verrouiller l'Emergency Mode</b> : déclenchable uniquement sur demande utilisateur explicite, avec annonce « mode urgence — phases X, Y sautées ». Jamais d'auto-déclenchement.</li>
+          <li><b>Lectures gate-ées</b> : remplacer le résumé des 6 phases (qui court-circuite la lecture du protocole) par des gates par phase : « Phase 2 → LIRE technique-catalog §typo+§couleur ; Phase 3 → LIRE responsive-design » avec citation exigée d'une technique par fichier lu.</li>
+          <li>Sourcer ou reformuler la statistique carousel 2013 (« Research shows &lt;1% clicks » sans source).</li>
+        </ul>
+        <h5>Critères d'acceptation</h5>
+        <ul class="ac">
+          <li>grep « Inter » dans les références : uniquement dans la règle d'interdiction, plus aucune recommandation.</li>
+          <li>La grille scorée existe avec 12 critères chiffrés et un seuil ; « mentally » a disparu du protocole.</li>
+          <li>OKLCH, dvh, text-wrap et :has() présents ; overflow-x:hidden global absent.</li>
+          <li>L'Emergency Mode contient la condition « uniquement sur demande explicite ».</li>
+        </ul>
+        <div class="trace"><b>Sources :</b> DE-01→DE-12 (les deux audits) · P6 — backlog #7, #10, #17, #15 (partie Emergency)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PHASE E ============ -->
+  <div class="phase">
+    <div class="phase-head"><h3>Phase E — brand-forge v2 <span style="color:var(--ink-soft);font-weight:400">(réparer, fiabiliser, brancher)</span></h3><span class="tag">Session 5</span></div>
+    <p class="phase-intro">Le skill est cassé en exécution (API d'équipes disparue) et isolé (personne ne lit son output). On le réécrit en pipeline séquentiel de subagents avec contrôles comptables, vérification déterministe, savoir d'identité visuelle encodé, et handoff machine-lisible vers le build.</p>
+
+    <div class="wp" id="wp-12">
+      <div class="wp-head"><span class="wp-id">WP-12</span><span class="wp-title">Réécrire l'orchestration : subagents séquentiels + contrôles d'acceptance du lead</span><span class="wp-effort">M · ~3 h</span></div>
+      <div class="wp-body">
+        <div class="files">~/.claude/skills/brand-forge/SKILL.md (Steps 2-5) · references/agent-prompts.md</div>
+        <h5>Quoi faire</h5>
+        <ul>
+          <li><b>Mode principal</b> (plus un fallback) : les 5 rôles s'exécutent en <b>subagents séquentiels</b> via l'outil Agent standard — un contexte isolé par rôle, handoff par fichiers dans <code>{output_dir}</code> (déjà le cas), ordre research → names → verify → slogans → package. Supprimer TeamCreate / polling TaskList / shutdown_request / TeamDelete. Interdire explicitement l'exécution inline des 5 rôles dans un seul contexte (la séparation générateur/vérifieur fonde la gate).</li>
+          <li><b>Le lead valide chaque transition</b> (aujourd'hui il ne fait que relayer) : compter les noms dans name-candidates.md (≥ min_names sinon renvoi) ; vérifier que verification-report.md contient un verdict + ≥ 1 URL de preuve pour <b>100 %</b> des candidats (comptage) ; vérifier que chaque nom PASS/CONDITIONAL a ses slogans ; <code>ls</code> + taille non nulle des 5 fichiers avant présentation.</li>
+          <li><b>Fix des placeholders</b> : aligner les variables (Step 1 définit <code>user_constraints</code>, les templates utilisent <code>{constraints_list}</code> ; <code>{current_year}</code> et <code>{product_type}</code> jamais définis) ; ajouter le contrôle « aucun <code>{placeholder}</code> restant avant de spawner ».</li>
+          <li><b>Références atteignables</b> : injecter le chemin absolu du skill dans chaque prompt d'agent (« Lis d'abord &lt;chemin&gt;/references/naming-strategies.md §Failure Patterns ») — les subagents partent d'un contexte vierge où un chemin relatif ne résout pas.</li>
+          <li>Timeout par rôle avec procédure explicite (relancer l'agent ; <b>jamais</b> fabriquer son output).</li>
+          <li><b>Anti-fabrication du verifier</b> : (a) section « Queries run » obligatoire dans verification-report.md — pour chaque nom, chaque requête exécutée avec l'URL du meilleur résultat ; (b) contrôle par échantillonnage : le lead tire 3 noms au hasard et ré-exécute une requête pour comparer (divergence = renvoi du rapport) ; (c) pré-tri en short-list de 12-15 noms plausibles avant vérification exhaustive, pour rendre le coût des recherches soutenable au lieu d'inviter à l'écrémage silencieux.</li>
+        </ul>
+        <h5>Critères d'acceptation</h5>
+        <ul class="ac">
+          <li>grep TeamCreate/TeamDelete/team_name = 0 dans le skill.</li>
+          <li>Chaque transition du pipeline a un contrôle comptable écrit (nombre, présence, non-vide).</li>
+          <li>Toutes les variables des templates sont définies au Step 1 (diff des deux listes = vide).</li>
+        </ul>
+        <div class="trace"><b>Sources :</b> BF-05 · BF-06(robustesse) · BF-03(audit2) · BF-04(audit2) · BF-05(audit1) · BF-02 · BF-12 — backlog #12</div>
+      </div>
+    </div>
+
+    <div class="wp" id="wp-13">
+      <div class="wp-head"><span class="wp-id">WP-13</span><span class="wp-title">Vérification déterministe (RDAP, bases officielles) + marché FR/bilingue</span><span class="wp-effort">M · ~2-3 h</span></div>
+      <div class="wp-body">
+        <div class="files">~/.claude/skills/brand-forge/references/agent-prompts.md (verifier) · references/naming-strategies.md · SKILL.md (Step 1)</div>
+        <h5>Quoi faire</h5>
+        <ul>
+          <li><b>Domaines</b> : WebSearch ne peut pas voir un domaine enregistré sans site. Ajouter au verifier une étape Bash obligatoire par variante : <code>curl -s -o /dev/null -w "%{http_code}" https://rdap.org/domain/&lt;nom&gt;.com</code> — 200 = pris ; <b>404 = « probablement libre » UNIQUEMENT sur les gTLD majeurs à couverture RDAP confirmée (.com/.net/.org/.io/.app…)</b>. Hors de ces TLD, un 404 peut signifier « TLD sans serveur RDAP enregistré » (≈40 % des ccTLD) : confirmation whois OBLIGATOIRE, jamais de conclusion « libre » sur le seul 404. Toujours marquer « indicatif — confirmer chez un registrar avant achat ».</li>
+          <li><b>Marques</b> : pour les 3 finalistes, recherches ciblées sur les bases officielles (CIPO pour le Canada, <b>USPTO via le nouveau Trademark Search System — tmsearch.uspto.gov ; ne jamais pointer TESS, retiré fin 2025</b>, EUIPO si marché EU) + mention obligatoire dans la recommandation : « vérification indicative — validation juridique requise ».</li>
+          <li><b>Réseaux sociaux</b> : vérifier les handles (<code>site:instagram.com/&lt;nom&gt;</code>, etc.) avant de les recommander.</li>
+          <li><b>Locale</b> : nouvelle variable <code>target_locale</code> au Step 1. Si FR/bilingue (défaut pour les clients AutoMintech) : stratégies de naming FR ou neutres FR/EN, requêtes de vérification dans les deux langues, check de connotation/prononçabilité française par finaliste (FAIL si connotation négative, CONDITIONAL si prononciation ambiguë).</li>
+          <li>Clarifier les ambiguïtés : « fewer than 3 PASS names » → « strictement moins de 3 noms PASS (les CONDITIONAL ne comptent pas) » ; Round 3 « 3-word names » incompatible avec max_chars:10 → « two-word compounds, max_chars porté à 14 au round 3 ».</li>
+        </ul>
+        <h5>Critères d'acceptation</h5>
+        <ul class="ac">
+          <li>La commande RDAP figure dans le prompt du verifier avec l'interprétation des codes HTTP.</li>
+          <li><code>target_locale</code> est extraite au Step 1 et consommée par ≥ 2 templates d'agents.</li>
+          <li>Les deux ambiguïtés (seuil PASS, round 3) sont levées.</li>
+        </ul>
+        <div class="trace"><b>Sources :</b> BF-03 · BF-08(audit2) · BF-09 (les deux audits) · BF-10 — backlog #11, #20 (partie BF)</div>
+      </div>
+    </div>
+
+    <div class="wp" id="wp-14">
+      <div class="wp-head"><span class="wp-id">WP-14</span><span class="wp-title">Identité visuelle : savoir encodé, archétypes ouverts, gates créatives</span><span class="wp-effort">M-L · ~4 h</span></div>
+      <div class="wp-body">
+        <div class="files">NOUVEAU : ~/.claude/skills/brand-forge/references/visual-identity.md<br>references/agent-prompts.md (copywriter + creative director) · references/naming-strategies.md (archétypes)</div>
+        <h5>Quoi faire</h5>
+        <ul>
+          <li>Créer <code>references/visual-identity.md</code> : 12-15 pairings typographiques <b>nommés par archétype</b> (Google Fonts/Fontshare, licences vérifiées, variable fonts signalées) présentés comme <b>espaces de choix, jamais des défauts</b> ; procédure logo en étapes vérifiables (concept → forme géométrique → test monochrome → description à 16 px) ; règles de palette (base neutre + 1 accent, 3-5 couleurs, ban-list : violet lavande, dégradé violet→bleu, glows) ; grille de scoring d'identité (distinctivité vs concurrents du research, mémorabilité, déclinabilité 16px→hero) avec seuil &lt; 7 = re-travail, évaluée par un agent distinct du creative director.</li>
+          <li><b>Archétypes ouverts</b> : chaque archétype passe d'une recette unique à 3-4 territoires couleur alternatifs + règle « interdit de reprendre la direction par défaut ; dériver la palette d'un attribut spécifique du produit et justifier le lien ».</li>
+          <li><b>Gates créatives</b> : ban-list de clichés slogans (streamline/empower/unleash/supercharge + « It's not X, it's Y ») + règle « chaque slogan contient un mot concret spécifique au produit » ; contraste WCAG AA calculé sur la palette (script WP-05, bloquant) ; ≥ 1 concept logo rendu en <b>SVG réel</b> affiché à 16/32/512 px (preuve, pas déclaration).</li>
+          <li><b>Prompts d'images</b> : remplacer « DALL-E » (obsolète) ; router vers les skills dédiés du repo — chatgpt-image-prompt-architect (OpenAI) ou nano-banana-prompt-engineer (Gemini) — avec le brief logo en entrée.</li>
+          <li>Restructurer le Step 1 en 3 AskUserQuestion multi-parties explicites (l'actuel annonce « max 3 questions » mais en exige 5, dont une enfouie).</li>
+        </ul>
+        <h5>Critères d'acceptation</h5>
+        <ul class="ac">
+          <li><code>visual-identity.md</code> existe et est référencé (chemin absolu) dans le prompt du creative director.</li>
+          <li>Chaque archétype offre ≥ 3 territoires ; la recette unique a disparu.</li>
+          <li>Le pipeline rend un SVG à 3 tailles avant la présentation finale.</li>
+        </ul>
+        <div class="trace"><b>Sources :</b> BF-01 · BF-02(audit2 — SVG rendu + contraste bloquant) · BF-04 · BF-06(audit2) · BF-07 · BF-08 · BF-12(audit1) — backlog #13</div>
+      </div>
+    </div>
+
+    <div class="wp" id="wp-15">
+      <div class="wp-head"><span class="wp-id">WP-15</span><span class="wp-title">Handoff build : brand-package.md + brand-tokens.css + assets web</span><span class="wp-effort">S-M · ~2 h</span></div>
+      <div class="wp-body">
+        <div class="files">~/.claude/skills/brand-forge/SKILL.md (nouvelle étape 6) · references/agent-prompts.md (creative director)</div>
+        <h5>Quoi faire</h5>
+        <ul>
+          <li>Nouvelle étape finale obligatoire « Handoff build » : produire <code>docs/branding/brand-package.md</code> (schéma en annexe A4 : nom, tokens nommés, paires typo avec URLs de chargement, voix de marque, liens assets) + <code>docs/branding/brand-tokens.css</code> (custom properties : couleurs light/dark, familles, échelle) — vérifiés par le lead (existent + parsent).</li>
+          <li>Checklist d'assets web à produire/placer : <code>logo.svg</code>, favicon, apple-touch, og-image, variantes dark — chemins cibles conventionnels (<code>public/brand/</code>).</li>
+          <li>Fin de skill : proposer explicitement la suite du pipeline (« design-forge BRIEF avec ce package » ou « ship-polished-ui pour le build ») — le contrat réciproque côté ship est fait au WP-02.</li>
+        </ul>
+        <h5>Critères d'acceptation</h5>
+        <ul class="ac">
+          <li>Le pipeline liste 7 livrables (5 actuels + package + tokens) et le lead vérifie leur existence.</li>
+          <li><code>brand-tokens.css</code> du run de test (§05) parse sans erreur (<code>node --input-type=module -e</code> simple lecture + regex custom properties).</li>
+        </ul>
+        <div class="trace"><b>Sources :</b> BF-01(audit2) · BF-11(audit2) · P2 · P10 · P11 — backlog #9</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PHASE F ============ -->
+  <div class="phase">
+    <div class="phase-head"><h3>Phase F — Gouvernance &amp; preuve de bout en bout</h3><span class="tag">Session 6 · clôture</span></div>
+    <p class="phase-intro">Synchroniser les registres, puis prouver que le pipeline complet fonctionne sur un cas réel avant de déclarer le plan implémenté.</p>
+
+    <div class="wp" id="wp-16">
+      <div class="wp-head"><span class="wp-id">WP-16</span><span class="wp-title">Sync, registres, et test de bout en bout</span><span class="wp-effort">M · ~2-3 h</span></div>
+      <div class="wp-body">
+        <div class="files">repo : design-elevation/ · ship-polished-ui/ · brand-forge/ (miroirs) · skills-registry.yaml · skills-app/src/data/skills.ts · CLAUDE.md</div>
+        <h5>Quoi faire</h5>
+        <ul>
+          <li>Miroir : <b>lire d'abord <code>scripts/sync-local-skills.py</code></b> (il ne couvre que les skills <i>nouveaux</i>), puis <code>rsync -a --exclude .DS_Store</code> — <b>SANS <code>--delete</code></b>, ou avec un --delete strictement scopé aux 3 dossiers de skills — depuis <code>~/.claude/skills/&lt;skill&gt;/</code> vers le repo. Après sync : <code>git status</code>/<code>git diff --stat</code> de contrôle — aucun fichier hors périmètre ne doit apparaître supprimé avant commit.</li>
+          <li>Mettre à jour les descriptions dans <code>skills-registry.yaml</code> (+ <code>last_updated</code>), <code>skills-app/src/data/skills.ts</code> et la section Skill Categories de <code>CLAUDE.md</code> — les 3 sources de données du repo (règle du projet).</li>
+          <li><b>Test de routage par disjonction lexicale</b> (6 phrases → 1 skill attendu) : « crée-moi un site vitrine pour un client » → ship-polished-ui · « fais-moi un plan HTML » → design-elevation · « trouve-moi un nom pour mon app » → brand-forge · « crée un logo pour HtmlShare » → chatgpt-image-prompt-architect · « audit mon UI » → design-forge · « ce bouton est laid » → ship-polished-ui. Vérification falsifiable : le trigger matchant existe dans la description attendue ET est absent des concurrentes. Le routage live (6 sessions fraîches) est un test manuel de Franck — le consigner comme tel.</li>
+          <li><b>Test de bout en bout</b> — brand-forge → design-forge BRIEF → ship-polished-ui build + ledger → design-forge AUDIT, sur le projet choisi en D5 (défaut autonome : landing jetable minimale). <b>PRÉCONDITION ABSOLUE : un outil de rendu navigateur réel</b> (Claude Preview, Chrome MCP ou Playwright) vérifié présent AVANT de démarrer — <b>s'il manque, WP-16 = BLOQUÉ + conversation decision_hub ; jamais un « done »</b>. Un ledger e2e contenant ne serait-ce qu'une cellule not-evidenced sur une surface/viewport du scope <b>invalide le test</b> (le repli not-evidenced vaut pour les runs de skill ordinaires, PAS pour cette preuve de bout en bout).</li>
+          <li><b>Preuves persistées et vérifiables par un tiers</b> : (a) les screenshots du ledger sont des <b>fichiers réels</b> sous <code>plans/e2e-proof/</code> commités — chaque <code>shot_ID</code> du ledger résout vers un PNG non-vide daté du run ; (b) livrer <code>scripts/verify-e2e.mjs</code> qui vérifie mécaniquement : chaque shot_ID existe comme fichier, la landing se sert (exit 0), slop-lint a tourné sur les fichiers livrés (pas un dossier arbitraire), les 5 artefacts-contrats existent ET se citent mutuellement (grep croisé nom de marque → Design Spec → tokens.css) ; (c) sortie horodatée de verify-e2e.mjs capturée dans le commit.</li>
+          <li><b>Preuves runtime de brand-forge</b> (pas seulement des templates) : le run e2e doit montrer dans ses fichiers de sortie les 3 rendus SVG réels (16/32/512), le verification-report.md avec sa section « Queries run » remplie d'URLs réelles, et la trace de l'échantillonnage du lead. Mode dry-run autorisé pour limiter le coût (12-15 noms max, RDAP sur 2-3 variantes des finalistes) — mais des fichiers réels, jamais des placeholders.</li>
+          <li>Commits par phase (A→F), gate de qualité PASS avant chaque commit, messages sans attribution IA (règles globales de Franck).</li>
+        </ul>
+        <h5>Critères d'acceptation</h5>
+        <ul class="ac">
+          <li><code>diff -rq</code> repo ↔ ~/.claude/skills = identique (hors .DS_Store) pour les 3 skills, et <code>git status</code> ne montre aucune suppression hors périmètre.</li>
+          <li>Les 3 sources de données du repo sont cohérentes (registry, app, CLAUDE.md).</li>
+          <li><code>node scripts/verify-e2e.mjs plans/e2e-proof/</code> retourne exit 0 — c'est LA gate finale ; sa sortie horodatée est dans le commit.</li>
+        </ul>
+        <div class="trace"><b>Sources :</b> règles projet claude-skills + CLAUDE.md global — backlog transversal</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section id="annexes">
+  <div class="sec-head"><span class="no">§04</span><h2>Annexes payload — contenu prêt à encoder</h2></div>
+  <p class="lede">Le savoir distillé des recherches web (juillet 2026), pré-mâché pour que Sonnet 5 n'ait <strong>rien à re-rechercher</strong>. Chaque annexe indique le WP qui la consomme.</p>
+
+  <h3 id="a1">A1 — Règles « niveau award » à encoder <span style="font-family:var(--mono);font-size:12px;color:var(--ink-soft)">(→ WP-09, WP-10, WP-11)</span></h3>
+  <div class="rulebook">
+    <div class="rule"><span class="rid">A1-01</span><div><b>Signature moment</b> : exactement UNE interaction mémorable par page (hero WebGL, reveal typographique, navigation inhabituelle) ; le reste du site reste sobre et à son service. L'accumulation d'effets est un tell d'amateur, pas de richesse.<span class="why">Principe n°1 des gagnants Awwwards SOTY 2025 ; « custom interaction design » = plus gros différenciateur cité par les jurys.</span></div></div>
+    <div class="rule"><span class="rid">A1-02</span><div><b>Typo display</b> : 1 display face à caractère + 1 famille texte sobre. Display &gt; 48 px → letter-spacing −0.02 à −0.04 em, line-height 1.0-1.15. Body → line-height 1.5-1.6, mesure 45-75 ch. Labels caps → letter-spacing +0.05-0.1 em. Le titre est un élément de COMPOSITION (surdimensionné, asymétrique, chevauchant le média), pas une ligne centrée.</div></div>
+    <div class="rule"><span class="rid">A1-03</span><div><b>Échelle fluide</b> : tout en <code>clamp()</code>, base 16-18 px ; ratio 1,2-1,25 pour UI dense, 1,333-1,618 pour marketing ; H1 peut être 3-6× le body pour le contraste éditorial.</div></div>
+    <div class="rule"><span class="rid">A1-04</span><div><b>Palette</b> : base neutre teintée (jamais #000/#FFF purs) + 1 accent dominant, 3-5 couleurs totales. Interdits : violet lavande, dégradé violet→bleu, glows colorés. WCAG AA calculé, pas estimé.</div></div>
+    <div class="rule"><span class="rid">A1-05</span><div><b>Profondeur</b> : grain SVG feTurbulence (fractalNoise, baseFrequency 0.6-0.9) à 2-8 % d'opacité sur les fonds plats/dégradés — qualité « imprimée », tue le banding et l'aspect stérile. Ombres multicouches neutres, jamais de box-shadow colorée.</div></div>
+    <div class="rule"><span class="rid">A1-06</span><div><b>Hero</b> : interdire le pattern [badge pill + H1 centré + sous-titre + 2 boutons + 3 cards]. Une seule focale par viewport ; retirer ~30 % des éléments prévus — si ça semble vide, on approche du premium.</div></div>
+    <div class="rule"><span class="rid">A1-07</span><div><b>Layout</b> : UNE primitive de composition forte répétée partout (grille 12 col à décalages asymétriques, bento, éditorial pleine largeur) ; interdire le mélange de 3+ styles de cards/sections. La grille structure, l'asymétrie dynamise.</div></div>
+    <div class="rule"><span class="rid">A1-08</span><div><b>Espacement</b> : 4/8 pt strict ; sections ≥ 96-160 px desktop ; whitespace proportionnel à l'importance de l'élément ; PUIS ajustements optiques (kerning des paires, alignement optique des marges) — le système mathématique seul ne suffit pas au niveau 15 ans.</div></div>
+    <div class="rule"><span class="rid">A1-09</span><div><b>Cohérence totale</b> : pages intérieures, 404, formulaires et footers reçoivent le même soin que le hero ; tokens identiques partout. L'incohérence entre pages est un critère d'échec explicite des jurys.</div></div>
+    <div class="rule"><span class="rid">A1-10</span><div><b>Copy</b> : zéro lorem ipsum, zéro stock générique, zéro vocabulaire SaaS creux (streamline, empower, supercharge, world-class). Copy courte, spécifique, avec voix ; chiffres réels plutôt que stat-rows décoratives.</div></div>
+    <div class="rule"><span class="rid">A1-11</span><div><b>Scrollytelling</b> : écrire l'arc EN PROSE avant de coder (début → tension → révélation → résolution) ; le scroll pilote (scrub), ne déclenche pas seulement ; UN seul passage scrollytellé par site ; exit points et CTA toujours visibles.</div></div>
+    <div class="rule"><span class="rid">A1-12</span><div><b>Mobile en parallèle</b> : parité pensée dès la conception (hover remplacé par des interactions touch intentionnelles), jamais une retombée responsive. Les jurys testent mobile d'abord.</div></div>
+    <div class="rule"><span class="rid">A1-13</span><div><b>Séparation sans cartes</b> : hiérarchie de séparation visuelle dans l'ordre — whitespace d'abord → décalage de luminosité 3-5 % → élévation légère → bordure en dernier recours. La « card à bordure 1 px pour tout » est le réflexe template ; la page premium sépare par l'espace et la lumière.</div></div>
+    <div class="rule"><span class="rid">A1-14</span><div><b>Média décidé par le produit</b> : le registre visuel (photo réelle, image IA, vidéo d'ambiance, illustration, 3D, rien) est un choix de direction artistique justifié par le produit et le client — jamais un défaut. Une vidéo d'arrière-plan sur un portail communautaire dense est une erreur ; sur une vitrine émotionnelle, un différenciateur (règles perf : A2-⑨).</div></div>
+  </div>
+
+  <h3 id="a2">A2 — Playbook motion &amp; 3D <span style="font-family:var(--mono);font-size:12px;color:var(--ink-soft)">(→ WP-08 : contenu de motion-craft.md)</span></h3>
+
+  <h5 style="font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--oxide);margin:18px 0 8px">① Hiérarchie d'escalade minimale (en tête de fichier)</h5>
+  <p style="font-family:var(--sans);font-size:14.5px">CSS natif (transitions, scroll-driven, View Transitions) → <b>Motion</b> (<code>motion/react</code>) pour les composants React → <b>GSAP</b> quand l'orchestration timeline/scroll narratif l'exige → <b>canvas/3D</b> seulement si la 3D est le cœur de l'expérience. Chaque montée d'étage exige une justification écrite (besoin non couvert par l'étage inférieur). Ne jamais empiler Motion et GSAP sur le même élément/propriété.</p>
+
+  <h5 style="font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--oxide);margin:18px 0 8px">② Stack par type de projet</h5>
+  <div class="tbl-scroll"><table>
+    <tr><th>Type de projet</th><th>Stack motion</th><th>Notes</th></tr>
+    <tr><td>Vitrine statique (Astro/HTML)</td><td>CSS scroll-driven (guard @supports) + View Transitions natives + GSAP ScrollTrigger pour le narratif ; Lenis si la DA l'exige</td><td>Zéro JS main-thread pour les reveals simples</td></tr>
+    <tr><td>SaaS React/Next</td><td>Motion pour l'UI produit ; GSAP cantonné aux pages marketing/hero</td><td><b>PAS</b> de Lenis global sur une app dense (tableaux, listes virtualisées)</td></tr>
+    <tr><td>Portail immersif / expérience 3D</td><td>R3F + drei + ScrollTrigger scrub pilotant caméra/scène + Lenis</td><td>WebGPURenderer (fallback WebGL2 auto) ; shaders en TSL</td></tr>
+  </table></div>
+
+  <h5 style="font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--oxide);margin:18px 0 8px">③ Boilerplates canoniques (à coller tels quels dans motion-craft.md)</h5>
+  <pre><code>// GSAP — 100 % gratuit depuis v3.13 (avril 2025), TOUS les plugins inclus
+// (ScrollTrigger, SplitText, MorphSVG…). Ne jamais chercher de version "Club".
+// npm i gsap @gsap/react
+gsap.registerPlugin(ScrollTrigger)          // UNE fois, au niveau module
+
+// Lenis + ScrollTrigger — l'intégration canonique
+const lenis = new Lenis()                    // wrappe le scroll NATIF (a11y OK)
+lenis.on('scroll', ScrollTrigger.update)
+gsap.ticker.add(t =&gt; lenis.raf(t * 1000))
+gsap.ticker.lagSmoothing(0)
+// React : &lt;ReactLenis root&gt; (package lenis/react) ; lenis.destroy() au unmount
+
+// React — TOUJOURS useGSAP (scope + revert auto). JAMAIS de gsap.to() nu
+// dans useEffect (StrictMode double-mount = triggers dupliqués).
+useGSAP(() =&gt; { /* tweens */ }, { scope: containerRef })
+
+// Reduced motion — la gate non négociable (WCAG 2.3.3)
+gsap.matchMedia().add({
+  reduceMotion: '(prefers-reduced-motion: reduce)',
+  full:         '(prefers-reduced-motion: no-preference)'
+}, ctx =&gt; { /* si reduceMotion : fades d'opacité, pas de Lenis, pas de scrub 3D */ })</code></pre>
+  <pre><code>/* CSS scroll-driven — Firefox encore derrière flag mi-2026 :
+   TOUJOURS sous @supports, et l'état PAR DÉFAUT = état final visible
+   (sinon contenu invisible là où l'API manque). */
+@supports (animation-timeline: view()) {
+  .reveal { animation: fade-up linear both; animation-timeline: view(); }
+}
+
+/* View Transitions same-document = Baseline depuis oct. 2025 — guard simple : */
+/* if (!document.startViewTransition) { update(); return; }                    */
+/* REFUSER en prod : &lt;ViewTransition&gt; React / flag Next.js (canary).            */</code></pre>
+
+  <h5 style="font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--oxide);margin:18px 0 8px">④ Arbre de décision 3D + checklist R3F</h5>
+  <ul style="font-family:var(--sans);font-size:14.5px">
+    <li><b>3D pertinente</b> : produit/matériau à montrer (hero produit), portfolio créatif, expérience narrative — jamais pour du contenu dense. Toujours un fallback statique (image/vidéo) si WebGL indisponible ou reduced-motion.</li>
+    <li><b>Checklist R3F</b> : jamais d'état d'animation dans useState (→ <code>useFrame</code> + refs, sinon 5 FPS) · <code>&lt;Canvas dpr={[1,2]}&gt;</code> (clamper devicePixelRatio mobile) · <code>frameloop="demand"</code> pour les scènes quasi statiques · disposer geometries/materials/textures au unmount (fuite mémoire SPA) · tout composant 3D = <code>'use client'</code> + <code>next/dynamic ssr:false</code> (three.js ne tourne pas côté serveur).</li>
+    <li><b>Nouveau projet three.js</b> : WebGPURenderer (fallback WebGL2 automatique, ~95 % des navigateurs) ; shaders en TSL (compile WGSL + GLSL), pas en GLSL brut.</li>
+  </ul>
+
+  <h5 style="font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--oxide);margin:18px 0 8px">⑤→⑧ Règles transverses</h5>
+  <ul style="font-family:var(--sans);font-size:14.5px">
+    <li><b>Whitelist animable</b> : transform (x/y/scale/rotate) + opacity ; filter/clip-path avec parcimonie. INTERDITS en continu : width, height, top/left, margin, padding, box-shadow. Changement de layout → FLIP (plugin GSAP Flip ou prop layout de Motion).</li>
+    <li><b>Timing</b> : reveals 600-1200 ms ; micro-interactions 150-300 ms ; easings expressifs (expo-out, cubic-out — jamais linear ni « ease » par défaut) ; reveals de texte splittés par LIGNES, stagger 60-100 ms.</li>
+    <li><b>Interdiction scroll-jacking</b> : ne jamais bloquer/détourner la molette (pattern fullpage) ; seul le scrub lié au scroll natif est permis ; contenu atteignable au clavier et lisible sans JS.</li>
+    <li><b>ScrollTrigger</b> : triggers dans l'ordre du DOM ; <code>ScrollTrigger.refresh()</code> après chargement d'images/fonts/données async ; function-based values (<code>end: () =&gt; …</code>) + <code>invalidateOnRefresh: true</code> ; jamais de dimension viewport figée au mount.</li>
+    <li><b>Hydration</b> : tout ce qui dépend de window/matchMedia/Math.random/Date sort du rendu initial ; premier rendu statique identique serveur/client, animer après mount.</li>
+    <li><b>Les 5 tests de non-régression motion</b> (→ section Motion QA du WP-08) : ① resize après scroll complet — les pins tiennent ; ② navigation aller-retour — <code>ScrollTrigger.getAll().length</code> stable, pas de fuite ; ③ reduced-motion OS activé — site complet et utilisable ; ④ CPU throttle 4× — INP &lt; 200 ms ; ⑤ StrictMode — aucune animation dupliquée.</li>
+  </ul>
+
+  <h5 style="font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--oxide);margin:18px 0 8px">⑨ Média d'arrière-plan — images &amp; vidéos d'ambiance (annotation Galley)</h5>
+  <ul style="font-family:var(--sans);font-size:14.5px">
+    <li><b>Vidéo d'ambiance</b> : <code>&lt;video autoplay muted loop playsinline&gt;</code> avec <code>poster</code> obligatoire (le poster est l'élément LCP, la vidéo se charge après) ; sources modernes AV1/WebM (VP9) via <code>&lt;source&gt;</code> + <b>H.264 (baseline/main) en fallback universel — jamais H.265 seul</b> (support inégal, longtemps désactivé par défaut dans Firefox) ; cible ≤ 4-6 Mo, 10-20 s en boucle, sans piste audio ; <code>preload="none"</code> hors hero ; jamais de vidéo qui bloque la lecture du texte posé dessus (overlay + contraste calculé).</li>
+    <li><b>Reduced-motion</b> : vidéo en pause + poster affiché quand <code>prefers-reduced-motion: reduce</code> (listener sur la media query) — même gate que les animations.</li>
+    <li><b>Images générées IA</b> : produites via les skills dédiés du repo (chatgpt-image-prompt-architect pour OpenAI, nano-banana-prompt-engineer pour Gemini) à partir de la direction artistique de la Design Spec — jamais un prompt improvisé hors direction ; formats modernes (AVIF/WebP + fallback), <code>width/height</code> ou <code>aspect-ratio</code> systématiques (CLS), <code>loading="lazy"</code> hors viewport initial.</li>
+    <li><b>Cohérence de série</b> : toutes les images d'un même site partagent le même seed stylistique (lumière, palette, grain) — une série incohérente est un tell IA aussi fort qu'Inter.</li>
+    <li><b>Mobile</b> : envisager <code>&lt;source media&gt;</code> pour servir une image fixe au lieu de la vidéo sur mobile (data + batterie), ou une vidéo recadrée verticale dédiée.</li>
+  </ul>
+
+  <h3 id="a3">A3 — Tells anti-slop additionnels <span style="font-family:var(--mono);font-size:12px;color:var(--ink-soft)">(→ WP-10 : mise à jour de la checklist + slop-lint)</span></h3>
+  <ul style="font-family:var(--sans);font-size:14.5px">
+    <li><b>Le flag dominant est GLOBAL</b>, pas par-pattern : ~13 % des critiques mesurées = « they all look the same ». D'où le swap-brand test en flag #0.</li>
+    <li><b>Tells mesurés à fort poids</b> (recalibrer les sévérités) : défauts shadcn/Tailwind non modifiés (rounded-2xl + shadow-lg + p-6, bordure grise 1 px sur chaque card) · violet IA (#6366f1/#8b5cf6) · hero centré + 3 cards · emojis comme icônes · gradient text · glow/néon. Les memes Twitter (bento, glassmorphism, aurora) pèsent MOINS que le folklore ne le dit.</li>
+    <li><b>Tells absents des catalogues actuels</b> : orbes/mesh/aurora flottants derrière le hero · blob 3D plastique · icône Lucide géante centrée au-dessus d'un heading · monospace décoratif hors code/données · nested cards · over-rounding ≥ 24 px · cyan-néon-sur-dark · dark-mode-par-défaut non justifié avec corps gris sous AA · <b>séquence de page canonique</b> (hero → 3 cards → logo wall → pricing → FAQ → CTA) flaggée même si chaque bloc passe individuellement.</li>
+    <li><b>Catégorie COPY</b> (absente aujourd'hui) : em-dashes en série · buzzwords SaaS · cadence « It's not X, it's Y » · headlines vagues · labels/données placeholder.</li>
+    <li><b>Convergence secondaire</b> : bannir Inter fait retomber sur Geist/Outfit/Cabinet Grotesk ; toute liste statique de fonts de remplacement devient le prochain tell → la règle durable est « choisis depuis le contexte produit et justifie AVANT de coder », pas une liste.</li>
+    <li><b>Références-first</b> : 1-3 références réelles NOMMÉES valent mieux que tout adjectif ; « clean and modern » force littéralement la moyenne statistique (Inter + violet + 3 cards). Gabarit Match/Change : matcher rythme d'espacement, pairing typo, densité, bordures/ombres ; changer contenu et accent.</li>
+  </ul>
+
+  <h3 id="a4">A4 — Gabarits d'artefacts <span style="font-family:var(--mono);font-size:12px;color:var(--ink-soft)">(→ WP-04, WP-09, WP-15, WP-05)</span></h3>
+
+  <p style="font-family:var(--sans);font-size:14.5px"><b>Design Spec</b> (bloc posté avant tout code — WP-09) :</p>
+  <pre><code>## DESIGN SPEC — {projet} — {date}
+1. Direction typographique : {display face} + {famille texte} — parce que {justification liée au client, pas un adjectif}
+2. Palette nommée : "{nom}" — base {oklch/hex} + accent {oklch/hex} — dérivée de {attribut marque/produit}
+   (brand-package présent : OUI → valeurs brand-fixed / NON → dérivation documentée)
+3. Primitive de layout : {nom} — répétée sur {liste des sections}
+4. Signature moment : {description} — localisé {où} — technologie {CSS/Motion/GSAP/3D + justification d'étage}
+5. Références nommées : {1-3 produits/sites réels} — MATCH : {espacement/typo/densité} — CHANGE : {contenu/accent}
+6. Motion inventory : hover/press {familles} · entrance hero {…} · reveals scroll {sections} · reduced-motion {comportement}
+7. Stratégie média : {photo client / images IA / vidéo d'ambiance / illustration / 3D / aucun} — parce que {lien produit}
+   → production : {chatgpt-image-prompt-architect | nano-banana-prompt-engineer | outil vidéo} · règles perf A2-⑨
+8. Persona : {ex. senior frontend engineer, print-design background} · Seed d'art direction : {ère/culture}
+   · Données : {réelles du client | mock JSON structuré} — lorem ipsum interdit</code></pre>
+
+  <p style="font-family:var(--sans);font-size:14.5px"><b>Verification Ledger</b> (tableau posté en fin de Phase 2 — WP-04 ; une ligne par cellule réellement exécutée) :</p>
+  <pre><code>| Surface        | Viewport | État          | Verdict        | Preuve                        |
+|----------------|----------|---------------|----------------|-------------------------------|
+| hero           | 320      | initial       | PASS           | shot_a3f2 · scrollW 320=320   |
+| hero           | 320      | menu ouvert   | PASS           | shot_b81c                     |
+| pricing modal  | 768      | ouvert        | FAIL→fix→PASS  | shot_c4d9 → shot_e2a1         |
+| footer         | 1440     | —             | not-evidenced  | (viewport non re-rendu après fix — à couvrir) |
+| contraste corps| —        | palette       | PASS 7.2:1     | contrast-check.mjs            |
+| reduced-motion | —        | OS activé     | PASS           | shot_f7b3 (fades, site complet)|
+| LCP mobile     | —        | load          | PASS 1.9s      | lighthouse mobile / web-vitals |
+| CLS            | —        | load          | PASS 0.02      | idem                          |
+| INP            | —        | interactions  | not-evidenced  | (outil indisponible ce run)   |
+| Design Spec §1 | —        | typo nommée   | PASS           | @font-face chargé, grep       |
+Deux familles de lignes : PAR CELLULE (surface×viewport×état) et TRANSVERSES (palette/a11y/perf/spec,
+Viewport = « — ») — not-evidenced s'applique aux deux.
+Règles : cellule sans preuve = not-evidenced ≠ PASS · classe d'appareil manquante = verdict global INVALIDE
+· réduction de scope = approbation utilisateur consignée ici.</code></pre>
+
+  <p style="font-family:var(--sans);font-size:14.5px"><b>brand-package.md</b> (schéma — WP-15) :</p>
+  <pre><code># Brand Package — {Nom retenu}
+statut_verification: PASS|CONDITIONAL (+ réserve exacte du verifier si CONDITIONAL)
+domaine: {domaine à enregistrer} (RDAP vérifié le {date})
+tokens:            # miroir exact de brand-tokens.css
+  --brand-bg / --brand-surface / --brand-ink / --brand-accent (+ variantes dark)
+typographie:
+  display: {nom + URL de chargement + licence}
+  texte:   {nom + URL + licence}
+voix: {3 adjectifs + 1 phrase d'exemple}
+assets: public/brand/logo.svg · favicon.svg · og-image.png · {variantes dark}
+slogans_valides: [{…}]
+interdits_specifiques: {ce que cette marque ne fait jamais visuellement}</code></pre>
+
+  <p style="font-family:var(--sans);font-size:14.5px"><b>Contraste WCAG</b> (cœur de <code>scripts/contrast-check.mjs</code> — WP-05) :</p>
+  <pre><code>const lum = h =&gt; { const [r,g,b] = [1,3,5].map(i =&gt; parseInt(h.slice(i,i+2),16)/255)
+  .map(c =&gt; c &lt;= .04045 ? c/12.92 : ((c+.055)/1.055) ** 2.4)
+  return .2126*r + .7152*g + .0722*b }
+const ratio = (a,b) =&gt; { const [hi,lo] = [lum(a),lum(b)].sort((x,y)=&gt;y-x)
+  return (hi+.05)/(lo+.05) }   // seuils : ≥4.5 corps · ≥3 texte large ≥24px/19px bold</code></pre>
+</section>
+
+<!-- ================================================================ -->
+<section id="gouvernance">
+  <div class="sec-head"><span class="no">§05</span><h2>Gouvernance, sync &amp; protocole de test</h2></div>
+
+  <h3>Règles d'exécution pour Sonnet 5</h3>
+  <ul>
+    <li><b>Une phase = une session = un commit.</b> Ne jamais mélanger deux phases dans un commit. Gate de qualité PASS avant chaque commit ; message sans attribution IA (règles globales).</li>
+    <li><b>Copies vivantes d'abord</b> : éditer sous <code>~/.claude/skills/&lt;skill&gt;/</code>, puis rsync vers le repo (WP-16). Le repo est un miroir + registre, pas la source d'exécution.</li>
+    <li><b>Lire avant d'éditer</b> : chaque WP exige la lecture complète des fichiers cibles avant modification (règle globale de Franck). Les findings cités donnent le pourquoi ; le fichier donne le contexte exact.</li>
+    <li><b>design-forge est HORS périmètre de modification</b> (v1.1 fraîchement livrée). Les deux points de contact (critères perf/motion du design-intent, phrase de répartition QA) sont des décisions ouvertes (§06 D3) — ne pas y toucher sans le OK de Franck.</li>
+    <li><b>Ne pas régresser</b> : les forces identifiées par l'audit (3 axes qualité de ship, leçons de sessions, gate verifier de brand-forge, références WCAG de design-elevation) sont des acquis — les WP ajoutent ou corrigent, ils ne réécrivent pas ce qui marche.</li>
+    <li><b>En cas de doute sur une décision design</b> : créer une conversation dans le hub workstation (decision_hub) plutôt que trancher silencieusement — jamais d'hypothèse non vérifiée promue en règle.</li>
+    <li><b>Portée</b> : les 3 skills sont user-level (<code>~/.claude/skills</code>) — le pipeline vaut pour les sites AutoMintech <b>et</b> les projets de travail (ex. Temps Chantier chez Gilbert). Pour un outil interne sans marque publique, brand-forge est optionnel : le pipeline démarre au design-intent (design-forge BRIEF) avec la charte de l'employeur en guise de brand-package.</li>
+    <li><b>Payloads : COPIER, ne pas régénérer.</b> Le contenu des nouveaux fichiers (motion-craft.md, design-direction.md, gabarits ledger/Design Spec/brand-package, cœur de contrast-check) est fourni <b>verbatim dans les annexes A1-A4 de ce plan HTML</b> — le plan est la source ; re-générer ces blocs de mémoire est une dérive interdite. Garder ce fichier ouvert pendant toute l'implémentation.</li>
+    <li><b>Clause de refus (Phase F)</b> : le test de bout en bout exige un outil de rendu navigateur réel vérifié présent au démarrage. S'il manque en session autonome : marquer WP-16 BLOQUÉ, créer une conversation decision_hub, et NE PAS déclarer la phase terminée. Un plan « implémenté » sans preuve e2e rendue n'est pas implémenté.</li>
+  </ul>
+
+  <h3>Vérification finale du plan (fin de phase F)</h3>
+  <div class="tbl-scroll"><table>
+    <tr><th>Preuve exigée</th><th>Méthode</th></tr>
+    <tr><td>Routage déterministe</td><td>Disjonction lexicale vérifiée pour les 6 phrases (trigger présent chez le skill attendu, absent chez les concurrents) ; routage live = test manuel de Franck, consigné comme non-prouvé en autonome.</td></tr>
+    <tr><td>Le « déclaré testé » est mort</td><td>Ledger e2e complet avec 320/360 et zéro cellule PASS sans preuve — chaque shot_ID résolvant vers un fichier réel sous <code>plans/e2e-proof/</code>, vérifié mécaniquement par <code>verify-e2e.mjs</code> (exit 0).</td></tr>
+    <tr><td>Motion encodé</td><td>La landing de test a un motion inventory dans sa Design Spec et passe les 5 tests de non-régression.</td></tr>
+    <tr><td>Anti-slop opérationnel</td><td><code>slop-lint.mjs</code> retourne 0-1 (condition nécessaire, jamais suffisante) ET le rapport design-forge AUDIT commité contient un verdict swap-brand argumenté par écrit.</td></tr>
+    <tr><td>Chaîne branding→build</td><td>Le brand-package du test est cité dans la Design Spec et ses tokens sont dans tokens.css (diff hex = 0).</td></tr>
+  </table></div>
+</section>
+
+<!-- ================================================================ -->
+<section id="decisions">
+  <div class="sec-head"><span class="no">§06</span><h2>Décisions ouvertes pour Franck</h2></div>
+  <p>À annoter directement dans Galley. Chaque décision a une recommandation — en l'absence d'annotation, Sonnet 5 suit la recommandation.</p>
+
+  <div class="decision"><div class="q">D1 — Re-scoper design-elevation aux artefacts documentaires : OK ?</div>
+  C'est le changement de rôle le plus visible du plan. Il résout la collision de déclenchement (constat 01) et reste compatible avec ta règle « plans HTML via design-elevation ». L'alternative (garder design-elevation généraliste) maintient le risque qu'un site client parte sans QA navigateur.
+  <div class="rec"><b>Recommandation : OUI</b> — design-elevation devient le skill des livrables documentaires ; ship-polished-ui l'entrée unique des sites.</div></div>
+
+  <div class="decision"><div class="q">D2 — Hook Stop de blocage du « done » sans ledger : maintenant ou plus tard ?</div>
+  Le ledger (WP-04) fonctionne par discipline de skill ; un hook le rend inviolable (même mécanique que tes quality-gates). Coût : un script hook + wiring settings.json, et un risque de friction sur les sessions non-UI s'il est mal ciblé (il faut détecter que ship-polished-ui est actif dans la session).
+  <div class="rec"><b>Recommandation : PLUS TARD</b> — livrer d'abord le ledger par skill (phases A-F), observer 2-3 sessions réelles, puis créer le hook via claude-hook-creator si la dérive persiste. Le run-témoin commité du WP-04 et la gate verify-e2e.mjs du WP-16 couvrent la fenêtre intermédiaire : le mécanisme est prouvé fonctionnel même sans hook.</div></div>
+
+  <div class="decision"><div class="q">D3 — Toucher design-forge (design-intent : critères perf + motion stance enrichie ; phrase de répartition QA) ?</div>
+  design-forge v1.1 vient d'être livré et il est hors périmètre déclaré. Mais deux items du plan (WP-06, WP-08) gagneraient à enrichir le template design-intent (TESTABLE CRITERIA perf, motion stance structurée), et le WP-02 écrit la répartition QA côté ship seulement.
+  <div class="rec"><b>Recommandation : OUI, en phase F uniquement</b> — un WP-17 optionnel, petit et isolé (template design-intent + 1 phrase dans la description design-forge), une fois les phases A-E validées.</div></div>
+
+  <div class="decision"><div class="q">D4 — brand-forge : garder le mode « équipe » en option si l'API revient ?</div>
+  Le WP-12 fait du séquentiel le mode principal. On peut garder un paragraphe « si un mécanisme d'équipes est disponible, les rôles peuvent tourner en parallèle » — ou purger complètement pour la simplicité.
+  <div class="rec"><b>Recommandation : PURGER</b> — le pipeline est intrinsèquement séquentiel (chaque rôle dépend du précédent) ; le parallélisme n'apportait rien que de la fragilité.</div></div>
+
+  <div class="decision"><div class="q">D5 — Périmètre du test de bout en bout (WP-16) : projet jetable ou vrai projet ?</div>
+  Le plan prévoit une landing jetable. Alternative : utiliser un vrai besoin (ex. la landing HtmlShare jamais lancée, ou une page Brillance Décor) pour que le test produise de la valeur réelle.
+  <div class="rec"><b>Recommandation : VRAI PROJET (HtmlShare) SI tu annotes ce fil avec le chemin du repo HtmlShare</b> — même effort, valeur doublée. <b>Défaut en session autonome sans annotation : landing jetable minimale</b> (le plan ne fournit pas le chemin HtmlShare ; un exécutant ne doit pas le deviner).</div></div>
+
+  <div class="decision"><div class="q">D6 — Merger les 3 skills en un plugin unique « design-studio » ? <span style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">(question Galley th-641a7b86)</span></div>
+  Un plugin peut embarquer plusieurs skills + agents (c'est la structure de design-forge : <code>skills/</code> + <code>agents/</code> + <code>.claude-plugin/plugin.json</code>). Merger ≠ fusionner : les 3 skills gardent leurs déclencheurs et responsabilités distincts (les fusionner en un seul SKILL.md recréerait le problème de routage qu'on vient de résoudre), mais un plugin unique donne : versionnage cohérent de l'écosystème, distribution en un geste (autres machines, cloud runs), et l'agent visual-qa-inspector embarqué proprement dans <code>agents/</code> au lieu de <code>~/.claude/agents/</code>.
+  <div class="rec"><b>Recommandation : OUI, mais en Phase G séparée, APRÈS validation des phases A-F</b> — empaqueter des skills encore instables figerait des bugs. Suivre references/packaging-as-plugin.md (mis à jour au WP-03). Ce sera alors ton système de design complet, distributable : brand-forge + ship-polished-ui + design-elevation + visual-qa-inspector sous un même toit, aux côtés du plugin design-forge.</div></div>
+
+  <div class="decision"><div class="q">D7 — meta-govern : les agents UI des projets doivent-ils être remplacés par ces skills ? <span style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">(question Galley th-641a7b86)</span></div>
+  Aujourd'hui meta-govern scaffolde des agents de développement UI par projet, avec leur propre doctrine embarquée — un troisième endroit où du savoir design vit et dérive. Skills et agents ne s'opposent pas : le bon modèle est <b>l'agent invoque le skill</b> — les agents UI générés par meta-govern deviennent de minces exécutants dont le prompt dit « suis ship-polished-ui (Design Spec → build → Verification Ledger) », au lieu de dupliquer des règles design qui vieilliront.
+  <div class="rec"><b>Recommandation : OUI, chantier séparé dans meta-govern</b> (hors périmètre de ce plan) : mettre à jour les templates d'agents UI de meta-govern pour référencer les skills comme source de doctrine unique. À lancer après la Phase F, quand les skills seront stabilisés — sinon meta-govern pointerait vers une cible mouvante.</div></div>
+</section>
+
+<footer>
+  <div>Plan rédigé par Fable 5 le 4 juillet 2026 · Audit ultracode : 11 agents, 863 k tokens · Validation adversariale : 5 lentilles (complétude Fable + exécutabilité/exactitude/cohérence/échappatoires sur Opus), verdict 5×PASS_WITH_FIXES, 25 correctifs appliqués dont 2 bloquants (test e2e truqable → verify-e2e.mjs + preuves fichiers ; échappatoire not-evidenced → précondition navigateur) · Annotations Galley de Franck intégrées (frontend-design désactivé → doctrine maison design-direction.md ; stratégie média ; D6 plugin design-studio ; D7 meta-govern) · 79 findings tracés → 16 WP + 7 décisions.</div>
+  <div>Fichier : plans/2026-07-04-plan-ecosysteme-design-v2.html · Annexe findings : plans/annexes/2026-07-04-audit-findings.md · Enregistré dans Galley pour annotation.</div>
+</footer>
+
+</div>
+</body>
+</html>
