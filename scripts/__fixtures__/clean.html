@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Atelier Perret — Ébénisterie sur mesure, Lyon</title>
+<style>
+  :root {
+    --font-display: "Iowan Old Style", "Palatino Nova", Palatino, Georgia, serif;
+    --font-text: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    --paper: #f4efe6;
+    --ink: #23201b;
+    --oxide: #a2401e;      /* warm terracotta — nowhere near violet */
+    --moss: #4c5a3a;
+    --line: #d8cfbd;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    font-family: var(--font-text);
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+  }
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; }
+
+  /* Asymmetric editorial masthead — not a centered badge hero. */
+  .masthead {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 48px;
+    padding: 120px 56px 64px;
+    border-bottom: 3px double var(--line);
+    align-items: end;
+  }
+  .masthead h1 { font-size: clamp(40px, 6vw, 72px); line-height: 1.04; max-width: 16ch; }
+  .lede { color: var(--moss); font-style: italic; font-size: 20px; }
+
+  /* Separation by whitespace and a hairline rule, varied treatments — no uniform card grid. */
+  .piece { padding: 72px 56px; border-top: 1px solid var(--line); }
+  .piece + .piece { background: #efe8da; }         /* luminosity-shift separation, not borders */
+  .piece figure { border-radius: 4px; overflow: hidden; }
+  .quote { border-left: 3px solid var(--oxide); padding-left: 20px; border-radius: 0; }
+
+  a { color: var(--oxide); }
+  .contact { padding: 96px 56px; }
+</style>
+</head>
+<body>
+  <header class="masthead">
+    <h1>Le bois, travaillé à la main, à Lyon depuis 1978.</h1>
+    <p class="lede">Atelier Perret dessine et fabrique des meubles uniques — chêne massif, noyer, frêne — pour des intérieurs qui durent une vie.</p>
+  </header>
+
+  <section class="piece">
+    <h2>La commode « Fourvière »</h2>
+    <p>Trois mois de travail, un seul billot de noyer. Assemblages à queues-d'aronde visibles, finition à l'huile de lin.</p>
+    <blockquote class="quote">« On ne remplace pas une commode qu'on a vu naître. » — Henri Perret</blockquote>
+  </section>
+
+  <section class="piece">
+    <h2>L'atelier</h2>
+    <p>Rue des Capucins, un plancher qui grince, l'odeur du copeau frais. Vous êtes les bienvenus le samedi matin.</p>
+  </section>
+
+  <section class="contact">
+    <h2>Prendre rendez-vous</h2>
+    <p>Écrivez à <a href="mailto:henri@atelier-perret.fr">henri@atelier-perret.fr</a> ou passez rue des Capucins.</p>
+  </section>
+</body>
+</html>

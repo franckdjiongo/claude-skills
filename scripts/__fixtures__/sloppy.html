@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SynergyFlow — Streamline Your Workflow</title>
+<style>
+  :root {
+    --font-display: "Inter", system-ui, sans-serif;   /* tell: Inter in display */
+    --brand: #6366f1;                                  /* tell: AI violet (indigo-500) */
+    --brand-2: #7c74f0;                                /* near-violet, OKLCH-close to anchor */
+  }
+  body { font-family: system-ui, sans-serif; color: #1e293b; background: #ffffff; }
+
+  h1, h2, .display, .hero-title {
+    font-family: var(--font-display);                  /* Inter on headings */
+    font-weight: 800;
+  }
+
+  .hero {
+    text-align: center;
+    background: linear-gradient(135deg, #6366f1, #3b82f6);  /* tell: violet -> blue gradient */
+    color: white;
+    padding: 96px 24px;
+  }
+  .badge {
+    display: inline-block;
+    border-radius: 999px;
+    background: rgba(255,255,255,.15);
+    padding: 6px 16px;
+  }
+
+  /* tell: uniform over-rounding >= 24px repeated */
+  .card { border-radius: 24px; border: 1px solid #e5e7eb; padding: 24px; box-shadow: 0 10px 30px rgba(99,102,241,.25); }
+  .tile { border-radius: 24px; border: 1px solid #e5e7eb; padding: 24px; }
+  .panel { border-radius: 24px; border: 1px solid #e5e7eb; padding: 24px; }
+
+  .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+</style>
+</head>
+<body>
+  <!-- tell: centered hero + badge pill + H1 + 3 cards + pricing + faq + cta = canonical sequence -->
+  <section class="hero">
+    <span class="badge">✨ New — v2 is here</span>
+    <h1 class="hero-title">Streamline your workflow</h1>
+    <p>Empower your team to supercharge productivity.</p>
+    <button>Get started</button>
+  </section>
+
+  <section class="features">
+    <div class="card-grid">
+      <div class="card"><h3>🚀 Fast</h3><p>Blazing performance out of the box.</p></div>
+      <div class="tile"><h3>🔒 Secure</h3><p>Enterprise-grade security built in.</p></div>
+      <div class="panel"><h3>🎯 Precise</h3><p>Hit your targets every time.</p></div>
+    </div>
+  </section>
+
+  <section class="pricing"><h2>Pricing</h2><p>Simple, transparent pricing.</p></section>
+
+  <section class="faq"><h2>FAQ</h2><p>Frequently asked questions.</p></section>
+
+  <section class="cta"><h2>Ready to get started?</h2><button>Sign up</button></section>
+</body>
+</html>

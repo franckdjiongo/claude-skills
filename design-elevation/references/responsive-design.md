@@ -108,17 +108,33 @@ input, select, textarea {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Prevent horizontal scroll */
-html, body {
-  overflow-x: hidden;
-}
+/* DO NOT "prevent" horizontal scroll with html,body{overflow-x:hidden} —
+   that masks the bug and hides the offending element. Diagnose it instead
+   (see "Diagnosing horizontal overflow" below), then fix that element.
+   If you must clip a specific container, use `overflow-x: clip` on THAT
+   container (it clips without creating a scroll container or killing
+   position:sticky), never on html/body. */
 
-/* Smooth scrolling with momentum */
+/* Smooth scrolling with momentum.
+   NOTE: -webkit-overflow-scrolling:touch is a NO-OP since iOS 13 — omit it. */
 .scroll-container {
-  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
 ```
+
+### Diagnosing horizontal overflow (instead of hiding it)
+Never paper over overflow with a global `overflow-x: hidden`. Find the culprit by comparing widths:
+
+```js
+// Run in the console: lists every element wider than the viewport.
+const docW = document.documentElement.clientWidth;
+for (const el of document.querySelectorAll('*')) {
+  if (el.scrollWidth > docW || el.getBoundingClientRect().right > docW + 1) {
+    console.log(Math.round(el.getBoundingClientRect().right), el);
+  }
+}
+```
+Usual causes: a fixed-`px` width wider than the viewport, a negative margin, an unconstrained image/`<pre>`/`<table>`, or `100vw` inside a scrollbar. Fix that element (`max-width:100%`, `min-width:0` on flex/grid children, wrap wide content in an `overflow-x:auto` scroller). For a shipped page, this measurement is exactly what `ship-polished-ui`'s ledger records as `scrollWidth === clientWidth` per surface.
 
 ### Touch Interaction Design
 - **Swipe gestures**: For carousels, dismissible elements, navigation
@@ -378,33 +394,22 @@ img {
 
 ---
 
-## Testing Checklist
+## Testing Checklist — tooled QA is delegated
 
-### Breakpoint Testing
-- [ ] Test at each major breakpoint (320, 640, 768, 1024, 1280, 1536)
-- [ ] Test between breakpoints (resize slowly to find issues)
-- [ ] Test with browser DevTools device emulation
-- [ ] Test on real devices (behavior differs from emulators)
+> **For a web page that ships and is browser-verified, this checklist is NOT self-attested here.** design-elevation cannot open a browser or a device, so it must never claim "tested on real devices." The tooled loop — resizing viewports, measuring `scrollWidth === clientWidth`, capturing screenshots per surface × viewport × state into a Verification Ledger — belongs to **`ship-polished-ui`**. The items below are a **design-time reasoning aid** for documentary artifacts and for handing a scoped matrix to `ship-polished-ui`.
 
-### Device-Specific Testing
-- [ ] iPhone SE (smallest common iOS device)
-- [ ] iPhone 14/15 Pro Max (largest common iOS device)
-- [ ] Popular Android devices (Samsung Galaxy, Pixel)
-- [ ] iPad Mini and iPad Pro
-- [ ] Various desktop resolutions
+### Breakpoint reasoning (design-time)
+- [ ] Layout holds by construction at 320, 640, 768, 1024, 1280, 1536
+- [ ] No fixed `px` widths that can overflow; wide content wrapped in `overflow-x:auto`
+- [ ] Fluid `clamp()` typography/spacing rather than breakpoint cliffs
 
-### Interaction Testing
-- [ ] Touch interactions work smoothly on mobile/tablet
-- [ ] Hover states work on desktop
-- [ ] Focus states visible for keyboard navigation
-- [ ] Text remains readable at all sizes
-- [ ] Touch targets meet minimum size (44×44px)
+### Interaction reasoning (design-time)
+- [ ] Hover interactions have touch alternatives
+- [ ] Focus states specified for keyboard navigation
+- [ ] Touch targets: **≥ 24×24 px gate (WCAG 2.5.8 AA), 44×44 px premium target** — native `checkbox`/`radio` get an extended hit area via label/pseudo-element, not a resized box
 
-### Performance Testing
-- [ ] Test on slow network (3G simulation)
-- [ ] Test on lower-end devices
-- [ ] Images load appropriately for device
-- [ ] No layout shift as content loads
+### Hand-off to ship-polished-ui (the actual verification)
+- Real DevTools device emulation + real-device behavior, slow-network (3G) and low-end-device profiling, layout-shift capture on first paint, and the per-viewport screenshot ledger are executed by **`ship-polished-ui`**, not faked in this skill.
 
 ---
 

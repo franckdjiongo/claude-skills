@@ -2,7 +2,7 @@
 
 This is the operational core of the ship-polished-ui skill. Run through it after every UI change you intend to declare "done." The checklist is structured so you can move quickly through the items that don't apply and slow down on the ones that do.
 
-The checklist has **thirteen sections**. Sections marked `★` are non-negotiable for any UI change — skipping them is what caused the bugs that motivated this skill. (Section 13 — Motion QA — is non-negotiable only for surfaces that actually carry motion; for a fully static change it is a fast N/A.)
+The checklist has **fourteen sections**. Sections marked `★` are non-negotiable for any UI change — skipping them is what caused the bugs that motivated this skill. (Section 13 — Motion QA — is non-negotiable only for surfaces that actually carry motion; for a fully static change it is a fast N/A. Section 14 — Signature & slop — is non-negotiable for any surface you *designed or restyled*; a pure bug-fix that changed no design decision skips it.)
 
 ---
 
@@ -243,6 +243,8 @@ For each touched component, zoom to ~150–300px and ask — **comparing against
 
 The test: **put your component next to the nicest existing element on the page and screenshot both in one frame.** If yours visibly looks like the poor cousin — flatter, blockier, less considered — it fails this section. Name the gap and close it (reuse the richer element's tokens), or surface it.
 
+**In greenfield this test is circular** — a brand-new page has no established premium element to judge against, so the referent is **external**: the Design Spec's named references (rubric 5). See Section 14c.
+
 ### 11b — Component intent (does the behavior match what this thing is *for*?)
 
 Correctness verifies a component does what its code says. This asks whether the code does what the component is *for*. Think about the component's job over the *whole* surface, not just the static first screen:
@@ -363,6 +365,101 @@ Motion verdicts are **transverse rows** (Section 1c — `Viewport = —`), becau
 ```
 
 A motion surface whose ledger carries no motion rows was verified for static correctness only — that is not a passing motion verify.
+
+---
+
+## ★ Section 14 — Signature & slop
+
+Sections 1–13 prove the page is **correct, comfortable, premium, and its motion holds**.
+This section asks the last question, the one the user opens the skill for on a client site:
+**is this design distinctive — attributable to *this* client, and free of the AI-slop tells
+that make every generated page look the same?** ~13% of measured design critiques are the
+single verdict *"they all look the same"* (annex A3) — a **global** failure, not a per-widget
+one, which is why the first flag below is a whole-screen test, not a component check. Run
+this on any surface you **designed or restyled**; a pure bug-fix that changed no design
+decision skips it.
+
+### 14a — Flag #0: the swap-brand test (a written verdict, never a bare PASS)
+
+**Mask the logo and the brand name. Now look at the screen. Is it attributable to THIS
+specific client — or could it be swapped onto any other company's site with a logo change
+and nobody would notice?** If it survives a logo swap unchanged, it has no signature and it
+**FAILS distinctiveness** — no matter how correct and comfortable it is.
+
+This flag is answered in **writing, with an argument**, never a one-word PASS. State *why*
+the screen is (or is not) attributable: the named typographic voice, the palette derived
+from a product attribute, the layout primitive, the signature moment — the things the Design
+Spec committed to. "PASS" alone is exactly the rubber-stamp this section exists to stop. The
+final, independent distinctiveness verdict belongs to the **design-forge AUDIT** (see 14d);
+this flag is the builder's own honest first pass.
+
+### 14b — Verify the Design Spec decisions landed
+
+Walk the Design Spec (SKILL.md §1.3) decision by decision and confirm each is *present in the
+delivered screen*, not just declared in Phase 1:
+
+- The **named typography** is the one actually rendered (not a fallback that silently loaded
+  Inter).
+- The **named palette** is what the pixels show (derived-from-brand, no lavender violet, no
+  violet→blue gradient leaked back in).
+- The **one layout primitive** actually repeats across the sections the Spec named.
+- The **signature moment** exists, is the *only* one, and works (cross-check Section 13).
+- The **media strategy** is the register the Spec chose, at the perf rules of motion-craft §⑨.
+
+Each of these is a `conformité Design Spec` transverse ledger row (Section 12 / §1c). A Spec
+decision with no matching, evidenced row was declared, not verified.
+
+### 14c — The craft referent in greenfield is EXTERNAL
+
+The premium-craft test in Section 11 ("put it next to the page's nicest element") works when
+there *is* an established premium element on the page. **In greenfield — a brand-new site
+where every element is new — that test is circular:** the page judging itself against itself
+certifies nothing. So when the whole page is new, the craft referent is **external**: the
+**named references from the Design Spec (rubric 5, Match/Change)**, never the page itself. Ask
+"does this hold up next to *Linear / Stripe / {the named reference}*?", not "does this card
+look as nice as that other new card I just made?".
+
+### 14d — Run slop-lint, then read the tells by eye
+
+`slop-lint.mjs` (in the claude-skills repo, `scripts/slop-lint.mjs`) scans the delivered
+HTML/CSS/JS for **deterministic** tells and prints a count + verdict:
+
+```
+node scripts/slop-lint.mjs <delivered-dir>
+# verdict: 0–1 clean · 2–3 mild · 4+ = mandatory direction redo (exit 1)
+```
+
+A verdict of **4+ tells means the direction is redone, not patched.** Record the run as a
+transverse ledger row (`slop-lint · — · delivered files · PASS 1 tell · slop-lint.mjs`).
+Then read, by eye, the tells slop-lint cannot fully catch — the measured high-weight and
+newly-catalogued ones from annex A3:
+
+- **Emojis used as UI icons** (a real icon set, or none — never 🚀/✨/🎯 as affordances).
+- **Unmodified shadcn/Tailwind defaults** — `rounded-2xl` + `shadow-lg` + `p-6`, a 1px gray
+  border on every card, untouched from the starter.
+- **Centered hero + badge pill + 3 cards** (rule A1-06) — flagged even when each block is
+  individually fine.
+- **Orbs / mesh / aurora / blob floating behind the hero**; a giant centered Lucide icon
+  above a heading; decorative monospace outside code/data; nested cards.
+- **The canonical page sequence** (hero → 3 cards → logo wall → pricing → FAQ → CTA) —
+  flagged even when every block passes on its own.
+- **Copy slop:** SaaS buzzwords (*streamline / empower / unleash / supercharge*), the
+  *"It's not X, it's Y"* cadence, serial em-dashes, vague headlines, placeholder labels/data.
+- **Dark-mode reflex:** dark-by-default with no product reason, especially with a gray body
+  that falls **below AA** — a contrast fail hiding as a style choice (Section 12a computes it).
+- **AI violet** (#6366f1 / #8b5cf6 / #a78bfa and near neighbours), gradient text,
+  glow/neon — slop-lint catches these by OKLCH proximity; the eye confirms context.
+
+### 14e — Epistemic status (say it out loud in the ledger)
+
+**slop-lint is a *necessary, never sufficient* condition.** A clean lint certifies the
+*absence of known tells* — it does **not** certify the *presence of distinctiveness*. A page
+can score 0 on slop-lint and still be a lifeless statistical average. The distinctiveness
+verdict is not the builder's to self-award: it belongs to the **independent design-forge
+AUDIT**, whose report must contain a **written, argued swap-brand verdict** (never a bare
+PASS). So the honest chain is: *slop-lint clean* (gate) → *swap-brand written argument*
+(builder's first pass) → *design-forge AUDIT swap-brand verdict* (the real distinctiveness
+call, a different pair of eyes). Do not let a green lint stand in for the AUDIT.
 
 ---
 

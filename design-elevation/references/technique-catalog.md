@@ -42,6 +42,9 @@ Establish a grid, then break it deliberately for emphasis. The exception proves 
 ## Typography Techniques
 
 ### Display/Body Pairing
+
+> **Calibration only — direct reuse forbidden.** This table calibrates your sense of a good pairing; it is not a pick-list. Reusing a row verbatim manufactures house-slop. **Derive** the pairing for the specific project and **document the derivation** in the Design Decisions block. **Inter (and Roboto/Arial) is banned in display**; it is tolerated in **body only when justified in writing** — so it never appears in the Display column.
+
 | Display Font | Body Font | Mood |
 |--------------|-----------|------|
 | Playfair Display | Source Sans | Editorial sophistication |
@@ -50,8 +53,8 @@ Establish a grid, then break it deliberately for emphasis. The exception proves 
 | Bebas Neue | Open Sans | Bold confidence |
 | Cormorant Garamond | Nunito | Elegant accessibility |
 | DM Serif Display | DM Sans | Modern classic |
-| Outfit | Inter | Clean tech |
-| Syne | General Sans | Creative forward |
+| Outfit | General Sans | Clean tech |
+| Syne | Public Sans | Creative forward |
 
 ### Text Effects
 - **Oversized numbers**: Use display sizes for statistics (120px+)
@@ -76,6 +79,9 @@ Two colors only. High impact, strong identity. Works well with:
 - Dark charcoal + coral
 
 ### Contextual Palettes
+
+> **Calibration only — direct reuse forbidden.** Every finance deck in navy `#1a1f36` + gold is exactly the second-order slop this skill exists to prevent. Use these to calibrate contrast/mood, then **derive** the project palette from the client brand (or context) and **document that derivation**. Express derived colors in **OKLCH** with `color-mix()`.
+
 | Context | Primary | Accent | Mood |
 |---------|---------|--------|------|
 | Finance | Deep navy (#1a1f36) | Gold (#c9a227) | Trust, premium |
@@ -231,6 +237,56 @@ Replace fixed breakpoints with smooth scaling:
 
 ---
 
+## 2026 CSS Toolkit (use these by default)
+
+### OKLCH + color-mix()
+Author color in **OKLCH** (perceptually uniform lightness — a real gate for AA derivations) and generate tints/shades/state colors with `color-mix()` instead of hand-picked hex:
+
+```css
+:root {
+  --accent: oklch(0.62 0.15 45);              /* derived from brand, not a table row */
+  --accent-hover: oklch(from var(--accent) calc(l - 0.06) c h);
+  --accent-wash: color-mix(in oklch, var(--accent) 12%, var(--surface));
+  --surface: oklch(0.97 0.008 90);            /* tinted, never pure #fff */
+}
+```
+
+### text-wrap: balance / pretty
+```css
+h1, h2, h3 { text-wrap: balance; }   /* even multi-line headings, no lonely last word */
+p, li      { text-wrap: pretty; }    /* prevents orphans/rag in body copy */
+```
+
+### :has() — style from state/structure, no JS toggles
+```css
+.field:has(input:invalid:not(:placeholder-shown)) { --ring: var(--danger); }
+.card:has(img)   { grid-template-rows: auto 1fr; }
+body:has(dialog[open]) { overflow: hidden; }   /* scroll-lock without a JS class */
+```
+
+### dvh / svh — never 100vh
+```css
+.hero { min-height: 100svh; }   /* stable under the mobile URL bar */
+/* 100vh over-scrolls on iOS as the URL bar collapses — use svh/dvh/lvh deliberately. */
+```
+
+### @starting-style — enter animations without JS
+```css
+dialog[open] { opacity: 1; transition: opacity .25s; }
+@starting-style { dialog[open] { opacity: 0; } }
+```
+
+### View Transitions
+Cross-DOM morphs for route/state changes when they add clarity (not everywhere):
+```css
+@view-transition { navigation: auto; }        /* MPA */
+.card { view-transition-name: var(--card-id); }
+/* SPA: document.startViewTransition(() => updateDOM()); */
+```
+Always wrap non-essential motion in `@media (prefers-reduced-motion: no-preference)`.
+
+---
+
 ## Modern Visual Effects
 
 ### Liquid Glass Effect
@@ -250,17 +306,20 @@ Apple-inspired translucent surfaces with depth:
 
 **Caution**: Test accessibility—ensure text contrast remains sufficient.
 
-### Gradient Mesh / Aurora Backgrounds
-Multi-color gradient backgrounds with organic shapes:
+### Gradient Mesh Backgrounds
+
+> **The purple/violet→blue aurora is a top-tier AI tell — do not ship it.** `rgba(120,80,255)` + `rgba(80,200,255)` on near-black is the single most recognizable "AI slop" background. `slop-lint.mjs` flags it. Derive the mesh hues from the **brand accent** instead, keep them **low-saturation and analogous** (not the rainbow trio), and add grain so it reads as depth, not a template gradient.
+
+Brand-derived mesh (example uses an oxide/warm-neutral palette — replace the OKLCH hues with the project's derived accent):
 
 ```css
-.aurora-bg {
+.mesh-bg {
   background:
-    radial-gradient(ellipse at 20% 30%, rgba(120, 80, 255, 0.3) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 70%, rgba(255, 100, 150, 0.3) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(80, 200, 255, 0.2) 0%, transparent 60%),
-    #0f0f1a;
+    radial-gradient(ellipse at 22% 28%, oklch(0.55 0.12 45 / 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse at 78% 72%, oklch(0.50 0.06 90 / 0.18) 0%, transparent 55%),
+    oklch(0.22 0.02 60); /* tinted near-black base, never pure #000 */
 }
+/* Pair with the grain overlay below to kill banding. */
 ```
 
 ### Noise/Grain Texture
@@ -309,26 +368,36 @@ Adds warmth and analog feel to digital surfaces:
 ```
 
 ### Touch Target Sizing
+
+Gate vs. target: the **blocking gate is 24×24 px (WCAG 2.5.8 AA)**; the **premium target is 44×44 px (WCAG 2.5.5 AAA / Apple HIG)**. Never `min-width/height` a native `checkbox`/`radio` — it distorts the control's box and breaks its rendering. Extend the **hit area** with a pseudo-element (or a padded `<label>`), leaving the visual size intact.
+
 ```css
-/* Minimum 44×44px for all interactive elements */
+/* Interactive elements — aim for the 44px premium target */
 button,
-a,
-input[type="checkbox"],
-input[type="radio"] {
-  min-width: 44px;
+a.button {
   min-height: 44px;
+  min-width: 44px;
 }
 
-/* Expand clickable area without changing visual size */
+/* Native checkbox/radio: DO NOT resize the box.
+   Extend the tappable area with the associated label instead. */
+.checkbox-field label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;        /* the label carries the hit area */
+  padding-block: 10px;
+}
+
+/* Expand a small icon button's hit area without changing its visual size */
 .small-icon-button {
   position: relative;
   padding: 0;
 }
-
 .small-icon-button::after {
   content: '';
   position: absolute;
-  inset: -8px; /* Expands hit area by 8px in all directions */
+  inset: -8px;             /* +8px hit area in all directions */
 }
 ```
 

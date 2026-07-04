@@ -14,8 +14,8 @@ Exemplars and principles to draw from. Not to copy—to understand and adapt.
 
 ### Linear
 **Signature**: Monochrome sophistication, restraint as luxury.
-- Color: Near-black + white + one accent (purple/blue)
-- Typography: Inter (but executed perfectly), tight tracking
+- Color: Near-black + white + one accent (a restrained, low-chroma hue)
+- Typography: a custom-tuned grotesk at tight tracking — study the *execution* (tracking, optical alignment), not the font name. Do not copy Inter into your own display type; **Inter is banned in display** (see the Inter rule in SKILL.md / interrogation-checklist).
 - Layout: Clean grids, generous spacing, minimal decoration
 - Details: Subtle reveals, keyboard-first thinking
 - **Lesson**: Remove until you can't. Then remove more.
@@ -80,6 +80,8 @@ Exemplars and principles to draw from. Not to copy—to understand and adapt.
 
 ## Typography References
 
+> **Calibration only — direct reuse forbidden.** These lists calibrate quality; picking the same two faces every project produces house-slop. **Derive** per project and **document** the choice. Inter/Roboto/Arial never in display.
+
 ### Google Fonts (Quality Selections)
 
 **Display Fonts**
@@ -115,6 +117,8 @@ Exemplars and principles to draw from. Not to copy—to understand and adapt.
 ---
 
 ## Color Systems
+
+> **Calibration only — direct reuse forbidden.** Derive the project palette from the client brand/context, express it in OKLCH, and document the derivation. Never ship a foundation/accent verbatim as a default.
 
 ### Neutral Foundations
 
@@ -231,7 +235,7 @@ Exemplars and principles to draw from. Not to copy—to understand and adapt.
 **Definition**: Modular grid systems inspired by Japanese bento boxes—organizing content into distinct rectangular compartments of varying sizes.
 
 **Why It Works**:
-- Research shows carousel banners get <1% clicks, with 89% going to the first slide
+- Bento grids show multiple content pieces at once, so they sidestep the classic weakness of hero **carousels** — where the widely-cited Notre Dame "ND homepage carousel" case study (Erik Runyon, 2013) found roughly **1% of clicks on the banner, and ~84% of those on the first slide**. Treat that figure as a dated, single-site anecdote, not a universal law: verify against current data before quoting it to a client.
 - Bento grids display multiple content pieces simultaneously
 - Creates visual hierarchy through size variation
 - Perfect for dashboards, portfolios, feature showcases
@@ -307,10 +311,11 @@ Exemplars and principles to draw from. Not to copy—to understand and adapt.
 | Best Practice | 44×44 px | 48×48 px + 8px spacing |
 
 **Key Rules**:
+- **Blocking gate = 24×24 px (WCAG 2.5.8 AA); premium target = 44×44 px (WCAG 2.5.5 AAA / Apple HIG).** Never phrase 44 px as "the WCAG minimum."
 - Minimum 6px inactive space between actionable elements
-- Touch targets can extend beyond visible boundaries
+- Touch targets can extend beyond visible boundaries — extend the **hit area** (pseudo-element / padded label), don't `min-size` native `checkbox`/`radio`
 - Inline links exempt if text is sentence-sized
-- Always test with real devices, not just simulators
+- Live-device / cross-viewport verification for a shipped web page is **delegated to `ship-polished-ui`'s tooled loop** — design-elevation does not open devices and must not claim it did
 
 ### Focus Visibility (WCAG 2.2 Updates)
 - Focus indicators must be clearly visible (2.4.7)
@@ -397,26 +402,27 @@ Component-level decisions:
 ### Variable Fonts
 **Benefits**: Single file, infinite weights/widths, smaller file sizes, dynamic adjustments.
 
-**Recommended Variable Fonts**:
-- **Inter**: wght 100-900, comprehensive language support
+> **Inter rule.** Inter is **banned in display/heading roles** (it is the strongest typographic AI tell after violet gradients). It is tolerated in **body only when the reason is written down** in the Design Decisions block. It is therefore **not** a recommended *display* face — the list below is for **text/body** calibration, and the example below deliberately uses a display face with character.
+
+**Variable text faces (calibration for body — derive, don't default)**:
 - **Plus Jakarta Sans**: wght 200-800, modern geometric
 - **Manrope**: wght 200-800, distinctive personality
-- **Space Grotesk**: wght 300-700, technical aesthetic
-- **Outfit**: wght 100-900, clean geometric
+- **Public Sans / Source Sans 3**: neutral, accessible workhorses
+- **Space Grotesk**: wght 300-700, technical (display-capable)
 
-**Usage**:
+**Usage** (display face with character — pair with a sober text face):
 ```css
 @font-face {
-  font-family: 'Inter';
-  src: url('Inter-VariableFont.woff2') format('woff2');
+  font-family: 'Fraunces';
+  src: url('Fraunces-VariableFont.woff2') format('woff2');
   font-weight: 100 900;
   font-display: swap;
 }
 
 h1 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Fraunces', Georgia, serif;
   font-weight: 700;
-  font-variation-settings: 'wght' 700;
+  font-variation-settings: 'wght' 700, 'opsz' 96; /* optical size for large display */
 }
 ```
 

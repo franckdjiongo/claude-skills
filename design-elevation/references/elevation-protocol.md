@@ -143,21 +143,21 @@ Find one element that isn't earning its place. Remove it.
 
 ## Phase 6: Validation Pass
 
-Final quality check before delivery.
+Final quality check before delivery. **This pass is scored and posted — it is not a set of self-directed questions.** "Distance / Comparison / Pride" tests done "in your head" are removed: an LLM always passes them. Replace them with objective, measured criteria.
 
-### 6.1 Run Interrogation Checklist
-Go through `interrogation-checklist.md` completely.
+### 6.1 Post the Scored Validation Grid
+Run the 12-criterion grid from `interrogation-checklist.md` (§ Scored Validation Grid) and **post it as an artifact**, one row per criterion with its **real measured value** — never a bare score. At least four rows are measured mechanically:
+- forbidden display fonts → `grep` the output
+- body & muted contrast → `node scripts/contrast-check.mjs <fg> <bg>` (paste the ratio)
+- AI-slop tells → `node scripts/slop-lint.mjs <file>` (paste the count/verdict)
 
-### 6.2 Distance Test
-Step back (mentally). Does it look professional at a glance?
+### 6.2 Gate
+**Score < 10/12 → mandatory correction pass** (fix the failing rows, re-measure, re-post), max 3 iterations. Any row still short after 3 passes is **documented as a known deviation** with its reason — never silently passed.
 
-### 6.3 Comparison Test
-How does this compare to work from Stripe, Linear, Apple? What's the gap?
+### 6.3 Emit the Design Decisions block
+Attach the compact **Design Decisions** block (fonts + reason, palette + 60-30-10 distribution, signature element, media strategy, grid result `N/12`). The reasoning is now visible, not internal.
 
-### 6.4 Pride Test
-Would you put this in your portfolio? If not, what would make you proud of it?
-
-**Deliverable**: Final output ready for delivery.
+**Deliverable**: Final output + posted scored grid + Design Decisions block.
 
 ---
 
@@ -176,17 +176,17 @@ For a typical visual output:
 
 ---
 
-## Emergency Elevation Checklist
+## Emergency Elevation Checklist (locked — explicit request only)
 
-When time is limited, prioritize these:
+Emergency mode skips phases and their gates. **Do NOT auto-trigger it** because a task looks small or urgent. It runs **only on an explicit user request** ("mode urgence", "vite fait, saute les étapes"), and when it runs you must **announce**: *"mode urgence — phases X, Y sautées"* naming the skipped phases. Absent an explicit request, run the full protocol including the scored grid (Phase 6).
 
-1. **Typography**: Switch to better fonts, establish clear hierarchy
-2. **Color**: Apply intentional palette, not defaults
-3. **Spacing**: Generous margins, consistent padding
-4. **One signature element**: Make one thing memorable
-5. **Remove clutter**: Delete unnecessary decorations
+When legitimately requested, prioritize these:
 
-Even 10 minutes of intentional design thinking beats hours of template adjustment.
+1. **Typography**: switch to better fonts, establish clear hierarchy (Inter still banned in display)
+2. **Color**: apply intentional palette, not defaults
+3. **Spacing**: generous margins, consistent padding
+4. **One signature element**: make one thing memorable
+5. **Remove clutter**: delete unnecessary decorations
 
 ---
 

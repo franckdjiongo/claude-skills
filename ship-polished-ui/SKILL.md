@@ -5,7 +5,7 @@ description: Use anytime the user wants to CREATE or improve premium, production
 
 # ship-polished-ui — Premium frontend craft, browser-verified
 
-Pair the in-house design doctrine (**[references/design-direction.md](references/design-direction.md)** — authored in Phase D; until then, this SKILL.md and the session-lessons references carry the taste) with a disciplined visual QA loop. The doctrine handles taste — bold typography, distinctive aesthetics, motion, atmosphere. This skill handles craft — actually verifying in a real browser that the change shipped without regressions, hidden bugs, or the half-finished feeling of "looks fine on the bit I happened to screenshot."
+Pair the in-house design doctrine (**[references/design-direction.md](references/design-direction.md)** — the taste authority) with a disciplined visual QA loop. The doctrine handles taste — bold typography, distinctive aesthetics, motion, atmosphere. This skill handles craft — actually verifying in a real browser that the change shipped without regressions, hidden bugs, or the half-finished feeling of "looks fine on the bit I happened to screenshot."
 
 ## Why this skill exists
 
@@ -82,7 +82,7 @@ Glob: **/tokens.css
 
 ### 1.1 — Set the visual direction
 
-Read **[references/design-direction.md](references/design-direction.md)** for the in-house design doctrine (award-level rules, references-first, media strategy). *This file is authored in Phase D of the ecosystem plan; until it lands, apply the principles in this SKILL.md and the session-lessons references directly.* The direction owns:
+Read **[references/design-direction.md](references/design-direction.md)** for the in-house design doctrine (the 14 award-level rules, references-first Match/Change, the 3-directions exploration, media strategy, anti-average levers). **This read is mandatory in Phase 1 before you post the Design Spec** — the Spec below is where its rules become named, justified decisions. The direction owns:
 
 - Bold aesthetic direction (refined minimalism, editorial maximalism, brutalist, etc.)
 - Typography choices that aren't generic Inter/Roboto/Arial
@@ -103,9 +103,68 @@ For any **showcase site, landing page, or surface that carries animation, scroll
 - **THE signature moment** — exactly **one** memorable interaction per page (rule A1-01 / motion-craft §⑧). Name it and locate it. Accumulating effects is an amateur tell, not richness.
 - **Reduced-motion behavior** — what each of the above degrades to under `prefers-reduced-motion: reduce` (the non-negotiable WCAG 2.3.3 gate — motion-craft §⑤).
 
-`motion-craft.md` owns the *how*: the escalation hierarchy (CSS → Motion → GSAP → 3D, justified per storey), the per-project stacks, the canonical Lenis/ScrollTrigger/useGSAP/`@supports`/View-Transitions boilerplates (copy them verbatim), the 3D decision tree + R3F checklist, the animatable-property whitelist, and the 5 motion non-regression tests that the verify phase runs. Read it before Phase 1 coding on any animated site; the full Design Spec (8 rubrics, Phase D) folds this inventory into rubric 6.
+`motion-craft.md` owns the *how*: the escalation hierarchy (CSS → Motion → GSAP → 3D, justified per storey), the per-project stacks, the canonical Lenis/ScrollTrigger/useGSAP/`@supports`/View-Transitions boilerplates (copy them verbatim), the 3D decision tree + R3F checklist, the animatable-property whitelist, and the 5 motion non-regression tests that the verify phase runs. Read it before Phase 1 coding on any animated site; the full Design Spec below folds this inventory into rubric 6.
 
-When phase 1 is "complete enough to look at," move immediately to phase 2 — do not batch up many changes before verifying. Smaller verify cycles catch bugs closer to the change that caused them.
+### 1.3 — Post the Design Spec (mandatory — no CSS before the Spec)
+
+**You may not write a line of CSS before you have posted the Design Spec.** The old exit
+criterion "complete enough to look at" is gone — it let the model start typing at the
+statistical average. The Spec is the artifact that forces the decisions *before* the code,
+so Phase 2 has something concrete to verify each decision against.
+
+Read **[references/design-direction.md](references/design-direction.md)** first (rules,
+references-first, media strategy, anti-average levers), then post this block **verbatim in
+shape**, filling every rubric. Copy it from the ecosystem plan's annex A4 — do not
+regenerate from memory:
+
+```
+## DESIGN SPEC — {projet} — {date}
+1. Direction typographique : {display face} + {famille texte} — parce que {justification liée au client, pas un adjectif}
+2. Palette nommée : "{nom}" — base {oklch/hex} + accent {oklch/hex} — dérivée de {attribut marque/produit}
+   (brand-package présent : OUI → valeurs brand-fixed / NON → dérivation documentée)
+3. Primitive de layout : {nom} — répétée sur {liste des sections}
+4. Signature moment : {description} — localisé {où} — technologie {CSS/Motion/GSAP/3D + justification d'étage}
+5. Références nommées : {1-3 produits/sites réels} — MATCH : {espacement/typo/densité} — CHANGE : {contenu/accent}
+6. Motion inventory : hover/press {familles} · entrance hero {…} · reveals scroll {sections} · reduced-motion {comportement}
+7. Stratégie média : {photo client / images IA / vidéo d'ambiance / illustration / 3D / aucun} — parce que {lien produit}
+   → production : {chatgpt-image-prompt-architect | nano-banana-prompt-engineer | outil vidéo} · règles perf A2-⑨
+8. Persona : {ex. senior frontend engineer, print-design background} · Seed d'art direction : {ère/culture}
+   · Données : {réelles du client | mock JSON structuré} — lorem ipsum interdit
+```
+
+The eight rubrics, and the rules that bind them:
+
+1. **Named typographic direction + justification** — a display face + a text family, each
+   named, each justified by the client (not "clean"). Bare adjectives ("clean", "modern",
+   "premium", "sleek") are **forbidden** unless attached to a named reference (rubric 5).
+2. **Named palette derived from the brand** — a named, non-default palette, base + accent,
+   derived from a brand/product attribute. If a `brand-package.md` was loaded in 1.0, the
+   values are **brand-fixed**; otherwise document the derivation. No lavender violet, no
+   violet→blue gradient.
+3. **ONE repeated layout primitive** — a single composition primitive named and listed
+   across the sections it repeats on (rule A1-07).
+4. **The localized signature moment** — exactly one memorable interaction, named, located,
+   with its motion-craft escalation storey justified (rule A1-01).
+5. **1–3 real named references, Match/Change** — real products/sites, each with what you
+   MATCH (craft language) and what you CHANGE (identity). This is the referent Phase 2 uses
+   for the swap-brand and greenfield-craft checks.
+6. **Motion inventory** — the inventory from 1.2, folded in as this rubric.
+7. **Media strategy + production routing** — the chosen visual register justified by the
+   product (rule A1-14), with production routed to the dedicated skills and the perf rules
+   of motion-craft §⑨.
+8. **Persona + art-direction seed + real data** — the three anti-average levers
+   (design-direction Part 5).
+
+**On an ambitious request** (full site, hero, redesign), first sketch **3 directions** in
+three lines each and choose one *with justification* before filling the Spec — never
+implement the first idea (design-direction Part 3).
+
+Only after the Spec is posted do you apply the design via direct edits. When phase 1 is
+posted and the first edits are made, move immediately to phase 2 — do not batch up many
+changes before verifying. Smaller verify cycles catch bugs closer to the change that caused
+them. **The Spec is carried into Phase 2:** the Verification Ledger gets one *"conformité
+Design Spec"* transverse row per decision (the named typo is actually loaded, the palette is
+in tokens, the signature moment exists and works, the media respects §⑨).
 
 ## Phase 2 — Verify (the non-negotiable loop)
 
@@ -123,6 +182,8 @@ Post the ledger under a heading that contains the **exact** string `VERIFICATION
 **Auditable escape hatch — never silent.** If a turn that runs after this skill was invoked is legitimately **not** a UI turn (e.g. the user pivoted to an unrelated question, or the work was a pure non-visual refactor with nothing to render), you may skip the ledger — but only by writing, in that turn, the exact line `LEDGER-EXEMPT: <reason>` stating why no ledger applies. This is an explicit, logged exception, never an implicit omission: either a `VERIFICATION LEDGER` heading or a `LEDGER-EXEMPT:` line must appear on any turn that would otherwise declare UI work done.
 
 **Consume the design-intent contract.** If Phase 1 loaded a `design-intent.md`, its **TESTABLE CRITERIA become additional lines of the Verification Ledger** — one ledger row per criterion, each demanding a real measured proof, never a declarative PASS. The design-intent's motion stance and art direction are checked here the same way.
+
+**Verify the Design Spec, decision by decision.** The Design Spec posted in Phase 1 (§1.3) is a contract with Phase 2: the ledger carries **one `conformité Design Spec` transverse row per Spec decision**, each backed by a real proof, never a declarative PASS. Concretely — the **named typography** is actually loaded (`@font-face`/grep on the served CSS), the **named palette** is present as tokens (not a stray hex), the **layout primitive** repeats where the Spec said, the **signature moment** exists and works (see Motion QA), and the **media** respects the perf rules of motion-craft §⑨. A Spec decision with no matching ledger row was declared, not verified.
 
 **Tooling correspondence — measure, don't guess from a screenshot:**
 
@@ -194,9 +255,9 @@ Skip the agent for trivial changes (one CSS file, ~10 lines) — verify those yo
 
 ## Read these references when relevant
 
-- **[references/design-direction.md](references/design-direction.md)** — The in-house design doctrine for Phase 1 (award-level rules, references-first, media strategy). *Authored in Phase D of the ecosystem plan; until it lands, apply this SKILL.md and the session-lessons directly.* Replaces any dependency on the Anthropic `frontend-design` skill, which is being retired from this pipeline.
+- **[references/design-direction.md](references/design-direction.md)** — The in-house design doctrine for Phase 1: the 14 award-level rules, references-first Match/Change, the 3-directions exploration, media strategy, and the anti-average levers (persona / art-direction seed / real data). **Mandatory read before posting the Design Spec (§1.3).** Replaces any dependency on the Anthropic `frontend-design` skill, which is being retired from this pipeline.
 - **[references/motion-craft.md](references/motion-craft.md)** — The motion & 3D playbook: escalation hierarchy, per-project stacks, canonical GSAP/Lenis/useGSAP/scroll-driven/View-Transitions boilerplates, 3D decision tree + R3F checklist, reduced-motion gate, animatable-property whitelist, the 5 motion non-regression tests, the signature-moment rule, and background-media (video/AI-image) rules. **MUST read before Phase 1 coding** on any showcase site, landing page, or surface with animation, scroll effects, background media, or 3D.
-- **[references/visual-qa-checklist.md](references/visual-qa-checklist.md)** — The operational checklist for phase 2. Read on every invocation.
+- **[references/visual-qa-checklist.md](references/visual-qa-checklist.md)** — The operational checklist for phase 2 (14 sections). Read on every invocation. Section 14 (Signature & slop) runs the swap-brand test, verifies the Design Spec decisions landed, applies the external craft referent in greenfield, and runs `slop-lint.mjs` for deterministic AI-slop tells.
 - **[references/css-side-effects.md](references/css-side-effects.md)** — Dangerous CSS patterns and the regressions they cause. Read whenever your change touches `overflow`, `position`, `z-index`, `isolation`, `clip-path`, `filter`, `transform`, `backdrop-filter`, `background-attachment`, or container sizing.
 - **[references/iframe-and-host-shells.md](references/iframe-and-host-shells.md)** — Behavior changes inside iframes (Power Apps, Salesforce, embedded SaaS, sandboxed previews). Read whenever the app is hosted inside another shell.
 - **[references/session-lessons-2026-05-04.md](references/session-lessons-2026-05-04.md)** + **[references/session-lessons-2026-05-21.md](references/session-lessons-2026-05-21.md)** + **[references/session-lessons-2026-05-31.md](references/session-lessons-2026-05-31.md)** — Concrete bugs caught in real sessions, each with symptom → root cause → the diagnostic that should have run → the fix. They trace the failure axes: *looking harder* at one surface (05-04), the *viewport matrix* (05-21), and the three quality axes — *correct, comfortable, premium* (05-31: ergonomics Bugs 6–7, then craft/intent Bug 8). Read them to ground the abstract checklist in what "rigorous" actually looks like.
