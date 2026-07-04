@@ -79,6 +79,8 @@ For each entry in the design's delta block:
 
 If delta not applied → CRITICAL finding (spec drifts from code).
 
+For migration deltas: a deliberate spec-authoritative improvement over legacy behavior must be reflected in the delta (documented as intentional), not left implicit — an undocumented "the new code is more correct" gap reads as a parity regression to every downstream check.
+
 ### Step 3: Architectural facts (NOT spec violations)
 
 Some constraints are platform reality, not spec violations. Don't flag these:
@@ -100,17 +102,23 @@ Each issue falls into one class. Report only the first that applies:
 3. **Accepted platform constraint** — architectural fact (don't report; INFO if unclear)
 4. **Spec ambiguity** — the spec is unclear; flag for design clarification
 
+### Step 4b: Coverage before filtering
+
+Surface every AC gap, deviation, and ambiguity you find, including low-severity or uncertain ones — attach severity and confidence to each and let the classification + verdict do the sorting. A finding that ends up advisory costs nothing; a silently dropped spec gap costs rework downstream.
+
+Follow-ups you spot outside the diff go in `## Pre-existing (out of scope)` / Notes — never spawn task chips (`spawn_task`) from a reviewer context. The orchestrator decides chip-vs-backlog and owns the chip ids; chips spawned here leave it unable to manage them.
+
 ### Step 5: Self-check before submitting
 Before returning, walk back through:
 - Are findings classified correctly?
-- Is the verdict consistent with the findings?
+- Is the verdict consistent with the findings? MEDIUM/LOW-only findings → verdict `FINDINGS`, never `BLOCKED` (BLOCKED is for missing inputs or fabricated IDs, not for finding severity).
 - For FINAL SCAN: did I check the delta triangle (spec↔data-model↔catalog)?
 
 ## Output contract
 
 ```markdown
 ## Findings
-- [SEVERITY] file:line — finding description
+- [SEVERITY] (confidence: high|medium|low) file:line — finding description
   - AC reference: <FUNC-XX / AC-N>
   - Class: in-scope-violation | deferred | spec-ambiguity
   - Suggested fix: <one sentence>
@@ -132,4 +140,5 @@ PASS | FINDINGS | BLOCKED
 - Don't fabricate FUNC/RA/VAL IDs; if the plan references a non-existent ID → BLOCKED.
 - For FINAL SCAN, the delta triangle check is non-skippable. If only 2 of 3 docs updated → CRITICAL.
 - Don't run any tools that modify files. You are read-only.
+- Don't spawn task chips (`spawn_task`) — report follow-ups; the orchestrator arbitrates chip vs backlog.
 - The 4-class classification matters — "deferred" + a `DEFERRED-XXX` entry is acceptable; without the entry, treat as in-scope-violation.

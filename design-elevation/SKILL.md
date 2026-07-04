@@ -1,6 +1,6 @@
 ---
 name: design-elevation
-description: Apply professional design thinking to any visual output (presentations, spreadsheets, HTML artifacts, PDFs, dashboards, reports). Automatically interrogates design choices, applies best practices from Stripe/Linear/Apple, and pushes for excellence. Use this skill whenever creating any visual artifact to ensure polished, hand-crafted results rather than generic template output. Triggers on requests for slides, decks, dashboards, reports, HTML pages, landing pages, components, data visualizations, or any visual deliverable.
+description: Apply professional design thinking to documentary visual artifacts — presentations, plans HTML, rapports, dashboards, spreadsheets, PDFs, data visualizations. Automatically interrogates design choices, applies best practices from Stripe/Linear/Apple, and pushes for polished, hand-crafted results rather than generic template output. Triggers on requests for slides, decks, presentations ("présentation", "slides"), plans HTML ("plan HTML"), reports ("rapport"), dashboards, styled documents, or any documentary deliverable where appearance matters. For client websites and application UIs — anything shipped and browser-verified — use ship-polished-ui instead; that skill owns the site pipeline and its non-negotiable visual QA loop.
 ---
 
 # Design Elevation Skill
@@ -9,13 +9,15 @@ Transform functional visual output into polished, professional design. Apply aut
 
 ## Activation
 
-This skill activates for any visual output request:
+This skill activates for **documentary** visual output — deliverables that are read, not shipped and browser-verified:
 - Presentations, slide decks, pitch decks
 - Dashboards, reports, data visualizations
-- HTML pages, landing pages, web components
+- Plans HTML, styled HTML documents (rapports, mémos)
 - PDF documents, styled reports
 - Spreadsheets with visual formatting
-- Any artifact where appearance matters
+- Any documentary artifact where appearance matters
+
+**Out of scope — hand off to `ship-polished-ui`:** client websites, landing pages, application UIs, and web components that get built and shipped. Those belong to the `ship-polished-ui` pipeline (Design Spec → build → non-negotiable browser visual QA → Verification Ledger). Design-elevation deliberately no longer owns them, so that no site leaves without browser QA.
 
 ## Core Process
 

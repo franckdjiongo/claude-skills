@@ -85,6 +85,7 @@ For each diff, walk these in order:
 - Are schema fields nullable when reality demands it?
 - Money: integer cents (no floats).
 - Dates: UTC; format at the edge.
+- Migration/backfill diff: the parity report covers EVERY ref-like field — including typed string fields holding foreign keys — with its resolution rate against the target table's keys. Counts+sums+hard-FK alone is not parity; flag its absence HIGH.
 
 {{IF_STACK_REACT}}
 ### 8. State / context hygiene (React)
@@ -109,6 +110,26 @@ For each diff, walk these in order:
 - TODO / FIXME / XXX with date or ticket reference?
 - Stale phase deferrals (e.g., "fix in phase 2" — has phase 2 shipped?)?
 
+## Execute what is executable
+
+A runnable execution artifact in scope (script, migration, seed, backfill, export) is never approved on static reading + typecheck alone — a script can read clean, typecheck green, and fail on its first call (wrong module system, server-side validator rejection). Require evidence of a real run (dry-run or sandbox) in the implementer's summary; if the artifact is runnable in your environment, run it. No such evidence → flag HIGH.
+
+## Permanent structural checklist (runs on every review, AC-independent)
+
+The 10-point focus follows the task's acceptance criteria. These five checks run on every diff regardless of what the task asked for — the classes below recur because they live BETWEEN the ACs (ported branches, new-code blind spots, cross-module siblings):
+
+- **(a) Ownership on every persisted id.** Every foreign-key / id argument a write endpoint persists (a Convex `v.id(...)` mutation arg, a relational FK) carries an ownership guard proven on EVERY path that reaches the write — early-continue, invalid-amount, and error branches included, not only the happy path. A guarded main path with an unguarded `continue` above it is an unguarded write.
+- **(b) Server cap on every client collection.** Every client-controlled array / collection (a Convex `v.array(...)` arg, a request-body list) carries an explicit server-side size cap. An uncapped client array is an unbounded write.
+- **(c) Sibling sweep on every new guard.** When the diff introduces a cap, guard, or invariant, grep the ENTIRE diff for siblings of the same shape that lack it, and report the sweep as an enumeration table (each sibling: has-guard / missing). A guard added to one of N sites and silent about the other N−1 is a partial fix.
+- **(d) Legacy-port side-by-side.** For any path ported from a legacy implementation, inventory the source branch-by-branch (`git show main:<file>` or the origin ref) and map each legacy behavior branch to the port — not only the AC-named cases. A branch present in the legacy and absent from the port is a parity miss.
+- **(e) Behavioral-comment verification.** Every comment making a behavioral claim ("atomic", "kept in lock-step", "does not mutate", "idempotent", "single round-trip") is checked against the code; a claim the code does not honor is flagged (the comment lies, and the next reader trusts it).
+
+## Finding-stage coverage (not filtering)
+
+Report every issue you find, including ones you are uncertain about or consider low-severity. Don't filter for importance or confidence at the finding stage — attach a severity and a confidence (high/medium/low) to each finding and let the verdict do the ranking. A finding that later gets classed LOW costs nothing; a silently dropped real bug costs a regression. The concrete bar for nits: report anything that could cause incorrect behavior, a test failure, or a misleading result; omit only pure style or naming preferences.
+
+Follow-ups you spot outside the diff go in `## Pre-existing (out of scope)` — never spawn task chips (`spawn_task`) from a reviewer context. The orchestrator decides chip-vs-backlog and owns the chip ids; chips spawned here leave it unable to manage them.
+
 ## Severity matrix
 
 | Severity | Examples |
@@ -123,13 +144,13 @@ For each diff, walk these in order:
 - All 10 points reviewed for the diff scope?
 - Severity assigned reasonably (not over-flagging MEDIUM as HIGH)?
 - Pre-existing issues clearly separated under `## Pre-existing (out of scope)`?
-- Verdict consistent: any CRITICAL/HIGH unresolved → FAIL.
+- Verdict consistent: any CRITICAL/HIGH unresolved → FAIL. FAIL is reserved for unresolved CRITICAL/HIGH; MEDIUM/LOW-only findings → PASS with the findings listed (never FAIL on MEDIUM alone).
 
 ## Output contract
 
 ```markdown
 ## Findings
-- [CRITICAL|HIGH|MEDIUM|LOW] file:line — description
+- [CRITICAL|HIGH|MEDIUM|LOW] (confidence: high|medium|low) file:line — description
   - Suggested fix: <one sentence>
 
 ## Open questions
@@ -139,8 +160,8 @@ For each diff, walk these in order:
 - [INFO] ... (issues not in this diff; flagged for backlog)
 
 ## Verdict
-PASS — no CRITICAL/HIGH findings
-| FAIL — see findings
+PASS — no unresolved CRITICAL/HIGH findings (MEDIUM/LOW findings may be listed)
+| FAIL — unresolved CRITICAL/HIGH, see findings
 ```
 
 ## Gotchas
@@ -149,5 +170,6 @@ PASS — no CRITICAL/HIGH findings
 - Don't suggest large refactors in a small-diff review. Note as "Open question" or pre-existing.
 - For STANDARD-tier reviews, dead code is the #1 blind spot. Always do a dedicated dead-code pass.
 - Pre-existing issues belong under `## Pre-existing` — don't fail the diff for them.
+- Don't spawn task chips (`spawn_task`) — report follow-ups; the orchestrator arbitrates chip vs backlog.
 - Don't fabricate severity to "look thorough." If everything passes, say PASS with one-line summary.
 - For VAL-XX validation pre-submission battery (if {{PROJECT_NAME}} has form-heavy UIs): test each VAL-XX with a representative input.

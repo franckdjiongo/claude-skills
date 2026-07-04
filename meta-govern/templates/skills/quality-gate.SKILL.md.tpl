@@ -11,19 +11,20 @@ Template variables (substituted at BOOTSTRAP):
 name: quality-gate
 description: |
   Full code quality audit for the {{PROJECT_NAME}} codebase. Combines a deterministic
-  12-check script (hardcoded hex/rgba colors, i18n bypass via `language === 'en'`
-  ternaries, file size > 300 lines, `any` types, console.log, secret patterns,
-  direct `fetch()` in components, snapshot tests, container.querySelector, useEffect
-  + setState heuristic, TODO markers, project-specific anti-patterns) with a short
-  architectural review (duplication, prop drilling, missing tests, spec alignment).
+  multi-check script (hardcoded hex/rgba colors, file size > 300 lines, `any` types,
+  console.log, secret patterns, direct `fetch()` in components, snapshot tests,
+  container.querySelector, useEffect + setState heuristic, TODO markers,
+  project-specific anti-patterns — plus an i18n-bypass check when the project has an
+  i18n layer) with a short architectural review (duplication, prop drilling, missing
+  tests, spec alignment).
   Use whenever the user says or implies: audit, quality gate, quality check, code
   review, pre-merge audit, FINAL SCAN, scan complet, audit qualité, contrôle qualité,
   vérifier le code, lint complet, "is this code clean", "any issues before I merge",
   "audit pré-commit", "before we ship", or after a large refactor / before opening
   a PR. ALSO use proactively at the end of an `/execute-plan` FINAL SCAN phase, even
   if the user didn't explicitly ask. Distinct from `{{PACKAGE_MANAGER}} run validate`
-  (lint + typecheck + test + build) — this catches what ESLint cannot: i18n bypass,
-  leaked secrets, architectural smells.
+  (quality + size-guard + docs guards + typecheck + tests) — this catches what
+  ESLint cannot: i18n bypass, leaked secrets, architectural smells.
 when_to_use: |
   Before a merge / PR; at the end of a FINAL SCAN; on demand for a sanity check;
   whenever you suspect drift (recurring i18n hardcoding, files growing past budget,
@@ -52,7 +53,7 @@ Ask the user (or decide from context):
 | ---------------- | ---------------------------------------------------------------- |
 | `--scope all`    | Full audit (default, FINAL SCAN, before merge)                   |
 | `--scope staged` | Fast pre-commit on staged files                                  |
-| `--check <id>`   | Target a single check (e.g., `--check i18n-ternary` after refactor) |
+| `--check <id>`   | Target a single check (e.g., `--check colors-hex` after refactor) |
 
 ### Step 2 — Run the deterministic script
 
@@ -68,10 +69,10 @@ The script returns JSON:
 {
   "scope": "all",
   "failLevel": "HIGH",
-  "checksRun": ["colors-hex", "colors-rgba", "i18n-ternary", "file-size", "ts-any", "console", "todo", "secrets", "direct-fetch", "snapshot", "container-query", "effect-setstate"],
+  "checksRun": ["colors-hex", "colors-rgba", {{IF_STACK_HAS_I18N}}"i18n-ternary", {{/IF}}"file-size", "ts-any", "console", "todo", "secrets", "direct-fetch", "snapshot", "container-query", "effect-setstate"],
   "fileCount": 42,
   "findings": [
-    { "id": "C-I18N-TERNARY", "severity": "CRITICAL", "file": "...", "line": 12, "message": "..." }
+    { "id": "colors-hex", "severity": "CRITICAL", "file": "...", "line": 12, "message": "..." }
   ]
 }
 ```
@@ -80,12 +81,12 @@ The script returns JSON:
 
 Group by severity:
 
-{{IF_STACK_HAS_UI}}- **CRITICAL** (exit 2): hardcoded hex/rgba colour, i18n ternary, committed secret, snapshot test, container.querySelector.
+{{IF_STACK_HAS_UI}}- **CRITICAL** (exit 2): hardcoded hex/rgba colour, committed secret, snapshot test, container.querySelector (plus the i18n ternary check when the project has an i18n layer).
 - **HIGH** (exit 1): file > 300 lines, `any` type, direct `fetch()` in UI.
 - **MEDIUM**: file-size warning 250+, console.log.
 - **LOW**: TODO markers, useEffect+setState heuristic.{{/IF}}
 
-For non-UI stacks the i18n / colour / DOM-query checks are skipped; CRITICAL is reserved for committed secrets and project-specific anti-patterns.
+For non-UI stacks the colour / DOM-query checks are skipped; CRITICAL is reserved for committed secrets and project-specific anti-patterns.
 
 ### Step 4 — Architectural review (beyond the script)
 
@@ -168,7 +169,7 @@ For non-skill usage:
 node .claude/scripts/quality-checks/index.mjs --fail-level critical
 
 # Single check
-node .claude/scripts/quality-checks/index.mjs --check i18n-ternary
+node .claude/scripts/quality-checks/index.mjs --check colors-hex
 ```
 
 ## Cross-references

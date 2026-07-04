@@ -26,7 +26,12 @@ import { DOCS_ROOT } from './lib/docs-config.mjs';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, '..', '..', '..');
-const manifest = JSON.parse(fs.readFileSync(path.join(scriptDir, 'docs-html-manifest.json'), 'utf8'));
+const manifestPath = path.join(scriptDir, 'docs-html-manifest.json');
+if (!fs.existsSync(manifestPath)) {
+  console.error('✗ Manifest absent. Lancez d’abord inventory.mjs.');
+  process.exit(1);
+}
+const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 
 const DRY = process.argv.includes('--dry');
 const BARE = process.argv.includes('--bare');

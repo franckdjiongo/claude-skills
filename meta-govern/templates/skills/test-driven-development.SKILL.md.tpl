@@ -169,7 +169,7 @@ Before marking the task complete, re-read the AC checklist:
 - [ ] Each AC has a test that would FAIL if that criterion were removed from the code (prove it — delete the behavior mentally and confirm the test goes red). A test that still passes after the behavior is gone is testing the wrong thing.
 - [ ] For any "before X" / ordering behavior, the test asserts the SEQUENCE, not just the final state (a criterion like "render X before Y" verified only by final state passes incorrectly).
 - [ ] All tests pass
-- [ ] {{PACKAGE_MANAGER}} run validate succeeds (typecheck + lint + test + build)
+- [ ] {{PACKAGE_MANAGER}} run validate succeeds (quality + size-guard + docs guards + typecheck + tests)
 - [ ] No new TODO / FIXME without DEFERRED-XXX entry
 - [ ] No `console.log` in production paths
 

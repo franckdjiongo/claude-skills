@@ -25,6 +25,12 @@ Extract sub-components as flat sibling files prefixed with the parent's name:
 
 Why dot-notation, not folders: file search shows the relationship at a glance, no `index.ts` re-export ceremony, imports stay flat (`import { Item } from './CartDrawer.Item'`).
 
+{{IF_STACK_CONVEX}}## Convex exception — single-dot camelCase
+
+Convex function discovery ignores multi-dot basenames (confirmed via `CONVEX_VERBOSE=1`): a `taxonomies.ExpenseTypes.ts` under `convex/` silently exports nothing. Under `convex/**`, extract function files as single-dot camelCase siblings (`expenseAndDebtTypes.ts`). Helper files that are only imported (`expenses.shared.ts`) and `*.test.ts` are safe — they aren't discovered.
+
+{{/IF}}
+
 ## Justified extraction
 
 Extract when responsibilities have clearly diverged (orchestrator + leaf views), when a sub-block repeats 3+ times, or when size has crossed the warning zone. A coherent 200-line page is fine; six 30-line files chained by props is harder to read.
@@ -42,7 +48,7 @@ Stylesheets, lockfiles, generated codegen output, fixture files. Type files spli
 1. Stop adding to the file.
 2. Identify a clear seam (sub-component, sub-section, sub-flow).
 3. Extract via dot-notation.
-4. Run `{{PACKAGE_MANAGER}} run typecheck` to catch import drift.
-5. Commit the extraction separately (`refactor: extract Header.MobileMenu`) — apart from the feature work that triggered it.
+{{IF_STACK_TYPESCRIPT}}4. Run `{{PACKAGE_MANAGER}} run typecheck` to catch import drift.
+{{/IF}}5. Commit the extraction separately (`refactor: extract Header.MobileMenu`) — apart from the feature work that triggered it.
 
 The separate commit matters: a feature PR that also restructures three files is a review nightmare. Land the refactor first, the feature on top.

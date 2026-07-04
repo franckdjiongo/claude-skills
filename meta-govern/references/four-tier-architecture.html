@@ -69,7 +69,7 @@ Tier 4 ──── Hooks ──────────────────
 <li>Commands (table format: <code>npm run validate</code>, <code>npm run quality:check</code>)</li>
 <li>Path-scoped routing (<code>docs/architecture/**</code> → load <code>references/architecture-strategy.md</code>)</li>
 <li>Compaction recovery (<code>After Compaction</code> section — the only post-compact survivor)</li>
-<li>Notes / current phase tracker</li>
+<li>Notes durables + pointeur d'état (<code>.claude/.meta-govern.json</code> pour palier/version/déclencheurs) — jamais l'état lui-même</li>
 </ul>
 <h3 id="what-does-not-belong" tabindex="-1"><a class="header-anchor" href="#what-does-not-belong" aria-hidden="true">#</a> What does NOT belong</h3>
 <ul>
@@ -80,6 +80,7 @@ Tier 4 ──── Hooks ──────────────────
 <li>Migration playbooks → move to a skill (e.g., <code>bun-migration</code>)</li>
 <li><code>@filename</code> imports → use declarative pointers (<code>UI behavior: docs/document-ui-ux-v1.md</code>)</li>
 <li>Defensive scaffolding (&quot;MUST&quot;, &quot;double-check before returning&quot;) → DELETE</li>
+<li>État volatil (palier, version meta-govern, compte de constats/tests, statut de migration, « backend vivant = X », « aujourd'hui/currently ») → vit dans <code>.claude/.meta-govern.json</code> / <code>HANDOFF.md</code> / docs vivants ; le standing context pointe. Test du rot : « cette phrase peut-elle devenir fausse sans qu'on édite CE fichier ? »</li>
 </ul>
 <h3 id="example-skeleton" tabindex="-1"><a class="header-anchor" href="#example-skeleton" aria-hidden="true">#</a> Example skeleton</h3>
 <pre><code class="language-markdown"># &lt;Project Name&gt; — CLAUDE.md
@@ -115,13 +116,13 @@ React 19, TypeScript 5.8, Vite 6, Convex, R2. Runtime: Bun.
 - `tests/**/*.test.*` → `.claude/rules/testing.md`
 
 ## Default model + effort
-Opus 4.7 xhigh by default. Sonnet 4.6 high for tests/docs/single-file. opusplan for plan-then-build.
+Sonnet 5 high is the workhorse default. Sonnet 5/Opus 4.8 xhigh for the hardest work; Opus 4.8 for hardest pure reasoning + fallback. Plan mode on the stronger model for plan-then-build.
 
 ## Après compaction
 Re-read this file. If `HANDOFF.md` exists, read it. Resume work.
 
-## Notes
-Current palier: 1. Next palier trigger: 30 FUNC IDs.
+## État gouvernance
+Palier, version, déclencheurs : voir .claude/.meta-govern.json (ne pas dupliquer).
 </code></pre>
 <h2 id="tier-2%3A-.claude%2Frules%2F*.md" tabindex="-1"><a class="header-anchor" href="#tier-2%3A-.claude%2Frules%2F*.md" aria-hidden="true">#</a> Tier 2: .claude/rules/*.md</h2>
 <h3 id="budget%3A-%E2%89%A450-lines-per-file%2C-paths%3A-frontmatter-mandatory" tabindex="-1"><a class="header-anchor" href="#budget%3A-%E2%89%A450-lines-per-file%2C-paths%3A-frontmatter-mandatory" aria-hidden="true">#</a> Budget: ≤50 lines per file, <code>paths:</code> frontmatter mandatory</h3>
@@ -290,6 +291,7 @@ paths:
 <p>If any of these fail → AUDIT mode emits findings.</p>
 <h2 id="palier-5%3A-agents.md-mirror" tabindex="-1"><a class="header-anchor" href="#palier-5%3A-agents.md-mirror" aria-hidden="true">#</a> Palier 5: AGENTS.md mirror</h2>
 <p>Dual-runtime projects (Claude Code + Codex) at palier 5 mirror <code>CLAUDE.md</code> as <code>AGENTS.md</code> so Codex picks up the same standing context. The mirror is a <strong>thin pointer</strong>, not a duplicate — it references <code>CLAUDE.md</code> and lists Codex-specific deltas (typically just the build/test commands and the safety section). Drift between the two is detected by the palier-5 <code>sync-claude-mirrors.mjs</code> script.</p>
+<p>Le miroir hérite de la doctrine durable-only : <code>AGENTS.md</code> ne porte jamais d'état (palier, version, compte de tests, statut de migration) — il pointe vers <code>CLAUDE.md</code> et <code>.claude/.meta-govern.json</code> comme <code>CLAUDE.md</code> le fait. Le seul delta légitime est Codex-spécifique et durable (commandes build/test, section safety).</p>
 <p>Single-runtime Claude-only projects (palier ≤4) do not need <code>AGENTS.md</code>. See <code>evolution-roadmap.html</code> palier 5 for promotion triggers.</p>
 
         </div>

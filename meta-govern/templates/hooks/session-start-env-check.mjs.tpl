@@ -24,7 +24,7 @@ import {
 const CACHE_PATH = path.join(tmpDir(), 'last-env-check.json');
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
-const REQUIRED = ['node', 'git', '{{PACKAGE_MANAGER}}'].filter((t) => t && t !== '{{PACKAGE_MANAGER}}');
+const REQUIRED = ['node', 'git', '{{PACKAGE_MANAGER}}'].filter(Boolean);
 const OPTIONAL = ['bun', 'rg', 'fd', 'jq'];
 
 function which(bin) {
@@ -77,7 +77,9 @@ async function main() {
     lines.push('', `Optional tools also missing (non-blocking): ${missingOptional.join(', ')}.`);
   }
 
-  writeJsonStdout({ additionalContext: lines.join('\n') });
+  writeJsonStdout({
+    hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: lines.join('\n') },
+  });
   process.exit(0);
 }
 

@@ -47,6 +47,9 @@ const TEST_FILE_RE = /\.(test|spec)\.(ts|tsx|js|mjs|cjs)$/;
 export function classify(file) {
   const rel = relative(projectDir(), resolve(file)).split('\\').join('/');
   if (rel.startsWith('..') || rel.startsWith('/')) return { kind: 'external', rel };
+  // Generated codegen (e.g. convex/_generated, *.gen.ts) is exempt from source
+  // checks — same policy as dist/build artifacts in file-size-budget.
+  if (/(^|\/)_generated\//.test(rel) || /\.gen\.(ts|tsx|js)$/.test(rel)) return { kind: 'other', rel };
   const base = rel.split('/').pop() || rel;
   if (TOKEN_FILES.has(rel) || TOKEN_FILES.has(base)) return { kind: 'token', rel };
   if (CONFIG_FILE_RE.test(rel)) return { kind: 'config', rel };
@@ -148,22 +151,58 @@ export function stagedFiles() {
 }
 
 export function changedFiles() {
-  // Try main, fall back to master, fall back to local diff vs HEAD.
+  const names = new Set();
+  const add = (raw) => {
+    if (!raw) return;
+    for (const line of raw.split('\n')) {
+      const t = line.trim();
+      if (t) names.add(t);
+    }
+  };
+  // Committed changes vs the base branch (merge-base...HEAD); try main then master.
   const refs = ['origin/main', 'main', 'origin/master', 'master'];
-  let out = null;
+  let baseResolved = false;
   for (const ref of refs) {
-    out = git(`diff --name-only ${ref}...HEAD`);
-    if (out !== null) break;
+    const out = git(`diff --name-only ${ref}...HEAD`);
+    if (out !== null) { add(out); baseResolved = true; break; }
   }
-  if (!out) out = git('diff --name-only HEAD') || '';
-  return out.split('\n').map((s) => s.trim()).filter(Boolean)
+  // No base ref in this clone (e.g. a shallow / single-branch CI checkout) means we
+  // CANNOT compute the PR diff. FAIL CLOSED: scan the whole repo rather than return
+  // an empty set that index.mjs would treat as "nothing changed" and pass vacuously.
+  if (!baseResolved) {
+    process.stderr.write(
+      'quality-checks: no base ref (origin/main|main|origin/master|master) found — ' +
+        'scanning the FULL repo. Fetch the base branch (e.g. `git fetch origin main`, ' +
+        'or actions/checkout fetch-depth:0) to scope to changed files.\n',
+    );
+    return walkRepo(projectDir());
+  }
+  // ALWAYS fold in UNCOMMITTED work so a dirty tree with new violations can't pass
+  // `{{VALIDATE_COMMAND}}` (the Stop hook tells agents to validate before claiming done).
+  add(git('diff --name-only HEAD'));                 // staged + unstaged (tracked)
+  add(git('ls-files --others --exclude-standard'));  // new untracked files
+  return [...names]
     .map((rel) => join(projectDir(), rel))
     .filter((p) => SOURCE_EXT.test(p));
 }
 
 // ---------- File reading helpers ----------
 
+// Content source: 'worktree' (disk, default) or 'index' (the staged blob).
+// Staged-scope runs read the INDEXED content so a file fixed locally but not
+// re-staged can't slip a violating staged blob past the gate (the working tree
+// and the index can diverge).
+let CONTENT_MODE = 'worktree';
+export function setContentMode(mode) {
+  CONTENT_MODE = mode === 'index' ? 'index' : 'worktree';
+}
+
 export function readSafe(path) {
+  if (CONTENT_MODE === 'index') {
+    const rel = relative(projectDir(), resolve(path)).split('\\').join('/');
+    const staged = git(`show ":${rel}"`);
+    if (staged !== null) return staged; // null = not in index → fall back to disk
+  }
   try { return readFileSync(path, 'utf8'); } catch { return ''; }
 }
 
@@ -172,6 +211,32 @@ export function* iterateLines(text) {
   for (let i = 0; i < lines.length; i++) {
     yield { lineNo: i + 1, text: lines[i] };
   }
+}
+
+// Logical line count. A trailing newline terminates the last line — it is not an
+// extra empty line — so `split('\n').length` over-counts newline-terminated files
+// by one (a 300-line file would read as 301). Matches file-size-growth-guard.
+export function countLines(text) {
+  if (text.length === 0) return 0;
+  const newlines = (text.match(/\n/g) || []).length;
+  return text.endsWith('\n') ? newlines : newlines + 1;
+}
+
+// Strip comments before token-matching so a trailing `// ...` or inline `/* ... */`
+// that merely MENTIONS a flagged token (`as any`, `console.log`, `#fff`) is not a
+// false positive. Conservative: the line-comment strip ignores `//` that is part
+// of `://` (URLs in string literals). Secrets intentionally skip this — a
+// credential pasted into a comment is still a leak worth flagging.
+export function stripComments(line) {
+  return line.replace(/\/\*.*?\*\//g, '').replace(/(^|[^:])\/\/.*$/, '$1');
+}
+
+// Blank out /* ... */ block comments across the WHOLE text (they can span lines,
+// which a per-line strip cannot handle) while PRESERVING newlines so line numbers
+// stay accurate. Apply to a file's text before iterating lines; combine with the
+// per-line stripComments() for trailing `//` comments.
+export function stripBlockComments(text) {
+  return text.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '));
 }
 
 // ---------- Severity helpers ----------
@@ -201,63 +266,5 @@ export function exitCodeFor(findings, failLevel) {
   return 0;
 }
 
-// ---------- Output formatting ----------
-
-const COLOR = {
-  reset: '\x1b[0m', red: '\x1b[31m', yellow: '\x1b[33m',
-  cyan: '\x1b[36m', gray: '\x1b[90m', bold: '\x1b[1m',
-};
-
-const useColor = process.stdout.isTTY && !process.env.NO_COLOR;
-function paint(c, s) { return useColor ? `${c}${s}${COLOR.reset}` : s; }
-
-function severityColor(sev) {
-  if (sev === 'CRITICAL') return COLOR.red + COLOR.bold;
-  if (sev === 'HIGH') return COLOR.red;
-  if (sev === 'MEDIUM') return COLOR.yellow;
-  if (sev === 'LOW') return COLOR.gray;
-  return COLOR.cyan;
-}
-
-export function formatFindingHuman(f) {
-  const where = f.line ? `${f.file}:${f.line}` : f.file;
-  return `  ${paint(severityColor(f.severity), `[${f.id}]`)} ${where} - ${f.message}`;
-}
-
-export function formatFindingJson(f) {
-  return {
-    id: f.id,
-    severity: f.severity,
-    file: f.file,
-    line: f.line ?? null,
-    message: f.message,
-  };
-}
-
-export function groupBy(findings, key) {
-  const map = new Map();
-  for (const f of findings) {
-    const k = f[key];
-    if (!map.has(k)) map.set(k, []);
-    map.get(k).push(f);
-  }
-  return map;
-}
-
-export function formatHuman(findings, scope) {
-  if (findings.length === 0) {
-    return paint(COLOR.cyan, `Quality gate clean (${scope}).`) + '\n';
-  }
-  const bySev = groupBy(findings, 'severity');
-  const lines = [paint(COLOR.bold, `Quality gate findings (scope: ${scope})`), ''];
-  for (const sev of SEVERITY_ORDER) {
-    const items = bySev.get(sev);
-    if (!items || items.length === 0) continue;
-    lines.push(paint(severityColor(sev), `### ${sev} (${items.length})`));
-    for (const f of items) lines.push(formatFindingHuman(f));
-    lines.push('');
-  }
-  lines.push(`Total: ${findings.length}`);
-  lines.push(`Run \`{{PACKAGE_MANAGER}} run quality:check\` to re-scan.`);
-  return lines.join('\n') + '\n';
-}
+// Output formatting (human + JSON renderers) lives in ./format.mjs to keep this
+// module under the file-size budget.

@@ -24,7 +24,7 @@
   <div class="docs-shell">
     <aside class="docs-toc" id="docs-toc">
       <p class="docs-toc__label">Sur cette page</p>
-      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#layout-reference">Layout reference</a></li><li class="lvl-2"><a href="#skills-to-install-(bootstrap)">Skills to install (BOOTSTRAP)</a></li><li class="lvl-2"><a href="#agents-to-install">Agents to install</a></li><li class="lvl-2"><a href="#path-scoped-rules-to-install">Path-scoped rules to install</a></li><li class="lvl-2"><a href="#source-of-truth-doc-structure">Source-of-truth doc structure</a></li><li class="lvl-2"><a href="#convex-schema-discipline">Convex schema discipline</a></li><li class="lvl-2"><a href="#migration-discipline">Migration discipline</a></li><li class="lvl-2"><a href="#r2-integration">R2 integration</a></li><li class="lvl-2"><a href="#tests">Tests</a></li><li class="lvl-2"><a href="#validate-command">Validate command</a></li><li class="lvl-2"><a href="#common-gotchas">Common gotchas</a></li><li class="lvl-2"><a href="#reference%3A-brillance-d%C3%A9cor-backend-foundation">Reference: Brillance Décor backend foundation</a></li></ul></nav>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#layout-reference">Layout reference</a></li><li class="lvl-2"><a href="#skills-to-install-(bootstrap)">Skills to install (BOOTSTRAP)</a></li><li class="lvl-2"><a href="#agents-to-install">Agents to install</a></li><li class="lvl-2"><a href="#path-scoped-rules-to-install">Path-scoped rules to install</a></li><li class="lvl-2"><a href="#source-of-truth-doc-structure">Source-of-truth doc structure</a></li><li class="lvl-2"><a href="#convex-schema-discipline">Convex schema discipline</a></li><li class="lvl-2"><a href="#migration-discipline">Migration discipline</a></li><li class="lvl-2"><a href="#r2-integration">R2 integration</a></li><li class="lvl-2"><a href="#tests">Tests</a></li><li class="lvl-2"><a href="#mutation-payload-casts">Mutation payload casts</a></li><li class="lvl-2"><a href="#validate-command">Validate command</a></li><li class="lvl-2"><a href="#common-gotchas">Common gotchas</a></li><li class="lvl-2"><a href="#frugality-contract">Convex frugality contract</a></li><li class="lvl-2"><a href="#reference%3A-brillance-d%C3%A9cor-backend-foundation">Reference: Brillance Décor backend foundation</a></li></ul></nav>
     </aside>
     <div class="docs-main">
       <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
@@ -44,7 +44,7 @@
 <h1>Stack Pack — Convex Backend</h1>
 <p>When meta-govern detects: <code>package.json</code> includes <code>convex</code> OR <code>convex/</code> directory exists with <code>_generated/</code>.</p>
 <h2 id="layout-reference" tabindex="-1"><a class="header-anchor" href="#layout-reference" aria-hidden="true">#</a> Layout reference</h2>
-<p>Default architecture pattern: <strong>framework-native + feature-first</strong> on the frontend (per <code>architecture-patterns.html</code>); the <code>convex/</code> directory enforces backend layout (one file per table, schema in <code>convex/schema.ts</code>).</p>
+<p>Default architecture pattern: <strong>framework-native + feature-first</strong> on the frontend (per <code>architecture-patterns.html</code>); the <code>convex/</code> directory follows the domain-folder layout (see <a href="#domain-folder-layout">Convex schema discipline</a>), schema in <code>convex/schema.ts</code>.</p>
 <h2 id="skills-to-install-(bootstrap)" tabindex="-1"><a class="header-anchor" href="#skills-to-install-(bootstrap)" aria-hidden="true">#</a> Skills to install (BOOTSTRAP)</h2>
 <p>In addition to the 5 core skills:</p>
 <ul>
@@ -95,16 +95,27 @@
 <h2 id="convex-schema-discipline" tabindex="-1"><a class="header-anchor" href="#convex-schema-discipline" aria-hidden="true">#</a> Convex schema discipline</h2>
 <ul>
 <li>Schema in <code>convex/schema.ts</code></li>
-<li>One file per table: <code>convex/&lt;table&gt;.ts</code> with queries/mutations/actions</li>
+<li>One file per table or cohesive sub-domain, organized per the domain-folder layout below</li>
 <li>Generated services in <code>convex/_generated/</code> (DO NOT EDIT)</li>
 <li>Use <code>v.string()</code>, <code>v.number()</code>, <code>v.id(&quot;table&quot;)</code>, <code>v.array(...)</code>, <code>v.object({...})</code></li>
 <li>Index fields used in queries</li>
 </ul>
+<h3 id="domain-folder-layout" tabindex="-1"><a class="header-anchor" href="#domain-folder-layout" aria-hidden="true">#</a> Domain-folder layout (readability)</h3>
+<p>The root of <code>convex/</code> keeps ONLY the files Convex mandates there: <code>schema.ts</code>, <code>http.ts</code>, <code>auth.config.ts</code>, <code>convex.config.ts</code>, <code>crons.ts</code> (if any). Everything else lives in folders: <code>lib/</code> (shared helpers), one folder per domain, <code>migrations/</code>. Function references become <code>api.&lt;domain&gt;.&lt;file&gt;.&lt;fn&gt;</code>. The flat &quot;one file per table at root&quot; layout does not scale and buries the mandated files.</p>
+<pre><code>convex/
+  schema.ts · http.ts · auth.config.ts · convex.config.ts   ← Convex-mandated root
+  lib/          shared helpers (auth guard, domain math)
+  &lt;domain&gt;/     one file per table or cohesive sub-domain
+  migrations/   backfills, one-shot data moves</code></pre>
+<p>Concrete instance: personal-budget-app <code>docs/specs/2026-07-01-convex-migration-mcp-agent-design.html</code> §2A (<code>finance/</code>, <code>shopping/</code>, <code>settings/</code>, <code>agent/</code>, <code>ai/</code>, <code>mcp/</code>).</p>
+<p><strong>Basename rule — single-dot only.</strong> Convex function discovery ignores multi-dot basenames (confirmed via <code>CONVEX_VERBOSE=1</code>): <code>taxonomies.ExpenseTypes.ts</code> silently exports nothing. The dot-notation extraction pattern from <code>file-size-budget</code> does NOT apply under <code>convex/</code> — extract oversized function files as single-dot camelCase siblings (<code>expenseAndDebtTypes.ts</code>). Import-only helpers (<code>expenses.shared.ts</code>) and <code>*.test.ts</code> are safe (not discovered). Cross-ref: <code>file-size-budget.md</code> Convex addendum (personal-budget-app DEFERRED-005, 2026-07-02).</p>
 <h2 id="migration-discipline" tabindex="-1"><a class="header-anchor" href="#migration-discipline" aria-hidden="true">#</a> Migration discipline</h2>
 <ul>
 <li>Use <code>@convex-dev/migrations</code> for breaking schema changes</li>
 <li>Pattern: widen → migrate → narrow</li>
 <li>Test migrations on a snapshot copy</li>
+<li><strong>Parity is not counts+sums+hard-FK.</strong> A backfill parity report must include EVERY ref-like field — including typed <code>v.string()</code> fields holding foreign keys — with its <strong>resolution rate</strong> against the target table's keys. Hard-FK checks on <code>v.id(...)</code> fields alone let string refs stay 100% dangling while every counter reads green (personal-budget-app 2026-07: <code>expenses.category</code>/<code>budgets.type</code> still held unmapped Firestore IDs, 721/721 dangling, parity declared PASS; caught only by owner visual QA, fixed in project commit <code>1e0197e</code>).</li>
+<li><strong>A deliberate parity improvement is documented, never silent.</strong> When the migrated code is intentionally MORE correct than legacy (spec-authoritative fix), record it as such in the parity report and the spec delta — neither ship it silently nor "fix" it back to legacy behavior (personal-budget-app RA-04/RA-06).</li>
 </ul>
 <h2 id="r2-integration" tabindex="-1"><a class="header-anchor" href="#r2-integration" aria-hidden="true">#</a> R2 integration</h2>
 <p>If using <code>convex-dev-r2</code>:</p>
@@ -118,23 +129,46 @@
 <li>Use Convex test harness (<code>@convex-dev/test</code>) for backend tests</li>
 <li>Mock Convex hooks for component tests (use <code>@convex-dev/react</code> test utilities)</li>
 </ul>
+<h2 id="mutation-payload-casts" tabindex="-1"><a class="header-anchor" href="#mutation-payload-casts" aria-hidden="true">#</a> Mutation payload casts</h2>
+<p>A type cast (<code>as never</code>, <code>as any</code>, <code>as unknown as X</code>) on the args of a <code>useMutation</code>/<code>useAction</code> handle masks a client↔validator payload mismatch that Convex rejects at RUNTIME (<code>ArgumentValidationError</code>). The compiler error the cast silences IS the contract violation report — fix the payload or the validator, never cast (personal-budget-app 2026-07: 36 <code>as never</code> casts masked 3 CRITICAL payload mismatches while 213 mocked tests stayed green; the failures only surfaced at execution against real validators).</p>
+<ul>
+<li>Mocked component tests do not exercise validators — green mocks prove nothing about the payload contract. Pair them with real-boundary tests (<code>convex-test</code>) for every mutation the UI calls.</li>
+<li>Deterministic enforcement: <code>audit-project.mjs</code> flags casts bound to a <code>useMutation</code>/<code>useAction</code> handle call (area <code>convex-mutation-casts</code>, HIGH, v1.11.0) — TS exhaustiveness <code>as never</code>, test mocks and comments are structurally excluded (callee-bound heuristic).</li>
+</ul>
 <h2 id="validate-command" tabindex="-1"><a class="header-anchor" href="#validate-command" aria-hidden="true">#</a> Validate command</h2>
 <pre><code class="language-json">{
   &quot;scripts&quot;: {
     &quot;convex:dev&quot;: &quot;convex dev&quot;,
     &quot;convex:codegen&quot;: &quot;convex codegen&quot;,
+    &quot;typecheck&quot;: &quot;tsc -b --noEmit &amp;&amp; tsc -p convex --noEmit&quot;,
     &quot;validate&quot;: &quot;bun run typecheck &amp;&amp; bun run lint &amp;&amp; bun run test &amp;&amp; bun run build &amp;&amp; bun run quality:check &amp;&amp; bun run convex:codegen&quot;
   }
 }
 </code></pre>
+<p><code>convex:codegen</code> alone does not typecheck <code>convex/</code> — it validates references, not function bodies, and the app's root <code>tsconfig</code> typically excludes <code>convex/</code>. Include <code>tsc -p convex --noEmit</code> in <code>typecheck</code> from bootstrap so a bad function body fails the gate at commit, not at deploy (gap observed on personal-budget-app, fixed in <code>dca6763</code>).</p>
 <h2 id="common-gotchas" tabindex="-1"><a class="header-anchor" href="#common-gotchas" aria-hidden="true">#</a> Common gotchas</h2>
 <ul>
 <li>Don't query inside loops (N+1 problem) — use indexed queries or denormalize</li>
 <li>Watch for OCC (Optimistic Concurrency Conflict) on hot rows — handle retries</li>
 <li>Aggregate counts denormalized via <code>convex-dev-aggregate</code> component</li>
 <li>Subscriptions are reactive — careful with high-frequency updates</li>
-<li>Money is integer cents (avoid floats; use <code>Intl.NumberFormat('fr-CA')</code> for display)</li>
+<li>Money is integer cents (avoid floats; use <code>Intl.NumberFormat('fr-CA')</code> for display). <strong>Note:</strong> this is the Brillance-Décor default, not universal — some projects run float dollars by recorded ADR (e.g. personal-budget-app). Read the project's data-model doc before imposing cents.</li>
 </ul>
+<h2 id="frugality-contract" tabindex="-1"><a class="header-anchor" href="#frugality-contract" aria-hidden="true">#</a> Convex frugality contract (function calls, bandwidth, egress)</h2>
+<p>Convex bills by usage. On a usage-billed backend, frugality is a DESIGN contract, not a late optimization — the path of least friction (testing against the deployment, returning raw rows, adding a convenient cron) bills the quota directly. Born from a real quota-exhaustion incident (workstation, 2026) and codified during the personal-budget-app migration design (§3.8 + AC-25). Apply to every Convex project at design time and at review time:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Guardrail</th><th>Rule</th></tr></thead>
+<tbody>
+<tr><td>Zero cron without a cost-justified design</td><td>No <code>crons.ts</code> entry ships without its own design section justifying the function-call cost</td></tr>
+<tr><td>Tests never hit a deployment</td><td>The whole test suite runs on <code>convex-test</code> (in-memory). Deployments serve only one-shot integration probes / smoke tests, never test loops. A test file importing a deployment URL or <code>ConvexHttpClient</code> is a blocking review defect</td></tr>
+<tr><td>Indexed queries only</td><td><code>withIndex</code> everywhere; a full table scan is a blocking review defect</td></tr>
+<tr><td>Bounded reads</td><td>Server-side <code>limit</code> (default 50, max 200) on list-shaped tools/queries exposed to LLMs or exports; aggregates computed server-side — never ship raw rows for client-side reduction</td></tr>
+<tr><td>Single subscription per table</td><td>One <code>useQuery</code> per table via a façade (DataContext-style); <code>"skip"</code> when unauthenticated</td></tr>
+<tr><td>Frugal streaming</td><td>Agent/LLM stream deltas debounced; thread context bounded (no full-history re-injection)</td></tr>
+<tr><td>Batched backfills</td><td>Backfill/migration batches ≤ 500 docs per mutation</td></tr>
+<tr><td>Usage surveillance</td><td>Read + archive the Convex usage dashboard (function calls, bandwidth) at each phase-exit gate; run <code>convex-performance-audit</code> in final scans</td></tr>
+</tbody>
+</table></div>
 <h2 id="reference%3A-brillance-d%C3%A9cor-backend-foundation" tabindex="-1"><a class="header-anchor" href="#reference%3A-brillance-d%C3%A9cor-backend-foundation" aria-hidden="true">#</a> Reference: Brillance Décor backend foundation</h2>
 <p>Active design at <code>docs/specs/2026-05-06-backend-foundation-design.md</code> is the canonical Convex bootstrap reference:</p>
 <ul>

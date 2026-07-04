@@ -71,6 +71,8 @@ Read in this order:
 
 Run `date +%Y-%m-%d`. Scaffold `docs/plans/YYYY-MM-DD-<topic>-plan.html` (reuse the design's kebab topic) via `node .claude/scripts/docs-html/scaffold.mjs plan <chemin> "<Titre>"` — docs are HTML; the `block-docs-markdown` hook blocks `.md` — then fill `.docs-content` with the structure below. Per `spec-protocol.md` delta-at-start, **Task 1 = "Apply source-of-truth delta"** — implementers and reviewers downstream read the three source-of-truth files post-delta. Apply at the end = stale spec = silent class of bug.
 
+When the plan depends on third-party infrastructure for autonomous execution (deployments, OAuth tenants, API keys, service-account credentials, CLI access), insert a **Phase 0** immediately after Task 1: (a) one `[HUMAN GATE]` task covering ALL the human setup in a single session, (b) an automated preflight task producing a per-item PASS/FAIL verdict, with the gate "no development task starts before full PASS". The preflight items include an **env-parity check** when the plan ends in an owner-QA handoff: every env key the source reads (`import.meta.env.*` or equivalent) is present in `.env.local` (PASS/FAIL). List residual human touchpoints (freeze windows, connector registrations, QA on a third-party account) in the Header so they're scheduled, never discovered mid-plan. Canon: meta-govern `references/workflow-blueprint.html#phase-0-setup-preflight`.
+
 Required structure:
 
 ```markdown
@@ -114,6 +116,35 @@ Files disjoint. Per `parallel-dispatch.md`, `/execute-plan` dispatches in 1 mess
 - **Agent**: reviewer (foreground only — never background)
 - **Validation**: `{{PACKAGE_MANAGER}} run validate` must pass before final commit (hook `enforce-workflow` blocks otherwise).
 ```
+
+When any task in the plan is tier RIGOROUS, append one whole-branch gate task AFTER the final reviewer pass:
+
+```markdown
+## Task N+1: Adversarial whole-branch review (RIGOROUS gate)
+
+- **Agent**: (none — orchestrator invokes the global `adversarial-pr-review` skill, Mode A, over the whole-branch diff; if that skill is unavailable, a manual whole-branch adversarial pass with the same 9-dimension coverage)
+- **Gate**: every verified defect resolved before the branch merges.
+- **Note**: per-task reviewers anchor on each task's ACs; the classes that live between tasks (cross-task integration, self-referential tooling, behavioral comments that lie) surface only under a fresh whole-branch pass. Skip this and those classes ship.
+```
+
+### Step 4b — Navigable TOC + scheduling badges
+
+The plan assets (`docs/assets/css/docs-plan.css`, `docs/assets/js/docs-plan.js`) already style a full status/mode/step vocabulary — this step emits the markup they render. The vocabulary is fixed by those two files: `data-status` ∈ `todo | in-progress | done | cancelled | blocked` (use `in-progress` for the live state, never a synonym), `data-mode` ∈ `delta | batch | standard | rigorous | final`, plus `data-step` on pipeline items and `data-toc-status` on TOC entries.
+
+When filling the scaffolded plan:
+
+| Surface | Markup to emit |
+|---|---|
+| TOC (`aside.docs-toc nav ul`) | One `<li class="lvl-3" data-toc-status="todo"><a href="#task-N">Task N — <short title></a></li>` **per task**, so a 30-task plan is navigable task-by-task. Group the entries of a parallel group under a `<li class="toc-group" data-mode="<tier>">` wrapper. Colour comes from `data-toc-status`/`data-mode` — no inline styles. |
+| Task body | Wrap each task in `<section class="plan-task" data-mode="…">`; `<h3 id="task-N" data-status="todo">`. Tier→mode map: BATCH→`batch`, STANDARD→`standard`, RIGOROUS→`rigorous`, apply-delta task→`delta`, final reviewer task→`final`. |
+| Pipeline (`#pipeline-task-list`) | Each `<li class="task-list-item">` carries `data-step="<implement\|review\|gate\|commit\|delta>"`. Open each parallel group with `<div class="plan-pipe-group" data-mode="…">` whose title carries the scheduling badge: `∥` for a parallel group, `seq` for serial runs (e.g. `[P1 · Group A ∥]` / `[P1 · seq]`) — parallel vs serial is readable at a glance. |
+
+### Step 4c — Non-functional and boundary acceptance criteria
+
+Two classes of requirement fall out of the AC list unless the plan names them explicitly:
+
+- **Primitive removal restates its guarantee.** When a task removes a primitive that provided a non-functional property — a `writeBatch`, a transaction, a batched API call, a single round-trip — restate that property as its own `[ ]` acceptance criterion ("reads and writes still commit atomically", "still one network round-trip per save"). The replacement is only correct if it preserves what the primitive silently guaranteed; an AC naming only the functional behavior lets the guarantee drop unobserved.
+- **Schema-legal boundary values get a test matrix.** When a field admits a boundary value the schema permits but the domain rarely exercises (an empty-string category, a zero amount, a null foreign key), the task carries a `[ ]` per mutation that touches the field — a matrix over ALL of them, not one representative. Boundary bugs hide in the mutation the AC didn't think to name.
 
 ## Step 5 — Tier each task
 
@@ -160,6 +191,9 @@ Before hand-off, grep your own plan output to verify protocol compliance. Run th
 **Soft gates** (❌ → hand-off warning, not a reject):
 4. Every implementation task names **Governing evidence** (FUNC/RA/VAL/C-NN).
 5. Every parallel `## Group` lists file sets that are pairwise disjoint (same file = serial).
+6. Every task has a matching TOC entry `li.lvl-3` with `href="#task-N"` (Step 4b).
+7. Every `plan-task` section and pipeline group carries a `data-mode`; pipeline items carry a `data-step` (Step 4b).
+8. If any task is tier RIGOROUS, a final `adversarial-pr-review` (Mode A, whole-branch) task exists after the final reviewer pass.
 
 This skill produces deterministic protocol artifacts. Catching a violation post-write is cheap; catching it during `/execute-plan` is expensive.
 

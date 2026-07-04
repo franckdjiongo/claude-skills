@@ -102,8 +102,8 @@ even when not in `suspected_paths`.
 - Files exceeding the {{FILE_SIZE_CAP}}-line cap — `wc -l` on touched files.
 - Config gaps relevant to the topic (`.gitignore`, `tsconfig.json`,
   build tool config, package.json deps, generated-code paths).
-- Hardcoded user-facing strings violating the i18n rule in touched files.
-- Missing pre-commit invocation if seed/build infra is touched.
+{{IF_STACK_HAS_I18N}}- Hardcoded user-facing strings violating the i18n rule in touched files.
+{{/IF}}- Missing pre-commit invocation if seed/build infra is touched.
 
 ### Step 5: Severity
 

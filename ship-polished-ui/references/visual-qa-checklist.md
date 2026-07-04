@@ -141,14 +141,14 @@ For each surface at each viewport, check:
 
 - **No horizontal overflow.** `document.documentElement.scrollWidth` should equal `clientWidth`. A page wider than its viewport is the signature bug — it spills images, buttons, and text off the right edge, and it is invisible until you actually load that surface at that width.
 - Layout adapts — columns stack, nothing overlaps, text wraps instead of clipping.
-- Touch targets stay ≥ 44 px.
+- Touch targets: **gate (blocking) = ≥ 24×24 px** (WCAG 2.5.8 AA); **premium target = ≥ 44×44 px** (WCAG 2.5.5 AAA / Apple HIG). Below 24 px fails; between 24 and 44 px passes the gate but is flagged as sub-premium.
 - Text over imagery stays legible — an overlay tuned for a desktop crop can wash out at a narrower one.
 
 A frequent root cause for the overflow bug: a CSS grid given columns only at a breakpoint (`lg:grid-cols-2` with no base `grid-cols-1`) falls back, below that breakpoint, to an implicit `auto` track. An `auto` track sizes to its content's *max-content* — an image injects its full intrinsic width and blows the layout past the viewport. The fix is an explicit base column that is allowed to shrink: `grid-cols-1` (i.e. `minmax(0, 1fr)`).
 
 ---
 
-## Section 9 — Stress-test data edge cases
+## ★ Section 9 — Stress-test data edge cases
 
 Even if the user's current data only shows one state, don't ship UI that breaks for plausible adjacent states.
 
@@ -170,7 +170,7 @@ Run this pass for any surface a user **reads or scans** — docs, articles, tabl
 1. **Reading measure (line length).** For body prose, comfortable is ~50–90 characters per line; below ~45 reads choppy, above ~90 tires the eye and loses the line on the return sweep. Compute it, don't guess: `lineWidthPx / (0.5 × fontSizePx)` ≈ characters, or just count one full line. Outside the band → adjust the column width / measure.
 2. **Chrome-to-content ratio.** Sidebars, TOCs, rails, gutters, oversized margins are *navigation chrome*; the reading/work column is the *payload*. Ask: what fraction of the horizontal space is the user actually reading in? A 280px sidebar + 64px gutter beside a 660px reading column means a third of the width is chrome while the payload is cramped — rebalance (narrow the chrome, tighten the gap, widen the content). On wide screens, confirm the payload actually *uses* the gained width instead of leaving a lake of empty margin.
 3. **Scroll cost of dense content.** For every element wider than the reading column — tables, code blocks, wide diagrams — ask *how far* the user must scroll horizontally to read one row/line and *how often* they repeat it. Panning back and forth for every row of a reference table is a real, repeated tax. Options, roughly in order: fit-to-width (let cells wrap), freeze the key/identifier column so the row stays anchored while the rest scrolls, or add an expand/fullscreen affordance. "It scrolls horizontally, that's standard" is a *correctness* answer to an *ergonomics* problem — only accept it when the scroll is occasional, not per-row.
-4. **Control comfort, not just reachability.** Section 5 verified controls *work*; this asks whether they're *pleasant*: hit targets ≥ ~40px, not crammed shoulder-to-shoulder, frequent/primary actions not buried below the fold or needing a scroll-back, related controls grouped.
+4. **Control comfort, not just reachability.** Section 5 verified controls *work*; this asks whether they're *pleasant*: hit targets meeting the premium 44×44 px target (24×24 px is the hard gate — see Section 8), not crammed shoulder-to-shoulder, frequent/primary actions not buried below the fold or needing a scroll-back, related controls grouped.
 5. **Density.** Too cramped (lines kissing, nothing breathing, everything competing) and too sparse (content marooned in whitespace, the eye has to travel) are both failures. Aim for deliberate rhythm.
 
 **The verdict — and the trap.** Picture using this surface for ten real minutes for its actual purpose: reading the spec, scanning the matrix, filling the form. Comfortable, or fighting it — squinting at a 110-character line, panning a table, hunting for the action? If you'd be fighting it, it fails this section even though it passed correctness.
@@ -213,7 +213,7 @@ When you add persistence (sticky), immediately re-check Section 6 (does it now t
 
 ---
 
-## Section 12 — Final declaration
+## ★ Section 12 — Final declaration
 
 Before declaring "done":
 

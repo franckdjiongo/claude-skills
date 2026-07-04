@@ -270,38 +270,3 @@ function dedupe(hrefs) {
   }
   return out;
 }
-
-/** Basenames (sans extension) des 30 documents du corpus converti — partagé
- *  par convert-references.mjs (réécriture des liens) et verify.mjs (paires). */
-export const CORPUS_ENTRIES = [
-  'references/anti-pattern-catalog',
-  'references/architecture-patterns',
-  'references/baseline',
-  'references/ddd-scorecard',
-  'references/ddd-strategic',
-  'references/ddd-tactical',
-  'references/decision-trees',
-  'references/engineering-principles',
-  'references/evolution-roadmap',
-  'references/four-tier-architecture',
-  'references/governance-cadence',
-  'references/hook-canonical-patterns',
-  'references/lessons-log',
-  'references/macos-hook-conventions',
-  'references/opus-4-7-defaults',
-  'references/project-archetypes',
-  'references/session-management',
-  'references/seven-primitives',
-  'references/skill-canonical-structure',
-  'references/stack-convex',
-  'references/stack-monorepo',
-  'references/stack-nextjs',
-  'references/stack-power-platform',
-  'references/stack-react-vite',
-  'references/stack-sveltekit',
-  'references/subagent-canonical-structure',
-  'references/tooling-architecture-checks',
-  'references/workflow-blueprint',
-  'USER-GUIDE',
-  'BUILD-SUMMARY',
-];

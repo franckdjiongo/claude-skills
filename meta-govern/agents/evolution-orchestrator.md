@@ -169,6 +169,6 @@ PASS — plan ready for review
 - NEVER bulk-migrate. Each step is atomic, validated, committed.
 - If source and target differ by >5 minor versions → suggest splitting into multiple invocations (don't stack 50 steps).
 - For palier promotion, follow the evolution-roadmap.html additions — don't skip paliers.
-- For model-release migrations (Opus 4.7 → 4.8 hypothetically), the highest-impact rewrites are: skill descriptions (markers may need updating), agent effort levels (defaults may shift), CLAUDE.md model+effort block.
+- For model-release migrations (e.g., Sonnet 4.6 → Sonnet 5, Opus 4.7 → 4.8), the highest-impact rewrites are: skill descriptions (markers may need updating), agent effort levels (defaults may shift), CLAUDE.md model+effort block.
 - Document which steps are auto-applicable vs manual. Auto-applicable: render-file with overwrite. Manual: anything that requires user judgment (e.g., "this skill description should be rewritten because...").
 - After EVOLVE, ALWAYS run self-audit before declaring PASS. Don't ship a broken master skill.

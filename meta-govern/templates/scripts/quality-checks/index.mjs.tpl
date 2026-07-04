@@ -36,13 +36,13 @@ import {
   walkRepo,
   stagedFiles,
   changedFiles,
+  setContentMode,
   exitCodeFor,
-  formatHuman,
-  formatFindingJson,
   projectDir,
   severityRank,
   SEVERITY_ORDER,
 } from './lib.mjs';
+import { formatHuman, formatFindingJson } from './format.mjs';
 
 const VALID_SCOPES = new Set(['full', 'staged', 'changed', 'all']);
 const VALID_FAIL_LEVELS = new Set(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'ALL']);
@@ -126,6 +126,9 @@ function main() {
     process.stdout.write(helpText());
     process.exit(0);
   }
+
+  // Staged scope must read the INDEXED content, not the working tree.
+  if (args.scope === 'staged') setContentMode('index');
 
   const files = resolveFiles(args.scope);
 

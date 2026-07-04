@@ -14,8 +14,6 @@ Template variables:
 {{NON_NEGOTIABLE_RULES}} — Project-specific hardcoded rules (5-10 bullets)
 {{ROUTING_RULES}} — Path-scoped routing entries (one per .claude/rules/*.md)
 {{POST_COMPACT_INSTRUCTIONS}} — Custom resume instructions if needed
-{{CURRENT_PALIER}} — Current evolution palier (0-6)
-{{NEXT_PALIER_TRIGGER}} — What needs to happen to promote
 -->
 
 ## Projet
@@ -45,20 +43,22 @@ Template variables:
 {{ROUTING_RULES}}
 
 ## Default model + effort
-- Default: opus (Opus 4.7) at xhigh for design, debug, refactor, migration.
-- Switch: sonnet (Sonnet 4.6) at high for tests, docs, single-file features.
-- Plan then build: `opusplan` for any session with both phases.
-- Drop: `/effort low` for classification, formatting, simple renames.
+- Default: sonnet (Sonnet 5) at high — workhorse for most coding; near-Opus quality at Sonnet pricing, gentler on quota.
+- Escalate: sonnet (Sonnet 5) or opus (Opus 4.8) at xhigh for the hardest multi-file refactor, debugging, architecture; opus for the hardest pure reasoning.
+- Untrusted content (web pages, PR diffs, third-party tool output): prefer sonnet — most prompt-injection-resistant tier.
+- Plan then build: plan mode on the stronger model (`opusplan`-style alias where available).
+- Drop: `/effort low` for classification, formatting, simple renames. Sonnet 5 respects low strictly — raise effort if reasoning turns shallow; don't prompt around it.
 - Rescue: `/effort max` for ONE turn on stuck problems, then drop back.
+- Effort names don't carry equal depth across model versions (Sonnet 5 medium ≈ Sonnet 4.6 high; high ≈ old max) — benchmark by observed thinking length.
 - Subagents declare their own effort. Mechanical → low. Implementer → medium. Reviewer → high. Planner → xhigh.
 - Spawn multiple subagents in the same turn when fanning out across items or files.
+- State explicit intent, constraints, acceptance criteria, file paths. Don't generalize silently.
 
 ## Après compaction
 Re-read this file. If `HANDOFF.md` exists at project root, read it. Resume work on the active branch. If you're mid-plan-execution, see HANDOFF.md `Active plans` section.
 
 {{POST_COMPACT_INSTRUCTIONS}}
 
-## Notes
-- Current palier: {{CURRENT_PALIER}}
-- Next palier trigger: {{NEXT_PALIER_TRIGGER}}
-- meta-govern version: {{META_GOVERN_VERSION}}
+## État gouvernance
+Palier, version meta-govern, déclencheurs de promotion et derniers audits vivent dans
+`.claude/.meta-govern.json` (source canonique) — ne pas les dupliquer ici.

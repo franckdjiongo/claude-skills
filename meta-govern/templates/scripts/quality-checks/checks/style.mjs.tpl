@@ -3,15 +3,15 @@
  * Style checks for {{PROJECT_NAME}}.
  * - colors-hex     CRITICAL: hardcoded hex colors outside design tokens.
  * - colors-rgba    CRITICAL: hardcoded rgb/rgba colors.
- * - i18n-ternary   CRITICAL: inline `language === 'en' ? ... : ...` bypass of i18n layer.
+{{IF_STACK_HAS_I18N}} * - i18n-ternary   CRITICAL: inline `language === 'en' ? ... : ...` bypass of i18n layer.
  *                  (only emitted if the project uses i18n — gated at scaffold time)
- */
+{{/IF}} */
 
 // macOS hardening: see ../lib.mjs for the canonical PATH_PREFIX. Re-exported
 // here so any subprocess this check might add can pick it up directly.
 export const PATH_PREFIX = '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin';
 
-import { classify, iterateLines, readSafe } from '../lib.mjs';
+import { classify, iterateLines, readSafe, stripComments, stripBlockComments } from '../lib.mjs';
 
 // Files where hardcoded color literals are EXPECTED (design tokens, Tailwind config).
 const COLOR_TOKEN_FILES = new Set([
@@ -37,10 +37,9 @@ export function hexColors(files) {
     const c = classify(f);
     if (c.kind !== 'source' || !/\.(ts|tsx|jsx|js|mjs)$/.test(c.rel)) continue;
     if (isColorTokenFile(c.rel)) continue;
-    const text = readSafe(f);
+    const text = stripBlockComments(readSafe(f));
     for (const { lineNo, text: line } of iterateLines(text)) {
-      if (line.trim().startsWith('//')) continue;
-      const m = line.match(re);
+      const m = stripComments(line).match(re);
       if (m) {
         findings.push({
           id: 'colors-hex',
@@ -62,10 +61,9 @@ export function rgbaColors(files) {
     const c = classify(f);
     if (c.kind !== 'source' || !/\.(ts|tsx|jsx|js|mjs)$/.test(c.rel)) continue;
     if (isColorTokenFile(c.rel)) continue;
-    const text = readSafe(f);
+    const text = stripBlockComments(readSafe(f));
     for (const { lineNo, text: line } of iterateLines(text)) {
-      if (line.trim().startsWith('//')) continue;
-      if (re.test(line)) {
+      if (re.test(stripComments(line))) {
         findings.push({
           id: 'colors-rgba',
           severity: 'CRITICAL',
@@ -88,10 +86,9 @@ export function languageTernary(files) {
     const c = classify(f);
     if (c.kind !== 'source') continue;
     if (!/\.(ts|tsx|jsx|js|mjs)$/.test(c.rel)) continue;
-    const text = readSafe(f);
+    const text = stripBlockComments(readSafe(f));
     for (const { lineNo, text: line } of iterateLines(text)) {
-      if (line.trim().startsWith('//')) continue;
-      if (re.test(line)) {
+      if (re.test(stripComments(line))) {
         findings.push({
           id: 'i18n-ternary',
           severity: 'CRITICAL',

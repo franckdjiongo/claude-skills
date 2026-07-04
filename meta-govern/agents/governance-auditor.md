@@ -48,11 +48,30 @@ Beyond the script, look for:
 **Defensive scaffolding accretion**
 Grep `.claude/**/*.md` and CLAUDE.md for: `MUST`, `ALWAYS`, `NEVER`, `do not skip`, `n'oublie pas`, `verify before returning`, `double-check`, `Make sure to`, `It is critical that`, `Pay attention to`. Each match in BODY (not frontmatter description) is a finding. Source: `references/anti-pattern-catalog.html`.
 
+**Volatile state in standing context (durable-only doctrine)**
+Read CLAUDE.md and AGENTS.md. Beyond the deterministic `stale-state`/`state-duplication` findings (version + palier, from audit-project.mjs), judge prose that duplicates state the script can't safely regex: "backend vivant = X", "Convex pas encore de schéma", "~N constats any/hex", "~N tests", "coverage currently thin", migration status, any "aujourd'hui/currently/pas encore". Apply the rot test — "can this go false without editing this file?". Each such statement → MEDIUM `stale-state`; recommend moving it to `.claude/.meta-govern.json` / `HANDOFF.md` / a living doc and leaving a durable pointer. Dated lines naming their expiry AND successor state ("X until 2026-07-07, then Y") are admissible. Source: `references/anti-pattern-catalog.html`.
+
 **Markdown-docs drift (doctrine HTML)**
 - `.md` files under `docs/` (excluding `docs/assets/`) → HIGH `markdown-docs-drift`; recommend `node ~/.claude/skills/meta-govern/scripts/migrate-project.mjs <project> --target=html-docs`.
 - Toolkit `.claude/scripts/docs-html/scaffold.mjs` missing → MEDIUM.
 - Hook `block-docs-markdown` not wired in settings.json → MEDIUM.
 - `docs/docs-map.json` missing → MEDIUM. `docs/index.html` missing → MEDIUM.
+
+**Convex frugality (Convex projects — automated in Step 1)**
+- audit-project.mjs emits area `convex-frugality`: cron in `convex/crons.ts` without a `// cost-justified` marker (registration line or contiguous comment block above) → MEDIUM; `.test`/`.spec` file touching a deployment (`ConvexHttpClient` import from `convex/browser`, or a real deployment-slug URL + `fetch(`) without `convex-test` → HIGH. Source: `references/stack-convex.html#frugality-contract`.
+- The other frugality guardrails (indexed queries, bounded reads, single subscription per table, batched backfills) remain manual-review judgments against the same contract.
+
+**Convex mutation-arg casts (Convex projects — automated in Step 1)**
+- audit-project.mjs emits area `convex-mutation-casts`: a type cast (`as never`/`as any`/`as unknown`) inside the args of a `useMutation`/`useAction` handle call (or an inline `useMutation(api.x)(…)` call) → HIGH. Callee-bound heuristic — TS exhaustiveness casts, test mocks and comments are structurally excluded. Source: `references/stack-convex.html#mutation-payload-casts`.
+
+**Env parity (Vite projects with `.env.local` — automated in Step 1)**
+- audit-project.mjs emits area `env-parity`: `VITE_*` keys read bare by `src/` via `import.meta.env.*` (no fallback/guard, not declared in `optionalEnvKeys` of `docs/docs-map.json`) but missing from `.env.local` → MEDIUM (advisory). Skips silently when `.env.local` is absent (gitignored — a fresh clone is not a finding). Source: `references/workflow-blueprint.html` Phase 0 contract.
+
+**Hook / guard test discipline (all projects — automated in Step 1)**
+- audit-project.mjs emits area `hook-tests`: a project-authored `.claude/hooks/*.mjs` (outside the canonical set) with no sibling `*.sim/.test/.spec.mjs` and no repo test referencing it → HIGH. Canonical hooks are grandfathered. Source: `references/hook-canonical-patterns.html`.
+
+**Delta-protocol commit lint (all git projects — automated in Step 1)**
+- audit-project.mjs emits area `delta-protocol`: a commit editing a source-of-truth doc with a non-compliant subject → LOW. Pre-bootstrap history is exempt when the project sets `deltaProtocolBaselineCommit` (a commit SHA, top-level or under `conventions.*`) in `docs/docs-map.json`: commits reachable from that baseline are skipped (the protocol is prospective; rewriting history would itself be a violation). v1.12.1.
 
 **File-size drift**
 Grep all `.claude/skills/**/SKILL.md` for body word count. >5000 = HIGH. >2000 = LOW (recommended max 2000).

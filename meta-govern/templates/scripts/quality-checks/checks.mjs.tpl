@@ -20,6 +20,8 @@ import {
   consoleStmt,
   secretsLike{{IF_STACK_HAS_DATA_LAYER}},
   directFetch{{/IF}},
+  absolutePaths,
+  duplicateDirLiteral,
 } from './checks/code.mjs';
 import {
   todoMarkers,
@@ -41,6 +43,8 @@ export const allChecks = [
   { id: 'console', run: consoleStmt },
   { id: 'secrets', run: secretsLike },
   {{IF_STACK_HAS_DATA_LAYER}}{ id: 'direct-fetch', run: directFetch },{{/IF}}
+  { id: 'abs-path', run: absolutePaths },
+  { id: 'dup-literal', run: duplicateDirLiteral },
 
   // --- quality.mjs ---
   { id: 'todo', run: todoMarkers },

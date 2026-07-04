@@ -2,10 +2,12 @@
 // Template: templates/hooks/postcompact-reinject.mjs.tpl
 // Variables used: (none — uses lib helpers)
 //
-// PostCompact hook. Detects whether the session is mid-plan-execution by
-// checking three signals: HANDOFF.md exists, branch matches ^plan/, and an
-// active plan has unchecked Pipeline tasks. If mid-plan, returns
-// additionalContext with the 5-rule discipline summary. Otherwise exits silently.
+// SessionStart hook (matcher: compact) — re-injection after a compaction.
+// PostCompact is a side-effects-only event and does NOT consume
+// additionalContext; SessionStart with source 'compact' is the channel that
+// does. Detects whether the session is mid-plan-execution (HANDOFF.md exists,
+// branch matches ^plan/, or an active plan has unchecked Pipeline tasks) and, if
+// so, returns additionalContext with the 5-rule discipline summary. Else silent.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -62,7 +64,9 @@ async function main() {
     activePlansCount: activePlans.length,
   });
 
-  writeJsonStdout({ additionalContext });
+  writeJsonStdout({
+    hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext },
+  });
   process.exit(0);
 }
 

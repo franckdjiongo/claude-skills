@@ -8,6 +8,52 @@ After a CSS change, find the row that matches the property you touched. Read the
 
 ---
 
+## Top layer — the modern fix for "dropdown behind the cards"
+
+For **any** dropdown, tooltip, menu, combobox, or modal, the durable fix is to render it in the browser **top layer** instead of fighting `z-index` and `overflow`. The top layer sits above the entire page by construction — it is **immune to both overflow clipping and ancestor stacking contexts**, so the whole class of "popup clipped by an `overflow: hidden` parent" and "popup trapped behind a sibling because an ancestor is `isolate`/`transform`" bugs simply cannot occur. Reach for this **first**; keep manual z-index surgery only as a legacy fallback.
+
+Two native mechanisms promote to the top layer:
+
+- **`popover` + CSS anchor positioning** — for menus, tooltips, dropdowns.
+- **`<dialog>` opened with `.showModal()`** — for modals.
+
+```html
+<!-- Anchor + popover: the menu is tethered to the button but lives in the top layer -->
+<button popovertarget="menu" style="anchor-name: --menu-btn">Options</button>
+
+<div id="menu" popover="auto" style="
+  position: absolute;
+  position-anchor: --menu-btn;
+  /* pin the popover's top-left just under the button's bottom-left */
+  top: anchor(bottom);
+  left: anchor(left);
+  margin-top: 6px;
+">
+  <a href="#">Rename</a>
+  <a href="#">Duplicate</a>
+  <a href="#">Delete</a>
+</div>
+```
+
+```css
+/* Style the top-layer element and its backdrop */
+[popover] { border: 1px solid var(--line); border-radius: var(--radius); padding: 6px; }
+[popover]::backdrop { background: transparent; }
+
+/* Progressive enhancement: only rely on anchor positioning where supported.
+   Elsewhere, fall back to normal absolute positioning inside the trigger's
+   nearest positioned ancestor. */
+@supports not (anchor-name: --x) {
+  #menu { position: absolute; top: 100%; left: 0; }  /* legacy fallback */
+}
+```
+
+Because the popover is in the top layer, **you do not need** `z-index: 9999`, you do **not** need to portal it out of a clipped container, and no ancestor's `isolation`/`transform`/`overflow: hidden` can hide or clip it.
+
+**Related — `overflow: clip` as a modern alternative to `hidden`:** when you only want to clip painting (e.g. to keep a decoration inside rounded corners) and you do **not** want to create a scroll container or a new formatting context, prefer `overflow: clip` (optionally with `overflow-clip-margin`) over `overflow: hidden`. `clip` doesn't make the element scrollable and doesn't establish a BFC the way `hidden` can — fewer surprising layout side-effects. (It still clips descendant paint, so a popup inside a `clip` box is still clipped — which is exactly why popups belong in the top layer, above.)
+
+---
+
 ## Property-by-property side-effect matrix
 
 ### `overflow: hidden` (added or removed)

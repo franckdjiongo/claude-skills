@@ -252,9 +252,16 @@ function buildDefaultPlan(projectDir) {
       IF_HAS_BACKEND: '',
     },
     flags: {
+      // Full computed stack flag set (IF_STACK_REACT / _POWER_PLATFORM / _CONVEX /
+      // _CLOUDFLARE / _HAS_DATA_LAYER / _HAS_BACKEND / …). Without this spread the
+      // stack-conditionals that templates already reference resolved silently false.
+      ...detection.flags,
       IF_STACK_HAS_UI: !!detection.stack.hasUI,
       IF_STACK_SVELTEKIT: isSvelteKit,
       IF_STACK_HAS_I18N: !!detection.stack.hasI18n,
+      // Explicit negation so a no-i18n project gets the affirmative "plain JSX
+      // strings" guidance instead of a silent hole (the renderer has no {{ELSE}}).
+      IF_STACK_NO_I18N: !detection.stack.hasI18n,
       IF_BILINGUAL: false,
       IF_PALIER_GTE_2: false,
       IF_PALIER_GTE_3: false,
@@ -331,9 +338,11 @@ function buildDefaultPlan(projectDir) {
 
       // Scripts
       { from: 'templates/scripts/file-size-growth-guard.mjs.tpl', to: '.claude/scripts/file-size-growth-guard.mjs' },
+      { from: 'templates/scripts/mark-validate-pass.mjs.tpl', to: '.claude/scripts/mark-validate-pass.mjs' },
       { from: 'templates/scripts/setup-worktree.mjs.tpl', to: '.claude/scripts/setup-worktree.mjs' },
       { from: 'templates/scripts/quality-checks/index.mjs.tpl', to: '.claude/scripts/quality-checks/index.mjs' },
       { from: 'templates/scripts/quality-checks/lib.mjs.tpl', to: '.claude/scripts/quality-checks/lib.mjs' },
+      { from: 'templates/scripts/quality-checks/format.mjs.tpl', to: '.claude/scripts/quality-checks/format.mjs' },
       { from: 'templates/scripts/quality-checks/checks.mjs.tpl', to: '.claude/scripts/quality-checks/checks.mjs' },
       { from: 'templates/scripts/quality-checks/checks/style.mjs.tpl', to: '.claude/scripts/quality-checks/checks/style.mjs' },
       { from: 'templates/scripts/quality-checks/checks/code.mjs.tpl', to: '.claude/scripts/quality-checks/checks/code.mjs' },
@@ -418,6 +427,10 @@ function runPostInstall(projectDir, variables = {}, detection = null) {
         : testFw === 'jest' ? 'jest'
         : testFw === 'mocha' ? 'mocha'
         : 'echo "(no unit tests yet)" && exit 0';
+      // TS projects get a standalone `typecheck` script (`tsc --noEmit`) so the
+      // governance docs that tell agents to run `<pm> run typecheck` resolve, and
+      // so `validate` type-checks. Folded into the validate chain below for TS.
+      const hasTs = !!detection?.stack?.languages?.includes?.('typescript');
       // Tous ajoutés en « add-if-missing » (jamais d'écrasement). Les scripts de
       // gouvernance sont référencés par CLAUDE.md (COMMAND_VALIDATE/QUALITY) et par
       // les hooks ; quality:check + size-guard pointent vers des scripts que le
@@ -425,10 +438,17 @@ function runPostInstall(projectDir, variables = {}, detection = null) {
       // si l'architect ne les a pas déjà fournis via additionalSteps (appliqués avant).
       const voulus = {
         'quality:check': 'node .claude/scripts/quality-checks/index.mjs',
+        'quality:check:staged': 'node .claude/scripts/quality-checks/index.mjs --scope staged --fail-level high',
         'size-guard': 'node .claude/scripts/file-size-growth-guard.mjs',
+        ...(hasTs ? { 'typecheck': 'tsc --noEmit' } : {}),
         'test': testCmd,
-        'validate': `${run} quality:check && ${run} size-guard && ${run} test`,
-        'validate:fast': `${run} quality:check`,
+        // mark-validate-pass.mjs is the FINAL `&&` step: it writes the success
+        // sentinel (.claude/tmp/last-validate-ok) only when every prior gate
+        // passed. track-workflow keys the Stop-gate off that sentinel's mtime, so
+        // a failed/masked validate never advances the gate (PostToolUse exposes no
+        // exit code — command text alone cannot prove the gate passed).
+        'validate': `${run} quality:check && ${run} size-guard${hasTs ? ` && ${run} typecheck` : ''} && ${run} test && node .claude/scripts/mark-validate-pass.mjs`,
+        'validate:fast': `${run} quality:check${hasTs ? ` && ${run} typecheck` : ''}`,
         'docs-map:check': 'node .claude/scripts/check-docs-map.mjs',
         'docs:index': 'node .claude/scripts/docs-html/make-index.mjs',
         'docs:check': 'node .claude/scripts/docs-html/no-markdown-guard.mjs',

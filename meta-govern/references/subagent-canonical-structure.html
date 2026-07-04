@@ -107,7 +107,7 @@ tools: Read, Grep, Glob, Bash       # tools the agent can use
 </tbody>
 </table></div>
 <h2 id="effort-frontmatter-%E2%80%94-by-role" tabindex="-1"><a class="header-anchor" href="#effort-frontmatter-%E2%80%94-by-role" aria-hidden="true">#</a> Effort frontmatter — by role</h2>
-<p>Per <code>opus-4-7-defaults.html</code>:</p>
+<p>Per <code>model-effort-defaults.html</code>:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -337,7 +337,7 @@ When sources conflict, follow this order:
 ❌ Background reviewers (0-byte output)
 ❌ Skills not declared in frontmatter (subagents don't auto-inherit)
 ❌ No <code>effort:</code> set (inherits session xhigh; mechanical agents waste tokens)
-❌ Defensive scaffolding in agent body (&quot;MUST always&quot;, &quot;double-check&quot;) — Opus 4.7 anti-pattern
+❌ Defensive scaffolding in agent body (&quot;MUST always&quot;, &quot;double-check&quot;) — Claude 4.7+/5-family anti-pattern
 ❌ Plugin agents with <code>hooks:</code> / <code>mcpServers:</code> / <code>permissionMode:</code> (silently ignored)
 ❌ Required context not documented in description (callers dispatch without context, agent flounders)</p>
 

@@ -9,7 +9,7 @@
 
 import path from 'node:path';
 import fs from 'node:fs';
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 import { detectProject } from './lib/project-detection.mjs';
 
 const PATH_PREFIX = "/opt/homebrew/bin:/usr/local/bin:/opt/homebrew/sbin:/usr/sbin:/usr/bin:/sbin:/bin";
@@ -119,10 +119,264 @@ if (!detection.artifacts.sourceOfTruth.catalog) {
   }
 }
 
+// === Convex frugality contract ===
+// Enforcement déterministe des deux garde-fous machine-vérifiables de
+// references/stack-convex.html#frugality-contract (différé en v1.6.0 ;
+// calibré contre les projets Convex réels avant d'être shippé, v1.7.1).
+if (detection.stack.isConvex) {
+  // (a) Chaque cron enregistré porte un marqueur `cost-justified` — sur la
+  // ligne d'enregistrement ou dans le bloc de commentaire contigu au-dessus.
+  const cronsPath = path.join(projectDir, 'convex/crons.ts');
+  if (fs.existsSync(cronsPath)) {
+    const cronsContent = fs.readFileSync(cronsPath, 'utf8');
+    const cronsLines = cronsContent.split('\n');
+    const registrationRe = /\bcrons\.(cron|interval|hourly|daily|weekly|monthly)\s*\(/g;
+    let reg;
+    while ((reg = registrationRe.exec(cronsContent)) !== null) {
+      const lineIdx = cronsContent.slice(0, reg.index).split('\n').length - 1;
+      const tail = cronsContent.slice(reg.index + reg[0].length, reg.index + reg[0].length + 200);
+      const nameMatch = tail.match(/^\s*['"`]([^'"`]+)['"`]/);
+      const label = nameMatch ? `« ${nameMatch[1]} »` : `entrée ligne ${lineIdx + 1}`;
+      let justified = /cost-justified/i.test(cronsLines[lineIdx]);
+      for (let i = lineIdx - 1; !justified && i >= 0 && /^\s*(\/\/|\/\*|\*)/.test(cronsLines[i]); i--) {
+        if (/cost-justified/i.test(cronsLines[i])) justified = true;
+      }
+      if (!justified) {
+        add('MEDIUM', 'convex-frugality',
+          `convex/crons.ts : cron ${label} sans marqueur // cost-justified (zéro cron sans justification de coût). Vérifier le coût en function calls dans le design puis annoter // cost-justified: <réf design>. Voir stack-convex.html#frugality-contract.`,
+          cronsPath);
+      }
+    }
+  }
+
+  // (b) Aucun fichier de test ne touche un déploiement réel : le signal exige
+  // soit l'import de ConvexHttpClient (convex/browser), soit un slug de
+  // déploiement RÉEL (<token>-<token>-<digits>.convex.cloud|site — les hôtes
+  // factices type example.convex.site ne matchent pas) CONJOINT à un fetch(.
+  // Les suites convex-test (in-memory) sont conformes par définition.
+  // .claude est exclu du walk (les copies sous .claude/worktrees dupliqueraient
+  // les constats) ; le contenu n'est lu que pour les basenames de test.
+  const TEST_FILE_RE = /\.(test|spec)\.[cm]?[jt]sx?$/;
+  const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'build', 'out', 'coverage', '.next', '.vercel', '.wrangler', '_generated', '.claude']);
+  const DEPLOY_URL_RE = /\b(?:https?|wss?):\/\/[a-z0-9]+(?:-[a-z0-9]+)*-\d+\.convex\.(?:cloud|site)\b/i;
+  const testFiles = [];
+  (function walk(dir) {
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        if (!SKIP_DIRS.has(entry.name)) walk(path.join(dir, entry.name));
+      } else if (entry.isFile() && TEST_FILE_RE.test(entry.name)) {
+        testFiles.push(path.join(dir, entry.name));
+      }
+    }
+  })(projectDir);
+  for (const testFile of testFiles) {
+    let testContent;
+    try { testContent = fs.readFileSync(testFile, 'utf8'); } catch { continue; }
+    if (/['"]convex-test['"]/.test(testContent)) continue;
+    const importsHttpClient = /\bConvexHttpClient\b/.test(testContent) && /['"]convex\/browser['"]/.test(testContent);
+    const hitsDeployUrl = DEPLOY_URL_RE.test(testContent) && /\bfetch\s*\(/.test(testContent);
+    if (importsHttpClient || hitsDeployUrl) {
+      const why = importsHttpClient ? 'import de ConvexHttpClient' : 'URL de déploiement réel + fetch';
+      add('HIGH', 'convex-frugality',
+        `Fichier de test touchant un déploiement Convex réel (${why}) sans convex-test — les boucles de test contre un déploiement brûlent les quotas. Migrer la suite sur convex-test (in-memory) ; un déploiement ne sert qu'aux sondes ponctuelles. Voir stack-convex.html#frugality-contract.`,
+        testFile);
+    }
+  }
+}
+
+// === Convex mutation-arg casts ===
+// Un cast de type sur les args d'un handle useMutation/useAction masque un
+// mismatch de payload que le validateur Convex rejette à l'EXÉCUTION
+// (ArgumentValidationError) — incident personal-budget-app : 36 casts
+// `as never` masquaient 3 payloads CRITICAL pendant que 213 tests mockés
+// restaient verts. Heuristique liée-au-callee : seul un cast DANS les args
+// d'un appel du handle (ou d'un appel inline useMutation(api.x)(…)) compte —
+// les `as never` d'exhaustivité TS, les mocks de test et les commentaires
+// sont structurellement exclus. Différé en v1.10.0, promu en v1.11.0 après
+// calibrage contre les 5 projets Convex réels de la machine.
+if (detection.stack.isConvex) {
+  const SRC_FILE_RE = /\.[cm]?[jt]sx?$/;
+  const CAST_RE = /\bas\s+(?:never|any|unknown)\b/;
+  const WALK_SKIP = new Set(['node_modules', '.git', 'dist', 'build', 'out', 'coverage', '.next', '.vercel', '.wrangler', '_generated', '.claude']);
+  const srcFiles = [];
+  (function walk(dir) {
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        if (!WALK_SKIP.has(entry.name)) walk(path.join(dir, entry.name));
+      } else if (entry.isFile() && SRC_FILE_RE.test(entry.name)) {
+        srcFiles.push(path.join(dir, entry.name));
+      }
+    }
+  })(projectDir);
+
+  // Index (exclusif) de la parenthèse fermante appariée à text[openIdx] === '('.
+  // Ignore les parenthèses dans les chaînes (heuristique) ; borné à 5000 chars.
+  const balancedClose = (text, openIdx) => {
+    let depth = 0;
+    for (let i = openIdx; i < text.length && i < openIdx + 5000; i++) {
+      if (text[i] === '(') depth++;
+      else if (text[i] === ')') { depth--; if (depth === 0) return i; }
+    }
+    return -1;
+  };
+  const lineOf = (text, idx) => text.slice(0, idx).split('\n').length;
+
+  for (const srcFile of srcFiles) {
+    let content;
+    try { content = fs.readFileSync(srcFile, 'utf8'); } catch { continue; }
+    if (!/use(?:Mutation|Action)\s*\(/.test(content)) continue;
+    // Strip des commentaires en préservant les numéros de ligne (un bind ou un
+    // cast commenté ne doit jamais compter).
+    const stripped = content
+      .replace(/\/\*[\s\S]*?\*\//g, (s) => s.replace(/[^\n]/g, ' '))
+      .replace(/(^|[^:])\/\/.*$/gm, '$1');
+
+    // Pattern A — handle lié : const m = useMutation(...) puis m(<args castés>).
+    const handles = new Set();
+    const bindRe = /(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*use(?:Mutation|Action)\s*\(/g;
+    let bind;
+    while ((bind = bindRe.exec(stripped)) !== null) handles.add(bind[1]);
+    for (const handle of handles) {
+      const callRe = new RegExp(`\\b${handle}\\s*\\(`, 'g');
+      let call;
+      while ((call = callRe.exec(stripped)) !== null) {
+        const open = call.index + call[0].length - 1;
+        const close = balancedClose(stripped, open);
+        if (close === -1) continue;
+        if (CAST_RE.test(stripped.slice(open + 1, close))) {
+          add('HIGH', 'convex-mutation-casts',
+            `Cast de type (as never/any/unknown) sur les args de « ${handle}(…) » (handle useMutation/useAction, ligne ${lineOf(stripped, call.index)}) — le cast masque un mismatch de payload que le validateur Convex rejette à l'exécution (ArgumentValidationError). Corriger le contrat client↔validateur, jamais caster. Voir stack-convex.html#mutation-payload-casts.`,
+            srcFile);
+        }
+      }
+    }
+
+    // Pattern B — appel inline : useMutation(api.x.y)(<args castés>).
+    const inlineRe = /\buse(?:Mutation|Action)\s*\(/g;
+    let inline;
+    while ((inline = inlineRe.exec(stripped)) !== null) {
+      const open = inline.index + inline[0].length - 1;
+      const close = balancedClose(stripped, open);
+      if (close === -1) continue;
+      let j = close + 1;
+      while (j < stripped.length && /\s/.test(stripped[j])) j++;
+      if (stripped[j] !== '(') continue;
+      const close2 = balancedClose(stripped, j);
+      if (close2 === -1) continue;
+      if (CAST_RE.test(stripped.slice(j + 1, close2))) {
+        add('HIGH', 'convex-mutation-casts',
+          `Cast de type (as never/any/unknown) sur les args d'un appel inline useMutation/useAction (ligne ${lineOf(stripped, inline.index)}) — le cast masque un mismatch de payload que le validateur Convex rejette à l'exécution. Corriger le contrat client↔validateur, jamais caster. Voir stack-convex.html#mutation-payload-casts.`,
+          srcFile);
+      }
+    }
+  }
+}
+
+// === Env parity (.env.local ↔ import.meta.env.*) ===
+// Dérive locale : une clé VITE_* lue par src/ sans être déclarée dans
+// .env.local casse au premier run (personal-budget-app : dev server remis au
+// propriétaire sans VITE_FIREBASE_* → auth/invalid-api-key). Porté du
+// preflight-setup-check.envparity de personal-budget-app ; read-only (le
+// preflight lui-même reste émis par le plan, décision v1.10.0). Ne tourne QUE
+// si .env.local existe : gitignoré, absent sur un clone frais ≠ constat.
+// Une clé est optionnelle si TOUS ses sites de lecture testent la valeur —
+// fallback || / ??, comparaison, garde if (même ligne, if contigu sur la même
+// clé, ou test de l'identifiant affecté dans les 3 lignes suivantes : le
+// pattern flag `const f = import.meta.env.K;` puis `f === '1' || …`) — ou si
+// elle est déclarée dans optionalEnvKeys de docs/docs-map.json (clés
+// build-time injectées par trigger, ex. Cloudflare Workers Builds).
+// Aucune VALEUR n'est jamais imprimée — noms de clés seulement.
+if (detection.stack.isVite) {
+  const envLocalPath = path.join(projectDir, '.env.local');
+  const srcDir = path.join(projectDir, 'src');
+  if (fs.existsSync(envLocalPath) && fs.existsSync(srcDir)) {
+    const SRC_FILE_RE = /\.[cm]?[jt]sx?$/;
+    const WALK_SKIP = new Set(['node_modules', '.git', 'dist', 'build', 'out', 'coverage', '_generated']);
+    const OPTIONAL_LINE_RE = /(\|\||\?\?|===|!==|==|!=|\btypeof\b|\bif\s*\(|\?\s)/;
+    // clé -> a-t-elle au moins un site de lecture NON testé (= requise) ?
+    const bareReads = new Map();
+    (function walk(dir) {
+      let entries;
+      try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          if (!WALK_SKIP.has(entry.name)) walk(path.join(dir, entry.name));
+        } else if (entry.isFile() && SRC_FILE_RE.test(entry.name)) {
+          let content;
+          try { content = fs.readFileSync(path.join(dir, entry.name), 'utf8'); } catch { continue; }
+          if (!content.includes('import.meta.env.')) continue;
+          const lines = content.split('\n');
+          for (let i = 0; i < lines.length; i++) {
+            const readRe = /import\.meta\.env\.(VITE_[A-Z0-9_]+)/g;
+            let read;
+            while ((read = readRe.exec(lines[i])) !== null) {
+              const key = read[1];
+              let guarded = OPTIONAL_LINE_RE.test(lines[i]);
+              // Garde if contiguë sur la MÊME clé (lecture dans le corps du if).
+              for (let k = i - 1; !guarded && k >= 0 && k >= i - 3; k--) {
+                if (new RegExp(`\\bif\\s*\\([^)]*import\\.meta\\.env\\.${key}\\b`).test(lines[k])) guarded = true;
+              }
+              // Pattern flag : affectation nue puis test de l'identifiant
+              // dans les 3 lignes suivantes (const f = …K; / f === '1' || …).
+              if (!guarded) {
+                const assign = lines[i].match(/(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=/);
+                if (assign) {
+                  const identRe = new RegExp(`\\b${assign[1]}\\b`);
+                  for (let k = i + 1; !guarded && k < lines.length && k <= i + 3; k++) {
+                    if (identRe.test(lines[k]) && OPTIONAL_LINE_RE.test(lines[k])) guarded = true;
+                  }
+                }
+              }
+              if (!bareReads.has(key)) bareReads.set(key, false);
+              if (!guarded) bareReads.set(key, true);
+            }
+          }
+        }
+      }
+    })(srcDir);
+
+    let declaredOptional = [];
+    try {
+      const docsMap = JSON.parse(fs.readFileSync(path.join(projectDir, 'docs/docs-map.json'), 'utf8'));
+      const declared = docsMap.optionalEnvKeys ?? docsMap.conventions?.optionalEnvKeys;
+      if (Array.isArray(declared)) declaredOptional = declared.filter((k) => typeof k === 'string');
+    } catch { /* pas de docs-map ou illisible : pas d'échappatoire, fail-soft */ }
+
+    const envKeys = new Set();
+    try {
+      for (const line of fs.readFileSync(envLocalPath, 'utf8').split('\n')) {
+        const m = line.match(/^\s*(VITE_[A-Z0-9_]+)\s*=/);
+        if (m) envKeys.add(m[1]);
+      }
+    } catch { /* illisible : fail-soft, pas de constat sur du bruit */ }
+
+    const optionalSet = new Set(declaredOptional);
+    const missing = [...bareReads.entries()]
+      .filter(([key, bare]) => bare && !optionalSet.has(key) && !envKeys.has(key))
+      .map(([key]) => key)
+      .sort();
+    if (missing.length > 0) {
+      add('MEDIUM', 'env-parity',
+        `Clé(s) VITE_* lue(s) par src/ (import.meta.env.*, sans fallback ni garde) absente(s) de .env.local : ${missing.join(', ')} — le premier run local casse (cf. incident auth/invalid-api-key). Ajouter les clés à .env.local, ou les déclarer dans optionalEnvKeys de docs/docs-map.json si elles sont injectées au build (trigger Cloudflare Workers Builds…). Voir workflow-blueprint.html#phase-0.`,
+        envLocalPath);
+    }
+  }
+}
+
 // === Delta-protocol commit-message lint ===
 // The 3 source-of-truth docs may only change via an apply-delta / amendment /
 // bugfix-doc-correction commit (spec-protocol.md §3, §9, §9.1). A commit that
 // edits one of them with any other message bypassed the delta protocol.
+//
+// Escape hatch for pre-bootstrap history: a project may declare
+// `deltaProtocolBaselineCommit` (a commit SHA) in docs/docs-map.json — top-level
+// or under conventions.*. Every SoT commit reachable from that baseline (= it and
+// all its ancestors) is skipped: the delta protocol is prospective, and rewriting
+// history to satisfy it would itself be a violation.
 {
   const sotFiles = [
     detection.artifacts.sourceOfTruth.spec,
@@ -130,20 +384,42 @@ if (!detection.artifacts.sourceOfTruth.catalog) {
     detection.artifacts.sourceOfTruth.catalog,
   ].filter(Boolean);
   if (detection.isGitRepo && sotFiles.length > 0) {
-    for (const sot of sotFiles) {
-      let subjects = [];
+    // Optional baseline: hashes reachable from it are pre-bootstrap history and
+    // exempt. Fail-soft — an absent/invalid key leaves the set empty, so the
+    // check behaves exactly as before. The SHA guard also blocks shell injection.
+    let preBaselineSet = new Set();
+    let baseline = null;
+    try {
+      const map = JSON.parse(fs.readFileSync(path.join(projectDir, 'docs/docs-map.json'), 'utf8'));
+      baseline = map?.deltaProtocolBaselineCommit || map?.conventions?.deltaProtocolBaselineCommit || null;
+    } catch { /* no docs-map or unreadable: no escape hatch */ }
+    if (baseline && /^[0-9a-f]{7,40}$/i.test(baseline)) {
       try {
-        subjects = execSync(`git log --follow --format=%s -- "${sot}"`, {
+        preBaselineSet = new Set(
+          execFileSync('git', ['rev-list', baseline], { cwd: projectDir, encoding: 'utf8' })
+            .split('\n').map((s) => s.trim()).filter(Boolean),
+        );
+      } catch { /* bad ref: fail-soft, exempt nothing */ }
+    }
+    for (const sot of sotFiles) {
+      let commits = [];
+      try {
+        commits = execSync(`git log --follow --format=%H%x1f%s -- "${sot}"`, {
           cwd: projectDir,
           encoding: 'utf8',
         })
           .split('\n')
-          .map((s) => s.trim())
-          .filter(Boolean);
+          .map((line) => line.trim())
+          .filter(Boolean)
+          .map((line) => {
+            const idx = line.indexOf('\x1f');
+            return { hash: line.slice(0, idx), subj: line.slice(idx + 1).trim() };
+          });
       } catch {
         continue;
       }
-      for (const subj of subjects) {
+      for (const { hash, subj } of commits) {
+        if (preBaselineSet.has(hash)) continue;
         const compliant =
           /^docs\(spec\):\s*(apply delta|amendment)/i.test(subj) ||
           /bugfix-doc-correction/i.test(subj);
@@ -181,11 +457,54 @@ if (detection.artifacts.hasSettingsJson) {
 
 if (detection.artifacts.hasClaudeMd) {
   const content = fs.readFileSync(path.join(projectDir, 'CLAUDE.md'), 'utf8');
-  if (/@[\w./-]+\.md/.test(content)) {
+  // Strip machine-generated vendor fences before the prose anti-pattern scans.
+  // A tool like `npx convex ai-files` injects a block delimited by paired HTML
+  // comment markers (<!-- convex-ai-start -->…<!-- convex-ai-end -->) whose text
+  // ("**always read**") trips the defensive-scaffolding regex on a token no human
+  // can fix (it is regenerated on the next install). The backreference \1 requires
+  // the MATCHING end marker, so an unmatched opener strips nothing (no EOF runaway).
+  // Scope: the two CLAUDE.md anti-pattern checks only — the volatile-state block
+  // below keeps scanning raw `content` (generated fences never carry palier/version
+  // literals, and stripping there could mask a real stale-state lie).
+  const scanContent = content.replace(/<!--\s*([\w.-]+?)-(?:start|generated)\s*-->[\s\S]*?<!--\s*\1-end\s*-->/gi, '');
+  if (/@[\w./-]+\.md/.test(scanContent)) {
     add('HIGH', 'anti-pattern', 'CLAUDE.md contains @-file imports. Use declarative pointers instead.');
   }
-  if (/\b(MUST|ALWAYS|NEVER|n'oublie pas|verify before returning|double-check before returning|do not skip)\b/i.test(content)) {
-    add('MEDIUM', 'anti-pattern', 'CLAUDE.md contains defensive scaffolding (Opus 4.7 anti-pattern). Rewrite as positive statements.');
+  if (/\b(MUST|ALWAYS|NEVER|n'oublie pas|verify before returning|double-check before returning|do not skip)\b/i.test(scanContent)) {
+    add('MEDIUM', 'anti-pattern', 'CLAUDE.md contains defensive scaffolding (Claude 4.7+/5-family anti-pattern). Rewrite as positive statements.');
+  }
+
+  // === Volatile state in standing context (durable-only doctrine, v1.9.0) ===
+  // CLAUDE.md/AGENTS.md carry only durable invariants. State (palier,
+  // meta-govern version) lives in .claude/.meta-govern.json — the standing
+  // context POINTS, never duplicates. A stored value that DIVERGES from the
+  // literal in CLAUDE.md is worse than duplication: it lies. See
+  // references/anti-pattern-catalog.html#claude.md-anti-patterns.
+  {
+    const state = detection.metaGovernState || {};
+    const standingFiles = [{ name: 'CLAUDE.md', body: content, file: path.join(projectDir, 'CLAUDE.md') }];
+    const agentsMdPath = path.join(projectDir, 'AGENTS.md');
+    if (fs.existsSync(agentsMdPath)) {
+      standingFiles.push({ name: 'AGENTS.md', body: fs.readFileSync(agentsMdPath, 'utf8'), file: agentsMdPath });
+    }
+    for (const { name, body, file } of standingFiles) {
+      const verMatch = body.match(/meta-govern version:\s*([0-9]+\.[0-9]+\.[0-9]+)/i);
+      if (verMatch) {
+        if (state.metaGovernVersion && verMatch[1] !== state.metaGovernVersion) {
+          add('HIGH', 'stale-state', `${name} hardcodes « meta-govern version: ${verMatch[1]} » but .claude/.meta-govern.json says ${state.metaGovernVersion} — remove the line and point to .meta-govern.json (durable-only doctrine).`, file);
+        } else {
+          add('LOW', 'state-duplication', `${name} duplicates meta-govern version from .claude/.meta-govern.json — replace with a pointer (durable-only doctrine).`, file);
+        }
+      }
+      const palierMatch = body.match(/Current palier:\s*(\d+)/i);
+      if (palierMatch) {
+        if (state.palier != null && Number(palierMatch[1]) !== Number(state.palier)) {
+          add('HIGH', 'stale-state', `${name} hardcodes « Current palier: ${palierMatch[1]} » but .claude/.meta-govern.json says ${state.palier} — remove and point to .meta-govern.json.`, file);
+        } else {
+          add('LOW', 'state-duplication', `${name} duplicates palier from .claude/.meta-govern.json — replace with a pointer.`, file);
+        }
+      }
+    }
   }
 }
 
@@ -271,6 +590,47 @@ if (fs.existsSync(hooksDir)) {
     const libContent = fs.readFileSync(libPath, 'utf8');
     if (!/PATH_PREFIX|process\.env\.PATH\s*=/.test(libContent)) {
       add('HIGH', 'macos-hardening', `lib/hook-utils.mjs missing PATH_PREFIX (other hooks depend on it).`, libPath);
+    }
+  }
+}
+
+// === Hook / guard test discipline ===
+// A hook that throws or mis-parses fails SILENTLY (exit 0, blocks nothing) — a
+// broken guard is worse than no guard (lesson 2026-07-02, class tooling-self-
+// reference: 3 findings were guards that shipped untested). Every PROJECT-AUTHORED
+// guard ships its simulation/test in the same commit. Canonical hooks are
+// grandfathered (the canon owns their proofs). Fail-soft, absolute paths.
+if (fs.existsSync(hooksDir)) {
+  const CANONICAL_HOOKS = new Set([
+    'session-start-env-check.mjs', 'track-workflow.mjs', 'enforce-workflow.mjs',
+    'precompact-handoff.mjs', 'postcompact-reinject.mjs', 'block-docs-markdown.mjs',
+    'docs-index-refresh.mjs', 'subagent-plan-edit-guard.mjs', 'agent-dispatch-preflight.mjs',
+    'plan-closeout-guard.mjs', 'validate-plan.mjs', 'daily-drift-alert.mjs',
+  ]);
+  const TEST_SIM_RE = /\.(test|spec|sim)\.[cm]?[jt]sx?$/;
+  const SKIP = new Set(['node_modules', '.git', 'dist', 'build', 'out', 'coverage', '.next', '.vercel', '.wrangler', '_generated']);
+  const testCorpus = [];
+  (function walk(dir) {
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const e of entries) {
+      if (e.isDirectory()) { if (!SKIP.has(e.name)) walk(path.join(dir, e.name)); }
+      else if (e.isFile() && TEST_SIM_RE.test(e.name)) testCorpus.push(path.join(dir, e.name));
+    }
+  })(projectDir);
+  for (const hookFile of fs.readdirSync(hooksDir).filter(f => f.endsWith('.mjs'))) {
+    if (hookFile.startsWith('lib') || CANONICAL_HOOKS.has(hookFile) || TEST_SIM_RE.test(hookFile)) continue;
+    const base = hookFile.replace(/\.mjs$/, '');
+    let referenced = ['test', 'spec', 'sim'].some(k => fs.existsSync(path.join(hooksDir, `${base}.${k}.mjs`)));
+    for (let i = 0; !referenced && i < testCorpus.length; i++) {
+      let c;
+      try { c = fs.readFileSync(testCorpus[i], 'utf8'); } catch { continue; }
+      if (c.includes(hookFile) || c.includes(`hooks/${base}`)) referenced = true;
+    }
+    if (!referenced) {
+      add('HIGH', 'hook-tests',
+        `Project-authored guard ${hookFile} ships no simulation/test — a hook that throws fails silently (exit 0, blocks nothing). Add ${base}.sim.mjs (or .test.mjs) exercising block AND allow paths in the same commit. See hook-canonical-patterns.html.`,
+        path.join(hooksDir, hookFile));
     }
   }
 }

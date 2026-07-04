@@ -13,7 +13,7 @@ description: |
   Audit and evolve the {{PROJECT_NAME}} project's `.claude/` configuration. Compares
   the actual inventory with `references/baseline.md` (scaffolded by `meta-govern`).
   Detects drift: orphans, oversized files, defensive scaffolding patterns
-  (anti-Opus-4.7), broken wires (hook not registered, rule with invalid
+  (Claude 4.7+/5-family), broken wires (hook not registered, rule with invalid
   `paths:`, script without wrapper), violations of the source-of-truth delta
   protocol. NEVER creates skills/agents/hooks itself — delegates to
   `skill-creator` / `create-subagent`, or follows the meta-govern authoring canon
@@ -23,8 +23,8 @@ description: |
   says: govern, audit, claude config, drift, healthcheck, faire évoluer, what's
   next, lint claude, "améliore le setup", "fais évoluer .claude". Distinct from
   `quality-gate` (audits app code) and from `{{PACKAGE_MANAGER}} run validate`
-  (lint + typecheck + test + build) — this skill audits the `.claude/` configuration
-  itself.
+  (quality + size-guard + docs guards + typecheck + tests) — this skill audits
+  the `.claude/` configuration itself.
 when_to_use: |
   - Periodically (every 2–4 weeks of active dev).
   - After a large refactor or addition of skill / rule / agent.
@@ -79,13 +79,13 @@ File-size caps from `baseline.md` §4 exceeded → severity HIGH.
 - Subagent never invoked → LOW.
 - ALLOWLIST script ↔ rule exemption inconsistent → MEDIUM.
 
-### Step 5 — Defensive scaffolding (Opus 4.7 anti-pattern)
+### Step 5 — Defensive scaffolding (Claude 4.7+/5-family anti-pattern)
 
 ```bash
 grep -rEn -i 'double[- ]check|verify before returning|do not skip any step|please make sure to|always remember to|n.?oubli(?:e|er)|attention.{0,3}à' .claude/ CLAUDE.md
 ```
 
-Matches → MEDIUM, propose deletion. Aggressive markers belong in **frontmatter only** (they boost activation). In bodies they create instruction-following loops on Opus 4.7.
+Matches → MEDIUM, propose deletion. Aggressive markers belong in **frontmatter only** (they boost activation). In bodies they create instruction-following loops on current Claude models (4.7+/5).
 
 ### Step 6 — Delta protocol
 
@@ -122,7 +122,7 @@ Skills: N/M | Rules: ... | Agents: ... | Hooks: ... (wired/non) | CLAUDE.md: P/1
 
 ### HIGH | ### MEDIUM | ### LOW
 
-## Opus 4.7 anti-patterns
+## Claude 4.7+/5-family anti-patterns
 
 ...
 
@@ -171,4 +171,4 @@ Ask: `Apply 1, 2, 3? (y / numbers / n)`.
 - Suggesting all the roadmap evolutions at once. Limit to 1–3 NOW. Bigger sweeps fragment user attention and create half-shipped primitives.
 - Authoring a new skill / agent inline. This skill delegates to `skill-creator` / `create-subagent`. Inline authoring drifts from the canonical structure and creates the failure modes journaled in `~/.claude/skills/meta-govern/references/lessons-log.html`.
 - Caching code state in a document. Inventories rot silently with each rename. The right fix for "Claude forgot to grep" is to tighten the grep discipline in skills, not pre-compute the inventory.
-- Placing compaction-recovery instructions inside skill files. Those are lost on compaction. Only `CLAUDE.md` (re-read from disk) and `PostCompact` hooks (fire automatically) survive.
+- Placing compaction-recovery instructions inside skill files. Those are lost on compaction. Only `CLAUDE.md` (re-read from disk) and `SessionStart` hooks (matcher: `compact`) survive — `PostCompact` itself is side-effects-only and does not consume `additionalContext`.

@@ -43,7 +43,7 @@ The setup imports `@testing-library/jest-dom` and configures global mocks (match
 
 ## Avoided patterns
 
-- Mocking the i18n hook — render with the real provider.
-- Skipping a flaky test with `.skip` — file a fix or leave `// TODO(test-flake-XXX)`.
+{{IF_STACK_HAS_I18N}}- Mocking the i18n hook — render with the real provider.
+{{/IF}}- Skipping a flaky test with `.skip` — file a fix or leave `// TODO(test-flake-XXX)`.
 - Testing implementation details — assert what the user sees.
 - Live network / live backend — stub at the client boundary for unit tests. BUT a green mock suite is not proof of integration: where the stack supports it, keep at least one real-boundary/integration test on the real shape. "Tests green on idealized mocks while the real backend is broken" is the failure this guards against.

@@ -104,11 +104,18 @@ const files = walk(docsDir, (n) => n.toLowerCase().endsWith('.html'))
   .map((abs) => path.relative(repoRoot, abs).replace(/\\/g, '/'))
   .filter((rel) => !EXCLUDE.test(rel) && !SKIP_UNDERSCORE.test(path.basename(rel)));
 
+// Every counted doc must land in a group that the render loop emits, else `total`
+// (all files) exceeds the rendered hub-cards (only DOC_TYPES ids) and the
+// docs-index-refresh Stop hook re-runs make-index forever. So coerce an unknown
+// doc-type (typo / legacy / externally-authored) to 'generic', mirroring the
+// typeForPath fallback. Same normalization docType() does for unknown ids.
+const KNOWN_TYPE_IDS = new Set(DOC_TYPES.map((t) => t.id));
 const groups = new Map();
 const contextCounts = new Map(); // bucketId -> nombre de docs
 for (const rel of files) {
   const html = fs.readFileSync(path.join(repoRoot, rel), 'utf8');
-  const type = meta(html, 'doc-type') || typeForPath(rel);
+  const rawType = meta(html, 'doc-type') || typeForPath(rel);
+  const type = KNOWN_TYPE_IDS.has(rawType) ? rawType : 'generic';
   const bucket = contextBucket(rel);
   if (!groups.has(type)) groups.set(type, []);
   groups.get(type).push({ rel, title: titleOf(html, rel), bucket });

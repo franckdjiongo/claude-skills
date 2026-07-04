@@ -24,7 +24,7 @@
   <div class="docs-shell">
     <aside class="docs-toc" id="docs-toc">
       <p class="docs-toc__label">Sur cette page</p>
-      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#claude-code-anti-patterns">Claude Code anti-patterns</a></li><li class="lvl-3"><a href="#claude.md-anti-patterns">CLAUDE.md anti-patterns</a></li><li class="lvl-3"><a href="#rules-anti-patterns">Rules anti-patterns</a></li><li class="lvl-3"><a href="#skills-anti-patterns">Skills anti-patterns</a></li><li class="lvl-3"><a href="#subagents-anti-patterns">Subagents anti-patterns</a></li><li class="lvl-3"><a href="#hooks-anti-patterns">Hooks anti-patterns</a></li><li class="lvl-3"><a href="#mcp-anti-patterns">MCP anti-patterns</a></li><li class="lvl-3"><a href="#plugins-anti-patterns">Plugins anti-patterns</a></li><li class="lvl-2"><a href="#ddd-anti-patterns">DDD anti-patterns</a></li><li class="lvl-3"><a href="#strategic-anti-patterns">Strategic anti-patterns</a></li><li class="lvl-3"><a href="#tactical-anti-patterns">Tactical anti-patterns</a></li><li class="lvl-2"><a href="#10-code-review-signals-of-anemic-drift-(doc-2)">10 code-review signals of anemic drift (Doc 2)</a></li><li class="lvl-2"><a href="#detection-in-scripts">Detection in scripts</a></li><li class="lvl-2"><a href="#when-to-surface">When to surface</a></li><li class="lvl-2"><a href="#always-grow-this-catalog">Always-grow this catalog</a></li></ul></nav>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#claude-code-anti-patterns">Claude Code anti-patterns</a></li><li class="lvl-3"><a href="#claude.md-anti-patterns">CLAUDE.md anti-patterns</a></li><li class="lvl-3"><a href="#rules-anti-patterns">Rules anti-patterns</a></li><li class="lvl-3"><a href="#skills-anti-patterns">Skills anti-patterns</a></li><li class="lvl-3"><a href="#subagents-anti-patterns">Subagents anti-patterns</a></li><li class="lvl-3"><a href="#hooks-anti-patterns">Hooks anti-patterns</a></li><li class="lvl-3"><a href="#mcp-anti-patterns">MCP anti-patterns</a></li><li class="lvl-3"><a href="#plugins-anti-patterns">Plugins anti-patterns</a></li><li class="lvl-3"><a href="#api-harness-anti-patterns-claude-5">API / harness anti-patterns (Claude 5 family)</a></li><li class="lvl-2"><a href="#ddd-anti-patterns">DDD anti-patterns</a></li><li class="lvl-3"><a href="#strategic-anti-patterns">Strategic anti-patterns</a></li><li class="lvl-3"><a href="#tactical-anti-patterns">Tactical anti-patterns</a></li><li class="lvl-2"><a href="#10-code-review-signals-of-anemic-drift-(doc-2)">10 code-review signals of anemic drift (Doc 2)</a></li><li class="lvl-2"><a href="#detection-in-scripts">Detection in scripts</a></li><li class="lvl-2"><a href="#when-to-surface">When to surface</a></li><li class="lvl-2"><a href="#always-grow-this-catalog">Always-grow this catalog</a></li></ul></nav>
     </aside>
     <div class="docs-main">
       <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
@@ -67,7 +67,7 @@
 <tr>
 <td>Defensive scaffolding</td>
 <td>&quot;MUST&quot;, &quot;ALWAYS&quot;, &quot;double-check before returning&quot;, &quot;n'oublie pas&quot;</td>
-<td>Delete. Opus 4.7 follows literally; performance drops. Aggressive markers ALLOWED only in skill descriptions (frontmatter) for activation.</td>
+<td>Delete. Current Claude models (4.7+/5) follow literally; performance drops — over-prescriptive bodies actively degrade output on the newest models. Aggressive markers ALLOWED only in skill descriptions (frontmatter) for activation.</td>
 </tr>
 <tr>
 <td>Architecture explanations inline</td>
@@ -93,6 +93,11 @@
 <td>Stale references</td>
 <td>Pointer to a doc that no longer exists</td>
 <td>AUDIT detects; meta-govern proposes diff</td>
+</tr>
+<tr>
+<td>État volatil dans le standing context</td>
+<td>CLAUDE.md/AGENTS.md contient palier, version meta-govern, « ~416 constats », « N tests », « backend vivant = X », « Convex pas encore de schéma », « aujourd'hui/currently » — divergent du réel au premier changement</td>
+<td>Déplacer l'état vers sa source canonique (<code>.claude/.meta-govern.json</code>, <code>HANDOFF.md</code>, docs vivants, le code) ; laisser un pointeur durable. Test du rot : « cette phrase peut-elle devenir fausse sans éditer ce fichier ? ». AUDIT détecte (<code>stale-state</code> HIGH si divergent, <code>state-duplication</code> LOW si présent)</td>
 </tr>
 </tbody>
 </table></div>
@@ -267,6 +272,11 @@
 <td>Same as subagent: 0-byte</td>
 <td>Foreground hooks only for review-style work</td>
 </tr>
+<tr>
+<td>Untested guard / hook</td>
+<td>A hook that throws exits 0 and blocks nothing — the guard silently does not exist</td>
+<td>Ship the hook&#39;s simulation/test in the same commit, exercising block AND allow paths (detected by <code>audit-project.mjs</code> area <code>hook-tests</code>)</td>
+</tr>
 </tbody>
 </table></div>
 <h3 id="mcp-anti-patterns" tabindex="-1"><a class="header-anchor" href="#mcp-anti-patterns" aria-hidden="true">#</a> MCP anti-patterns</h3>
@@ -320,6 +330,38 @@
 <td>Unsigned plugins from untrusted source</td>
 <td>Security</td>
 <td>Only enable plugins from known marketplaces</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="api-harness-anti-patterns-claude-5" tabindex="-1"><a class="header-anchor" href="#api-harness-anti-patterns-claude-5" aria-hidden="true">#</a> API / harness anti-patterns (Claude 5 family)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Anti-pattern</th>
+<th>Symptom</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>thinking: {budget_tokens: N}</code> (manual extended thinking)</td>
+<td>400 error on all current models (Opus 4.7+, Sonnet 5, Fable 5/Mythos 5)</td>
+<td>Adaptive thinking + the <code>effort</code> parameter is the only mode</td>
+</tr>
+<tr>
+<td>Non-default <code>temperature</code>/<code>top_p</code>/<code>top_k</code> on Sonnet 5</td>
+<td>400 error (new constraint for Sonnet-class models)</td>
+<td>Steer tone/variety via system-prompt instructions; for design variety, have the model propose options before building</td>
+</tr>
+<tr>
+<td>Prefilled last assistant turn</td>
+<td>400 error since Claude 4.6 models</td>
+<td>Move the constraint into the system/user turn, use structured outputs, or XML output tags</td>
+</tr>
+<tr>
+<td>Severity-filtered review prompts (&quot;only significant issues&quot;, &quot;don't nitpick&quot;)</td>
+<td>Recall trap on Sonnet 5: the model investigates fully and finds the bugs, but obeys the filter and doesn't report them — precision rises, recall silently falls</td>
+<td>Coverage-not-filtering: the finding stage reports everything with confidence + severity attached; filtering/ranking happens downstream. Single-pass filters use a concrete bar (&quot;could cause incorrect behavior, a test failure, or a misleading result&quot;), never qualitative words. Wired into <code>templates/agents/spec-reviewer.md.tpl</code> + <code>code-quality-reviewer.md.tpl</code></td>
 </tr>
 </tbody>
 </table></div>
@@ -421,6 +463,16 @@
 <td>Save aggregate + publish event in 2 transactions → eventual inconsistency</td>
 <td>Outbox pattern: insert outbox row in same DB transaction; separate dispatcher publishes</td>
 </tr>
+<tr>
+<td><strong>Contract-masking type cast</strong></td>
+<td>Mocked tests stay green while the backend validator rejects the real payload — <code>as never</code>/<code>as any</code> on mutation args silences the compiler error that WAS the contract-violation report</td>
+<td>Fix the payload or the validator, never cast; pair mocked tests with real-boundary tests (see <code>stack-convex.html#mutation-payload-casts</code>; detected by <code>audit-project.mjs</code> area <code>convex-mutation-casts</code>)</td>
+</tr>
+<tr>
+<td><strong>Parity port-miss</strong></td>
+<td>A rewrite/migration carries only the AC-named branches; legacy early-returns/clamps/error paths silently dropped</td>
+<td>Inventory the legacy source branch-by-branch (<code>git show main:&lt;file&gt;</code>) and map each branch to the port (reviewer structural checklist (d); implementer Step 1)</td>
+</tr>
 </tbody>
 </table></div>
 <h2 id="10-code-review-signals-of-anemic-drift-(doc-2)" tabindex="-1"><a class="header-anchor" href="#10-code-review-signals-of-anemic-drift-(doc-2)" aria-hidden="true">#</a> 10 code-review signals of anemic drift (Doc 2)</h2>
@@ -438,10 +490,13 @@
 <li>Lazy-loaded cross-aggregate navigation properties</li>
 </ol>
 <h2 id="detection-in-scripts" tabindex="-1"><a class="header-anchor" href="#detection-in-scripts" aria-hidden="true">#</a> Detection in scripts</h2>
-<p><code>scripts/detect-anti-patterns.mjs</code> runs automated detection:</p>
+<p><code>scripts/audit-project.mjs</code> runs automated detection:</p>
 <ul>
 <li><strong>Claude-Code anti-patterns</strong>: file size, defensive scaffolding regex, <code>@</code>-imports, missing <code>paths:</code>, vague descriptions, README in skill folders, etc.</li>
 <li><strong>DDD anti-patterns</strong> (when DDD score ≥10): public setter detection, IRepository<T> regex, ORM types in domain folders, primitive params on commands, etc.</li>
+<li><strong>Convex data-contract anti-patterns</strong> (gated <code>isConvex</code>): crons without a <code>cost-justified</code> marker, tests hitting a real deployment (area <code>convex-frugality</code>, v1.7.1); type casts on <code>useMutation</code>/<code>useAction</code> args (area <code>convex-mutation-casts</code>, HIGH, callee-bound heuristic, v1.11.0).</li>
+<li><strong>Env drift</strong> (gated <code>isVite</code>, only when <code>.env.local</code> exists): <code>VITE_*</code> keys read bare by <code>src/</code> via <code>import.meta.env.*</code> but missing from <code>.env.local</code> (area <code>env-parity</code>, MEDIUM, with a declarable <code>optionalEnvKeys</code> escape hatch in <code>docs/docs-map.json</code>, v1.11.0).</li>
+<li><strong>Hook / guard test discipline</strong>: a project-authored <code>.claude/hooks/*.mjs</code> (outside the canonical set) with no associated simulation/test (area <code>hook-tests</code>, HIGH, v1.12.0) — a broken guard fails open silently.</li>
 </ul>
 <p>Output: severity-tagged findings with file:line references.</p>
 <h2 id="when-to-surface" tabindex="-1"><a class="header-anchor" href="#when-to-surface" aria-hidden="true">#</a> When to surface</h2>
@@ -456,7 +511,7 @@
 <ol>
 <li>Append to <code>lessons-log.html</code></li>
 <li>Add a row to the relevant table here</li>
-<li>Update <code>detect-anti-patterns.mjs</code> with a new check (if scriptable)</li>
+<li>Update <code>audit-project.mjs</code> with a new check (if scriptable)</li>
 <li>Bump meta-govern minor version</li>
 </ol>
 <p>The catalog is a living document. Stale entries also rot — periodically prune patterns that no longer apply (e.g., when Claude Code adds a feature that obsoletes a workaround).</p>

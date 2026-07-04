@@ -47,4 +47,8 @@ The frontend has a single `errorToMessage(code, language)` translator — end us
 
 Dependent queries refresh through the framework's invalidation primitive — never manual cache key construction. Keys derive from the API ref, not hand-written arrays.
 
+## Migration parity — logical refs must prove resolution
+
+A data-migration/backfill parity report includes EVERY ref-like field — including typed string fields holding foreign keys — with its resolution rate against the target table's keys. Counts + sums + hard-FK checks alone are NOT parity: a string ref can stay 100% dangling while every counter reads green. A deliberate spec-authoritative improvement over legacy behavior is documented in the delta as intentional — never silently shipped, never reverted to match legacy.
+
 `docs/data-model.html` is the source of truth; schema changes flow through `spec-protocol`.

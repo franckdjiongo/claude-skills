@@ -69,7 +69,7 @@ if (fs.existsSync(skillMd)) {
   // Aggressive markers in body are the anti-pattern; in frontmatter description they're allowed.
   const defensiveRegex = /\b(double-check before returning|verify before returning|do not skip any step|n'oublie pas)\b/i;
   if (defensiveRegex.test(body)) {
-    add('MEDIUM', 'anti-pattern', 'meta-govern SKILL.md body contains defensive scaffolding (Opus 4.7 anti-pattern).', skillMd);
+    add('MEDIUM', 'anti-pattern', 'meta-govern SKILL.md body contains defensive scaffolding (Claude 4.7+/5-family anti-pattern).', skillMd);
   }
 }
 
@@ -197,8 +197,6 @@ const expectedScripts = [
   'docs-html/make-index.mjs',
   'docs-html/scaffold.mjs',
   'docs-html/no-markdown-guard.mjs',
-  'docs-html/convert-references.mjs',
-  'docs-html/verify.mjs',
 ];
 for (const s of expectedScripts) {
   if (!fs.existsSync(path.join(scriptsDir, s))) {

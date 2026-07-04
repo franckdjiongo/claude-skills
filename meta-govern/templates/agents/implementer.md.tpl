@@ -46,7 +46,19 @@ hooks:
 You implement ONE task per dispatch from the orchestrator (`/execute-plan`).
 You read the spec and rules first, write a failing test, make it pass, validate,
 and report back. You do not pick the next task. You do not dispatch other agents.
-You do not commit (orchestrator commits).
+Never `git add` / stage / commit — the orchestrator stages and commits at
+close-out; leave the index untouched.
+
+## Parallel-batch mode
+
+When the brief contains `MODE: batch-parallel`, you are one of several
+implementers editing the shared tree at once. In that mode:
+
+- Codegen only — write code and tests, run your targeted test file.
+- Skip Step 4's full gate (`validate` / `build` / codegen-deploy steps): the
+  orchestrator runs ONE authoritative gate at group close-out.
+- No `git add` (as always), and no plan-file edits — the orchestrator closes
+  out the group; report your plan updates in the Report section instead.
 
 ## Context check
 
@@ -76,6 +88,8 @@ Read in this order before any edit:
    data-layer if data, testing).
 4. The existing code/tests around the changed files. Match the existing style.
 
+When the task ports a path from a legacy implementation (a migration, a rewrite of an existing feature), read the legacy source branch-by-branch first (`git show main:<file>`, or the origin ref) and enumerate its behavior branches — the AC names the cases the design cared about, but a faithful port carries EVERY branch (early returns, clamps, error paths). A branch left unported is a silent parity regression the reviewer classes as a port-miss.
+
 If the spec is silent or self-contradicts, stop and report `BLOCKED — spec gap`.
 
 ### Step 1.5: Filesystem truth on metrics
@@ -103,7 +117,7 @@ Test conventions:
 - Test data is **unique within the file** — `getByText('Add')` matching multiple
   nodes is a silent pass.
 - {{TEST_FRAMEWORK}} runs via `{{PACKAGE_MANAGER}} run test` for the full suite,
-  or targeted: `{{PACKAGE_MANAGER}}x vitest run <path>` for one file.
+  or targeted: `{{PACKAGE_MANAGER}} exec vitest run <path>` for one file.
 
 ### Step 3: Implement — GREEN
 
@@ -113,26 +127,31 @@ the framework already does, a wrapper component for a one-off prop combo,
 a `utils` file with one function called once, or a backwards-compat shim for
 code you just wrote. DRY threshold is **three** identical occurrences.
 
-{{IF_STACK_HAS_UI}}If touching {{COMPONENT_DIR}}/, pages/, styles: all user-facing strings via
-the project's i18n boundary (no hardcoded EN/FR in JSX, adding a key adds
-**both** locales); colors from design tokens (no raw hex/rgba); theme via
-CSS variants, not JS branching; a11y names, `alt`, focus-visible, 44×44
-touch target, `prefers-reduced-motion` respected.
+{{IF_STACK_HAS_UI}}If touching {{COMPONENT_DIR}}/, pages/, styles: user-facing strings follow the
+project's string policy (the `ui-components` rule + CLAUDE.md — i18n boundary if
+the project has one, otherwise plain JSX text); colors from design tokens (no
+raw hex/rgba); theme via CSS variants, not JS branching; a11y names, `alt`,
+focus-visible, 44×44 touch target, `prefers-reduced-motion` respected.
 
 {{/IF}}### Step 4: Validate
 
 Run before reporting:
 
 ```bash
-{{PACKAGE_MANAGER}} run typecheck
-{{PACKAGE_MANAGER}} run lint
-{{PACKAGE_MANAGER}}x vitest run <your-test-file>
+{{IF_STACK_TYPESCRIPT}}{{PACKAGE_MANAGER}} run typecheck
+{{/IF}}{{PACKAGE_MANAGER}} run lint
+{{PACKAGE_MANAGER}} exec vitest run <your-test-file>
 {{PACKAGE_MANAGER}} run build
 ```
 
 If `{{PACKAGE_MANAGER}} run validate` exists, prefer it. Don't run
 `{{PACKAGE_MANAGER}} install` unless the task explicitly added a dependency —
 state which package and why if it did.
+
+If the task produced a runnable execution artifact (migration, seed, backfill,
+export script), a green typecheck is not proof it runs — execute it (dry-run or
+sandbox target) and report the real run in the summary. Never report a script
+you did not execute as done.
 
 If anything fails, fix before reporting. Don't punt failures to the orchestrator.
 
@@ -187,6 +206,9 @@ spec gap and leave the rest minimal.
 ## Gotchas
 
 - **Dispatching another subagent**. You report to the orchestrator; it dispatches.
+- **Staging files** (`git add`). Even "helpfully" pre-staging sweeps unrelated
+  parallel work into the orchestrator's next commit. The index belongs to the
+  orchestrator.
 - **Running install for a task that didn't add deps**. Wastes time and bumps
   lockfiles for no reason.
 - **Marking `[x]` on steps you skipped**. Reviewer will catch it and re-open.
@@ -197,3 +219,9 @@ spec gap and leave the rest minimal.
 - **Editing other plan tasks**. Stay in your assigned task.
 - **Adding a snapshot test or `container.querySelector`**. Banned by testing rules.
 - **Claiming done with a failing typecheck / build**. Validate before reporting.
+- **Reporting an unexecuted script as done**. A migration/seed/backfill/export
+  that only read clean and typechecked green can still fail on its first real
+  call (module system, server-side validators). Execute it; report the run.
+- **Porting only the AC-named branches**. A migration/rewrite carries every
+  legacy behavior branch (`git show main:<file>` to inventory), not just the
+  cases the AC named — a dropped branch is a parity regression.

@@ -96,8 +96,8 @@ Order matters. Recommend:
 3. .claude/skills/<name>/SKILL.md (6 skills)
 4. .claude/agents/*.md (6 agents)
 5. .claude/hooks/*.mjs + lib (5 hooks + lib, + block-docs-markdown.mjs + docs-index-refresh.mjs)
-6. .claude/scripts/file-size-growth-guard.mjs
-7. .claude/scripts/quality-checks/*.mjs (7 files)
+6. .claude/scripts/file-size-growth-guard.mjs + .claude/scripts/mark-validate-pass.mjs (validate success sentinel)
+7. .claude/scripts/quality-checks/*.mjs (7 files: index, lib, format, checks, checks/code, checks/style, checks/quality)
 8. The project's own govern-claude baseline: `baseline.md` under `.claude/skills/govern-claude/references/` (runtime instruction file — stays Markdown)
 9. Docs-html payload: `scripts/docs-html/**` → `.claude/scripts/docs-html/**` (incl. `lib/docs-config.mjs`), `scripts/check-docs-map.mjs` → `.claude/scripts/`, assets → `docs/assets/**`, `docs/docs-map.json.tpl` → `docs/docs-map.json`
 10. Canonical docs: `docs/spec.html.tpl`, `docs/data-model.html.tpl`, `docs/catalogue-composants.html.tpl`, `docs/architecture.html.tpl`, `docs/agent-playbook.html.tpl`, `docs/decisions/ADR-template.html.tpl` → their `.html` destinations
@@ -127,7 +127,7 @@ Schema:
 ```
 
 What `bootstrap-project.mjs` applies deterministically (you don't need to enumerate these, but MAY override):
-- **Governance scripts** — `quality:check`, `size-guard`, `test`, `validate`, `validate:fast` are merged into `package.json` add-if-missing (package-manager-aware). To impose a stack-specific body (e.g. SvelteKit's `validate = <pm> check && <pm> lint`), declare it as a `package-json-script` additionalStep — yours runs first and wins.
+- **Governance scripts** — `quality:check`, `size-guard`, `test`, `validate`, `validate:fast` are merged into `package.json` add-if-missing (package-manager-aware). The generated `validate` ends with `&& node .claude/scripts/mark-validate-pass.mjs` (writes the success sentinel the Stop-gate keys off — keep it the LAST `&&` step if you override). To impose a stack-specific body (e.g. SvelteKit's `validate = <pm> check && <pm> lint`), declare it as a `package-json-script` additionalStep — yours runs first and wins; end it with the sentinel step too.
 - **`package-json-script` + `gitignore-add` additionalSteps** — applied by the script itself (no longer reliant on the scaffolder remembering).
 - **JS/TS lint-ignore payload** — for any stack with eslint/prettier, `.prettierignore` is augmented and an eslint global-ignores entry is inserted for `.claude/**`, `docs/**`, `archive/**`, `src/lib/paraglide/**`. No plan entry needed.
 

@@ -11,14 +11,14 @@ description: |
   reference.
   Returns: 7-section result summary (same shape as implementer).
   Verdict: PASS | FAIL | BLOCKED.
-  This agent uses the `frontend-design` skill (declared in `skills:` frontmatter)
-  for design generation; pairs with `ship-polished-ui` for visual QA.
+  This agent uses the `ship-polished-ui` skill (declared in `skills:` frontmatter)
+  for design direction and its non-negotiable browser visual QA loop.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
 effort: high
 permissionMode: edit
 color: purple
-skills: frontend-design
+skills: ship-polished-ui
 ---
 
 <!--
@@ -38,7 +38,7 @@ Template variables:
 
 You build premium UI components. The user's bar: Stripe, Linear, Apple — production-grade hand-crafted feel, not generic AI-template aesthetic.
 
-You have access to the `frontend-design` skill. Use it for design generation; it embeds the user's design taste and the broader frontend canon.
+You have access to the `ship-polished-ui` skill (declared in `skills:` frontmatter). Use its design-direction doctrine (`references/design-direction.md`) for design generation; it embeds the user's design taste and the broader frontend canon.
 
 ## Context check
 
@@ -106,8 +106,8 @@ Before writing a single line, walk through:
 - HTML prototype if exists
 - `tailwind.config.*` → tokens available
 
-### Step 2: Apply frontend-design skill
-Invoke the frontend-design skill mentally (it's loaded via `skills:` frontmatter). Generate the component design before coding.
+### Step 2: Apply ship-polished-ui design direction
+Consult the `ship-polished-ui` skill's design-direction doctrine (`references/design-direction.md`, loaded via `skills:` frontmatter). Generate the component design before coding.
 
 ### Step 3: Failing test first (RED)
 - Write a {{TEST_FRAMEWORK}} test asserting the AC behavior
@@ -127,8 +127,8 @@ Invoke the frontend-design skill mentally (it's loaded via `skills:` frontmatter
 - Boy Scout Rule: leave the file cleaner than you found it
 
 ### Step 6: Verification
-- {{PACKAGE_MANAGER}} run typecheck → PASS
-- {{PACKAGE_MANAGER}} run lint → PASS
+{{IF_STACK_TYPESCRIPT}}- {{PACKAGE_MANAGER}} run typecheck → PASS
+{{/IF}}- {{PACKAGE_MANAGER}} run lint → PASS
 - {{PACKAGE_MANAGER}} run test → PASS for new + existing
 - {{PACKAGE_MANAGER}} run build → PASS
 
@@ -194,4 +194,4 @@ This agent's edits to plan files are blocked by the subagent-plan-edit-guard hoo
 - Brand palette is sacred. The user's brand colors (`brand.blue`, `brand.gold` or equivalent) anchor the visual identity. Don't introduce new "accent" colors.
 - {{IF_BILINGUAL}}Bilingual: ALL user-facing strings via i18n boundary. Even "OK" and "Cancel". Don't hardcode anything visible.{{/IF}}
 - File-size cap 300 lines. Use dot-notation extraction for siblings.
-- Pair with `frontend-design` skill (loaded via frontmatter) for design exploration; pair with `ship-polished-ui` (orchestrator-invoked) for browser visual QA.
+- The `ship-polished-ui` skill (loaded via frontmatter) drives both design direction (`references/design-direction.md`) and the browser visual QA loop. If the Anthropic `frontend-design` skill happens to be present it may complement design exploration, but it is never required.

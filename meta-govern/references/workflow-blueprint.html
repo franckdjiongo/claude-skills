@@ -24,7 +24,7 @@
   <div class="docs-shell">
     <aside class="docs-toc" id="docs-toc">
       <p class="docs-toc__label">Sur cette page</p>
-      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#the-end-to-end-lifecycle">The end-to-end lifecycle</a></li><li class="lvl-2"><a href="#per-phase-contracts">Per-phase contracts</a></li><li class="lvl-3"><a href="#brainstorm-phase-(design)">Brainstorm phase (design)</a></li><li class="lvl-3"><a href="#write-plan-phase">Write-plan phase</a></li><li class="lvl-3"><a href="#execute-plan-phase">Execute-plan phase</a></li><li class="lvl-3"><a href="#quality-gate-phase">Quality-gate phase</a></li><li class="lvl-3"><a href="#session-review-phase">Session review phase</a></li><li class="lvl-3"><a href="#governance-cadence-phase">Governance cadence phase</a></li><li class="lvl-2"><a href="#cross-cutting-principles">Cross-cutting principles</a></li><li class="lvl-3"><a href="#every-artifact-has-4-attributes">Every artifact has 4 attributes</a></li><li class="lvl-3"><a href="#always-grounded-discipline">Always-grounded discipline</a></li><li class="lvl-3"><a href="#probabilistic-vs-deterministic-layers">Probabilistic vs deterministic layers</a></li><li class="lvl-2"><a href="#how-meta-govern's-output-integrates">How meta-govern's output integrates</a></li><li class="lvl-2"><a href="#stack-specific-deviations">Stack-specific deviations</a></li><li class="lvl-3"><a href="#power-platform-(code-app-%2B-dataverse)">Power Platform (Code App + Dataverse)</a></li><li class="lvl-3"><a href="#convex">Convex</a></li><li class="lvl-3"><a href="#vite-%2B-react-%2B-typescript">Vite + React + TypeScript</a></li><li class="lvl-3"><a href="#cloudflare-workers">Cloudflare Workers</a></li><li class="lvl-3"><a href="#generic-node-cli">Generic Node CLI</a></li><li class="lvl-2"><a href="#when-the-user-asks-%22what's-the-workflow%22">When the user asks &quot;what's the workflow&quot;</a></li></ul></nav>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#the-end-to-end-lifecycle">The end-to-end lifecycle</a></li><li class="lvl-2"><a href="#per-phase-contracts">Per-phase contracts</a></li><li class="lvl-3"><a href="#brainstorm-phase-(design)">Brainstorm phase (design)</a></li><li class="lvl-3"><a href="#write-plan-phase">Write-plan phase</a></li><li class="lvl-3"><a href="#phase-0-setup-preflight">Phase 0 — human setup + automated preflight</a></li><li class="lvl-3"><a href="#execute-plan-phase">Execute-plan phase</a></li><li class="lvl-3"><a href="#quality-gate-phase">Quality-gate phase</a></li><li class="lvl-3"><a href="#session-review-phase">Session review phase</a></li><li class="lvl-3"><a href="#governance-cadence-phase">Governance cadence phase</a></li><li class="lvl-2"><a href="#cross-cutting-principles">Cross-cutting principles</a></li><li class="lvl-3"><a href="#every-artifact-has-4-attributes">Every artifact has 4 attributes</a></li><li class="lvl-3"><a href="#always-grounded-discipline">Always-grounded discipline</a></li><li class="lvl-3"><a href="#probabilistic-vs-deterministic-layers">Probabilistic vs deterministic layers</a></li><li class="lvl-2"><a href="#how-meta-govern's-output-integrates">How meta-govern's output integrates</a></li><li class="lvl-2"><a href="#stack-specific-deviations">Stack-specific deviations</a></li><li class="lvl-3"><a href="#power-platform-(code-app-%2B-dataverse)">Power Platform (Code App + Dataverse)</a></li><li class="lvl-3"><a href="#convex">Convex</a></li><li class="lvl-3"><a href="#vite-%2B-react-%2B-typescript">Vite + React + TypeScript</a></li><li class="lvl-3"><a href="#cloudflare-workers">Cloudflare Workers</a></li><li class="lvl-3"><a href="#generic-node-cli">Generic Node CLI</a></li><li class="lvl-2"><a href="#when-the-user-asks-%22what's-the-workflow%22">When the user asks &quot;what's the workflow&quot;</a></li></ul></nav>
     </aside>
     <div class="docs-main">
       <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
@@ -61,8 +61,11 @@ FEATURE WORK
    ↓
    /write-plan                          # plan phase
       → docs/plans/YYYY-MM-DD-&lt;topic&gt;-plan.md (Task 1 = Apply delta)
+      → Phase 0 right after Task 1 when the plan depends on third-party infra
+        (human setup in one session + automated preflight, PASS/FAIL per item)
    ↓
    /execute-plan                        # execution phase
+      - Gate: Phase 0 preflight full PASS before any dev-task dispatch
       - 3-tier classification (BATCH / STANDARD / RIGOROUS)
       - Pipeline Task List
       - Parallel groups via worktrees (palier 3+)
@@ -134,6 +137,15 @@ GOVERNANCE CADENCE
 <li>TDD checklist (RED → GREEN → REFACTOR)</li>
 <li>Tier (BATCH / STANDARD / RIGOROUS)</li>
 </ul>
+<h3 id="phase-0-setup-preflight" tabindex="-1"><a class="header-anchor" href="#phase-0-setup-preflight" aria-hidden="true">#</a> Phase 0 — human setup + automated preflight (autonomous-execution prerequisite)</h3>
+<p>When a plan is meant to execute autonomously but depends on third-party infrastructure (deployments, OAuth tenants, API keys, CLI access), the plan opens with a <strong>Phase 0</strong>, immediately after Task 1 (apply-delta):</p>
+<ol>
+<li><strong>Human setup, one session</strong> — the user does ALL non-automatable third-party setup up front: create/confirm deployments, provision OAuth tenants, deposit API keys and service-account credentials, verify CLI access.</li>
+<li><strong>Automated preflight</strong> — a script validates each access with a per-item PASS/FAIL verdict (deployment reachable, credentials valid, discovery endpoints resolvable, baseline validate green). Includes an <strong>env-parity item</strong>: the local env file (<code>.env.local</code>) carries every key the source actually reads (<code>import.meta.env.*</code> or equivalent) — a dev server handed to the owner for QA with missing env keys fails at first click, not at build.</li>
+<li><strong>Gate</strong> — no development task starts before a full PASS. A FAIL item blocks execution and is surfaced to the user; it is never worked around.</li>
+<li><strong>Residual human touchpoints</strong> — actions that cannot be front-loaded (write-freeze events, connector registrations, QA on a third-party account) are listed explicitly in the plan and scheduled — never discovered mid-plan. For a production cutover: no "go" until the tooling is committed, rehearsed on a non-prod target, and its guard-rails proven fail-closed.</li>
+</ol>
+<p>Motivation: autonomous execution collapses into back-and-forth the moment a missing key or unreachable deployment surfaces mid-plan. Front-loading the human dependency is what makes the execution actually autonomous. Origin: personal-budget-app Convex-migration design (2026-07-01, §4.0 + AC-0); successor to the v1.4.0 pipeline lesson.</p>
 <h3 id="execute-plan-phase" tabindex="-1"><a class="header-anchor" href="#execute-plan-phase" aria-hidden="true">#</a> Execute-plan phase</h3>
 <p><strong>Skill</strong>: <code>execute-plan</code> (or <code>project-subagent-driven-development</code>)</p>
 <p><strong>3-tier classification</strong>:</p>
@@ -149,8 +161,8 @@ GOVERNANCE CADENCE
 <li>Dispatch <code>implementer</code> (medium effort) with task spec</li>
 <li>Implementer reads canonical refs, writes failing test, implements, runs validate</li>
 <li>Implementer returns 7-section result summary</li>
-<li>Dispatch <code>spec-reviewer</code> AND <code>code-quality-reviewer</code> (high effort, plan mode, foreground in same message) — never background</li>
-<li>Reviewers return 3-section verdicts each (Findings / Notes / Verdict)</li>
+<li>Dispatch <code>spec-reviewer</code> AND <code>code-quality-reviewer</code> (high effort, plan mode, foreground in same message) — never background. Fresh-context verifier subagents outperform self-critique for verification (lesson v1.5.0, confirmed as Anthropic canon by the Claude 5 Workflow Playbook's self-verification guidance) — the implementer never reviews its own work.</li>
+<li>Reviewers return 3-section verdicts each (Findings / Notes / Verdict) — the finding stage is coverage-first (everything reported with confidence + severity); filtering happens at the verdict/disposition stage, never in the review prompt</li>
 <li><strong>Disposition every finding</strong>: Fixed (re-run) or Deferred (new DEFERRED-XXX entry)</li>
 <li><strong>Visual-QA gate (UI groups)</strong>: a UI group is not "done" until its live render is verified, or the task is hard-tagged <code>NEEDS_VISUAL_QA</code> and BLOCKED. "Visual unverified" is not soft-disposable — jsdom/unit-green is blind to render. Real-boundary/integration checks (real datastore shape, not idealized mocks) are part of the same gate.</li>
 <li>Commit task or group</li>
@@ -283,6 +295,9 @@ GOVERNANCE CADENCE
 <h3 id="cloudflare-workers" tabindex="-1"><a class="header-anchor" href="#cloudflare-workers" aria-hidden="true">#</a> Cloudflare Workers</h3>
 <ul>
 <li>Add <code>cloudflare-*</code> skills (workers-best-practices, durable-objects, etc.) — already in plugin</li>
+<li><strong>Env vars in git-integrated Workers Builds</strong>: <code>VITE_*</code> vars are build-time only, and the build runners never see a gitignored <code>.env.local</code>. Build-time env is configured per trigger via the Workers Builds REST API (or dashboard) — <strong>Preview and Production are SEPARATE triggers</strong>, not a toggle on one config.</li>
+<li><strong><code>wrangler</code> has ZERO Workers Builds commands</strong> (no <code>builds</code>/<code>ci</code> subcommand). Use the REST API directly (<code>accounts/{id}/builds/...</code>) with a scoped API token (<code>Workers Builds Configuration:Edit</code> + <code>Workers Scripts:Read</code>) — not OAuth/wrangler login.</li>
+<li><strong>The Builds API keys on the worker's <code>tag</code> UUID, not its name.</strong> <code>GET /accounts/{id}/workers/scripts</code> returns both <code>id</code> (human name) and <code>tag</code> (UUID); <code>/builds/workers/{worker_tag}/triggers</code> wants the <code>tag</code>. Passing the name silently returns <code>result: []</code> with <code>success:true</code> — easy to misread as "no triggers configured".</li>
 </ul>
 <h3 id="generic-node-cli" tabindex="-1"><a class="header-anchor" href="#generic-node-cli" aria-hidden="true">#</a> Generic Node CLI</h3>
 <ul>

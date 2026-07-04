@@ -70,13 +70,17 @@ function canonical(p) {
     }
   }
 }
-function relToCwd(filePath) {
-  return path.relative(canonical(process.cwd()), canonical(filePath)).replace(/\\/g, '/');
+function relToProjectRoot(filePath) {
+  // Anchor on CLAUDE_PROJECT_DIR (the harness's stable project root), not the
+  // hook's cwd — the cwd is not guaranteed to be the repo root, and resolving
+  // an absolute docs/*.md path against a subdir would let it escape the block.
+  const root = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  return path.relative(canonical(root), canonical(filePath)).replace(/\\/g, '/');
 }
 
 function isDocsMarkdown(filePath) {
   if (!filePath) return false;
-  const rel = relToCwd(filePath);
+  const rel = relToProjectRoot(filePath);
   return rel.startsWith(DOCS_ROOT + '/') && /\.md$/i.test(rel);
 }
 
@@ -87,7 +91,7 @@ const toolInput = payload?.tool_input ?? {};
 if (!['Write', 'Edit', 'MultiEdit'].includes(toolName)) allow();
 if (!isDocsMarkdown(toolInput.file_path)) allow();
 
-const rel = relToCwd(toolInput.file_path);
+const rel = relToProjectRoot(toolInput.file_path);
 const target = rel.replace(/\.md$/i, '.html');
 deny(
   `block-docs-markdown: le dossier ${DOCS_ROOT}/ est 100 % HTML — plus aucun fichier .md n'y est autorisé.\n` +

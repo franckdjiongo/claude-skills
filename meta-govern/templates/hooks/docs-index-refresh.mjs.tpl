@@ -50,6 +50,7 @@ function countDocs(dir) {
     const abs = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       if (abs === path.join(docsDir, 'assets')) continue;
+      if (entry.name === 'node_modules' || entry.name === '.git') continue; // parité avec walk.mjs
       n += countDocs(abs);
     } else if (/\.html$/i.test(entry.name)) {
       // Exactement index.html / INDEX.html à la racine (parité stricte avec

@@ -18,7 +18,6 @@
   "conventions": {
     "docFormat": "html",
     "markdownAllowlist": ["SKILL.md", "agents/*.md", "templates/**", "scripts/**"],
-    "lessonsAppendMarker": "<!-- LESSONS:APPEND -->",
-    "verifyBaselineCommit": "900c654"
+    "lessonsAppendMarker": "<!-- LESSONS:APPEND -->"
   }
 }

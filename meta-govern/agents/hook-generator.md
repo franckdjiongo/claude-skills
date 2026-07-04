@@ -6,7 +6,10 @@ description: |
   session-start-env-check) doesn't cover a specific need. Produces functional
   Node ESM (.mjs) with macOS hardening, JSON I/O, cost-efficient design.
   Use this subagent during BOOTSTRAP (palier 3+ specialty hooks like
-  subagent-plan-edit-guard, agent-dispatch-preflight) AND when a project's
+  subagent-plan-edit-guard; agent-dispatch-preflight is TEMPLATED since
+  v1.11.0 — the sentinel poser renders from
+  templates/hooks/agent-dispatch-preflight.mjs.tpl, don't regenerate it)
+  AND when a project's
   govern-claude detects a recurring rule violation that should be promoted to
   a deterministic hook (per the lesson lifecycle in governance-cadence.html).
   Required context: hook_purpose (1-2 sentences), event (PreToolUse|Stop|...),
@@ -19,7 +22,7 @@ description: |
   ONE hook on demand.
 tools: Read, Write, Edit, Grep, Glob, Bash
 model: sonnet
-effort: medium
+effort: high
 permissionMode: edit
 color: orange
 ---

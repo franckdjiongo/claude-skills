@@ -36,8 +36,7 @@ const stray = walkMd(skillRoot, []).filter((rel) => !ALLOW.some((re) => re.test(
 
 if (stray.length) {
   console.error(`✗ no-markdown-guard : ${stray.length} fichier(s) Markdown hors allowlist (attendu : 0) —`);
-  console.error('  le corpus meta-govern est 100 % HTML. Convertis via scripts/docs-html/convert-references.mjs');
-  console.error('  ou crée les nouveaux docs en .html via scripts/docs-html/scaffold.mjs. Fichiers fautifs :');
+  console.error('  le corpus meta-govern est 100 % HTML. Crée les nouveaux docs en .html via scripts/docs-html/scaffold.mjs. Fichiers fautifs :');
   for (const s of stray.slice(0, 30)) console.error(`    - ${s}`);
   if (stray.length > 30) console.error(`    … +${stray.length - 30} autres`);
   process.exit(1);

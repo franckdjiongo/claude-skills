@@ -31,11 +31,11 @@
       <p class="docs-toc__label">Sur cette page</p>
       <nav aria-label="Sommaire du document"><ul>
         <li class="lvl-2"><a href="#ajouter-une-fonctionnalite">Ajouter une fonctionnalité</a></li>
-        <li class="lvl-2"><a href="#ajouter-un-endpoint">Ajouter un endpoint / handler de route</a></li>
+        <li class="lvl-2"><a href="#ajouter-un-endpoint">Ajouter une opération de données / endpoint</a></li>
         <li class="lvl-2"><a href="#ajouter-un-composant-ui">Ajouter un formulaire / composant UI</a></li>
         <li class="lvl-2"><a href="#executer-une-migration">Lancer / écrire une migration</a></li>
-        <li class="lvl-2"><a href="#ajouter-une-table-dataverse">Ajouter une table Dataverse</a></li>
-        <li class="lvl-2"><a href="#publier-une-version">Publier une version</a></li>
+{{IF_STACK_POWER_PLATFORM}}        <li class="lvl-2"><a href="#ajouter-une-table-dataverse">Ajouter une table Dataverse</a></li>
+{{/IF}}        <li class="lvl-2"><a href="#publier-une-version">Publier une version</a></li>
         <li class="lvl-2"><a href="#creer-un-worktree">Mettre en place un worktree</a></li>
         <li class="lvl-2"><a href="#differer-du-travail">Différer du travail</a></li>
         <li class="lvl-2"><a href="#bump-meta-govern">Monter de version meta-govern</a></li>
@@ -71,17 +71,12 @@
             <li>Commit par tâche ou par groupe selon le tier.</li>
           </ol>
 
-          <h2 id="ajouter-un-endpoint"><a class="header-anchor" href="#ajouter-un-endpoint" aria-hidden="true">#</a> Ajouter un endpoint / handler de route</h2>
+          <h2 id="ajouter-un-endpoint"><a class="header-anchor" href="#ajouter-un-endpoint" aria-hidden="true">#</a> Ajouter une opération de données / endpoint</h2>
           <ol>
-            <li>Identifier la feature propriétaire. La logique d'endpoint appartient à une feature, pas à la route.</li>
-            <li>Créer :
-              <ul>
-                <li>Fichier frontière : <code>&lt;chemin de route&gt;/route.ts</code> (ou <code>+server.ts</code>) — parser, valider (Zod), appeler le service de la feature, répondre.</li>
-                <li>Service de feature : <code>src/features/&lt;feature&gt;/services/&lt;nom&gt;.ts</code> — logique durable.</li>
-                <li>Schéma : <code>src/shared/schemas/&lt;endpoint&gt;.ts</code> (si réutilisé) ou <code>src/features/&lt;feature&gt;/schemas/</code>.</li>
-              </ul>
-            </li>
-            <li>Ajouter un test dans <code>&lt;feature&gt;/__tests__/&lt;nom&gt;.test.ts</code> (ou <code>.http.test.ts</code> pour l'intégration).</li>
+            <li>Identifier le propriétaire de la logique (la couche de données du projet — voir <code>.claude/rules/data-layer.md</code>). La logique métier n'appartient pas à la frontière (route / composant).</li>
+            <li>Créer la frontière (fichier de route / handler) qui parse + valide l'entrée (Zod ou équivalent), appelle la couche de données, puis répond. Garder la logique durable dans la couche de données, pas dans la frontière.</li>
+            <li>Placer le schéma et le service aux emplacements de la convention du dépôt (suivre l'arborescence existante — ne pas inventer une nouvelle structure).</li>
+            <li>Ajouter un test à côté du code (unitaire pour la logique, intégration pour la frontière).</li>
             <li>Croiser la référence FUNC-XX dans la spec.</li>
             <li>Lancer <code>{{VALIDATE_COMMAND}}</code>.</li>
           </ol>
@@ -89,17 +84,18 @@
           <h2 id="ajouter-un-composant-ui"><a class="header-anchor" href="#ajouter-un-composant-ui" aria-hidden="true">#</a> Ajouter un formulaire / composant UI</h2>
           <ol>
             <li>Vérifier <a href="composants/catalogue-composants.html"><code>docs/composants/catalogue-composants.html</code></a> — réutiliser si un <code>C-XX</code> existe.</li>
-            <li>Un nouveau composant vit à <code>src/features/&lt;feature&gt;/components/&lt;Nom&gt;.tsx</code>, ou <code>src/shared/ui/&lt;Nom&gt;.tsx</code> si inter-features.</li>
-            <li>Utiliser les tokens de design (utilitaires Tailwind uniquement) ; pas de hex/rgba inline.</li>
-            <li>Chaînes visibles par l'utilisateur via <code>LocalizedString</code> + <code>useContent()</code> (si bilingue).</li>
-            <li>Ajouter l'accessibilité : aria-label, textes alternatifs, navigation clavier, cibles tactiles 44px.</li>
+            <li>Un nouveau composant suit l'arborescence existante du dépôt (ne pas inventer une nouvelle structure) ; voir <code>.claude/rules/ui-components.md</code>.</li>
+            <li>Utiliser les tokens de design (utilitaires du framework / variables CSS) ; pas de hex/rgba inline.</li>
+{{IF_STACK_HAS_I18N}}            <li>Chaînes visibles par l'utilisateur via la couche i18n du projet (<code>LocalizedString</code> + <code>useContent()</code> ou équivalent) — pas de littéral codé en dur.</li>
+{{/IF}}{{IF_STACK_NO_I18N}}            <li>Chaînes visibles par l'utilisateur : JSX direct — pas d'i18n ni de couche <code>LocalizedString</code> (voir <code>CLAUDE.md</code>).</li>
+{{/IF}}            <li>Ajouter l'accessibilité : aria-label, textes alternatifs, navigation clavier, cibles tactiles 44px.</li>
             <li>Ajouter un test avec Testing Library.</li>
             <li>Mettre à jour <code>catalogue-composants.html</code> avec la nouvelle entrée <code>C-XX</code>.</li>
           </ol>
 
           <h2 id="executer-une-migration"><a class="header-anchor" href="#executer-une-migration" aria-hidden="true">#</a> Lancer / écrire une migration</h2>
           <ol>
-            <li>Lire <code>docs/security.html</code> pour les règles de sécurité.</li>
+            <li>Appliquer les règles de sécurité des données du projet (accès scopé à l'utilisateur authentifié — voir <code>.claude/rules/data-layer.md</code>).</li>
             <li>Les fichiers de migration vivent à <code>&lt;répertoire migrations&gt;/AAAA-MM-JJ-HHMM_&lt;description&gt;.&lt;ext&gt;</code>.</li>
             <li>Les migrations sont idempotentes ; ne jamais éditer une migration déjà livrée.</li>
             <li>Tester localement (ou en staging) avant d'appliquer aux environnements partagés.</li>
@@ -107,10 +103,10 @@
             <li>Après application, mettre à jour <a href="data-model.html"><code>docs/data-model.html</code></a> si le schéma a changé.</li>
           </ol>
 
-          <h2 id="ajouter-une-table-dataverse"><a class="header-anchor" href="#ajouter-une-table-dataverse" aria-hidden="true">#</a> Ajouter une table Dataverse (Power Platform uniquement)</h2>
+{{IF_STACK_POWER_PLATFORM}}          <h2 id="ajouter-une-table-dataverse"><a class="header-anchor" href="#ajouter-une-table-dataverse" aria-hidden="true">#</a> Ajouter une table Dataverse (Power Platform uniquement)</h2>
           <p>Utiliser le skill <code>add-dataverse</code> — il génère les types/services depuis la table.</p>
 
-          <h2 id="publier-une-version"><a class="header-anchor" href="#publier-une-version" aria-hidden="true">#</a> Publier une version</h2>
+{{/IF}}          <h2 id="publier-une-version"><a class="header-anchor" href="#publier-une-version" aria-hidden="true">#</a> Publier une version</h2>
           <ol>
             <li>S'assurer que <code>{{VALIDATE_COMMAND}}</code> passe sur la branche.</li>
             <li><code>/quality-gate</code> rapporte CRITICAL / HIGH = 0.</li>
@@ -143,8 +139,8 @@
             <li><code>write-plan</code> (projet) — phase de plan</li>
             <li><code>execute-plan</code> (projet) — dispatcher d'exécution</li>
             <li><code>quality-gate</code> (projet) — scan final</li>
-            <li><code>add-dataverse</code> (niveau utilisateur) — spécifique Dataverse</li>
-            <li><code>meta-govern</code> (niveau utilisateur) — gouvernance du workflow</li>
+{{IF_STACK_POWER_PLATFORM}}            <li><code>add-dataverse</code> (niveau utilisateur) — spécifique Dataverse</li>
+{{/IF}}            <li><code>meta-govern</code> (niveau utilisateur) — gouvernance du workflow</li>
             <li><code>govern-claude</code> (projet) — audit du projet</li>
           </ul>
         </div>

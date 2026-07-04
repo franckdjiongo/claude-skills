@@ -64,7 +64,7 @@ These are the principles you enforce across every project. They come from the sy
 1. **Progressive disclosure is the dominant pattern.** Tiny always-loaded `CLAUDE.md` (≤120 lines) → path-scoped `.claude/rules/*.md` (≤50 lines each, `paths:` frontmatter) → skills (~50 token metadata, body lazy) → subagents (zero main-context cost) → hooks (zero context cost, deterministic).
 2. **Determinism > prose for critical rules.** Hooks enforce; skills teach. Critical conventions need hooks because skills auto-invoke at 50–84% reliability.
 3. **Capacity is not budget.** 1M context = capacity, not permission. Quality degrades ~2% per 100K tokens added. Keep standing context small.
-4. **Opus 4.7 follows instructions literally.** Defensive scaffolding in standing context now backfires (see `references/anti-pattern-catalog.html` for the forbidden-token list). Aggressive markers belong in skill descriptions (frontmatter) for activation, not in skill bodies.
+4. **Current Claude models follow instructions literally (Claude 4.7+ / Claude 5 family).** Defensive scaffolding in standing context backfires (see `references/anti-pattern-catalog.html` for the forbidden-token list). Aggressive markers belong in skill descriptions (frontmatter) for activation, not in skill bodies.
 5. **Right primitive for the job.** See `references/seven-primitives.html` and `references/decision-trees.html`.
 6. **Composability + isolation as twin principles.** Skills compose; subagents isolate.
 7. **Living documents.** Every artifact must be auditable, prunable, version-stamped. Built-in cadence: every 2–4 weeks.
@@ -184,7 +184,7 @@ Output: `docs/audits/YYYY-MM-DD-meta-govern-audit.html` (created via `node .clau
 
 Triggered when:
 - A new master skill version exists (`version.json` mismatch)
-- A new Claude Code model release requires standard updates (e.g., Opus 4.6 → 4.7 prompt rewrites)
+- A new Claude Code model release requires standard updates (e.g., Sonnet 4.6 → Sonnet 5, Opus 4.7 → 4.8 prompt rewrites)
 - The user crosses a palier threshold (per `evolution-roadmap.html`)
 - A legacy project still has Markdown docs under `docs/` (→ `--target=html-docs`)
 
@@ -266,7 +266,7 @@ In addition to the master sub-agents (above), BOOTSTRAP installs these PROJECT-L
 | Project-level agent | Model / effort | Purpose |
 |---|---|---|
 | `implementer` | sonnet / medium | Single-task TDD-light implementer (general-purpose) |
-| `ui-implementer` | sonnet / high | Premium production-grade UI/component implementer (uses `frontend-design` skill via `skills:` frontmatter; pairs with `ship-polished-ui` for visual QA) |
+| `ui-implementer` | sonnet / high | Premium production-grade UI/component implementer (uses `ship-polished-ui` skill via `skills:` frontmatter for design direction + non-negotiable browser visual QA) |
 | `spec-reviewer` | sonnet / high | Foreground spec/AC alignment reviewer (4-class finding classification) |
 | `code-quality-reviewer` | sonnet / high | Foreground code-quality reviewer (10-point focus: correctness, regressions, dead code, etc.) |
 | `persona-simulator` | sonnet / high | UX role-play between brainstorm sections |
@@ -298,7 +298,7 @@ All scripts: `node <script> --help` (or just run with no args to see usage). Exi
 |---|---|
 | `references/seven-primitives.html` | Any mode involving primitive placement decisions |
 | `references/four-tier-architecture.html` | BOOTSTRAP, AUDIT (CLAUDE.md analysis) |
-| `references/opus-4-7-defaults.html` | BOOTSTRAP, MIGRATE (model + effort decisions) |
+| `references/model-effort-defaults.html` | BOOTSTRAP, MIGRATE (model + effort decisions) |
 | `references/ddd-scorecard.html` | BOOTSTRAP step 3 |
 | `references/ddd-strategic.html` | DDD-scoring projects in BOOTSTRAP |
 | `references/ddd-tactical.html` | DDD score ≥10, code-level decisions |
@@ -349,7 +349,7 @@ Bump `version.json` accordingly. Document migration impact for older projects.
 - Modify a project's `.claude/` without showing diffs first.
 - Auto-commit. The user always commits.
 - Invent skills/agents/hooks the user hasn't approved.
-- Use defensive scaffolding language in skill bodies, CLAUDE.md, or rules. See `references/anti-pattern-catalog.html` for the full forbidden-pattern list. These patterns are Opus 4.7 anti-patterns. Aggressive markers are reserved for skill descriptions in frontmatter, where they boost activation.
+- Use defensive scaffolding language in skill bodies, CLAUDE.md, or rules. See `references/anti-pattern-catalog.html` for the full forbidden-pattern list. These patterns are Claude 4.7+/5-family anti-patterns. Aggressive markers are reserved for skill descriptions in frontmatter, where they boost activation.
 - Bulk-migrate across paliers. One step, validate, commit, next.
 - Modify `~/.claude/settings.json` or `~/.claude/CLAUDE.md` without explicit user approval.
 - Trust skill auto-invocation for critical project rules. Use hooks.

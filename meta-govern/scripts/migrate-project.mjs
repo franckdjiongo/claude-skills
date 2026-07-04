@@ -235,9 +235,14 @@ function buildPalierPromotionPlan(detection, currentPalier, targetPalier) {
     META_GOVERN_VERSION: '1.0.0',
   };
   const flags = {
+    // Full computed stack flag set (IF_STACK_REACT / _POWER_PLATFORM / _CONVEX /
+    // _TYPESCRIPT / _NO_I18N / …) — mirrors bootstrap-project.mjs's spread so a
+    // MIGRATE run resolves the same conditionals a fresh BOOTSTRAP would.
+    ...detection.flags,
     IF_STACK_REACT: detection.stack.isReact,
     IF_STACK_HAS_UI: detection.stack.hasUI,
     IF_STACK_HAS_I18N: detection.stack.hasI18n,
+    IF_STACK_NO_I18N: !detection.stack.hasI18n,
     IF_STACK_HAS_DATA_LAYER: detection.stack.hasDataLayer,
     IF_PALIER_GTE_2: targetPalier >= 2,
     IF_PALIER_GTE_3: targetPalier >= 3,

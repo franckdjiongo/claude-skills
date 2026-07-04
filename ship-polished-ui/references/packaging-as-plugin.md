@@ -20,13 +20,11 @@ ship-polished-ui-plugin/
 ├── skills/
 │   └── ship-polished-ui/
 │       ├── SKILL.md
-│       └── references/
-│           ├── visual-qa-checklist.md
-│           ├── css-side-effects.md
-│           ├── iframe-and-host-shells.md
-│           ├── session-lessons-2026-05-04.md
-│           ├── agent-dispatch.md
-│           └── packaging-as-plugin.md   # this file
+│       └── references/          # ship the whole folder — every .md in it
+│           #   (visual-qa-checklist, css-side-effects, iframe-and-host-shells,
+│           #    design-direction, all session-lessons-*, agent-dispatch,
+│           #    packaging-as-plugin — this file). Don't cherry-pick; a missing
+│           #    reference silently degrades the skill.
 └── agents/
     └── visual-qa-inspector.md
 ```
@@ -37,7 +35,7 @@ ship-polished-ui-plugin/
 {
   "name": "ship-polished-ui",
   "version": "1.0.0",
-  "description": "Premium UI craft skill + paired visual-qa-inspector sub-agent. Two-phase loop: design via frontend-design, then a non-negotiable browser-based visual QA pass.",
+  "description": "Premium UI craft skill + paired visual-qa-inspector sub-agent. Two-phase loop: design via the in-house design-direction doctrine, then a non-negotiable browser-based visual QA pass.",
   "author": "your-handle",
   "license": "MIT",
   "skills": ["skills/ship-polished-ui"],

@@ -96,6 +96,10 @@ export function useEffectSetState(files) {
     const lines = text.split('\n');
     for (let i = 0; i < lines.length; i++) {
       if (!/\buseEffect\s*\(/.test(lines[i])) continue;
+      // Allow a reviewed effect to opt out: `// qc-allow effect-setstate` on the
+      // useEffect line or the line above (genuine subscriptions / controlled inputs).
+      const prev = i > 0 ? lines[i - 1] : '';
+      if (/qc-allow[:\s]+effect-setstate/.test(lines[i]) || /qc-allow[:\s]+effect-setstate/.test(prev)) continue;
       const window = lines.slice(i, Math.min(i + 12, lines.length)).join('\n');
       if (SET_RE.test(window) && !FUNC_UPDATE_RE.test(window)) {
         findings.push({

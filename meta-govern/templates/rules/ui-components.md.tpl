@@ -1,5 +1,5 @@
 ---
-description: UI component governance — i18n strings, design tokens, a11y, brand palette, in-app routing
+description: UI component governance — {{IF_STACK_HAS_I18N}}i18n strings, {{/IF}}design tokens, a11y, brand palette, in-app routing
 paths:
   - {{COMPONENT_DIR}}/**/*.{ts,tsx,jsx}
   - pages/**/*.{ts,tsx,jsx}
@@ -8,7 +8,7 @@ paths:
 
 # UI components
 
-{{IF_STACK_HAS_UI}}
+{{IF_STACK_HAS_I18N}}
 ## User-facing strings — through the content layer
 
 Every visible string lives in a typed content store as `LocalizedString { en, fr, ... }` and is read through a hook (e.g. `useContent()`). Inline JSX literals and `language === 'en' ? ... : ...` ternaries bypass the store. Exceptions: brand proper nouns, decorative glyphs, and `aria-label` when no key exists yet. Mismatched language entries are a critical violation.

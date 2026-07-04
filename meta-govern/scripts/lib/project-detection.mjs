@@ -149,8 +149,14 @@ function computeFlags(stack) {
     IF_STACK_CLOUDFLARE: stack.isCloudflare,
     IF_STACK_HAS_UI: stack.hasUI,
     IF_STACK_HAS_I18N: stack.hasI18n,
+    // Explicit negation (the renderer has no {{ELSE}}) so a no-i18n project can
+    // render affirmative "plain JSX strings" guidance instead of a silent hole.
+    IF_STACK_NO_I18N: !stack.hasI18n,
     IF_STACK_HAS_DATA_LAYER: stack.hasDataLayer,
     IF_STACK_HAS_BACKEND: stack.hasBackend,
+    // TypeScript present → a `typecheck` script is generated and the
+    // `<pm> run typecheck` references in the governance docs resolve.
+    IF_STACK_TYPESCRIPT: Array.isArray(stack.languages) && stack.languages.includes('typescript'),
   };
 }
 
@@ -407,14 +413,21 @@ function computeIndicators(projectDir, artifacts, pkg) {
   if (artifacts.sourceOfTruth.spec) {
     try {
       const specContent = fs.readFileSync(path.join(projectDir, artifacts.sourceOfTruth.spec), 'utf8');
-      indicators.funcIds = (specContent.match(/\bFUNC-\d+/g) || []).length;
+      // Unique defined ids, not raw mentions: the spec references each FUNC-NN
+      // many times (heading, cross-refs, tables). Dedupe to count the requirement
+      // surface, not the citation count.
+      indicators.funcIds = new Set(specContent.match(/\bFUNC-\d+/g) || []).size;
     } catch { /* ignore */ }
   }
 
   if (artifacts.sourceOfTruth.catalog) {
     try {
       const catalogContent = fs.readFileSync(path.join(projectDir, artifacts.sourceOfTruth.catalog), 'utf8');
-      indicators.components = (catalogContent.match(/\bC-\d+/g) || []).length;
+      // Unique defined ids, not raw mentions. The catalogue is only partially
+      // anchored (some C-NN carry id="c-NN", others live in table rows or range
+      // headers like "C-06 à C-19"), so anchor-counting undercounts — dedupe the
+      // uppercase tokens instead to count the real component surface.
+      indicators.components = new Set(catalogContent.match(/\bC-\d+/g) || []).size;
     } catch { /* ignore */ }
   }
 
@@ -425,10 +438,7 @@ function computeIndicators(projectDir, artifacts, pkg) {
     } catch { /* ignore */ }
   }
 
-  const testsDir = path.join(projectDir, 'tests');
-  if (fs.existsSync(testsDir)) {
-    indicators.tests = countTestFiles(testsDir);
-  }
+  indicators.tests = countTestCases(projectDir);
 
   const ciDir = path.join(projectDir, '.github/workflows');
   if (fs.existsSync(ciDir)) indicators.ci = 'github';
@@ -477,19 +487,44 @@ function computeIndicators(projectDir, artifacts, pkg) {
   return indicators;
 }
 
-function countTestFiles(dir) {
+// Directories a test walk must never descend into (vendored, built, or vendored
+// governance copies that would double-count).
+const TEST_DIR_SKIP = new Set([
+  'node_modules', 'dist', 'build', '.next', '.git', 'coverage',
+  '.vercel', '.wrangler', 'out', '_generated', '.claude', 'archive',
+]);
+const TEST_FILE_RE = /\.(test|spec)\.[cm]?[jt]sx?$/;
+// A test CASE, anchored at line start: it()/test() with optional runner modifier
+// chain (.only/.skip/.each…). The leading `[ \t]*` (never `\s*`, to avoid
+// cross-line greed) excludes mid-line `.test(value)` regex/assert calls and
+// commented-out occurrences.
+const TEST_CASE_RE = /^[ \t]*(it|test)(\.(only|skip|concurrent|todo|fails|sequential|each))*[ \t]*[(`'"]/;
+
+// Counts test CASES across the whole project, not files under a `tests/` dir.
+// Projects colocalise tests (src/, convex/, scripts/…), so a folder-scoped file
+// count is 0 on most layouts — a poor scale indicator. Bounded, fail-soft walk;
+// a `.each` block counts as ≥1 (no row expansion: this is a coarse scale signal,
+// and a table-literal parser would be fragile for little gain).
+function countTestCases(root) {
   let count = 0;
-  function walk(d) {
-    for (const entry of fs.readdirSync(d, { withFileTypes: true })) {
-      const full = path.join(d, entry.name);
+  const stack = [root];
+  while (stack.length > 0) {
+    const dir = stack.pop();
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { continue; }
+    for (const entry of entries) {
+      const full = path.join(dir, entry.name);
       if (entry.isDirectory()) {
-        if (entry.name !== 'node_modules' && entry.name !== 'dist') walk(full);
-      } else if (/\.test\.(ts|tsx|js|jsx|mjs)$/.test(entry.name) || /\.spec\.(ts|tsx|js|jsx)$/.test(entry.name)) {
-        count++;
+        if (!TEST_DIR_SKIP.has(entry.name)) stack.push(full);
+      } else if (entry.isFile() && TEST_FILE_RE.test(entry.name)) {
+        let content;
+        try { content = fs.readFileSync(full, 'utf8'); } catch { continue; }
+        for (const line of content.split('\n')) {
+          if (TEST_CASE_RE.test(line)) count++;
+        }
       }
     }
   }
-  try { walk(dir); } catch { /* ignore */ }
   return count;
 }
 

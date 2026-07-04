@@ -19,8 +19,11 @@ export const VALIDATE_COMMAND = '{{VALIDATE_COMMAND}}';
 export const COMPLETION_REGEX =
   /\b(done|completed|finished|implemented|updated|set up|ready for review|ready to commit|review checklist|what changed|verification|verified|you can review|no commit)\b/i;
 
+// Only the FULL validate gate satisfies the Stop-hook completion check — not a
+// partial `test`/`lint`/`build`/`quality:check`, and not `validate:fast` (the
+// `(?!:)` rejects the `:fast` subset, which skips size-guard + tests).
 export const VALIDATE_BASH_REGEX =
-  /\b(bun|npm|pnpm|yarn)(?:\.cmd)?(?: run)? (validate|test|lint|typecheck|build|quality:check)\b/i;
+  /\b(bun|npm|pnpm|yarn)(?:\.cmd)?(?: run)? validate\b(?!:)/i;
 
 const SOURCE_EXT = /\.(ts|tsx|js|jsx|mjs|cjs|css|html|vue|svelte)$/;
 const EXCLUDED_DIRS = ['node_modules/', 'dist/', 'build/', '.next/', '.turbo/', 'coverage/'];
@@ -108,29 +111,45 @@ export function extractGitStatusPath(line = '') {
   return n.includes(' -> ') ? (n.split(' -> ').at(-1)?.trim() ?? '') : n;
 }
 
-function walkMd(dir, visit) {
+// docs/ is HTML-first (the block-docs-markdown hook blocks new .md), so the
+// walker reads BOTH .html and any legacy .md.
+function walkDocs(dir, visit) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) walkMd(full, visit);
-    else if (entry.isFile() && entry.name.endsWith('.md')) visit(full);
+    if (entry.isDirectory()) walkDocs(full, visit);
+    else if (entry.isFile() && (entry.name.endsWith('.html') || entry.name.endsWith('.md'))) visit(full);
   }
+}
+
+// Task progress for a plan doc. HTML plans use markdown-it-task-lists markup
+// (`<input class="task-list-item-checkbox" [checked] ...>`); .md plans use the
+// `- [ ]` / `- [x]` task-list syntax.
+function planProgress(file, content) {
+  if (file.endsWith('.html')) {
+    const boxes = content.match(/<input[^>]*\btask-list-item-checkbox\b[^>]*>/g) || [];
+    const total = boxes.length;
+    const done = boxes.filter((b) => /\bchecked\b/.test(b)).length;
+    return { total, done, hasPipeline: /pipeline-task-list|PIPELINE TASK LIST/i.test(content) };
+  }
+  const total = (content.match(/^- \[[ x]\]/gm) || []).length;
+  const done = (content.match(/^- \[x\]/gm) || []).length;
+  return { total, done, hasPipeline: /PIPELINE TASK LIST/i.test(content) };
 }
 
 export function findActivePlans() {
   const plansDir = path.join(projectDir(), 'docs', 'plans');
   if (!fs.existsSync(plansDir)) return [];
   const out = [];
-  walkMd(plansDir, (full) => {
+  walkDocs(plansDir, (full) => {
     try {
       const c = fs.readFileSync(full, 'utf8');
-      const total = (c.match(/^- \[[ x]\]/gm) || []).length;
-      const done = (c.match(/^- \[x\]/gm) || []).length;
+      const { total, done, hasPipeline } = planProgress(full, c);
       if (total > 0 && done < total) {
         out.push({
           file: path.relative(projectDir(), full),
           doneTasks: done,
           totalTasks: total,
-          hasPipeline: /PIPELINE TASK LIST/i.test(c),
+          hasPipeline,
         });
       }
     } catch {}
@@ -142,7 +161,7 @@ export function findLatestSpec() {
   const specsDir = path.join(projectDir(), 'docs', 'specs');
   if (!fs.existsSync(specsDir)) return null;
   let best = null;
-  walkMd(specsDir, (full) => {
+  walkDocs(specsDir, (full) => {
     const mtime = fs.statSync(full).mtimeMs;
     if (!best || mtime > best.mtime) best = { file: path.relative(projectDir(), full), mtime };
   });

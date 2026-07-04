@@ -21,6 +21,7 @@ import { fileURLToPath } from 'node:url';
 import { renderPage } from './lib/template.mjs';
 import { starterBody } from './lib/starters.mjs';
 import { docType, DOC_TYPES } from './lib/doc-types.mjs';
+import { DOCS_ROOT } from './lib/docs-config.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const [type, target, ...titleParts] = process.argv.slice(2);
@@ -40,7 +41,14 @@ if (!targetRel.endsWith('.html')) {
   console.error('✗ La cible doit se terminer par .html (plus de .md).');
   process.exit(1);
 }
-const abs = path.join(repoRoot, targetRel);
+// Docs live ONLY under DOCS_ROOT/. Reject absolute paths and `..` escapes so
+// scaffold can't silently write outside docs/ (path.resolve handles both).
+const docsDir = path.join(repoRoot, DOCS_ROOT);
+const abs = path.resolve(repoRoot, targetRel);
+if (path.isAbsolute(target) || (abs !== docsDir && !abs.startsWith(docsDir + path.sep))) {
+  console.error(`✗ La cible doit être sous ${DOCS_ROOT}/ : ${target}`);
+  process.exit(1);
+}
 if (fs.existsSync(abs)) {
   console.error(`✗ Existe déjà: ${targetRel} (refus d'écraser).`);
   process.exit(1);
