@@ -93,6 +93,18 @@ The Anthropic `frontend-design` skill is **not required** and is being retired f
 
 Apply the design via direct edits to CSS modules, component files, design tokens, etc. Respect any project-level rules about design tokens (`tokens.css`), pre-commit hooks that ban raw hex/z-index literals, file-size budgets, and CSS Modules conventions. If you introduce a new color/shadow/z-index value, define it as a token first, then reference it.
 
+### 1.2 — Motion inventory (mandatory before coding, for any animated surface)
+
+For any **showcase site, landing page, or surface that carries animation, scroll effects, background media, or 3D**, you **MUST read [references/motion-craft.md](references/motion-craft.md) before writing code**, and then post a short **motion inventory** — a required line now, ahead of the full Design Spec that lands in Phase D. Motion is not an afterthought layered on at the end; a page that ships 100% static does not pass this skill. The inventory names, before you code:
+
+- **Hover / press feedback** for each family of interactive elements (buttons, links, cards, inputs) — what the feedback is, not "some hover state."
+- **Hero entrance** — how the hero resolves on first paint.
+- **Scroll reveals** — which sections reveal on scroll, and how (fade-up, stagger, scrub).
+- **THE signature moment** — exactly **one** memorable interaction per page (rule A1-01 / motion-craft §⑧). Name it and locate it. Accumulating effects is an amateur tell, not richness.
+- **Reduced-motion behavior** — what each of the above degrades to under `prefers-reduced-motion: reduce` (the non-negotiable WCAG 2.3.3 gate — motion-craft §⑤).
+
+`motion-craft.md` owns the *how*: the escalation hierarchy (CSS → Motion → GSAP → 3D, justified per storey), the per-project stacks, the canonical Lenis/ScrollTrigger/useGSAP/`@supports`/View-Transitions boilerplates (copy them verbatim), the 3D decision tree + R3F checklist, the animatable-property whitelist, and the 5 motion non-regression tests that the verify phase runs. Read it before Phase 1 coding on any animated site; the full Design Spec (8 rubrics, Phase D) folds this inventory into rubric 6.
+
 When phase 1 is "complete enough to look at," move immediately to phase 2 — do not batch up many changes before verifying. Smaller verify cycles catch bugs closer to the change that caused them.
 
 ## Phase 2 — Verify (the non-negotiable loop)
@@ -183,6 +195,7 @@ Skip the agent for trivial changes (one CSS file, ~10 lines) — verify those yo
 ## Read these references when relevant
 
 - **[references/design-direction.md](references/design-direction.md)** — The in-house design doctrine for Phase 1 (award-level rules, references-first, media strategy). *Authored in Phase D of the ecosystem plan; until it lands, apply this SKILL.md and the session-lessons directly.* Replaces any dependency on the Anthropic `frontend-design` skill, which is being retired from this pipeline.
+- **[references/motion-craft.md](references/motion-craft.md)** — The motion & 3D playbook: escalation hierarchy, per-project stacks, canonical GSAP/Lenis/useGSAP/scroll-driven/View-Transitions boilerplates, 3D decision tree + R3F checklist, reduced-motion gate, animatable-property whitelist, the 5 motion non-regression tests, the signature-moment rule, and background-media (video/AI-image) rules. **MUST read before Phase 1 coding** on any showcase site, landing page, or surface with animation, scroll effects, background media, or 3D.
 - **[references/visual-qa-checklist.md](references/visual-qa-checklist.md)** — The operational checklist for phase 2. Read on every invocation.
 - **[references/css-side-effects.md](references/css-side-effects.md)** — Dangerous CSS patterns and the regressions they cause. Read whenever your change touches `overflow`, `position`, `z-index`, `isolation`, `clip-path`, `filter`, `transform`, `backdrop-filter`, `background-attachment`, or container sizing.
 - **[references/iframe-and-host-shells.md](references/iframe-and-host-shells.md)** — Behavior changes inside iframes (Power Apps, Salesforce, embedded SaaS, sandboxed previews). Read whenever the app is hosted inside another shell.

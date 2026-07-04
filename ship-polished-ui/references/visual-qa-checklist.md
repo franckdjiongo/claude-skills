@@ -2,7 +2,7 @@
 
 This is the operational core of the ship-polished-ui skill. Run through it after every UI change you intend to declare "done." The checklist is structured so you can move quickly through the items that don't apply and slow down on the ones that do.
 
-The checklist has **twelve sections**. Sections marked `★` are non-negotiable for any UI change — skipping them is what caused the bugs that motivated this skill.
+The checklist has **thirteen sections**. Sections marked `★` are non-negotiable for any UI change — skipping them is what caused the bugs that motivated this skill. (Section 13 — Motion QA — is non-negotiable only for surfaces that actually carry motion; for a fully static change it is a fast N/A.)
 
 ---
 
@@ -322,6 +322,47 @@ This replaces the old subjective "zero issues at the scope level the user cares 
 ### Auditable escape hatch — `LEDGER-EXEMPT`, never silent
 
 If a turn that runs after this skill was invoked is legitimately **not** a UI turn — the user pivoted to an unrelated question, or the work was a pure non-visual change with nothing to render — you may skip the ledger, but only by writing the exact line `LEDGER-EXEMPT: <reason>` on that turn, stating why no ledger applies. Every turn that would otherwise declare UI work done must carry **either** a `VERIFICATION LEDGER` heading **or** a `LEDGER-EXEMPT:` line. An omission with neither is a protocol violation, not a shortcut.
+
+---
+
+## ★ Section 13 — Motion QA (for any surface that carries motion)
+
+Sections 1–12 verify a **static** page holds up. Motion adds a whole class of failures a still screenshot never shows: pins that drift after a resize, ScrollTrigger instances that leak on navigation, animation that double-fires under StrictMode, layout thrash that only appears in the performance trace, and scrub effects that trap a reduced-motion user. This section is the motion-specific gate. It is **required for any showcase site, landing page, or surface with scroll effects, animation, background media, or 3D**, and a fast N/A for a purely static change. Read **`references/motion-craft.md`** (§⑦ is the source of truth for the five regression tests below) before running it.
+
+**Settle first (Section 1d carry-forward):** every capture in this section is taken *after* the animation settles at the position you're testing — mid-animation frames are a confirmed false-positive source. Scroll to the target position, let the scrub/reveal finish, then screenshot.
+
+### 13a — Scroll-triggered animation at 3 positions
+
+For each scroll-driven animation (reveals, scrub, pinned sequences), capture it at **three scroll positions** — entering, mid, and settled/exited — so you can see the animation actually progresses correctly and lands in its final state, not just that "something moved":
+
+1. **Entry** — the trigger's start: does the reveal begin where it should (DOM order, not a frozen viewport dimension)?
+2. **Mid** — mid-scrub: is the interpolation smooth, on `transform`/`opacity` only?
+3. **Settled / exited** — the end state: does it land at the final visible state and hold (no flicker back, no orphaned pin)?
+
+### 13b — The 5 motion non-regression tests (motion-craft §⑦)
+
+Run all five. Each maps to a transverse ledger row.
+
+1. **Resize after full scroll.** Scroll the page all the way down, *then* resize the window. **The pins hold** — no pinned element drifts, orphans, or mis-measures. (`ScrollTrigger.refresh()` must have run after async image/font/data loads, with function-based `end` values + `invalidateOnRefresh: true`.)
+2. **Back-and-forth navigation.** Navigate away and back (or route-change and return). **`ScrollTrigger.getAll().length` is stable** across the round trip — read it before and after and confirm the count matches. A growing count is a leaked-trigger bug (the `useGSAP` scope / `lenis.destroy()` on unmount discipline failing).
+3. **Reduced-motion OS enabled.** Turn on `prefers-reduced-motion: reduce` at the OS/DevTools level and reload. The site is **complete and usable** — parallax/scrub/auto-play replaced by fades or held stills, background video paused on its poster, no content vanished, no collapsed layout. (This overlaps the Section 12a reduced-motion gate; here you verify the *motion* surfaces specifically degrade, not just that the page loads.)
+4. **StrictMode — no double animation.** In React dev/StrictMode, confirm animations do **not** fire twice and triggers are **not** duplicated (the bare-`gsap.to()`-in-`useEffect` bug — see motion-craft §③). If you see a reveal play twice or two identical triggers, `useGSAP({ scope })` / `matchMedia` is not wrapping it.
+5. **Jank check — compositor-only.** Record a DevTools performance trace while scrolling the animated surface. **No purple "Layout" bars** may appear during the scroll — animation runs on `transform`/`opacity` only (motion-craft §⑥ whitelist). A purple bar means something continuous is animating `width`/`height`/`top`/`margin`/`box-shadow` and must move to a compositor property or FLIP. (Under a 4× CPU throttle, INP must still be < 200 ms.)
+
+### 13c — Record motion lines in the ledger (transverse family)
+
+Motion verdicts are **transverse rows** (Section 1c — `Viewport = —`), because they span the surface rather than sitting in one `surface × viewport × state` cell. Add these rows, each with a real proof or `not-evidenced` (never a declarative PASS):
+
+```
+| scroll reveal §hero | — | 3 positions | PASS           | shot_a1 · shot_a2 · shot_a3    |
+| pins after resize   | — | resize@bottom| PASS          | shot_b4 (pins held)           |
+| ScrollTrigger leak  | — | nav aller-retour | PASS 12=12 | getAll().length before/after  |
+| reduced-motion      | — | OS activé    | PASS           | shot_c7 (fades, video pausée) |
+| StrictMode double   | — | dev mount    | PASS           | (no duplicate trigger/reveal) |
+| jank / compositor   | — | scroll trace | PASS           | trace_d2 (no purple Layout)   |
+```
+
+A motion surface whose ledger carries no motion rows was verified for static correctness only — that is not a passing motion verify.
 
 ---
 
