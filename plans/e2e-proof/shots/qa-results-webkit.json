@@ -1,0 +1,40 @@
+{
+  "engine": "webkit",
+  "overflow": {
+    "320": {
+      "scrollW": 320,
+      "clientW": 320,
+      "innerW": 320
+    },
+    "360": {
+      "scrollW": 360,
+      "clientW": 360,
+      "innerW": 360
+    },
+    "375": {
+      "scrollW": 375,
+      "clientW": 375,
+      "innerW": 375
+    },
+    "768": {
+      "scrollW": 768,
+      "clientW": 768,
+      "innerW": 768
+    },
+    "1280": {
+      "scrollW": 1280,
+      "clientW": 1280,
+      "innerW": 1280
+    }
+  },
+  "notes": [
+    "deploy-state-after-load=typing",
+    "copy-label-after-click=Copied ✓",
+    "fr-heading=Du HTML",
+    "en-visible-when-fr=false",
+    "theme-after-toggle=light",
+    "reduced-motion-deploy-state=static",
+    "reduced-motion-url-visible=true",
+    "resize-after-scroll sw=800 cw=800"
+  ]
+}

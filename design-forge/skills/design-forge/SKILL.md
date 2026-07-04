@@ -69,6 +69,8 @@ Design Forge closes the loop between generating a design and checking it:
 
 When a design-intent file is present (the user references one, or one exists in the project), audit/test **must** load it and grade against it in addition to the universal checks.
 
+**QA division of labor:** ship-polished-ui runs the incremental visual QA loop *during* the build, while design-forge AUDIT/TEST runs the complete scored audit *pre-delivery* against the design-intent.
+
 ## Reference map
 
 All knowledge is dissected into on-demand files. Load only what the active mode needs (each agent file specifies its subset). The `references/…` and `assets/…` paths below are relative to **this skill directory** (`${CLAUDE_PLUGIN_ROOT}/skills/design-forge/`); the specialist **agent** files live one level up, at `${CLAUDE_PLUGIN_ROOT}/agents/`.

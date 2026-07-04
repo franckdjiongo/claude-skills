@@ -1,0 +1,12 @@
+{
+  "landing_dir": "/Users/elmabi/Desktop/my-projets/htmlshare/landing",
+  "brand_package": "/Users/elmabi/Desktop/my-projets/htmlshare/docs/branding/brand-package.md",
+  "design_intent": "/Users/elmabi/Desktop/my-projets/htmlshare/docs/branding/design-intent.md",
+  "entry": "/Users/elmabi/Desktop/my-projets/htmlshare/landing/index.html",
+  "landingDir": "/Users/elmabi/Desktop/my-projets/htmlshare/landing",
+  "brandPackage": "/Users/elmabi/Desktop/my-projets/htmlshare/docs/branding/brand-package.md",
+  "designIntent": "/Users/elmabi/Desktop/my-projets/htmlshare/docs/branding/design-intent.md",
+  "brandTokens": "/Users/elmabi/Desktop/my-projets/htmlshare/docs/branding/brand-tokens.css",
+  "brandName": "HtmlShare",
+  "landingCss": "/Users/elmabi/Desktop/my-projets/htmlshare/landing/assets/brand-tokens.css"
+}

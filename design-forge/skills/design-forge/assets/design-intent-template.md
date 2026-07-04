@@ -40,10 +40,12 @@
 - **Density stance:** <instrument-panel-dense | airy-and-uncluttered>
 
 ## Motion Stance
-- **Page-load moment:** <one orchestrated entrance | none>
-- **Interaction feedback:** <hover/focus/active behavior>
-- **Purpose:** <clarify hierarchy / demonstrate speed — never decorate>
-- **Reduced-motion:** respected.
+- **Signature moment:** <the ONE memorable interaction, localized to a single region — e.g. hero typographic reveal | none>. Everything else stays sober in its service; accumulating effects is an amateur tell, not richness.
+- **Micro-interaction families:** <hover / focus / active / press behaviors — 150–300ms, expressive easing (expo-out/cubic-out), never `linear` or default `ease`>.
+- **Scroll reveals:** <what enters on scroll + how — reveals 600–1200ms, text split by LINES with 60–100ms stagger; native scroll only, no scroll-jacking>.
+- **Reduced-motion behavior:** parallax/scrub/auto-play replaced by opacity fades or held stills; layout stays complete and usable; background video paused + poster shown (WCAG 2.3.3).
+- **Technical storey (justified):** <lowest floor that covers the need — CSS native → Motion → GSAP → 3D. Name the need each climb answers; reaching for GSAP/3D by reflex is a slop tell. Coherent with ship-polished-ui/references/motion-craft.md>.
+- **Purpose:** <clarify hierarchy / demonstrate speed — never decorate>.
 
 ## Dark-Mode Approach (Elevation)
 - **Primary theme:** <light | dark | both>
@@ -74,4 +76,11 @@ Every line must be countable, measurable, or binary. Tighten with audit findings
 - [ ] All values come from named tokens; no hardcoded hex.
 - [ ] Reusable components used (no one-off styling): <list the named components>.
 - [ ] No AI-slop fingerprints (no purple/indigo gradient, no row of identical rounded feature cards, no uniform radius-on-everything) — full catalog in references/anti-slop-rules.md.
+
+### Performance (Core Web Vitals — mobile, throttled)
+- [ ] LCP `< 2.5s` (floor); award target `< 1.5s` documented.
+- [ ] CLS `< 0.1` (floor); award target `< 0.05` documented — images/video carry `width`/`height` or `aspect-ratio`.
+- [ ] INP `< 200ms` (floor); award target `< 100ms` documented — holds under 4× CPU throttle even during motion.
+- [ ] Explicit JS budget declared if Three.js/3D is used (bundle KB ceiling + `dpr` clamp + `dispose()` on unmount); static fallback when WebGL/reduced-motion.
+
 - [ ] <project-specific checkable criterion>

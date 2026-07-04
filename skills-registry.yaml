@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-07-03"
+last_updated: "2026-07-04"
 
 # =============================================================================
 # REPOSITORIES
@@ -676,8 +676,8 @@ categories:
       - name: design-elevation
         repository: claude-skills
         path: design-elevation/SKILL.md
-        description: Elevate design quality through systematic questioning
-        tags: [design, ux, questioning]
+        description: Apply professional design thinking to documentary visual artifacts (presentations, plans HTML, reports, dashboards, PDFs, data viz); for shipped client websites and app UIs use ship-polished-ui instead
+        tags: [design, documentary, presentations, reports, dashboards]
 
       - name: app-blueprint
         repository: claude-skills
@@ -688,8 +688,8 @@ categories:
       - name: brand-forge
         repository: claude-skills
         path: brand-forge/SKILL.md
-        description: End-to-end branding workflow with naming, verification, slogans, and visual direction
-        tags: [branding, naming, slogans, logo, marketing]
+        description: Automate a full brand package (verified name, slogans, logo concepts, palette, typography) producing docs/branding/brand-package.md + brand-tokens.css that hand off into the design pipeline; for a logo image or image prompt on an existing name use chatgpt-image-prompt-architect instead
+        tags: [branding, naming, slogans, logo, brand-package, handoff]
 
       - name: seo-visibility
         repository: claude-skills
@@ -730,8 +730,8 @@ categories:
       - name: ship-polished-ui
         repository: claude-skills
         path: ship-polished-ui/SKILL.md
-        description: Design then browser-QA premium, production-grade UI with a non-negotiable visual test loop
-        tags: [ui, design, frontend, qa, premium]
+        description: Single entry point for creating or improving premium, production-grade client websites and app UIs — runs a non-negotiable real-browser visual QA loop and posts a Verification Ledger before declaring done; for documentary artifacts (plans, reports, slides) use design-elevation
+        tags: [ui, website, frontend, qa, verification-ledger, premium]
 
   # ---------------------------------------------------------------------------
   # EMAIL (RESEND)
