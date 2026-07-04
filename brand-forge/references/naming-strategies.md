@@ -115,32 +115,53 @@ What the product DOES, as a verb or gerund.
 
 ## Brand Vibe Archetypes
 
-Use these to guide naming, slogans, and visual direction.
+Use these to guide naming, slogans, and visual direction. The color direction is an
+**open space of territories, not a default**. **It is forbidden to reuse an
+archetype's first/default territory** — pick one of its alternatives (or derive a new
+one) from a **specific product attribute** and write the justification. Visual craft
+(typography pairings, palette rules, logo procedure, scoring) lives in
+`references/visual-identity.md`.
 
 ### Professional & Sleek
 - Reference brands: Notion, Linear, Stripe
 - Naming style: Clean, single/compound words, premium feel
 - Slogan tone: Confident, understated, precise
-- Color direction: Deep indigo, navy, slate, with teal/coral accents
+- Color territories (choose + justify from a product attribute; do not default):
+  1. Deep indigo / navy base + teal accent
+  2. Warm slate / graphite base + coral accent
+  3. Ivory / bone base + deep forest accent
+  4. Cool concrete gray base + burnt-amber accent
 - Logo style: Geometric, minimal, monochrome-capable
 
 ### Playful & Modern
 - Reference brands: Figma, Arc, Slack
 - Naming style: Friendly, approachable, can be coined
 - Slogan tone: Witty, energetic, conversational
-- Color direction: Vibrant primaries, gradients, bold combos
+- Color territories (choose + justify; ban lavender/purple per visual-identity.md):
+  1. Sunset coral + warm cream
+  2. Electric lime + charcoal
+  3. Tangerine + soft ink navy
+  4. Two-tone primary duo (e.g. teal + magenta) on off-white
 - Logo style: Rounded, colorful, distinctive silhouette
 
 ### Techy & Powerful
 - Reference brands: Warp, Raycast, Vercel
 - Naming style: Short, punchy, action-oriented
 - Slogan tone: Direct, no-nonsense, developer-friendly
-- Color direction: Dark mode first, accent colors, high contrast
+- Color territories (dark-mode-first; choose + justify):
+  1. Near-black base + electric cyan accent
+  2. Deep space navy + acid-green accent
+  3. Carbon base + signal-orange accent
+  4. Monochrome black/white + a single high-chroma accent
 - Logo style: Sharp, geometric, monospace-compatible
 
 ### Minimal & Elegant
 - Reference brands: Apple, Nothing, Calm
 - Naming style: Simple, one word, evocative
 - Slogan tone: Quiet confidence, poetic, aspirational
-- Color direction: Muted palettes, lots of whitespace, subtle accents
+- Color territories (muted; choose + justify):
+  1. Warm off-white + graphite ink
+  2. Sand / clay base + terracotta accent
+  3. Pale sage base + deep evergreen accent
+  4. Cool paper gray + single muted-blue accent
 - Logo style: Ultra-thin, maximum simplicity, wordmark-focused

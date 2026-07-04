@@ -5,142 +5,209 @@ description: Automate a FULL brand package (name + identity) for any project, pr
 
 # Brand Forge
 
-Automate end-to-end branding: name, slogan, logo, colors, and AI image prompts -- delivered by a team of expert agents with built-in trademark/domain verification.
+Automate end-to-end branding: name, slogan, logo, colors, and AI image prompts —
+delivered by a pipeline of expert **subagents run sequentially**, with built-in
+deterministic trademark/domain verification and a machine-readable handoff to the
+build stage.
 
 ## Process Overview
 
 ```
-1. Gather Requirements (ask user about project, vibe, constraints)
-2. Create Team (5 agents: researcher, namer, verifier, copywriter, creative director)
-3. Run Pipeline (research -> names -> verification -> slogans -> final package)
-4. Iterate if needed (if too few names pass verification, auto-generate more)
-5. Present results (user picks favorite, files are saved)
+1. Gather Requirements (3 multi-part AskUserQuestion — see Step 1)
+2. Run the sequential pipeline (5 roles, one isolated subagent each):
+   research → names → verify → slogans → package
+3. The LEAD validates every transition (accounting checks — Step 3)
+4. Iterate if too few names pass verification (Step 4)
+5. Present results; user picks a favorite (Step 5)
+6. Handoff build: write brand-package.md + brand-tokens.css + web assets (Step 6)
 ```
+
+**Architecture (this is the mode, not a fallback):** the five roles run as
+**sequential subagents via the standard Agent tool** — one isolated context per
+role, handing off through files in `{output_dir}`, in the fixed order
+research → names → verify → slogans → package. There is **no multi-agent team
+runtime** — no shared task board, no polling, no broadcast messaging, no team
+teardown. Each role is a single Agent call the lead spawns and awaits.
+
+**Running the five roles inline in a single context is forbidden.** The whole gate
+depends on the generator (naming expert) and the judge (verifier) living in separate
+contexts; collapsing them defeats the verification. Likewise the identity-scoring
+judge must be a different subagent than the creative director.
 
 ## Step 1: Gather Requirements
 
-Ask the user using AskUserQuestion (max 3 questions, one at a time):
+Ask the user with **exactly three multi-part `AskUserQuestion` calls** (the old
+"max 3 questions" text actually smuggled in five — this is now honest). Skip a part
+only if the user already answered it in context.
 
-**Question 1 -- Project context:**
-"Tell me about your project/product/idea. What does it do, who is it for, and what makes it different?"
-(If the user already explained this, skip and extract from context.)
+**AskUserQuestion #1 — Project context (open):**
+"Tell me about your project/product/idea. What does it do, who is it for, and what
+makes it different?" (If already explained, extract from context and skip.)
 
-**Question 2 -- Brand vibe:**
-Options: Professional & sleek | Playful & modern | Techy & powerful | Minimal & elegant
-(See references/naming-strategies.md for archetype details.)
+**AskUserQuestion #2 — Brand vibe + locale (two parts):**
+- *Brand vibe* (single-select): Professional & sleek | Playful & modern | Techy & powerful | Minimal & elegant
+- *Target market / locale* (single-select): FR / bilingue FR-EN (défaut clients AutoMintech) | English-first | Other (specify)
 
-**Question 3 -- Constraints:**
-Multi-select: No "AI" in name | Not too techy | Avoid competitor-similar names | No specific restrictions
-Plus ask: "Any words, themes, or styles to avoid?"
+**AskUserQuestion #3 — Constraints + image tool (two parts):**
+- *Constraints* (multi-select): No "AI" in name | Not too techy | Avoid competitor-similar names | No specific restrictions — plus a free-text "Any words, themes, or styles to avoid?"
+- *AI image tool* (single-select): ChatGPT / OpenAI (gpt-image) | Gemini / Nano Banana Pro | Other/none
 
-Extract these variables for agent prompts:
+Extract these variables for the agent prompts (**every one must be filled before
+any subagent is spawned — see the placeholder guard in Step 2**):
+
 - `project_description`: What the product does in 2-3 sentences
 - `industry`: The market/category (e.g., "voice-to-text", "project management")
+- `product_type`: The concrete form factor — "desktop app" / "mobile app" / "web app" / "CLI" / "API" (used in research queries)
 - `product_context`: Features, target audience, price point, platform
 - `brand_vibe`: Selected archetype
 - `target_audience`: Who uses it
 - `value_prop`: Core value in one sentence
-- `user_constraints`: All naming restrictions
-- `naming_rule`: The self-explanatory rule -- "When someone hears the name, they must immediately understand what the product does"
-- `max_chars`: 10 (default)
-- `min_names`: 30 (generate volume -- expect 70-85% failure rate)
-- `image_gen_tool`: Ask user which AI image tool they use (Gemini, Midjourney, DALL-E, etc.)
+- `user_constraints`: All naming restrictions (the single canonical variable name — every agent template reads exactly `{user_constraints}`)
+- `target_locale`: `FR-bilingual` (default) | `EN` | other — drives naming language, dual-language verification queries, and the French connotation check
+- `naming_rule`: "When someone hears the name, they must immediately understand what the product does"
+- `max_chars`: 10 (default; raised to 14 for round-3 two-word compounds — see Step 4)
+- `min_names`: 30 (generate volume — expect 70-85% failure rate)
+- `current_year`: the current calendar year (fill from today's date — used in research queries like "best {industry} products {current_year}")
+- `image_gen_tool`: from AskUserQuestion #3 — routes to **chatgpt-image-prompt-architect** (OpenAI) or **nano-banana-prompt-engineer** (Gemini)
 - `output_dir`: `docs/branding` in the project root (create if needed)
 - `selection_criteria`: Derived from brand vibe + constraints
+- `skill_dir`: the **absolute path** of this skill (`~/.claude/skills/brand-forge` resolved) — injected into every subagent prompt so references resolve from a blank context
 
-## Step 2: Create Team and Tasks
+## Step 2: Spawn the Sequential Pipeline
 
-Read references/agent-prompts.md for detailed prompt templates.
+Read `references/agent-prompts.md` for the prompt templates and
+`references/naming-strategies.md` + `references/visual-identity.md` for the encoded
+craft. Fill each template with the Step-1 variables.
 
-### Team Structure
+**Placeholder guard (mandatory, before each spawn):** scan the filled prompt for any
+remaining `{placeholder}`. If ANY `{...}` token survives, do not spawn — fill it
+first. The template variable set and the Step-1 variable set must match exactly
+(diff = empty).
 
-```
-TeamCreate: "branding-team"
+**Absolute references (mandatory):** subagents start from a blank context where a
+relative path does not resolve. Every agent prompt must inject `skill_dir` and point
+to the exact section, e.g. `Read first {skill_dir}/references/naming-strategies.md
+§Common Failure Patterns` and (for the creative director) `{skill_dir}/references/visual-identity.md`.
 
-Task #1: Research (researcher) -- no blockers
-Task #2: Generate names (naming-expert) -- blocked by #1
-Task #3: Verify names (verifier) -- blocked by #2
-Task #4: Write slogans (copywriter) -- blocked by #3
-Task #5: Final package (creative-director) -- blocked by #4
-```
+**Run order (strictly sequential, one Agent call at a time):**
 
-### Spawn All 5 Agents
+1. `researcher` → writes `research-findings.md`
+2. `naming-expert` → reads research, writes `name-candidates.md`
+3. `verifier` → reads candidates, writes `verification-report.md`
+4. `copywriter` → reads verification, writes `slogans.md`
+5. `creative-director` → reads all, writes `final-recommendation.md`
 
-Spawn all agents simultaneously via Task tool with `team_name: "branding-team"`. Each agent:
-- Claims its task from TaskList
-- Waits for blockers to clear by polling TaskList
-- Reads predecessor output files
-- Writes its deliverable to `{output_dir}/`
-- Marks task complete and messages team lead
+Spawn role N+1 **only after** the lead's transition check for role N passes (Step 3).
 
-Agent prompts: Fill the templates from references/agent-prompts.md with the variables gathered in Step 1.
+**Timeout / failure procedure:** if a role's subagent times out or returns no file,
+**relaunch that same agent** (optionally with a narrower scope). **Never fabricate a
+role's output** to keep the pipeline moving — a missing deliverable is a re-run, not
+an invention.
 
-### Critical Rules for Agents
+## Step 3: Lead Transition Checks (accounting, not relaying)
 
-1. **Verifier is the hard gate.** No name moves past verification without PASS or CONDITIONAL status.
-2. **Generate 30+ names minimum.** The naming expert must produce volume because 70-85% will fail verification.
-3. **Copywriter only works on verified names.** Zero slogans for FAIL names.
-4. **Creative director only recommends verified names.** The #1 pick must be PASS or CONDITIONAL.
-5. **All agents use WebSearch for research.** No guessing domains or trademarks.
+The lead does not merely pass messages — it **validates every transition with a
+written accounting check** and sends the role back if the check fails.
 
-## Step 3: Monitor Pipeline
+**After research →** `research-findings.md` exists, non-empty (`ls` + size > 0).
 
-As team lead, monitor agent messages and relay notifications:
-- When researcher finishes: message naming-expert that research is ready
-- When naming-expert finishes: message verifier that names are ready
-- When verifier finishes: message copywriter with list of PASS/CONDITIONAL names
-- When copywriter finishes: message creative-director that all inputs are ready
+**After names →** count the name entries in `name-candidates.md`. If
+**count < `min_names`**, send the naming expert back for more. Verify the naming
+language matches `target_locale`.
 
-Keep the user updated on progress with brief status messages.
+**After verification (the hard gate) →**
+- **100% coverage:** every candidate carried into verification has a **verdict**
+  (PASS / CONDITIONAL / FAIL) **and ≥ 1 evidence URL**. Count them; a missing verdict
+  or a verdict with zero URLs = report sent back.
+- **"Queries run" present:** the report contains a per-name "Queries run" section
+  (each query → URL of its best result). Absent = sent back (anti-fabrication).
+- **Sampling audit:** the lead **picks 3 names at random**, **re-runs one query
+  each**, and compares to what the verifier reported. Any divergence (e.g. verifier
+  said "no product" but the re-run surfaces one) = report sent back for redo.
+
+**After slogans →** every PASS/CONDITIONAL name has its slogans; FAIL names have none.
+Run the slogan ban-list check (streamline/empower/unleash/supercharge + "It's not X,
+it's Y"); each slogan must contain a concrete product noun.
+
+**Before presentation →** `ls` + non-zero size on all deliverables; the creative
+director rendered a **real SVG at 16/32/512px** and the **contrast gate passed**
+(computed ratios, not estimates — see Step 6 / visual-identity.md §5).
 
 ## Step 4: Handle Iteration
 
-**If verifier returns fewer than 3 PASS names:**
+**If the verifier returns strictly fewer than 3 PASS names** (CONDITIONAL do **not**
+count toward this threshold):
 
-1. Message the user: "Only X names passed verification. The {industry} namespace is crowded."
-2. Ask: "Should I run another naming round with different strategies, or proceed with what we have?"
-3. If re-run: Create new naming + verification tasks, keeping the same team active
-4. The new naming expert should avoid ALL previously failed names and try different strategies
+1. Tell the user: "Only X names passed verification. The {industry} namespace is crowded."
+2. Ask: "Run another naming round with different strategies, or proceed with what we have?"
+3. If re-run: spawn a fresh naming-expert (avoiding ALL previously failed names) then re-verify.
 
 **Iteration strategies (in order):**
-- Round 1: All 5 strategies with broad exploration
-- Round 2: Focus on compound words and mashups (highest pass rate)
-- Round 3: Try 3-word names, creative prefixes (get-, hey-, use-), or phonetic inventions
+- Round 1: All 5 strategies, broad exploration.
+- Round 2: Focus on compound words and mashups (highest pass rate).
+- Round 3: **Two-word compounds** with `max_chars` raised to **14**, plus creative
+  prefixes (get-, hey-, use-) or phonetic inventions. (Not "3-word names" — that
+  contradicts the length rule.)
 
-## Step 5: Present Results and Clean Up
+## Step 5: Present Results
 
-Once the creative director delivers the final package:
+Once the creative director delivers `final-recommendation.md`:
 
-1. Read `{output_dir}/final-recommendation.md`
-2. Present a clean summary to the user:
-   - Top 3 name+slogan combos in a table
-   - The #1 logo concept description
-   - The primary AI image prompt (copy-paste ready)
-   - Color palette with hex codes
-   - Domain to register
-3. Ask: "Which name do you prefer? Or want to explore more?"
-4. If user picks a different name than #1, update final-recommendation.md accordingly
-5. Shut down all agents via SendMessage type: "shutdown_request"
-6. Delete the team via TeamDelete
-7. Confirm output files are saved in `{output_dir}/`
+1. Read it.
+2. Present a clean summary: top 3 name+slogan combos (table), the #1 logo concept
+   (with the rendered SVG), the primary AI image prompt (copy-paste ready), the
+   palette with hex codes + computed contrast ratios, the domain to register (with
+   its RDAP-checked date), and the "indicative — confirm with a registrar / legal
+   validation required" caveats.
+3. Ask: "Which name do you prefer? Or explore more?"
+4. If the user picks a name other than #1, update `final-recommendation.md`.
+
+There is no team to shut down — sequential subagents simply finish.
+
+## Step 6: Handoff Build (mandatory final step)
+
+Produce the machine-readable handoff so ship-polished-ui / design-forge BRIEF can
+consume the brand without re-typing anything:
+
+1. **`docs/branding/brand-package.md`** — follow the schema in
+   `references/brand-package-template.md` **verbatim** (status, RDAP-dated domain,
+   tokens mirroring brand-tokens.css exactly, typography with load URLs + licenses,
+   voice, assets, validated slogans, brand-specific don'ts).
+2. **`docs/branding/brand-tokens.css`** — CSS custom properties: light/dark colors,
+   font families, type scale. The token values here are the **exact mirror** of the
+   `tokens:` block in brand-package.md.
+3. **Web assets checklist** — produce/place: `logo.svg`, `favicon.svg`, apple-touch
+   icon, `og-image.png`, dark variants — conventional target paths under
+   `public/brand/`.
+4. **Lead verification:** `ls` + non-zero size on brand-package.md and
+   brand-tokens.css, and confirm brand-tokens.css **parses** (simple read + a regex
+   check that `--custom-property:` declarations are present).
+5. **Propose the next stage explicitly:** "Run **design-forge BRIEF** with this
+   package to produce the design-intent, or **ship-polished-ui** to build directly —
+   both load `docs/branding/brand-package.md` as brand-fixed constraints."
 
 ## Output Files
 
-The pipeline produces these files in `{output_dir}/`:
+The pipeline produces **7 deliverables** in `{output_dir}` (the lead verifies each exists):
 
 | File | Contents |
 |------|----------|
 | `research-findings.md` | Market analysis, competitors, naming territories |
 | `name-candidates.md` | All generated names with rationale |
-| `verification-report.md` | Trademark/domain check for every name |
+| `verification-report.md` | RDAP + trademark/domain check + "Queries run" for every name |
 | `slogans.md` | 3-5 slogans per verified name |
-| `final-recommendation.md` | Complete brand package: name, slogans, logo, colors, prompts |
+| `final-recommendation.md` | Name, slogans, rendered SVG logo, palette, image prompts |
+| `brand-package.md` | Machine-readable handoff (schema A4) — consumed by the build pipeline |
+| `brand-tokens.css` | CSS custom properties (light/dark, families, scale) — exact mirror of the package |
 
 ## Tips for Best Results
 
-- **Be specific about the product.** The more context agents have, the better the names.
-- **State constraints upfront.** "No AI in name" or "must work in French markets" saves wasted rounds.
-- **Trust the verifier.** If a name fails, it fails for a reason. Don't override.
-- **Domain is king.** A great name with no domain is useless. The verifier catches this.
-- **Compound words win.** Novel combinations of common words have the highest verification pass rate.
+- **Be specific about the product.** More context → better names.
+- **State constraints and locale upfront.** "No AI in name" or "must work in French
+  markets" saves wasted rounds.
+- **Trust the verifier.** If a name fails, it fails for a reason — don't override.
+- **Domain is king,** but a domain that merely resolves ≠ an active product. RDAP +
+  active-product search both matter.
+- **Compound words survive verification best** — novel combinations of common words
+  have the highest pass rate.
 - **Expect iteration.** Most industries are crowded. 2-3 rounds is normal.
