@@ -23,6 +23,12 @@ Installing this plugin adds **one skill** and **three specialist agents**:
 
 ---
 
+## What's new in v1.2
+
+- **design-intent template: performance TESTABLE CRITERIA** — Core Web Vitals thresholds baked into every brief: blocking floor LCP < 2.5 s mobile / CLS < 0.1 / INP < 200 ms, documented award target 1.5 s / 0.05 / 100 ms, explicit JS budget when Three.js/3D is in play.
+- **design-intent template: structured Motion Stance** — signature moment (one, localized), micro-interaction families with timings, scroll reveals, reduced-motion behavior, and a justified technical storey (CSS → Motion → GSAP → 3D), terminology aligned with ship-polished-ui's `motion-craft.md`.
+- **QA division of labor** — written into the skill: `ship-polished-ui` owns the incremental QA loop during the build; design-forge AUDIT/TEST owns the full scored pre-delivery audit against the design-intent.
+
 ## What's new in v1.1
 
 - **Viewport-coverage gate + evidence-gated scoring** — a responsive / footer / motion verdict is now invalid unless every device class (small-mobile 320/360, mobile, tablet, desktop) was actually rendered, and any dimension that was never observed is reported as *not evidenced* instead of silently passing.
