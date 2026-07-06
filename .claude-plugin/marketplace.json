@@ -25,6 +25,25 @@
         "design-brief",
         "qa"
       ]
+    },
+    {
+      "name": "design-studio",
+      "source": "./design-studio",
+      "description": "The complete design pipeline as one plugin: brand identity (brand-forge), premium production-grade websites and app UIs with a real-browser visual QA loop (ship-polished-ui), and polished documentary artifacts \u2014 slides, plans, reports, dashboards (design-elevation) \u2014 plus a visual-qa-inspector sub-agent for fresh-context browser verification.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Franck Djiongo"
+      },
+      "keywords": [
+        "design",
+        "ux",
+        "ui",
+        "branding",
+        "visual-qa",
+        "design-system",
+        "frontend",
+        "accessibility"
+      ]
     }
   ]
 }

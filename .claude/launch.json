@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "htmlshare-landing",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8420", "--directory", "/Users/elmabi/Desktop/my-projets/htmlshare/landing"],
+      "port": 8420,
+      "autoPort": true
+    }
+  ]
+}

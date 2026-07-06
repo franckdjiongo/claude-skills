@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-07-04"
+last_updated: "2026-07-06"
 
 # =============================================================================
 # REPOSITORIES
@@ -675,9 +675,9 @@ categories:
 
       - name: design-elevation
         repository: claude-skills
-        path: design-elevation/SKILL.md
-        description: Apply professional design thinking to documentary visual artifacts (presentations, plans HTML, reports, dashboards, PDFs, data viz); for shipped client websites and app UIs use ship-polished-ui instead
-        tags: [design, documentary, presentations, reports, dashboards]
+        path: design-studio/skills/design-elevation/SKILL.md
+        description: "Part of the design-studio plugin. Apply professional design thinking to documentary visual artifacts (presentations, plans HTML, reports, dashboards, PDFs, data viz); for shipped client websites and app UIs use ship-polished-ui instead"
+        tags: [design, documentary, presentations, reports, dashboards, design-studio]
 
       - name: app-blueprint
         repository: claude-skills
@@ -687,9 +687,9 @@ categories:
 
       - name: brand-forge
         repository: claude-skills
-        path: brand-forge/SKILL.md
-        description: Automate a full brand package (verified name, slogans, logo concepts, palette, typography) producing docs/branding/brand-package.md + brand-tokens.css that hand off into the design pipeline; for a logo image or image prompt on an existing name use chatgpt-image-prompt-architect instead
-        tags: [branding, naming, slogans, logo, brand-package, handoff]
+        path: design-studio/skills/brand-forge/SKILL.md
+        description: "Part of the design-studio plugin. Automate a full brand package (verified name, slogans, logo concepts, palette, typography) producing docs/branding/brand-package.md + brand-tokens.css that hand off into the design pipeline; for a logo image or image prompt on an existing name use chatgpt-image-prompt-architect instead"
+        tags: [branding, naming, slogans, logo, brand-package, handoff, design-studio]
 
       - name: seo-visibility
         repository: claude-skills
@@ -729,9 +729,15 @@ categories:
 
       - name: ship-polished-ui
         repository: claude-skills
-        path: ship-polished-ui/SKILL.md
-        description: Single entry point for creating or improving premium, production-grade client websites and app UIs — runs a non-negotiable real-browser visual QA loop and posts a Verification Ledger before declaring done; for documentary artifacts (plans, reports, slides) use design-elevation
-        tags: [ui, website, frontend, qa, verification-ledger, premium]
+        path: design-studio/skills/ship-polished-ui/SKILL.md
+        description: "Part of the design-studio plugin. Single entry point for creating or improving premium, production-grade client websites and app UIs — runs a non-negotiable real-browser visual QA loop and posts a Verification Ledger before declaring done; for documentary artifacts (plans, reports, slides) use design-elevation"
+        tags: [ui, website, frontend, qa, verification-ledger, premium, design-studio]
+
+      - name: design-studio
+        repository: claude-skills
+        path: design-studio/.claude-plugin/plugin.json
+        description: "Plugin container bundling brand-forge, ship-polished-ui, and design-elevation as three skills plus a visual-qa-inspector agent — the complete design pipeline (branding → premium UIs → documentary artifacts) as one installable plugin for Claude Code and Codex"
+        tags: [plugin, design, design-system, branding, ui, documentary, visual-qa, container]
 
   # ---------------------------------------------------------------------------
   # EMAIL (RESEND)
@@ -2001,6 +2007,7 @@ skill_index:
   app-blueprint: { repo: claude-skills, category: specialized }
   brand-forge: { repo: claude-skills, category: specialized }
   design-forge: { repo: claude-skills, category: specialized }
+  design-studio: { repo: claude-skills, category: specialized, plugin: true }
   seo-visibility: { repo: claude-skills, category: specialized }
   domain-driven-design: { repo: claude-skills, category: specialized }
   mac-uninstall: { repo: claude-skills, category: specialized }

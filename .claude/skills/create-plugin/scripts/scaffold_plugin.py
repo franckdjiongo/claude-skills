@@ -20,15 +20,30 @@ Options:
   --category TEXT        Codex/marketplace category (default: Specialized Workflows)
   --components LIST       Comma list of components to stub. Any of:
                          skill,agents,hooks,mcp,commands,lsp  (default: skill)
+  --skills LIST          Comma list of skill names to create under skills/.
+                         Each becomes skills/<name>/SKILL.md + references/ +
+                         assets/. Default: the plugin name (mono-skill, the
+                         legacy behavior). Implies the 'skill' component.
+  --agents LIST          Comma list of agent names to create under agents/.
+                         Each becomes agents/<name>.md with frontmatter
+                         name: <name>. Default when the 'agents' component is
+                         requested without --agents: <plugin-name>-agent (the
+                         legacy behavior). Implies the 'agents' component.
   --keywords LIST        Comma list of keywords (default: derived from name)
   --repo-root PATH       Repo root holding the marketplace catalogs (default: cwd)
   --dest PATH            Where to create the plugin dir (default: <repo-root>)
   --force                Overwrite an existing plugin directory
 
-Example:
+Example (mono-skill, legacy):
   scaffold_plugin.py acme-tools \
     --description "Tools for the Acme workflow" \
     --components skill,agents,mcp --category "Development & DevOps"
+
+Example (multi-skills container + named agent, e.g. the design-studio case):
+  scaffold_plugin.py design-studio \
+    --description "The full design pipeline as one plugin" \
+    --skills brand-forge,ship-polished-ui,design-elevation \
+    --agents visual-qa-inspector --category "Design"
 """
 import argparse
 import json
@@ -111,9 +126,10 @@ those resolve relative to this SKILL.md.
 """
 
 
-def agent_stub(name, display) -> str:
+def agent_stub(agent_name, skill_name) -> str:
+    display = title_case(agent_name)
     return f"""---
-name: {name}-agent
+name: {agent_name}
 description: >-
   TODO: what this specialist does and when Claude should invoke it.
 model: inherit
@@ -124,10 +140,12 @@ model: inherit
 TODO: the specialist's operating manual.
 
 **Bundled knowledge files.** Every `references/…` and `assets/…` path below is
-bundled with this plugin under `${{CLAUDE_PLUGIN_ROOT}}/skills/{name}/`. Read them
-from there — e.g. `references/foo.md` lives at
-`${{CLAUDE_PLUGIN_ROOT}}/skills/{name}/references/foo.md`. (`${{CLAUDE_PLUGIN_ROOT}}`
-expands to the plugin's absolute install path at runtime.)
+bundled with this plugin under `${{CLAUDE_PLUGIN_ROOT}}/skills/<skill>/`. Read them
+from there — e.g. `references/foo.md` in the `{skill_name}` skill lives at
+`${{CLAUDE_PLUGIN_ROOT}}/skills/{skill_name}/references/foo.md`.
+(`${{CLAUDE_PLUGIN_ROOT}}` expands to the plugin's absolute install path at
+runtime.) In a multi-skills plugin, swap `{skill_name}` for whichever bundled
+skill owns the file.
 """
 
 
@@ -140,12 +158,14 @@ TODO: the prompt this command expands into. Use $ARGUMENTS for user input.
 """
 
 
-def readme_stub(name, display, desc, repo_url, comps) -> str:
+def readme_stub(name, display, desc, repo_url, comps, skill_names, agent_names) -> str:
     comp_lines = []
     if "skill" in comps:
-        comp_lines.append(f"| Skill | `{name}` | TODO |")
+        for s in skill_names:
+            comp_lines.append(f"| Skill | `{s}` | TODO |")
     if "agents" in comps:
-        comp_lines.append(f"| Agent | `{name}-agent` | TODO (Claude Code only) |")
+        for a in agent_names:
+            comp_lines.append(f"| Agent | `{a}` | TODO (Claude Code only) |")
     if "mcp" in comps:
         comp_lines.append("| MCP server | see `.mcp.json` | TODO |")
     if "hooks" in comps:
@@ -153,6 +173,10 @@ def readme_stub(name, display, desc, repo_url, comps) -> str:
     if "commands" in comps:
         comp_lines.append(f"| Command | `/{name}` | TODO |")
     comp_table = "\n".join(comp_lines) or "| — | — | — |"
+    tree_skills = skill_names if "skill" in comps else []
+    skill_tree = "\n".join(
+        f"    └── {s}/SKILL.md   (+ references/ assets/)" for s in tree_skills
+    ) or "    └── (no skills)"
     market = repo_url.replace("https://github.com/", "")
     return f"""# {display}
 
@@ -192,7 +216,8 @@ Then install from the `/plugins` browser (CLI) or **Add to Codex** (App/IDE).
 ├── .claude-plugin/plugin.json
 ├── .codex-plugin/plugin.json
 ├── README.md
-└── skills/{name}/SKILL.md   (+ references/ assets/)
+└── skills/
+{skill_tree}
 ```
 """
 
@@ -239,6 +264,10 @@ def main():
     ap.add_argument("--repo-url", default="https://github.com/franckdjiongo/claude-skills")
     ap.add_argument("--category", default="Specialized Workflows")
     ap.add_argument("--components", default="skill")
+    ap.add_argument("--skills", default="",
+                    help="Comma list of skill names under skills/ (default: plugin name)")
+    ap.add_argument("--agents", default="",
+                    help="Comma list of agent names under agents/ (default: <name>-agent)")
     ap.add_argument("--keywords", default="")
     ap.add_argument("--repo-root", default=".")
     ap.add_argument("--dest")
@@ -254,6 +283,22 @@ def main():
     if bad:
         sys.exit(f"ERROR: unknown components {bad}. Valid: {sorted(VALID_COMPONENTS)}")
     comps.add("skill")  # a plugin without a skill is unusual; keep one by default
+
+    # Skill names: explicit --skills, else the plugin name (legacy mono-skill).
+    skill_names = [s.strip() for s in args.skills.split(",") if s.strip()] or [name]
+    if args.skills:
+        comps.add("skill")  # --skills implies the skill component
+    # Agent names: explicit --agents (implies the agents component), else — only
+    # if the agents component was requested — the legacy default <name>-agent.
+    agent_names = [a.strip() for a in args.agents.split(",") if a.strip()]
+    if agent_names:
+        comps.add("agents")  # --agents implies the agents component
+    elif "agents" in comps:
+        agent_names = [f"{name}-agent"]
+    for label, names in (("skill", skill_names), ("agent", agent_names)):
+        for n in names:
+            if not re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", n):
+                sys.exit(f"ERROR: {label} name must be kebab-case (got '{n}')")
 
     display = args.display_name or title_case(name)
     keywords = [k.strip() for k in args.keywords.split(",") if k.strip()] or \
@@ -274,16 +319,19 @@ def main():
                                     args.repo_url, keywords, args.category, comps),
                      args.force))
     log.append(write(os.path.join(root, "README.md"),
-                     readme_stub(name, display, args.description, args.repo_url, comps),
+                     readme_stub(name, display, args.description, args.repo_url,
+                                 comps, skill_names, agent_names),
                      args.force))
     if "skill" in comps:
-        log.append(write(os.path.join(root, "skills", name, "SKILL.md"),
-                         skill_stub(name, display), args.force))
-        os.makedirs(os.path.join(root, "skills", name, "references"), exist_ok=True)
-        os.makedirs(os.path.join(root, "skills", name, "assets"), exist_ok=True)
+        for s in skill_names:
+            log.append(write(os.path.join(root, "skills", s, "SKILL.md"),
+                             skill_stub(s, title_case(s)), args.force))
+            os.makedirs(os.path.join(root, "skills", s, "references"), exist_ok=True)
+            os.makedirs(os.path.join(root, "skills", s, "assets"), exist_ok=True)
     if "agents" in comps:
-        log.append(write(os.path.join(root, "agents", f"{name}-agent.md"),
-                         agent_stub(name, display), args.force))
+        for a in agent_names:
+            log.append(write(os.path.join(root, "agents", f"{a}.md"),
+                             agent_stub(a, skill_names[0]), args.force))
     if "hooks" in comps:
         log.append(write(os.path.join(root, "hooks", "hooks.json"),
                          '{\n  "hooks": {}\n}\n', args.force))
@@ -304,9 +352,12 @@ def main():
     for line in log:
         print("  " + line)
     print("\nNext:")
-    print("  1. Fill skills/{0}/SKILL.md (description = trigger; <500 lines).".format(name))
+    _skill_list = ", ".join(f"skills/{s}/SKILL.md" for s in skill_names)
+    print(f"  1. Fill {_skill_list} (description = trigger; <500 lines each).")
     if "agents" in comps:
-        print("  2. Flesh out agents/ ; reference bundled files via ${CLAUDE_PLUGIN_ROOT}/skills/" + name + "/.")
+        _agent_list = ", ".join(f"agents/{a}.md" for a in agent_names)
+        print(f"  2. Flesh out {_agent_list} ; reference bundled files via "
+              "${CLAUDE_PLUGIN_ROOT}/skills/<skill>/.")
     print("  3. Update skills-registry.yaml + skills-app/src/data/skills.ts + CLAUDE.md")
     print("     (see references/repo-conventions.md).")
     print("  4. Run: validate_plugin.py " + os.path.relpath(root, os.getcwd()))

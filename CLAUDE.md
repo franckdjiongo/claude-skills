@@ -143,16 +143,19 @@ The `description` field is critical - it determines when Claude Code should invo
 - `google-forms-builder` - Generate Google Forms via Apps Script
 - `obsidian-vault-architect` - Design Obsidian vault structures
 - `dtsx-workflow-analyzer` - Analyze SSIS DTSX packages
-- `design-elevation` - Apply professional design thinking to documentary artifacts (presentations, plans HTML, reports, dashboards, PDFs, data viz); shipped websites and app UIs route to ship-polished-ui instead
+- `design-elevation` - Apply professional design thinking to documentary artifacts (presentations, plans HTML, reports, dashboards, PDFs, data viz); shipped websites and app UIs route to ship-polished-ui instead (part of `design-studio` plugin)
 - `app-blueprint` - Reverse-engineer a codebase into a comprehensive Application Blueprint (EN/FR)
-- `brand-forge` - Automate a full brand package (verified name, slogans, logo concepts, palette, typography) producing brand-package.md + brand-tokens.css that hand off into the design pipeline; a logo/image prompt on an existing name routes to chatgpt-image-prompt-architect
+- `brand-forge` - Automate a full brand package (verified name, slogans, logo concepts, palette, typography) producing brand-package.md + brand-tokens.css that hand off into the design pipeline; a logo/image prompt on an existing name routes to chatgpt-image-prompt-architect (part of `design-studio` plugin)
 - `seo-visibility` - Implement SEO, structured data, AI discoverability, and marketing visibility improvements
 - `domain-driven-design` - Expert advisor for DDD: strategic design, tactical design, architecture, anti-patterns, and migration
 - `mac-uninstall` - Completely or partially uninstall macOS applications removing all associated files
 - `chatgpt-image-prompt-architect` - Turn a vague visual request into a premium, ready-to-paste ChatGPT image prompt (gpt-image-2) for logos, flyers, ads, mockups, and more, with automatic AutoMintech branding on marketing assets
 - `design-forge` - UX/UI Quality Analyst and Design Brief Architect with three modes: AUDIT (analyze screenshots/video for defects and AI slop, emit a scored report with paste-ready correction prompts), TEST (actively drive a live app with computer-use tools), and BRIEF (turn a non-designer's idea into a premium design prompt); includes a brief→build→verify pipeline
 - `galley` - HTML artifact review subsystem: read, edit, reply to, and resolve anchored comments living inside an HTML file
-- `ship-polished-ui` - Single entry point for all client websites and app UIs (create or improve); runs a non-negotiable real-browser visual QA loop and posts a Verification Ledger before done; documentary artifacts route to design-elevation
+- `ship-polished-ui` - Single entry point for all client websites and app UIs (create or improve); runs a non-negotiable real-browser visual QA loop and posts a Verification Ledger before done; documentary artifacts route to design-elevation (part of `design-studio` plugin)
+
+**Plugins (installable bundles)**
+- `design-studio` - Plugin container bundling `brand-forge`, `ship-polished-ui`, and `design-elevation` as three skills plus a `visual-qa-inspector` agent — the complete design pipeline (branding → premium UIs → documentary artifacts) as one installable plugin for Claude Code and Codex. Sources of truth remain the standalone `~/.claude/skills/` copies until switched (see `design-studio/SWITCH.md`); `scripts/sync-design-studio.mjs` keeps the plugin mirrored to the repo skills.
 
 **Email (Resend)**
 - `resend` - Resend email platform umbrella that routes to send, inbound, agent inbox, and template sub-skills

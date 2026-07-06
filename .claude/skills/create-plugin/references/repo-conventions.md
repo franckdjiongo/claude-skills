@@ -24,6 +24,37 @@ skill is cataloged in TWO places that do not auto-sync:
 > The `path` must point at `my-plugin/skills/my-plugin/SKILL.md` (the nested
 > layout), never the plugin root.
 
+## Packaging EXISTING skills into a plugin — anti-duplication (MANDATORY)
+
+When a plugin bundles skills that were ALREADY cataloged as standalone
+distributable skills (e.g. `design-studio` packaging `brand-forge`,
+`ship-polished-ui`, `design-elevation`), the registry must NOT list each skill
+twice — once standalone and once "inside" the plugin. Do this instead:
+
+1. **Do NOT add a fresh standalone entry** for each bundled skill. Keep the
+   existing entries (users still search for `brand-forge`), but:
+   - **`skills-registry.yaml`** — on each bundled skill's `skill_index` entry,
+     repoint `path` to `my-plugin/skills/<skill>/SKILL.md` and note it in the
+     description/tags as **"part of the `<plugin>` plugin"**. Do NOT bump the
+     category `skillCount` for these (they were already counted).
+   - **`skills-app/src/data/skills.ts`** — update each bundled skill object's
+     `path` to `my-plugin/skills/<skill>/SKILL.md` and annotate it as
+     part of `<plugin>`. Do NOT re-increment any `skillCount` for a skill that
+     already existed.
+   - **`CLAUDE.md`** — annotate each existing bullet with "(part of `<plugin>`
+     plugin)" rather than adding new bullets.
+2. **Add exactly ONE new plugin entry** describing the container itself
+   (`<plugin>` = the bundle), so the plugin is discoverable as a unit — in the
+   marketplace catalogs (scaffolder does this) and, if you list plugins in the
+   registry/app, one plugin-level entry there.
+3. **Net effect**: N existing skill entries (repointed + annotated) + 1 plugin
+   entry. Never N duplicated skill entries. Re-run `validate_plugin.py` and
+   `registry-manager.py info <skill>` to confirm each bundled skill still
+   resolves to its new in-plugin path and appears only once.
+
+> Skills created fresh WITH the plugin (never cataloged before) follow the normal
+> "Dual data sources" section above — one entry each, counts bumped once.
+
 ## Marketplace catalogs (scaffolder does this; verify)
 
 - `.claude-plugin/marketplace.json` — Claude Code catalog (`source: "./my-plugin"`).

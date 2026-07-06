@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "design-studio",
+  "displayName": "Design Studio",
+  "version": "1.0.0",
+  "description": "Complete design system as one plugin: brand identity (brand-forge), premium production-grade websites/app UIs with real-browser visual QA (ship-polished-ui), and polished documentary artifacts \u2014 slides, plans, reports, dashboards (design-elevation), plus a visual-qa-inspector agent for fresh-context browser verification.",
+  "author": {
+    "name": "Franck Djiongo",
+    "url": "https://github.com/franckdjiongo/claude-skills"
+  },
+  "homepage": "https://github.com/franckdjiongo/claude-skills/tree/main/design-studio",
+  "repository": "https://github.com/franckdjiongo/claude-skills",
+  "license": "MIT",
+  "keywords": [
+    "design",
+    "ux",
+    "ui",
+    "branding",
+    "visual-qa",
+    "design-system",
+    "frontend",
+    "accessibility"
+  ]
+}

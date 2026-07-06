@@ -273,3 +273,40 @@ que le Spec littéral — à valider par l'AUDIT design-forge indépendant avant
 
 Rappel séparation QA : ceci est la boucle QA incrémentale (ledger). L'AUDIT design-forge (autre paire
 d'yeux, verdict distinctivité) reste requis avant livraison client.
+
+---
+
+## Addendum post-audit (4 juillet) : INT-001 corrigé (valeurs mesurées), captures dark ajoutées
+
+Suite au rapport design-forge (`design-forge-audit.md`, finding `INT-001` MINEUR) et à la note
+Coverage sur les captures dark manquantes en position -top au niveau du dossier `shots/`.
+
+**INT-001 — cibles tactiles portées au plancher premium 44px, apparence visuelle inchangée.**
+Technique ship-polished-ui : pseudo-élément `::after` superposé (position:absolute, centré,
+`min-width/min-height: var(--size-touch,44px)`, hors flux) qui élargit UNIQUEMENT la zone
+cliquable — zéro peinture, zéro reflow. Nouveau token `--size-touch: 44px` dans `landing.css`.
+Fichiers : `landing/assets/landing.components.css` (`.lang-toggle button::after`, `.copy-btn::after`),
+`landing/assets/landing.css` (token).
+
+| Contrôle | Visible AVANT | Visible APRÈS | Hit-zone AVANT | Hit-zone APRÈS | Gate 44px |
+|---|---|---|---|---|---|
+| `.lang-toggle button` | ~39.4 × 28 px | **39.4 × 28 px (identique)** | 39.4 × 28 | **44 × 44** | PASS |
+| `.copy-btn` | ~54.3 × 34 px | **54.3 × 34 px (identique)** | 54.3 × 34 | **52.3 × 44** | PASS |
+
+`.copy-btn` hit-width = 52.3 (largeur réelle du bouton > 44, plancher appliqué sur la hauteur).
+Aucun layout shift : dimensions VISIBLES byte-identiques avant/après → screenshots superposables.
+Mesures via `getBoundingClientRect()` + `getComputedStyle(el,'::after')`, chromium DPR 2, viewport 375.
+
+**Captures DARK canoniques ajoutées en position -top (dossier `shots/` de premier niveau).**
+Le thème dark (défaut de marque) est désormais évidencé sans ambiguïté au niveau `shots/`
+(auparavant seul `shots/qa/…-top-settled.png` le portait). Servi via `python3 -m http.server`,
+`data-theme="dark"` forcé, scroll top, chromium :
+- `shots/chromium-dark-320-top.png` (theme=dark vérifié)
+- `shots/chromium-dark-375-top.png` (theme=dark vérifié)
+- `shots/chromium-dark-1280-top.png` (theme=dark vérifié)
+
+Preuve visuelle : bg near-black `#08070a`, wordmark « Share » ambre, CTA ambre, icône soleil
+(= dark actif), pill FR/EN à sa taille visible d'origine (confirme l'absence de shift après fix).
+
+Harness de capture : `scratchpad/cap.mjs` (playwright chromium). Verdict addendum : **INT-001 CLOS**,
+dark -top **ÉVIDENCÉ**.

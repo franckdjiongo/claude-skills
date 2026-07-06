@@ -1,0 +1,28 @@
+{
+  "name": "design-studio",
+  "version": "1.0.0",
+  "description": "Complete design system as one plugin: brand identity (brand-forge), premium production-grade websites/app UIs with real-browser visual QA (ship-polished-ui), and polished documentary artifacts \u2014 slides, plans, reports, dashboards (design-elevation), plus a visual-qa-inspector agent for fresh-context browser verification.",
+  "author": {
+    "name": "Franck Djiongo"
+  },
+  "homepage": "https://github.com/franckdjiongo/claude-skills/tree/main/design-studio",
+  "repository": "https://github.com/franckdjiongo/claude-skills",
+  "license": "MIT",
+  "keywords": [
+    "design",
+    "ux",
+    "ui",
+    "branding",
+    "visual-qa",
+    "design-system",
+    "frontend",
+    "accessibility"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Design Studio",
+    "shortDescription": "Full design pipeline: branding, premium UIs, and documentary artifacts",
+    "longDescription": "Complete design system as one plugin: brand identity (brand-forge), premium production-grade websites/app UIs with real-browser visual QA (ship-polished-ui), and polished documentary artifacts \u2014 slides, plans, reports, dashboards (design-elevation), plus a visual-qa-inspector agent for fresh-context browser verification.",
+    "category": "Design"
+  }
+}
