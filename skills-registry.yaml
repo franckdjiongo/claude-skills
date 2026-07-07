@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-07-06"
+last_updated: "2026-07-07"
 
 # =============================================================================
 # REPOSITORIES
@@ -313,6 +313,12 @@ categories:
         description: "Autonomously update this macOS machine's local developer toolchain — Python (current stable) + its doc libraries and Node (LTS), both via mise, plus…"
         tags: [claude-code]
 
+      - name: brain-capture
+        repository: claude-skills
+        path: brain-capture/SKILL.md
+        description: "Extract 0-3 candidate memories (facts/decisions/preferences/lessons/routines/ conventions worth remembering long-term) from the session that is about…"
+        tags: [claude-code, hooks, cli]
+
   # ---------------------------------------------------------------------------
   # CONVEX DATABASE
   # ---------------------------------------------------------------------------
@@ -576,6 +582,12 @@ categories:
         path: renommer-fichiers-rencontre/SKILL.md
         description: Rename meeting transcription (.docx) and meeting summary (.md) files according to personal naming conventions
         tags: [meetings, rename, files, french, docx, markdown]
+
+      - name: lexicon-capture
+        repository: claude-skills
+        path: lexicon-capture/SKILL.md
+        description: "Analyze the voice-dictated prompts of the session that is about to end, spot 0-N recurring mis-transcriptions (proper nouns, tools, jargon the…"
+        tags: [meetings, hooks, cli]
 
   # ---------------------------------------------------------------------------
   # DEVELOPMENT & DEVOPS
@@ -2039,6 +2051,8 @@ skill_index:
   convex-remote-mcp: { repo: claude-skills, category: convex }
   sync-to-azure: { repo: claude-skills, category: power-platform }
   update-dev-tools: { repo: claude-skills, category: claude-code }
+  brain-capture: { repo: claude-skills, category: claude-code }
+  lexicon-capture: { repo: claude-skills, category: meetings }
   # External skills (superpowers)
   test-driven-development: { repo: superpowers, category: superpowers-testing }
   systematic-debugging: { repo: superpowers, category: superpowers-testing }

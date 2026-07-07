@@ -73,6 +73,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `handoff` - Compact the current conversation into a handoff document for another agent to pick up
 - `adversarial-pr-review` - Run an ultracode multi-agent ADVERSARIAL review over the working diff so a change is bulletproof and "compliant" BEFORE its pull request is opened,…
 - `update-dev-tools` - Autonomously update this macOS machine's local developer toolchain — Python (current stable) + its doc libraries and Node (LTS), both via mise, plus…
+- `brain-capture` - Extract 0-3 candidate memories (facts/decisions/preferences/lessons/routines/ conventions worth remembering long-term) from the session that is about…
 
 **Convex Database**
 - `convex-queries` - Convex query patterns and best practices
@@ -104,6 +105,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `meeting-followup-extractor` - Extract action items from meetings
 - `cobacam-meeting-minutes-creator` - French Canadian meeting minutes (procès-verbaux)
 - `rotation-responsabilites` - Manage responsibility rotation schedules
+- `lexicon-capture` - Analyze the voice-dictated prompts of the session that is about to end, spot 0-N recurring mis-transcriptions (proper nouns, tools, jargon the…
 
 **Development & DevOps**
 - `vercel-expert-developer` - Vercel serverless functions

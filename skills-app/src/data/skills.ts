@@ -7,7 +7,7 @@ export const repositories: Repository[] = [
     url: 'https://github.com/franckdjiongo/claude-skills',
     description: 'Main skills library - Power Platform, Claude Code, text processing, and more',
     isLocal: true,
-    skillCount: 105,
+    skillCount: 107,
   },
   {
     id: 'superpowers',
@@ -68,12 +68,12 @@ export const repositories: Repository[] = [
 ];
 
 export const categories: Category[] = [
-  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 252, repository: 'claude-skills' },
+  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 254, repository: 'claude-skills' },
   { id: 'power-platform', name: 'Power Platform', icon: 'Zap', skillCount: 16, repository: 'claude-skills' },
-  { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 22, repository: 'claude-skills' },
+  { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 23, repository: 'claude-skills' },
   { id: 'convex', name: 'Convex Database', icon: 'Database', skillCount: 30, repository: 'claude-skills' },
   { id: 'text-processing', name: 'Text & Documents', icon: 'FileText', skillCount: 4, repository: 'claude-skills' },
-  { id: 'meetings', name: 'Meetings', icon: 'Users', skillCount: 7, repository: 'claude-skills' },
+  { id: 'meetings', name: 'Meetings', icon: 'Users', skillCount: 8, repository: 'claude-skills' },
   { id: 'development', name: 'Development', icon: 'Code', skillCount: 10, repository: 'claude-skills' },
   { id: 'specialized', name: 'Specialized', icon: 'Sparkles', skillCount: 15, repository: 'claude-skills' },
   { id: 'email', name: 'Email (Resend)', icon: 'Mail', skillCount: 5, repository: 'claude-skills' },
@@ -1318,6 +1318,28 @@ export const skills: Skill[] = [
     categoryName: "Claude Code & AI Extensibility",
     tags: ['claude-code'],
     path: 'update-dev-tools/SKILL.md',
+    isLocal: true,
+  },
+  {
+    id: 'brain-capture',
+    name: "Brain Capture",
+    description: "Extract 0-3 candidate memories (facts/decisions/preferences/lessons/routines/ conventions worth remembering long-term) from the session that is about…",
+    repository: 'claude-skills',
+    category: 'claude-code',
+    categoryName: "Claude Code & AI Extensibility",
+    tags: ['claude-code', 'hooks', 'cli'],
+    path: 'brain-capture/SKILL.md',
+    isLocal: true,
+  },
+  {
+    id: 'lexicon-capture',
+    name: "Lexicon Capture",
+    description: "Analyze the voice-dictated prompts of the session that is about to end, spot 0-N recurring mis-transcriptions (proper nouns, tools, jargon the…",
+    repository: 'claude-skills',
+    category: 'meetings',
+    categoryName: "Meeting & Transcript Analysis",
+    tags: ['meetings', 'hooks', 'cli'],
+    path: 'lexicon-capture/SKILL.md',
     isLocal: true,
   },
   // Superpowers: Testing & Debugging
