@@ -7,7 +7,7 @@ export const repositories: Repository[] = [
     url: 'https://github.com/franckdjiongo/claude-skills',
     description: 'Main skills library - Power Platform, Claude Code, text processing, and more',
     isLocal: true,
-    skillCount: 107,
+    skillCount: 108,
   },
   {
     id: 'superpowers',
@@ -68,9 +68,9 @@ export const repositories: Repository[] = [
 ];
 
 export const categories: Category[] = [
-  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 254, repository: 'claude-skills' },
+  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 255, repository: 'claude-skills' },
   { id: 'power-platform', name: 'Power Platform', icon: 'Zap', skillCount: 16, repository: 'claude-skills' },
-  { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 23, repository: 'claude-skills' },
+  { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 24, repository: 'claude-skills' },
   { id: 'convex', name: 'Convex Database', icon: 'Database', skillCount: 30, repository: 'claude-skills' },
   { id: 'text-processing', name: 'Text & Documents', icon: 'FileText', skillCount: 4, repository: 'claude-skills' },
   { id: 'meetings', name: 'Meetings', icon: 'Users', skillCount: 8, repository: 'claude-skills' },
@@ -1340,6 +1340,17 @@ export const skills: Skill[] = [
     categoryName: "Meeting & Transcript Analysis",
     tags: ['meetings', 'hooks', 'cli'],
     path: 'lexicon-capture/SKILL.md',
+    isLocal: true,
+  },
+  {
+    id: 'workstation-friction-capture',
+    name: "Workstation Friction Capture",
+    description: "Triage the workstation-tool frictions logged during the session that is about to end (failed calls to `bun run convo|chips|secrets|lexicon|remind|…",
+    repository: 'claude-skills',
+    category: 'claude-code',
+    categoryName: "Claude Code & AI Extensibility",
+    tags: ['claude-code', 'hooks'],
+    path: 'workstation-friction-capture/SKILL.md',
     isLocal: true,
   },
   // Superpowers: Testing & Debugging

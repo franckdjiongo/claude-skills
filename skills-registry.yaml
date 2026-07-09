@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-07-07"
+last_updated: "2026-07-09"
 
 # =============================================================================
 # REPOSITORIES
@@ -318,6 +318,12 @@ categories:
         path: brain-capture/SKILL.md
         description: "Extract 0-3 candidate memories (facts/decisions/preferences/lessons/routines/ conventions worth remembering long-term) from the session that is about…"
         tags: [claude-code, hooks, cli]
+
+      - name: workstation-friction-capture
+        repository: claude-skills
+        path: workstation-friction-capture/SKILL.md
+        description: "Triage the workstation-tool frictions logged during the session that is about to end (failed calls to `bun run convo|chips|secrets|lexicon|remind|…"
+        tags: [claude-code, hooks]
 
   # ---------------------------------------------------------------------------
   # CONVEX DATABASE
@@ -2053,6 +2059,7 @@ skill_index:
   update-dev-tools: { repo: claude-skills, category: claude-code }
   brain-capture: { repo: claude-skills, category: claude-code }
   lexicon-capture: { repo: claude-skills, category: meetings }
+  workstation-friction-capture: { repo: claude-skills, category: claude-code }
   # External skills (superpowers)
   test-driven-development: { repo: superpowers, category: superpowers-testing }
   systematic-debugging: { repo: superpowers, category: superpowers-testing }
