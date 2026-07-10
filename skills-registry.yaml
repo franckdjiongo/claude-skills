@@ -325,6 +325,12 @@ categories:
         description: "Triage the workstation-tool frictions logged during the session that is about to end (failed calls to `bun run convo|chips|secrets|lexicon|remind|…"
         tags: [claude-code, hooks]
 
+      - name: brief-chantier
+        repository: claude-skills
+        path: brief-chantier/SKILL.md
+        description: "Standard for autonomous-execution work plans (\"plans de chantier\")."
+        tags: [claude-code]
+
   # ---------------------------------------------------------------------------
   # CONVEX DATABASE
   # ---------------------------------------------------------------------------
@@ -2060,6 +2066,7 @@ skill_index:
   brain-capture: { repo: claude-skills, category: claude-code }
   lexicon-capture: { repo: claude-skills, category: meetings }
   workstation-friction-capture: { repo: claude-skills, category: claude-code }
+  brief-chantier: { repo: claude-skills, category: claude-code }
   # External skills (superpowers)
   test-driven-development: { repo: superpowers, category: superpowers-testing }
   systematic-debugging: { repo: superpowers, category: superpowers-testing }

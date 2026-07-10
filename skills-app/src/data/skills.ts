@@ -7,7 +7,7 @@ export const repositories: Repository[] = [
     url: 'https://github.com/franckdjiongo/claude-skills',
     description: 'Main skills library - Power Platform, Claude Code, text processing, and more',
     isLocal: true,
-    skillCount: 108,
+    skillCount: 109,
   },
   {
     id: 'superpowers',
@@ -68,9 +68,9 @@ export const repositories: Repository[] = [
 ];
 
 export const categories: Category[] = [
-  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 255, repository: 'claude-skills' },
+  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 256, repository: 'claude-skills' },
   { id: 'power-platform', name: 'Power Platform', icon: 'Zap', skillCount: 16, repository: 'claude-skills' },
-  { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 24, repository: 'claude-skills' },
+  { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 25, repository: 'claude-skills' },
   { id: 'convex', name: 'Convex Database', icon: 'Database', skillCount: 30, repository: 'claude-skills' },
   { id: 'text-processing', name: 'Text & Documents', icon: 'FileText', skillCount: 4, repository: 'claude-skills' },
   { id: 'meetings', name: 'Meetings', icon: 'Users', skillCount: 8, repository: 'claude-skills' },
@@ -1351,6 +1351,17 @@ export const skills: Skill[] = [
     categoryName: "Claude Code & AI Extensibility",
     tags: ['claude-code', 'hooks'],
     path: 'workstation-friction-capture/SKILL.md',
+    isLocal: true,
+  },
+  {
+    id: 'brief-chantier',
+    name: "Brief Chantier",
+    description: "Standard for autonomous-execution work plans (\"plans de chantier\").",
+    repository: 'claude-skills',
+    category: 'claude-code',
+    categoryName: "Claude Code & AI Extensibility",
+    tags: ['claude-code'],
+    path: 'brief-chantier/SKILL.md',
     isLocal: true,
   },
   // Superpowers: Testing & Debugging

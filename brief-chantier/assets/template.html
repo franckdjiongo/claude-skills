@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chantier · {{TITRE_COURT}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f5f0e6; --surface: #fdfaf2; --surface-deep: #efe8d8;
+    --ink: #211b13; --ink-soft: #5f5546; --ink-faint: #8d8171;
+    --copper: #a35a2c; --copper-deep: #8a4a22; --copper-tint: #f0e0d0;
+    --line: #ddd2bd; --line-strong: #c9bca2;
+    --ok: #4a6741; --warn: #92400e; --danger: #8c2f2f;
+    --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+    --font-body: 'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    --sp-1: 8px; --sp-2: 16px; --sp-3: 24px; --sp-4: 32px; --sp-5: 48px; --sp-6: 64px; --sp-7: 96px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #171310; --surface: #201a15; --surface-deep: #14100c;
+      --ink: #ece3d3; --ink-soft: #b3a793; --ink-faint: #857a68;
+      --copper: #d18d58; --copper-deep: #e0a06b; --copper-tint: #33241a;
+      --line: #3a3128; --line-strong: #4d4234;
+      --ok: #8fae85; --warn: #d8a05c; --danger: #d47f7f;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  .page { max-width: 940px; margin: 0 auto; padding: var(--sp-6) var(--sp-3) var(--sp-7); }
+  .eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--copper); }
+  h1 { font-family: var(--font-display); font-weight: 900; font-size: clamp(32px, 5vw, 48px); line-height: 1.08; letter-spacing: -0.015em; margin: var(--sp-2) 0; }
+  .lede { font-size: 18px; color: var(--ink-soft); max-width: 64ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-3); font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-faint); }
+  .meta-row span { border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; background: var(--surface); }
+  section { margin-top: var(--sp-6); }
+  .sec-head { display: flex; align-items: baseline; gap: var(--sp-2); border-bottom: 2px solid var(--ink); padding-bottom: var(--sp-1); margin-bottom: var(--sp-3); }
+  .sec-num { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--copper); letter-spacing: 0.06em; }
+  h2 { font-family: var(--font-display); font-weight: 700; font-size: 26px; letter-spacing: -0.01em; }
+  h3 { font-family: var(--font-display); font-weight: 600; font-size: 19px; margin: var(--sp-4) 0 var(--sp-2); }
+  p { max-width: 74ch; margin-bottom: var(--sp-2); }
+  strong { font-weight: 600; }
+  .muted { color: var(--ink-soft); }
+  code { font-family: var(--font-mono); font-size: 0.9em; background: var(--surface-deep); padding: 1px 6px; border-radius: 4px; }
+  ul.list, ol.list { margin: 0 0 var(--sp-2) 0; padding-left: 24px; max-width: 74ch; }
+  ul.list li, ol.list li { margin-bottom: 8px; }
+  ul.list li::marker, ol.list li::marker { color: var(--copper); }
+  .callout { background: var(--copper-tint); border: 1px solid var(--line-strong); border-left: 4px solid var(--copper); border-radius: 10px; padding: var(--sp-2) var(--sp-3); margin: var(--sp-3) 0; }
+  .callout p { max-width: none; }
+  .callout .co-title { font-family: var(--font-mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--copper-deep); margin-bottom: 6px; }
+  .callout.danger { border-left-color: var(--danger); }
+  .callout.danger .co-title { color: var(--danger); }
+  .intent { border-left: 3px solid var(--copper); background: var(--surface-deep); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 0 0 var(--sp-2); }
+  .intent .ik { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--copper-deep); display: block; margin-bottom: 4px; }
+  .intent p { margin: 0; max-width: none; }
+  pre.cmd { background: var(--ink); color: var(--paper); border-radius: 10px; padding: var(--sp-2) var(--sp-3); font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; margin: var(--sp-2) 0; }
+  @media (prefers-color-scheme: dark) { pre.cmd { background: var(--surface-deep); color: var(--ink); border: 1px solid var(--line-strong); } }
+  table { width: 100%; border-collapse: collapse; margin: var(--sp-2) 0 var(--sp-3); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 10px; overflow: hidden; font-size: 14.5px; }
+  th { font-family: var(--font-mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; text-align: left; color: var(--ink-soft); background: var(--surface-deep); padding: 10px 14px; border-bottom: 1px solid var(--line-strong); }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .table-scroll { overflow-x: auto; }
+  /* Lots */
+  .lot { border: 1px solid var(--line-strong); border-radius: 14px; background: var(--surface); margin: var(--sp-3) 0; overflow: hidden; }
+  .lot-head { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; padding: var(--sp-2) var(--sp-3); background: var(--surface-deep); border-bottom: 1px solid var(--line-strong); }
+  .lot-head .ln { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.08em; color: var(--copper-deep); }
+  .lot-head .lt { font-family: var(--font-display); font-weight: 700; font-size: 18px; flex: 1 1 auto; }
+  .lot-head .lh { font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint); white-space: nowrap; }
+  .lot-body { padding: var(--sp-2) var(--sp-3) var(--sp-3); }
+  .lot-body p { max-width: none; }
+  .done { border: 1px dashed var(--line-strong); border-radius: 8px; padding: 10px 14px; font-size: 14px; margin: var(--sp-2) 0 0; background: var(--paper); }
+  .done .dk { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ok); display: block; margin-bottom: 4px; }
+  footer { margin-top: var(--sp-7); border-top: 2px solid var(--ink); padding-top: var(--sp-3); font-size: 13.5px; color: var(--ink-soft); }
+  /* TOC fixe (checkbox hack — aucune dépendance JS) */
+  .ws-toc-toggle { position: fixed; opacity: 0; pointer-events: none; }
+  .ws-toc-btn { position: fixed; right: 20px; bottom: 20px; z-index: 60; width: 52px; height: 52px; border-radius: 50%; background: var(--ink); color: var(--paper); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,0.25); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em; user-select: none; }
+  .ws-toc { display: none; position: fixed; right: 20px; bottom: 84px; z-index: 59; width: min(340px, calc(100vw - 40px)); max-height: 70vh; overflow-y: auto; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 14px; padding: 14px; box-shadow: 0 12px 40px rgba(0,0,0,0.28); }
+  .ws-toc-toggle:checked ~ .ws-toc { display: block; }
+  .ws-toc a { display: block; text-decoration: none; color: var(--ink); font-size: 13.5px; padding: 6px 8px; border-radius: 6px; }
+  .ws-toc a:hover { background: var(--surface-deep); }
+  .ws-toc a.sec { font-family: var(--font-display); font-weight: 700; margin-top: 6px; }
+  .ws-toc a.sub { padding-left: 20px; color: var(--ink-soft); font-size: 12.5px; }
+  .ws-toc .toc-t { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--copper); margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header id="top">
+  <div class="eyebrow">Brief-chantier · {{NOM_PROJET}} · standard v1</div>
+  <h1>{{TITRE_DU_CHANTIER}}</h1>
+  <p class="lede">{{LEDE_UNE_PHRASE_CE_QUE_LE_RUN_LIVRE}}</p>
+  <div class="meta-row">
+    <span>Écrit le {{DATE_ISO}}</span>
+    <span>Auteur : {{MODELE_AUTEUR}}</span>
+    <span>Exécutant visé : {{MODELE_EXECUTANT}}</span>
+    <span>{{N_LOTS}} lots · ≤ 2 h chacun</span>
+  </div>
+</header>
+
+<section id="s-intention">
+  <div class="sec-head"><span class="sec-num">00</span><h2>Intention — le contrat</h2></div>
+  <div class="intent"><span class="ik">Intention</span>
+    <p>{{INTENTION_3_A_5_PHRASES_LE_POURQUOI_PROFOND}}</p>
+  </div>
+  <div class="callout"><div class="co-title">Contrat d'intention — exécutant, lis ceci d'abord</div>
+    <p>Avant toute action : restitue l'intention ci-dessus en 1-2 phrases à toi. Si ta restitution contredit ce bloc, ARRÊTE et pose la question au hub workstation (<code>cd ~/Desktop/my-projets/workstation && bun run convo create {{SLUG_PROJET}} -</code>) au lieu d'exécuter de travers. Un run qui a mal compris le pourquoi produit du travail à défaire.</p>
+  </div>
+</section>
+
+<section id="s-contexte">
+  <div class="sec-head"><span class="sec-num">01</span><h2>Contexte autonome — tout ce qu'il faut pour démarrer sans mémoire</h2></div>
+  <h3>Le repo</h3>
+  <ul class="list">
+    <li><strong>Chemin</strong> : <code>{{CHEMIN_ABSOLU_REPO}}</code></li>
+    <li><strong>Stack</strong> : {{STACK_EXACTE}}</li>
+    <li><strong>Gestionnaire</strong> : {{BUN_OU_AUTRE}} — n'utilise jamais un autre.</li>
+    <li><strong>Conventions dures du repo</strong> : {{CONVENTIONS_INVARIANTS_DU_PROJET}}</li>
+  </ul>
+  <h3>Commandes de vérification du projet</h3>
+  <pre class="cmd">{{COMMANDES_VERIFICATION_EXACTES}}</pre>
+  <h3>Documents à lire avant le lot 1</h3>
+  <ul class="list">
+    {{LISTE_DOCS_CHEMINS_ABSOLUS}}
+  </ul>
+  <h3>État du repo au moment de l'écriture ({{DATE_ISO}})</h3>
+  <ul class="list">
+    <li><strong>Branche</strong> : <code>{{BRANCHE}}</code> · HEAD : <code>{{HEAD_SHORT}}</code> ({{HEAD_MESSAGE_COURT}})</li>
+    <li><strong>Working tree</strong> : {{PROPRE_OU_DETAIL}}</li>
+    <li><strong>Branche de travail du run</strong> : <code>{{BRANCHE_CHANTIER}}</code> — crée-la depuis HEAD si elle n'existe pas ; tout le chantier s'y commit.</li>
+  </ul>
+  <h3>Hypothèses explicites</h3>
+  <ul class="list">
+    {{HYPOTHESES_LI}}
+  </ul>
+  <div class="callout danger"><div class="co-title">Gate d'état</div>
+    <p>Si l'état constaté diverge de cette section (branche différente, fichiers modifiés inattendus, script manquant), les hypothèses du plan sont cassées : applique le protocole d'échec (§ 05) SANS rien modifier.</p>
+  </div>
+</section>
+
+<section id="s-approbation">
+  <div class="sec-head"><span class="sec-num">02</span><h2>Approbation &amp; rapport</h2></div>
+  <ul class="list">
+    <li><strong>Approbation</strong> : {{APPROBATION_CONVO_HUB_OU_EN_SESSION}}</li>
+    <li><strong>Rapport de fin de run</strong> : {{OU_RAPPORTER}}</li>
+    <li><strong>Interdits de ce chantier</strong> : {{INTERDITS_EXPLICITES}}</li>
+  </ul>
+</section>
+
+<section id="s-lots">
+  <div class="sec-head"><span class="sec-num">03</span><h2>Les lots — dans l'ordre, un commit par lot</h2></div>
+  <p>Chaque lot laisse le repo vert et commitable. Après la vérification du lot : <code>git commit</code> — message <code>chantier({{SLUG_PLAN}}): lot N — &lt;titre&gt;</code>, jamais de ligne Co-Authored-By. Le git log est le suivi d'avancement : ne modifie pas ce fichier HTML.</p>
+
+  <!-- Répéter ce bloc par lot -->
+  <div class="lot" id="lot-1">
+    <div class="lot-head"><span class="ln">LOT 1</span><span class="lt">{{TITRE_LOT}}</span><span class="lh">{{ESTIMATION}} h</span></div>
+    <div class="lot-body">
+      <p><strong>Objectif</strong> : {{OBJECTIF_UNE_PHRASE}}</p>
+      <p><strong>Fichiers touchés</strong> : {{FICHIERS_CHEMINS_ABSOLUS}}</p>
+      <ol class="list">
+        {{ETAPES_LI}}
+      </ol>
+      <pre class="cmd"># Vérification du lot
+{{COMMANDE_VERIF_LOT}}</pre>
+      <div class="done"><span class="dk">DONE quand</span>{{CRITERE_DONE_TESTABLE_UNE_PHRASE}}</div>
+    </div>
+  </div>
+  <!-- /fin bloc lot -->
+</section>
+
+<section id="s-verif">
+  <div class="sec-head"><span class="sec-num">04</span><h2>Vérification de fin de run</h2></div>
+  <pre class="cmd">{{COMMANDES_GLOBALES_FIN_DE_RUN}}</pre>
+  <ul class="list">
+    <li>{{VERIF_UI_CLAIR_SOMBRE_SI_APPLICABLE}} — lance le dev server du repo CIBLE en Bash (<code>bun run dev</code> dans le repo du plan) ; n'utilise pas les outils <code>preview_*</code> du harnais, ils sont liés à la racine de la session et démarreraient le mauvais serveur.</li>
+    <li><strong>Hygiène machine</strong> : arrête tout serveur dev lancé pendant le run ; aucun worker orphelin (vitest/esbuild/vite) ne survit au run.</li>
+    <li><strong>Rapport honnête</strong> : lots faits avec leurs commits, verdict exact des commandes (un test rouge se montre, il ne se résume pas en « quelques soucis »).</li>
+  </ul>
+</section>
+
+<section id="s-convex">
+  <div class="sec-head"><span class="sec-num">05</span><h2>Coûts Convex &amp; protocole d'échec</h2></div>
+  <h3>Convex</h3>
+  <p>{{DECLARATION_CONVEX — soit « Ce chantier ne touche pas Convex : aucun lot ne modifie convex/ ni n'exécute de requête de production. », soit l'estimation par lot : lectures/écritures/egress, ordre de grandeur.}}</p>
+  <p class="muted">Règle permanente : lectures paginées obligatoires — <code>.collect()</code> sur une table non bornée est interdit (<code>.paginate()</code> ou index + <code>.take(n)</code>).</p>
+  <h3>Protocole d'échec — arrêt-et-chip</h3>
+  <p class="muted">Distinction unique avant d'arrêter : un échec de CODE (causé par les modifications du chantier) = arrêt immédiat ci-dessous ; un échec d'INFRA pré-existant (accès refusé, auth expirée, prompt interactif impossible — reproductible à l'identique sans les modifications du chantier) = chip + terminer les vérifications restantes + rapport honnête qui nomme l'échec verbatim. Dans le doute : échec de code.</p>
+  <ol class="list">
+    <li>Arrête le run au lot en échec. Ne commit pas le lot raté ; laisse les modifications non commitées (le diff est le diagnostic).</li>
+    <li>Ouvre un chip : <code>spawn_task</code> si disponible, sinon <code>cd ~/Desktop/my-projets/workstation && echo '&lt;JSON&gt;' | bun run chips add -</code> avec <code>{"title","prompt","tldr","cwd"}</code> — le prompt contient : chemin du plan, lot en échec, commande, extrait d'erreur, état laissé, comment reprendre.</li>
+    <li>Note l'échec dans la conversation hub du plan si elle existe, puis termine proprement (serveurs arrêtés, rapport honnête).</li>
+  </ol>
+</section>
+
+<footer>
+  Plan au standard brief-chantier (v1) · {{NOM_PROJET}} · {{DATE_ISO}} · exécutable sans mémoire de session — si une information manque pour démarrer, c'est un défaut du plan : ouvre un chip plutôt que de deviner.
+</footer>
+
+</div>
+
+<!-- TOC fixe -->
+<input type="checkbox" id="ws-toc-toggle" class="ws-toc-toggle">
+<nav class="ws-toc" aria-label="Table des matières">
+  <div class="toc-t">Sommaire</div>
+  <a class="sec" href="#top">{{TITRE_COURT}}</a>
+  <a class="sec" href="#s-intention">00 — Intention</a>
+  <a class="sec" href="#s-contexte">01 — Contexte autonome</a>
+  <a class="sec" href="#s-approbation">02 — Approbation &amp; rapport</a>
+  <a class="sec" href="#s-lots">03 — Les lots</a>
+  <a class="sub" href="#lot-1">Lot 1 — {{TITRE_LOT}}</a>
+  <a class="sec" href="#s-verif">04 — Vérification de fin de run</a>
+  <a class="sec" href="#s-convex">05 — Convex &amp; échec</a>
+</nav>
+<label for="ws-toc-toggle" class="ws-toc-btn" title="Table des matières">TOC</label>
+
+</body>
+</html>
