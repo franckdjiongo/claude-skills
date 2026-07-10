@@ -79,6 +79,25 @@ def run(cmd, **kw):
     return subprocess.run(cmd, cwd=REPO, capture_output=True, text=True, **kw)
 
 
+def ensure_yaml():
+    """Fail fast if PyYAML is missing for the running interpreter.
+
+    PyYAML is needed twice: here (to validate the written registry parses) and
+    by registry-manager.py, which we invoke as a subprocess with THIS SAME
+    interpreter (sys.executable). If the interpreter lacks PyYAML, the sync
+    would otherwise abort mid-run with a misleading error (registry-manager
+    silently falls back to a degraded parser and the scan check fails). Better
+    to stop cleanly, before any file mutation, with an actionable message.
+    """
+    try:
+        import yaml  # noqa: F401
+    except ImportError:
+        log(f"FATAL: PyYAML not available for interpreter {sys.executable}. "
+            f"Install it (pip install pyyaml) or launch with an interpreter "
+            f"that has it, e.g.: /usr/bin/python3 {os.path.abspath(__file__)}")
+        sys.exit(1)
+
+
 def has_skill_md(path):
     return os.path.isfile(os.path.join(path, "SKILL.md"))
 
@@ -362,6 +381,7 @@ def abort(reason):
 
 def main():
     log("=== sync-local-skills start ===")
+    ensure_yaml()
     if not os.path.isdir(REPO) or not os.path.isdir(os.path.join(REPO, ".git")):
         log(f"Repo not found at {REPO}; nothing to do.")
         return
@@ -439,7 +459,7 @@ def main():
     except Exception as e:
         abort(f"registry YAML failed to parse: {e}")
 
-    scan = run(["python3", "scripts/registry-manager.py", "scan"])
+    scan = run([sys.executable, "scripts/registry-manager.py", "scan"])
     if "Registry is up to date with local skills" not in scan.stdout:
         abort("registry-manager scan did not report 'up to date':\n" +
               (scan.stdout + scan.stderr)[-500:])
