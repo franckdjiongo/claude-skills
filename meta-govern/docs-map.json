@@ -7,7 +7,8 @@
     "skillEntry": "SKILL.md",
     "userGuide": "USER-GUIDE.html",
     "buildSummary": "BUILD-SUMMARY.html",
-    "lessonsLog": "references/lessons-log.html"
+    "lessonsLog": "references/lessons-log.html",
+    "lessonsLogArchive2026H1": "references/lessons-log-archive-2026-h1.html"
   },
   "artifactDirs": {
     "references": "references",
