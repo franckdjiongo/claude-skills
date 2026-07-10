@@ -72,6 +72,7 @@ These are the principles you enforce across every project. They come from the sy
 9. **Layout follows the framework; features own their slices.** Default = framework-native shell + feature-first. See `references/architecture-patterns.html`. Archetype shapes initial scaffold depth (`references/project-archetypes.html`).
 10. **Observable acceptance criteria are the contract spine.** A design states per-behavior pass/fail conditions (not a test *strategy*); the plan renders them as executable checkboxes; execution gates on them; TDD proves a test fails if each is removed. Vagueness at the design stage propagates downstream as rework, not as wrong output.
 11. **Test the real boundary, not the idealized mock.** Green unit/jsdom tests can coexist with broken reality (the real datastore, the rendered UI). Integration and visual verification are first-class gates, not optional polish — a UI group is not "done" until its render is verified.
+12. **Autonomous-execution plans follow the brief-chantier standard.** Any HTML plan meant for autonomous execution (night runs, lesser-model runs, future sessions) must: (1) be 100% self-contained — no reference to "this session", absolute paths everywhere, repo state described, assumptions explicit; (2) be cut into lots of ≤ 2 h each; (3) define testable DONE criteria plus the exact end-of-run verification commands (`bun run typecheck && bun run build && bun test`, or the project's equivalent) with stop-and-chip on failure — a failing run halts and opens a chip, never improvises around the failure; (4) declare the Convex egress/write estimate when the run touches Convex, with unpaginated reads forbidden. The user-scope skill `brief-chantier` (`~/.claude/skills/brief-chantier/`) is the canonical implementation — delegate plan authoring/execution to it rather than restating the rules.
 
 ---
 
@@ -370,6 +371,7 @@ Bump `version.json` accordingly. Document migration impact for older projects.
 | Revise a CLAUDE.md (single file) | `claude-md-improver` (plugin) |
 | Improve insight coaching for a project | `setup-insights` |
 | Audit a project's `.claude/` (single project, project-level) | `govern-claude` (project-level skill, scaffolded by meta-govern) |
+| Author or execute an autonomous-execution work plan (« plan de chantier », night runs, finish lists) | `brief-chantier` (enforces canon principle 12) |
 
 meta-govern is the global orchestrator; these are the bounded specialists.
 
