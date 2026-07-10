@@ -72,6 +72,8 @@ The test MUST fail. If it passes:
 
 A passing test pre-implementation is a SIGNAL — investigate.
 
+For a regression test guarding an async race or an ordering bug, mental deletion is not enough — the failure is timing-dependent and a test can pass against the buggy code by accident (a late `setError(null)` erasing the evidence). Prove it empirically: `git stash` the fix, run the test — it MUST fail — then `git stash pop`. A race regression test that stays green with the fix stashed is testing nothing.
+
 ### Stage 3: GREEN — Make it pass
 
 Write the MINIMUM code that makes the test pass:

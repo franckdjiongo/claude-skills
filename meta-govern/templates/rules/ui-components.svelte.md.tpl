@@ -30,9 +30,9 @@ A new color goes into the tokens stylesheet (+ `@theme`) first, then gets refere
 
 Glassmorphism uses the `.glass` primitive (or its tokens), applied sparingly (nav, feature cards over imagery) — not on everything. All non-essential motion honors `prefers-reduced-motion` (the `--dur-*` tokens already collapse to 0ms there). Easing via `--ease-out`. Keep 3D/parallax performant (GPU transforms, no layout thrash).
 
-## State — Svelte 5 runes only
+## State — Svelte 5 runes, scoped by entity
 
-Use `$state` / `$derived` / `$effect` / `$props()`. Derive computed values with `$derived`, never an `$effect` that mirrors a prop into local state (stale duplicate source of truth). No Svelte 4 idioms (`export let`, `$:`), no React patterns (`useEffect`, `useState`).
+Use `$state` / `$derived` / `$effect` / `$props()`. For each `$state`/`$state.raw` in a component rendered across multiple entities (a thread, a user, a period), name the entity it is scoped to and what resets it, then audit inter-entity bleed in ONE pass — a value scoped to entity A that leaks into B is one class, not N bugs. Reset with an `$effect` keyed on the id (read the id, reassign the scoped `$state`), not by remounting the component (which nukes child state that should survive, e.g. an unsent draft). Derive computed values with `$derived`, never an `$effect` that mirrors a prop into local state. No Svelte 4 idioms (`export let`, `$:`), no React patterns.
 
 ## Routing — SvelteKit primitives
 

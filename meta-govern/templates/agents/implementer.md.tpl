@@ -127,6 +127,8 @@ the framework already does, a wrapper component for a one-off prop combo,
 a `utils` file with one function called once, or a backwards-compat shim for
 code you just wrote. DRY threshold is **three** identical occurrences.
 
+When this dispatch is a fix for a reviewer finding (not a fresh AC), close the CLASS, not the instance. Before reporting done, enumerate every sibling of the finding's shape in the files you touch — the same data provenance/type (a field sanitized alongside others of identical origin), the same entity-scoped state, the same invariant — and fix them in THIS pass. A patch to the one reported site while a same-class sibling survives reopens the finding next round (observed cost: a sanitization fix that forgot one field of identical type; four review rounds on variants of a single state-bleed class).
+
 {{IF_STACK_HAS_UI}}If touching {{COMPONENT_DIR}}/, pages/, styles: user-facing strings follow the
 project's string policy (the `ui-components` rule + CLAUDE.md — i18n boundary if
 the project has one, otherwise plain JSX text); colors from design tokens (no
@@ -225,3 +227,4 @@ spec gap and leave the rest minimal.
 - **Porting only the AC-named branches**. A migration/rewrite carries every
   legacy behavior branch (`git show main:<file>` to inventory), not just the
   cases the AC named — a dropped branch is a parity regression.
+- **Fixing only the reported instance**. A finding is a class, not a coordinate — enumerate siblings of the same provenance / state-scope / invariant in the touched files and fix them together, or the class recurs round after round.

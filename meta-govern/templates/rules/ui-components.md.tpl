@@ -38,9 +38,9 @@ Use the framework's variant system. Reading theme via JS to pick a color reintro
 - Honor `prefers-reduced-motion` for non-essential animation.
 - Heading order is hierarchical (one `<h1>` per page).
 
-## State — no `useEffect + setState` for prop sync
+## State — scope every entity-bound state, reset it deliberately
 
-Derive with `useMemo` or lift state up. The prop-mirror anti-pattern duplicates the source of truth and goes stale.
+For each `useState`/`useRef` in a component rendered across multiple entities (a thread, a user, a period), name the entity it is scoped to and what resets it, then audit inter-entity bleed in ONE pass — a notice, composer, or watermark scoped to entity A that leaks into B is one class, not N separate bugs. Reset with a targeted `useEffect(() => reset(), [id])`, never `key={id}` remount (it nukes child state that should survive, e.g. an unsent draft). And never `useEffect + setState` for prop sync — derive with `useMemo` or lift state up (the prop-mirror duplicates the source of truth and goes stale).
 
 ## Routing — framework primitives
 

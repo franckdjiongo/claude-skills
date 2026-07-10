@@ -105,6 +105,8 @@ If the task produced a runnable execution artifact (script, migration, seed, bac
 
 For RIGOROUS: per-task. For STANDARD: per group. For BATCH: one combined review at the end. Payload: task / group description, spec refs (FUNC/RA/VAL/C), exact `git diff` since the last reviewed commit (or since base), pointer to `.claude/rules/` files in scope. **Verdict format required**: `PASS`, `FINDINGS`, or `BLOCKED` with file/line refs when findings exist. If the reply lacks a strict verdict, re-prompt; do not treat unstructured reviews as a pass. Re-state before dispatching: "I am NOT setting run_in_background. I will read the reviewer's findings before continuing."
 
+**Incremental cross-cutting review (large plans).** On a large plan — many tasks, a phase-structured plan, or a diff past a few thousand lines — don't defer all cross-task class detection to `write-plan`'s final adversarial whole-branch review gate (its `Task N+1`, enforced by Step 8 gate #8). At each phase / group close-out, run one incremental cross-cutting pass over the accumulated branch diff, sweeping the reviewer's permanent structural checklist (ownership, server caps, sibling classes, ported branches) across everything merged so far. Classes that live BETWEEN tasks surface early and cheap here; concentrated into a single final pass on a 140-file surface they converge slowly — the observed cost is eight adversarial rounds where per-phase sweeps would have closed the transverse classes in three.
+
 ### 4d. Process findings
 
 Each finding needs an explicit **disposition**:

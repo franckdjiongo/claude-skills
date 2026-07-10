@@ -47,6 +47,10 @@ The frontend has a single `errorToMessage(code, language)` translator — end us
 
 Dependent queries refresh through the framework's invalidation primitive — never manual cache key construction. Keys derive from the API ref, not hand-written arrays.
 
+## Confirm-gated writes — two wirings, verified visible
+
+A confirm-gated write tool is TWO wirings, not one: the server registration (the tool plus its confirm/approval binding) AND the client surface that renders its proposal (the write-tool allow-list plus the proposal-card builder). A server-only wiring passes every backend test while the card never appears — server-tested is not visible-in-practice. Verify the card renders in the running app, not just that the mutation is registered.
+
 ## Migration parity — logical refs must prove resolution
 
 A data-migration/backfill parity report includes EVERY ref-like field — including typed string fields holding foreign keys — with its resolution rate against the target table's keys. Counts + sums + hard-FK checks alone are NOT parity: a string ref can stay 100% dangling while every counter reads green. A deliberate spec-authoritative improvement over legacy behavior is documented in the delta as intentional — never silently shipped, never reverted to match legacy.

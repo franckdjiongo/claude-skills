@@ -55,6 +55,8 @@ meta-govern is a skill, not a CLI. When invoked, you (Claude) read this SKILL.md
 
 You never silently overwrite user files. Always preview proposed diffs and confirm before applying destructive changes.
 
+Before any mode that touches a project (BOOTSTRAP, AUDIT, MIGRATE, ADVISE), consult the Second Brain (its `search`/`fetch` MCP tools, or the `second-brain` CLI) for prior lessons, decisions, and frictions filed against that project's slug — the durable memory of what was already learned there. Build on it rather than rediscovering it.
+
 ---
 
 ## Architectural principles (the canon)
@@ -203,7 +205,7 @@ Apply ONE step at a time, validate, commit, move on. Never bulk-migrate across p
 
 When the user has new research docs / a new model has shipped / lessons accumulated:
 
-1. Read `references/lessons-log.html` (running journal of every lesson)
+1. Consult the Second Brain (its `search`/`fetch` MCP tools, or the `second-brain` CLI) for `leçon`/`décision` entries relevant to the trigger — the topic, the affected project slug, recent lessons — then read `references/lessons-log.html` (the meta-govern-canon subset of that memory). Fold any material prior lesson into the evolve; the Second Brain often holds operational context (e.g. versioning/mirroring conventions) the lessons-log does not.
 2. Run `node scripts/self-audit.mjs` to check `~/.claude/skills/meta-govern/` for own anti-patterns
 3. **Dispatch `evolution-orchestrator` (mandatory; do NOT plan inline).**
    - Invocation: `Agent({subagent_type: "evolution-orchestrator", description: "EVOLVE plan", prompt: "<self-contained prompt with trigger, skill_dir, lesson context, scope>"})`
@@ -333,6 +335,8 @@ Read references on demand only. Do not preload.
 ---
 
 ## Self-evolution discipline
+
+Every EVOLVE — and the start of every project mode — opens by consulting the Second Brain (`search`/`fetch`) for prior lessons and decisions; end-of-session capture closes the loop. The lessons-log is the meta-govern-canon extract of that memory, not a replacement for it.
 
 After every BOOTSTRAP / AUDIT / MIGRATE that surfaces a new pattern or lesson:
 
