@@ -1,11 +1,13 @@
 # Bascule vers le plugin `design-studio`
 
-> **État actuel : NON basculé.** Les copies actives restent
-> `~/.claude/skills/{ship-polished-ui,design-elevation,brand-forge}` +
-> `~/.claude/agents/visual-qa-inspector.md`. Le plugin `design-studio/` existe,
-> est validé (`validate_plugin.py` → 8 PASS / 0 FAIL) et enregistré dans les deux
-> marketplaces, mais **n'est pas installé** — donc rien ne double-déclenche
-> aujourd'hui.
+> **État actuel : BASCULÉ (2026-07-06).** Le plugin `design-studio` est installé
+> depuis la marketplace `claude-skills` ; les copies user-scope
+> (`~/.claude/skills/{ship-polished-ui,design-elevation,brand-forge}` +
+> `~/.claude/agents/visual-qa-inspector.md`) sont archivées dans
+> `~/.claude/_archived-into-design-studio-20260706/` (étape 3 ci-dessous).
+> Sources canoniques désormais : les 3 skills aux dossiers **racine du repo**
+> (mirrorés vers le plugin par `sync-design-studio.mjs`) et l'agent **directement
+> dans `design-studio/agents/visual-qa-inspector.md`** (voir Anti-dérive).
 
 Ce document décrit comment **basculer** (activer le plugin, archiver les copies
 `~/.claude`) et comment **revenir en arrière**.
@@ -122,6 +124,18 @@ node scripts/sync-design-studio.mjs        # re-mirroir vers le plugin
 node scripts/sync-design-studio.mjs --check # doit repasser "in sync" (CI-friendly)
 ```
 
-Le script échoue bruyamment si une source manque ou si le bloc Step-1 de l'agent
-change de forme (l'ancre d'adaptation ne matche plus) — signal qu'il faut mettre
-à jour l'ancre dans `scripts/sync-design-studio.mjs`.
+**L'agent suit l'état de bascule — le script le détecte tout seul :**
+
+- **Pré-bascule** (copie présente à `~/.claude/agents/visual-qa-inspector.md`) :
+  cette copie user-scope est la source ; le script la mirroir vers le plugin en
+  appliquant l'adaptation `${CLAUDE_PLUGIN_ROOT}`.
+- **Post-bascule** (copie archivée dans `~/.claude/_archived-into-design-studio-*`) :
+  **`design-studio/agents/visual-qa-inspector.md` est la source canonique** —
+  l'éditer directement ; le script vérifie seulement sa présence et ne mirroir
+  rien. L'ancienne consigne « éditer l'agent user-scope » ne s'applique plus.
+- **Ni copie ni archive** : état ambigu (suppression accidentelle ?) → FATAL,
+  restaurer l'un des deux avant de synchroniser.
+
+Le script échoue bruyamment si une source manque ou si (pré-bascule) le bloc
+Step-1 de l'agent change de forme (l'ancre d'adaptation ne matche plus) — signal
+qu'il faut mettre à jour l'ancre dans `scripts/sync-design-studio.mjs`.

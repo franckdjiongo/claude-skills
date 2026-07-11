@@ -5,11 +5,17 @@
  *
  * Sources of truth
  *   - 3 skills at the repo root:   ship-polished-ui/, design-elevation/, brand-forge/
- *   - 1 agent at user scope:       ~/.claude/agents/visual-qa-inspector.md
+ *   - 1 agent, per switch state (SWITCH.md):
+ *       PRE-switch  (copy present at ~/.claude/agents/visual-qa-inspector.md):
+ *         that user-scope file is the source, mirrored with the plugin adaptation.
+ *       POST-switch (user-scope copy archived to ~/.claude/_archived-into-design-studio-*):
+ *         design-studio/agents/visual-qa-inspector.md IS canonical — edit it
+ *         directly; the script only verifies it exists. Missing copy AND no
+ *         archive = ambiguous (accidental deletion?) → FATAL.
  *
  * Targets (inside the plugin container)
  *   - design-studio/skills/<skill>/     (full tree)
- *   - design-studio/agents/visual-qa-inspector.md
+ *   - design-studio/agents/visual-qa-inspector.md  (pre-switch only)
  *
  * Plugin-context adaptation (applied to the mirrored COPY only, never the source):
  *   the agent's Step-1 checklist reads must resolve under ${CLAUDE_PLUGIN_ROOT}
@@ -45,6 +51,22 @@ const problems = [];
 
 async function exists(p) {
   try { await fs.access(p); return true; } catch { return false; }
+}
+
+// Post-switch detection: SWITCH.md step 3 moves the user-scope agent into a
+// dated ~/.claude/_archived-into-design-studio-<STAMP>/ archive.
+async function archivedAgentExists() {
+  let entries;
+  try {
+    entries = await fs.readdir(path.join(HOME, ".claude"), { withFileTypes: true });
+  } catch {
+    return false;
+  }
+  for (const e of entries) {
+    if (!e.isDirectory() || !e.name.startsWith("_archived-into-design-studio-")) continue;
+    if (await exists(path.join(HOME, ".claude", e.name, "agents/visual-qa-inspector.md"))) return true;
+  }
+  return false;
 }
 
 // Recursively list files under dir (relative paths), skipping .DS_Store.
@@ -146,14 +168,29 @@ async function main() {
     }
   }
 
-  // --- Agent: mirror from ~/.claude/agents, applying the plugin adaptation ---
-  if (!(await exists(AGENT_SRC))) {
-    problems.push(`FATAL: source agent missing: ${AGENT_SRC}`);
-  } else {
+  // --- Agent: source depends on the switch state (see header) ---
+  if (await exists(AGENT_SRC)) {
+    // Pre-switch: mirror from ~/.claude/agents, applying the plugin adaptation.
     const adapted = adaptAgent(await fs.readFile(AGENT_SRC, "utf8"));
     if (adapted !== null) {
       await reconcile(AGENT_DST, adapted, "agents/visual-qa-inspector.md");
     }
+  } else if (await archivedAgentExists()) {
+    // Post-switch: the plugin copy is canonical — verify presence, mirror nothing.
+    if (!(await exists(AGENT_DST))) {
+      problems.push(
+        `FATAL: post-switch state (user-scope agent archived) but the canonical plugin agent is missing: ${path.relative(REPO, AGENT_DST)}`
+      );
+    } else {
+      console.log(
+        "  agent: post-switch — design-studio/agents/visual-qa-inspector.md is canonical (user-scope copy archived); nothing to mirror."
+      );
+    }
+  } else {
+    problems.push(
+      `FATAL: source agent missing: ${AGENT_SRC} and no ~/.claude/_archived-into-design-studio-*/agents/ archive found — ` +
+      "ambiguous state (accidental deletion?). Restore the user-scope agent or the archive before syncing."
+    );
   }
 
   // --- Report / exit ---
