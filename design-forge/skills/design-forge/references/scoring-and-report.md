@@ -181,6 +181,8 @@ Emit this alongside the human report so downstream tooling can parse findings, t
   "score": 78,
   "shippable": false,
   "coverage": {
+    "surfaces_covered": ["/", "/chat", "/settings"],
+    "surfaces_not_covered": ["/approvals — dialog non déclenchable dans cet environnement"],
     "viewports_rendered": ["375", "390", "768", "1280", "1440"],
     "viewports_required": ["320", "360", "375", "390", "414", "768", "834", "1024", "1280", "1440", "1920"],
     "viewports_not_rendered": ["320", "360", "414", "834", "1024", "1920"],
@@ -208,6 +210,7 @@ Field rules:
 - `score`: composite per [Scoring Model](#scoring-model), 0–100, computed over **evidenced dimensions only**.
 - `shippable`: `false` if any binary gate fails on this screen (including [Viewport coverage](#binary-gates-passfail)), else derived from the threshold band.
 - `coverage`: required. Records what was observed so a verdict can never silently rest on an unobserved width or state (see [Evidence-Gated Scoring](#evidence-gated-scoring-no-pass-on-an-unobserved-dimension)).
+  - `surfaces_covered` / `surfaces_not_covered`: when a coverage manifest exists (scripts/scan-surfaces.mjs), list each manifest surface by its `route` or `file` in exactly one of the two arrays — `surfaces_not_covered` entries carry the reason after an em/long dash. This is what makes a skipped screen a *declared* gap instead of a silent one; `scripts/check-report.mjs` verifies no manifest surface is absent from the report.
   - `viewports_rendered` / `viewports_required` / `viewports_not_rendered`: width strings in px. `viewports_required` enumerates the four classes — small-mobile (`320`/`360`), mobile (`375`/`390`/`414`), tablet (`768`/`834`/`1024`), desktop (`1280`/`1440`/`1920`) — per the Responsive Viewport Matrix in references/design-system-reference.md. A non-empty `viewports_not_rendered` that includes a required class ⇒ the Viewport coverage gate fails for the dimensions that depend on it.
   - `states_observed` / `states_not_observed`: from `default` / `hover` / `focus` / `error` / `empty` / `scrolled-to-footer` / `animations-settled`.
   - `dimensions_evidenced` / `dimensions_not_evidenced`: partition of the dimensions; any in `dimensions_not_evidenced` is reported as **NOT EVIDENCED**, never scored as `pass`, and renders the screen not shippable on that dimension.

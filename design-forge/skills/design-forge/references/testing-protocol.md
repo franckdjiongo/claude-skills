@@ -35,6 +35,7 @@ Run phases **in order** — each builds context for the next. Times assume a typ
 ### Phase 1 — Reconnaissance (~8 min)
 
 **Actions:**
+0. **Codebase accessible? Generate the coverage manifest first:** `node <skill-dir>/scripts/scan-surfaces.mjs <project-root>` and save the JSON. The manifest IS the coverage matrix — every listed surface must end the run either audited or declared as a gap; carry its `warnings[]` into the report. If the script cannot run (environment), declare that as a gap in the report — never skip it silently. No codebase (URL-only or screenshots): state so and build the route list manually in step 6.
 1. Navigate to the app root URL.
 2. Wait for network idle (~2 s after last request).
 3. Capture a full-page screenshot at default viewport (`1280px` or `1440px`).
@@ -98,7 +99,9 @@ Scroll smoothness, animation frame rate, interaction latency, loading sequence. 
 
 ### Phase 10 — Report Compilation (~10 min)
 
-Aggregate findings, score, generate correction prompts, output a unified report. Score and format per `references/scoring-and-report.md`. Fill `assets/audit-report-template.md`.
+Aggregate findings, score, generate correction prompts, output a unified report. Score and format per `references/scoring-and-report.md`. Fill `assets/audit-report-template.md`. **Attest each executed phase in the report with its `Phase N` marker** (and declare any skipped phase as a gap) — the completeness gate greps for them.
+
+**Mandatory close-out when a coverage manifest exists:** run `node <skill-dir>/scripts/check-report.mjs <report> <manifest>` and fix every `MANQUE :` line it prints, re-running until it exits `0`. The report is not final on a non-zero exit. If the script cannot run in this environment, declare that as a gap in the report — never a silent omission.
 
 ---
 

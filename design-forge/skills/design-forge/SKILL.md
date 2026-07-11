@@ -69,6 +69,18 @@ Design Forge closes the loop between generating a design and checking it:
 
 When a design-intent file is present (the user references one, or one exists in the project), audit/test **must** load it and grade against it in addition to the universal checks.
 
+## Deterministic coverage rails (script counts, model judges)
+
+The observed failure mode of long audits is **lost coverage** (a screen or phase silently skipped), not bad judgment. Two zero-dependency Node scripts in `scripts/` (relative to this skill directory; installed as a plugin: `${CLAUDE_PLUGIN_ROOT}/skills/design-forge/scripts/`) make coverage deterministic:
+
+- **`scan-surfaces.mjs <project-root>`** — inventories the target app's surfaces (routes/screens/components, interactive elements, data-driven flags) into a JSON **coverage manifest**. In **TEST mode with codebase access, Phase 1 (Reconnaissance) starts with this command** — the manifest IS the coverage matrix the audit must walk; the model judges each surface, the script guarantees none is forgotten.
+- **`check-report.mjs <report> <manifest>`** — completeness gate over the produced report: every manifest surface covered or declared as a gap, the 10 testing-protocol phases attested, every finding carrying id/category/severity/location/description, the §7 checklist listing every finding. **Phase 10 ends with this command, and the report is corrected and re-checked until it exits `0`** (each `MANQUE :` line on stderr is one correction to make).
+
+Rules of engagement:
+- **AUDIT mode on screenshots/video only:** the scripts are not applicable (no codebase to scan) — state that explicitly in the report's coverage line instead of running them.
+- **A script that fails to run** (no Node, sandboxed environment, unreadable target) **is itself a declared gap in the report — never a silent omission.** Write what could not be verified and why.
+- The manifest's `warnings[]` (unknown framework, excluded technical routes, unresolved components) are part of the coverage picture — carry them into the report.
+
 **QA division of labor:** ship-polished-ui runs the incremental visual QA loop *during* the build, while design-forge AUDIT/TEST runs the complete scored audit *pre-delivery* against the design-intent.
 
 ## Reference map
