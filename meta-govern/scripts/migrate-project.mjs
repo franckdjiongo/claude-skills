@@ -69,6 +69,16 @@ const report = {
   errors: [],
 };
 
+// Stale-state precheck (L1, v1.14.0): a metaGovernVersion/palier bump written to
+// .claude/.meta-govern.json falsifies any hardcoded literal still in the project's
+// CLAUDE.md / AGENTS.md (durable-only doctrine, v1.9.0). Read-only warning — the
+// script never rewrites CLAUDE.md prose; the parent pointerizes each hit in the SAME
+// change-set as the bump. Populated before the dry-run exit so it surfaces in both.
+report.staleStateWarnings = scanStaleStateLiterals(projectDir);
+for (const w of report.staleStateWarnings) {
+  process.stderr.write(`⚠ stale-state: ${w.file}:${w.line} « ${w.match} » — pointeriser vers .claude/.meta-govern.json dans le même change-set que le bump\n`);
+}
+
 if (dryRun) {
   process.stdout.write(JSON.stringify(report, null, 2) + '\n');
   process.exit(0);
@@ -437,6 +447,38 @@ function checkMarkdownKit(projectDir) {
     }
   }
   return missing;
+}
+
+// Read-only scan of the project's standing-context files for hardcoded state
+// literals that a metaGovernVersion/palier bump will falsify. Reuses the exact
+// value-bearing patterns of audit-project.mjs's stale-state detector (v1.9.0), so a
+// MIGRATE run warns pre-bump about what an AUDIT would otherwise flag only post-hoc.
+// Never edits; fail-soft (missing/unreadable file skipped). A pointer sentence with
+// no value (« … lives in .meta-govern.json ») does not match — the patterns require a
+// version number / digit.
+function scanStaleStateLiterals(projectDir) {
+  const patterns = [
+    /meta-govern version:\s*([0-9]+\.[0-9]+\.[0-9]+)/i,
+    /Current palier:\s*(\d+)/i,
+  ];
+  const warnings = [];
+  for (const rel of ['CLAUDE.md', 'AGENTS.md']) {
+    const abs = path.join(projectDir, rel);
+    if (!fs.existsSync(abs)) continue;
+    let lines;
+    try {
+      lines = fs.readFileSync(abs, 'utf8').split('\n');
+    } catch {
+      continue;
+    }
+    lines.forEach((text, i) => {
+      for (const re of patterns) {
+        const m = text.match(re);
+        if (m) warnings.push({ file: rel, line: i + 1, match: m[0].trim() });
+      }
+    });
+  }
+  return warnings;
 }
 
 // Câble les 2 hooks docs dans .claude/settings.json du projet — MERGE ADDITIF

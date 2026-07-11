@@ -199,6 +199,10 @@ Run `node scripts/migrate-project.mjs <project-path> --target=<version|palier|ht
 
 Apply ONE step at a time, validate, commit, move on. Never bulk-migrate across paliers.
 
+**Stale-state precheck (before any version/palier bump).** A `metaGovernVersion` or `palier` bump in `.claude/.meta-govern.json` falsifies any hardcoded `meta-govern version: X` / `Current palier: N` literal still living in the project's `CLAUDE.md` or `AGENTS.md` — the bump itself creates a HIGH stale-state divergence (durable-only doctrine, v1.9.0). Grep both files for such value-bearing literals and pointerize every hit to `.claude/.meta-govern.json` in the SAME change-set as the bump, never as a later fix. `migrate-project.mjs` emits a deterministic `staleStateWarnings` list (same patterns) as a backstop — resolve each before committing.
+
+**Presence checks are semantic.** Whether a template or doctrine delta is already installed is decided by reading the target section, not by grepping canon strings: a project's installed doctrine is often reworded or richer than canon (especially the source project a lesson was born from), so an exact-string grep reports « absent » on a present-but-reworded section and re-applying it duplicates doctrine. Treat any « confirmed absent/present » grep claim as a hypothesis to re-verify by reading.
+
 ---
 
 ## Mode 4 — EVOLVE (update meta-govern itself)

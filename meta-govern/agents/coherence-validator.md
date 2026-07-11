@@ -158,3 +158,4 @@ PASS — run is coherent
 - For MIGRATE, the OLD palier's artifacts may be deprecated but not removed. Don't flag them as orphans during the migration window; flag in next AUDIT.
 - Don't propose fixes (that's governance-auditor's job in AUDIT mode). Just report.
 - The coherence check is the LAST step. After this, the user reviews and commits.
+- When the dispatch prompt lists known pre-existing findings as informational, confirm each in ONE line (its id + « pre-existing, unchanged ») rather than re-describing it in full; reserve full description for NEW or CHANGED findings. Across a multi-dispatch session the same pre-flagged findings otherwise get re-explained on every run, adding noise without signal.
