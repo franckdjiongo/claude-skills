@@ -231,6 +231,13 @@ Read **[references/visual-qa-checklist.md](references/visual-qa-checklist.md)** 
 
 11. **Loop until clean.** Each verify pass that finds something feeds a phase-1 fix. Re-verify after every fix.
 
+12. **Run the lived-in pass (field lessons 2026-07 — every one of these survived a full audit + polish cycle before being caught by the human).** Five checks that require *using* the surface, not looking at it — each becomes a ledger row on any surface where it applies:
+   - **Inline pairs breathe.** Zoom every `text ↔ badge/stamp/counter` pair: ≥ ~8px gap, consistent row after row; the longest label wraps rather than compressing the gap.
+   - **Async states settle.** Dwell on every "checking…/loading…" indicator until it reaches a terminal state (success/error/empty/unsupported); anything still transient at ~10s with no timeout fallback is a defect, not ambiance.
+   - **Composers grow.** Type or paste 8–10 lines into every multiline input: it must auto-grow toward a max then scroll inside, never stay a 2-line peephole. Verify at mobile viewport.
+   - **The ×10 projection.** Judge every data-driven list at 10× current volume: retrieval affordances exist (search/filter/grouping/view/pagination), sections below the list stay reachable, long records clamp with an expand affordance. Demo data lies — project, then decide.
+   - **Per-item actions stay quiet.** Repeated cards never stack full-rank buttons per item (destructive included); demote to text links or an overflow menu, keep exactly one screen-level primary.
+
 ## Before client delivery — hand off to design-forge for an independent audit
 
 The two-phase loop above is the **incremental** QA that runs *during* the build — it is ship-polished-ui's job. It is **not** the final gate. Before anything ships to a client:

@@ -76,6 +76,8 @@ Hover, focus, click/tap, and type into every interactive element. Full protocol 
 
 Trigger loading, error, empty, success, disabled, expanded, collapsed states. Protocols in [§3](#3-interactive-state-protocol) (component states) and [§5](#5-content-stress-protocol) (data-driven empty states). Maps to *content resilience & edge cases* in `references/edge-cases.md`.
 
+**Settlement watch (mandatory).** For EVERY async indicator encountered ("checking…", "loading…", spinner, skeleton): dwell on it until it reaches a terminal state (success / error / empty / unsupported). An indicator still transient after ~10s with no fallback is a MAJOR finding (*Async state that never settles*, `defect-taxonomy.md` U2) — capture it, never screenshot-and-move-on. Field lesson 2026-07: a "CHECKING…" badge hung forever on a settings section survived a full audit because no phase required waiting a state out.
+
 ### Phase 6 — Flow Testing (~20 min)
 
 Walk signup, login, core CRUD, checkout, settings journeys. Full protocol in [§6](#6-user-flow-protocol). Maps to UX taxonomy (`references/defect-taxonomy.md`) + i18n/content resilience (`references/edge-cases.md`).
@@ -83,6 +85,8 @@ Walk signup, login, core CRUD, checkout, settings journeys. Full protocol in [§
 ### Phase 7 — Stress Testing (~10 min)
 
 Inject edge-case data, extreme content lengths, rapid interactions. Full protocol in [§5](#5-content-stress-protocol). Maps to *content resilience, overflow/clipping, CLS* in `references/edge-cases.md`.
+
+**The ×10 projection (mandatory for every data-driven surface).** Demo data lies. For each list/feed/table that grows with usage, judge the surface AT 10× ITS CURRENT VOLUME — inject rows if the environment allows, otherwise project explicitly ("at 100 records this page is N viewports tall"). Then audit three things: (a) retrieval affordances exist (search / filter / grouping / view toggle / pagination — *Unbounded list*, `defect-taxonomy.md` U1), (b) every section that follows the list remains reachable at that volume (*Key section buried*, U1), (c) long individual records stay clamped with an expand affordance (*Raw user-data walls of text*, U4) — type or paste 8–10 lines into every multiline composer while you're at it (*Fixed-height multiline input*, U3). Field lesson 2026-07: a dashboard audited at 3-item demo volume shipped an unusable 100-item reality.
 
 ### Phase 8 — Accessibility Pass (~12 min)
 
