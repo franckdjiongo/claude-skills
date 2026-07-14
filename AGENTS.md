@@ -76,6 +76,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `brain-capture` - Extract 0-3 candidate memories (facts/decisions/preferences/lessons/routines/ conventions worth remembering long-term) from the session that is about…
 - `workstation-friction-capture` - Triage the workstation-tool frictions logged during the session that is about to end (failed calls to `bun run convo|chips|secrets|lexicon|remind|…
 - `brief-chantier` - Standard for autonomous-execution work plans ("plans de chantier").
+- `workos` - Use when the user asks for a WorkOS docs URL, term, or dashboard field (Sign-in endpoint, initiate_login_uri, Redirect URI, `WORKOS_*` env vars), or…
 
 **Convex Database**
 - `convex-queries` - Convex query patterns and best practices
@@ -118,6 +119,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `api-test-script-generator` - Generate API test scripts
 - `github-issue-creator` - Create GitHub issues programmatically
 - `supacode-cli` - Control Supacode from the terminal (worktrees, tabs, and surfaces)
+- `workos-widgets` - Use when the user is implementing, embedding, or debugging a WorkOS Widget — specifically the User Management, User Profile, Admin Portal SSO…
 
 **Specialized Workflows**
 - `bpmn-creator` - Create BPMN 2.0 process diagrams

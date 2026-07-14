@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-07-09"
+last_updated: "2026-07-14"
 
 # =============================================================================
 # REPOSITORIES
@@ -330,6 +330,12 @@ categories:
         path: brief-chantier/SKILL.md
         description: "Standard for autonomous-execution work plans (\"plans de chantier\")."
         tags: [claude-code]
+
+      - name: workos
+        repository: claude-skills
+        path: workos/SKILL.md
+        description: "Use when the user asks for a WorkOS docs URL, term, or dashboard field (Sign-in endpoint, initiate_login_uri, Redirect URI, `WORKOS_*` env vars), or…"
+        tags: [claude-code, cli, webhooks]
 
   # ---------------------------------------------------------------------------
   # CONVEX DATABASE
@@ -666,6 +672,12 @@ categories:
         path: supacode-cli/SKILL.md
         description: Control Supacode from the terminal — worktrees, tabs, and surfaces
         tags: [supacode, cli, terminal, worktrees]
+
+      - name: workos-widgets
+        repository: claude-skills
+        path: workos-widgets/SKILL.md
+        description: "Use when the user is implementing, embedding, or debugging a WorkOS Widget — specifically the User Management, User Profile, Admin Portal SSO…"
+        tags: [development]
 
   # ---------------------------------------------------------------------------
   # SPECIALIZED WORKFLOWS
@@ -2067,6 +2079,8 @@ skill_index:
   lexicon-capture: { repo: claude-skills, category: meetings }
   workstation-friction-capture: { repo: claude-skills, category: claude-code }
   brief-chantier: { repo: claude-skills, category: claude-code }
+  workos: { repo: claude-skills, category: claude-code }
+  workos-widgets: { repo: claude-skills, category: development }
   # External skills (superpowers)
   test-driven-development: { repo: superpowers, category: superpowers-testing }
   systematic-debugging: { repo: superpowers, category: superpowers-testing }
