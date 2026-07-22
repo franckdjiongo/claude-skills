@@ -7,7 +7,7 @@ export const repositories: Repository[] = [
     url: 'https://github.com/franckdjiongo/claude-skills',
     description: 'Main skills library - Power Platform, Claude Code, text processing, and more',
     isLocal: true,
-    skillCount: 111,
+    skillCount: 115,
   },
   {
     id: 'superpowers',
@@ -23,7 +23,7 @@ export const repositories: Repository[] = [
     url: 'https://github.com/anthropics/skills',
     description: 'Official Anthropic skills - documents, creative design, MCP, and enterprise workflows',
     isLocal: false,
-    skillCount: 15,
+    skillCount: 16,
   },
   {
     id: 'antigravity-kit',
@@ -68,7 +68,7 @@ export const repositories: Repository[] = [
 ];
 
 export const categories: Category[] = [
-  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 258, repository: 'claude-skills' },
+  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 262, repository: 'claude-skills' },
   { id: 'power-platform', name: 'Power Platform', icon: 'Zap', skillCount: 16, repository: 'claude-skills' },
   { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 26, repository: 'claude-skills' },
   { id: 'convex', name: 'Convex Database', icon: 'Database', skillCount: 30, repository: 'claude-skills' },
