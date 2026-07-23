@@ -47,3 +47,13 @@ The setup imports `@testing-library/jest-dom` and configures global mocks (match
 {{/IF}}- Skipping a flaky test with `.skip` — file a fix or leave `// TODO(test-flake-XXX)`.
 - Testing implementation details — assert what the user sees.
 - Live network / live backend — stub at the client boundary for unit tests. BUT a green mock suite is not proof of integration: where the stack supports it, keep at least one real-boundary/integration test on the real shape. "Tests green on idealized mocks while the real backend is broken" is the failure this guards against.
+
+## Deterministic rails — beyond "it passed once"
+
+A green run proves the cases you wrote; these rails widen what "green" is allowed to mean:
+
+- **Coverage floors.** Measure the current line/branch coverage once, round it down, subtract 2 pts — that number is the anti-regression floor a fresh bootstrap wires into `validate`. New code is graded separately: `diff-coverage.mjs` scores the added/modified lines of `merge-base...HEAD` and holds them at ≥85%, so whole-repo coverage staying flat can no longer hide an untested feature.
+- **Mutation testing (StrykerJS, incremental).** Scope it to the critical modules (pricing, auth, state machines), run it as a ritual once a suite passes ~1000 cases — kept out of `validate` (too slow) with a calibrated score floor. A surviving mutant is a case your assertions never actually check.
+- **Property-based (fast-check).** For pure calculation functions, assert invariants (sum-preservation, idempotence, monotonic bounds) over generated inputs with a pinned seed, so a failure reproduces. One property covers a range no hand-written example enumerates.
+- **Golden / approval.** For complex business outputs (rendered invoice, exported ledger), snapshot the approved result AND keep one witness mutation test — a golden that no mutant can break is pinning noise, not behavior.
+- **Mock fidelity is structural.** A mock's promise to match an external boundary is asserted against that boundary's manifest/schema (OpenAPI, Dataverse metadata, generated types) in a real test — prose saying "matches the real shape" drifts silently; a schema assertion goes red the day the boundary changes.

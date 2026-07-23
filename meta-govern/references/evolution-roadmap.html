@@ -24,7 +24,7 @@
   <div class="docs-shell">
     <aside class="docs-toc" id="docs-toc">
       <p class="docs-toc__label">Sur cette page</p>
-      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#what's-a-palier%3F">What's a palier?</a></li><li class="lvl-2"><a href="#indicators-(measured-by-analyze-project.mjs)">Indicators (measured by analyze-project.mjs)</a></li><li class="lvl-2"><a href="#the-paliers">The paliers</a></li><li class="lvl-3"><a href="#palier-0-%E2%80%94-greenfield">Palier 0 — Greenfield</a></li><li class="lvl-3"><a href="#palier-1-%E2%80%94-initial-bootstrap">Palier 1 — Initial bootstrap</a></li><li class="lvl-3"><a href="#palier-2-%E2%80%94-spec-maturity">Palier 2 — Spec maturity</a></li><li class="lvl-3"><a href="#palier-3-%E2%80%94-multi-dev">Palier 3 — Multi-dev</a></li><li class="lvl-3"><a href="#palier-4-%E2%80%94-ci-ready">Palier 4 — CI ready</a></li><li class="lvl-3"><a href="#palier-5-%E2%80%94-dual-runtime">Palier 5 — Dual-runtime</a></li><li class="lvl-3"><a href="#palier-6-%E2%80%94-backlog-automation">Palier 6 — Backlog automation</a></li><li class="lvl-2"><a href="#promotion-is-not-free">Promotion is not free</a></li><li class="lvl-2"><a href="#demotion-%2F-pruning">Demotion / pruning</a></li><li class="lvl-2"><a href="#per-project-palier-file">Per-project palier file</a></li><li class="lvl-2"><a href="#when-meta-govern-bumps-major-version">When meta-govern bumps major version</a></li><li class="lvl-2"><a href="#trigger-checklists-summary">Trigger checklists summary</a></li></ul></nav>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#what's-a-palier%3F">What's a palier?</a></li><li class="lvl-2"><a href="#indicators-(measured-by-analyze-project.mjs)">Indicators (measured by analyze-project.mjs)</a></li><li class="lvl-2"><a href="#the-paliers">The paliers</a></li><li class="lvl-3"><a href="#palier-0-%E2%80%94-greenfield">Palier 0 — Greenfield</a></li><li class="lvl-3"><a href="#palier-1-%E2%80%94-initial-bootstrap">Palier 1 — Initial bootstrap</a></li><li class="lvl-3"><a href="#palier-2-%E2%80%94-spec-maturity">Palier 2 — Spec maturity</a></li><li class="lvl-3"><a href="#palier-3-%E2%80%94-multi-dev">Palier 3 — Multi-dev</a></li><li class="lvl-3"><a href="#palier-4-%E2%80%94-release-ready">Palier 4 — Release-ready</a></li><li class="lvl-3"><a href="#palier-5-%E2%80%94-dual-runtime">Palier 5 — Dual-runtime</a></li><li class="lvl-3"><a href="#palier-6-%E2%80%94-backlog-automation">Palier 6 — Backlog automation</a></li><li class="lvl-2"><a href="#cross-cutting-invariants">Cross-cutting invariants</a></li><li class="lvl-2"><a href="#promotion-is-not-free">Promotion is not free</a></li><li class="lvl-2"><a href="#demotion-%2F-pruning">Demotion / pruning</a></li><li class="lvl-2"><a href="#per-project-palier-file">Per-project palier file</a></li><li class="lvl-2"><a href="#when-meta-govern-bumps-major-version">When meta-govern bumps major version</a></li><li class="lvl-2"><a href="#trigger-checklists-summary">Trigger checklists summary</a></li></ul></nav>
     </aside>
     <div class="docs-main">
       <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
@@ -119,17 +119,21 @@
 </ul>
 <p><strong>Trigger to promote to Palier 4</strong>:</p>
 <ul>
-<li>PR opened on remote (GitHub/GitLab)</li>
-<li>OR CI requested</li>
+<li>Project adopts a release cadence (tagged releases / a changelog per ship)</li>
+<li>OR a deployment target goes live (staging or production)</li>
 </ul>
-<h3 id="palier-4-%E2%80%94-ci-ready" tabindex="-1"><a class="header-anchor" href="#palier-4-%E2%80%94-ci-ready" aria-hidden="true">#</a> Palier 4 — CI ready</h3>
-<p><strong>State</strong>: Project ships through CI; release notes matter.</p>
+<h3 id="palier-4-%E2%80%94-release-ready" tabindex="-1"><a class="header-anchor" href="#palier-4-%E2%80%94-release-ready" aria-hidden="true">#</a> Palier 4 — Release-ready</h3>
+<p><strong>State</strong>: Project reaches a release cadence; release notes matter and every ship is gated.</p>
 <p><strong>Adds</strong>:</p>
 <ul>
-<li><code>.github/workflows/</code> (or GitLab CI) for: lint, typecheck, test, build, quality:check</li>
 <li><code>release-notes</code> skill</li>
-<li>Coverage gate in <code>validate</code></li>
-<li>Branch protection rules (documented; not auto-applied)</li>
+<li>Release policy recorded in <code>.claude/.meta-govern.json</code> → <code>ciPolicy</code> (<code>'local-compensation'</code> or <code>'server-ci'</code>), captured from the user's decision at promotion by <code>migrate-project.mjs</code></li>
+</ul>
+<p><strong>Coverage / diff-coverage</strong> is no longer introduced at this palier. It is a bootstrap default (Palier 1), so a project gates coverage from day one instead of waiting for release-readiness.</p>
+<p><strong>Server CI (GitHub Actions / GitLab) + branch protection</strong> is a <em>recommended option</em> here rather than a fixed requirement. Two supported policies, both recorded in <code>ciPolicy</code>:</p>
+<ul>
+<li><code>'server-ci'</code> — add <code>.github/workflows/</code> (or GitLab CI) running lint, typecheck, test, build, quality:check, together with branch protection rules (documented; not auto-applied).</li>
+<li><code>'local-compensation'</code> — stay local and lean on the documented local equivalent: <code>predeploy-check.mjs</code> plus the hardened Stop gate (<code>enforce-workflow</code> under <code>MG_HEADLESS_RUN</code> requires <code>validate</code> unconditionally). Under this policy AUDIT presents a missing server CI as an available option, not a gap.</li>
 </ul>
 <p><strong>Trigger to promote to Palier 5</strong>:</p>
 <ul>
@@ -144,6 +148,7 @@
 <li><code>AGENTS.md</code> (Codex equivalent of CLAUDE.md)</li>
 <li><code>.agents/</code> shared core (mirrors of skills/rules accessible to both runtimes)</li>
 <li><code>sync-claude-mirrors.mjs</code> script</li>
+<li><code>check-runtime-parity.mjs</code> script + a machine-readable manifest of runtime pairs (each Claude surface ↔ its Codex mirror), so parity is verified by tooling instead of checked by hand</li>
 <li><code>govern-runtime-sync</code> skill</li>
 </ul>
 <p><strong>Trigger to promote to Palier 6</strong>:</p>
@@ -161,6 +166,11 @@
 <li>Periodic backlog review cadence (monthly)</li>
 </ul>
 <p><strong>Beyond Palier 6</strong>: Custom evolution. meta-govern proposes per-project; user decides.</p>
+<h2 id="cross-cutting-invariants" tabindex="-1"><a class="header-anchor" href="#cross-cutting-invariants" aria-hidden="true">#</a> Cross-cutting invariants</h2>
+<p>These hold at every palier, independent of the stage-specific adds:</p>
+<ul>
+<li><strong>Hooks ship with their tests</strong> — any palier that installs hooks also installs their test suite: co-located <code>.claude/hooks/*.test.mjs</code> plus the <code>hooks-inventory.test.mjs</code> proof that no hook is orphaned (each <code>.mjs</code> is wired in <code>settings.json</code> or an agent frontmatter). The suite lands on projects that run vitest. Verification infrastructure is production code — it is tested and audited like <code>src/</code>.</li>
+</ul>
 <h2 id="promotion-is-not-free" tabindex="-1"><a class="header-anchor" href="#promotion-is-not-free" aria-hidden="true">#</a> Promotion is not free</h2>
 <p>Each palier adds standing-context cost. Promote only when triggers are met.</p>
 <div class="table-wrap"><table>
@@ -194,7 +204,7 @@
 </tr>
 <tr>
 <td>4</td>
-<td>+1 skill + CI files</td>
+<td>+1 skill (+ CI files if <code>server-ci</code>)</td>
 <td>+50 tokens</td>
 </tr>
 <tr>
@@ -258,7 +268,7 @@
 <pre><code>0 → 1: User invokes BOOTSTRAP. Always-promote-on-request.
 1 → 2: ≥30 FUNC IDs OR ≥10 C-XX OR live users.
 2 → 3: 2+ devs OR worktree needed.
-3 → 4: PR on remote OR CI requested.
+3 → 4: Release cadence adopted OR deployment target live.
 4 → 5: Dual-runtime needed.
 5 → 6: 30+ DEFERRED entries.
 </code></pre>

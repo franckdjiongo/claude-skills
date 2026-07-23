@@ -188,6 +188,10 @@ function buildDefaultPlan(projectDir) {
   // Détection légère pour les choix conditionnels (ex. la règle ui-components Svelte).
   const detection = detectProject(projectDir);
   const isSvelteKit = !!detection.stack.isSvelteKit;
+  // Le harnais de test des hooks + les tests co-localisés (et l'extension du glob
+  // vitest en post-install) ne sont posés que si le projet a déjà vitest — sur un
+  // projet sans runner JS ils seraient des fichiers morts.
+  const hasVitest = detection.stack.testFramework === 'vitest';
   // ui-components: variante Svelte (paths *.svelte, Paraglide, runes) pour SvelteKit ;
   // sinon la variante React-shaped par défaut.
   const uiComponentsTpl = isSvelteKit
@@ -336,10 +340,39 @@ function buildDefaultPlan(projectDir) {
       { from: 'templates/hooks/postcompact-reinject.mjs.tpl', to: '.claude/hooks/postcompact-reinject.mjs' },
       { from: 'templates/hooks/session-start-env-check.mjs.tpl', to: '.claude/hooks/session-start-env-check.mjs' },
 
+      // bash-write-guard : couvre l'angle mort des écritures par le shell
+      // (`cat > docs/x.md`, `sed -i … src/app.ts`, `git add -A`) que block-docs-markdown
+      // ne voit pas. Câblé en PreToolUse Bash dans settings.json.tpl — TOUJOURS posé.
+      { from: 'templates/hooks/bash-write-guard.mjs.tpl', to: '.claude/hooks/bash-write-guard.mjs' },
+      { from: 'templates/hooks/lib/bash-write-detect.mjs.tpl', to: '.claude/hooks/lib/bash-write-detect.mjs' },
+
+      // Harnais + tests de hooks : l'infra de vérification est du code de production,
+      // donc elle se teste. Posés seulement si le projet a vitest (sinon fichiers morts).
+      ...(hasVitest
+        ? [
+            { from: 'templates/hooks/lib/hook-test-util.mjs.tpl', to: '.claude/hooks/lib/hook-test-util.mjs' },
+            { from: 'templates/hooks/hooks-inventory.test.mjs.tpl', to: '.claude/hooks/hooks-inventory.test.mjs' },
+            { from: 'templates/hooks/block-docs-markdown.test.mjs.tpl', to: '.claude/hooks/block-docs-markdown.test.mjs' },
+            { from: 'templates/hooks/enforce-workflow.test.mjs.tpl', to: '.claude/hooks/enforce-workflow.test.mjs' },
+            { from: 'templates/hooks/bash-write-guard.test.mjs.tpl', to: '.claude/hooks/bash-write-guard.test.mjs' },
+          ]
+        : []),
+
       // Scripts
       { from: 'templates/scripts/file-size-growth-guard.mjs.tpl', to: '.claude/scripts/file-size-growth-guard.mjs' },
       { from: 'templates/scripts/mark-validate-pass.mjs.tpl', to: '.claude/scripts/mark-validate-pass.mjs' },
       { from: 'templates/scripts/setup-worktree.mjs.tpl', to: '.claude/scripts/setup-worktree.mjs' },
+      // diff-coverage : mesure le % de lignes AJOUTÉES/MODIFIÉES couvertes par les
+      // tests (câblé dans la chaîne validate, avant mark-validate-pass ; fail-soft
+      // sans coverage). sample-review + loop-sla + predeploy-check = outillage humain
+      // (revue pondérée par risque, signaux SLA de loop, barrière pré-déploiement).
+      { from: 'templates/scripts/diff-coverage.mjs.tpl', to: '.claude/scripts/diff-coverage.mjs' },
+      { from: 'templates/scripts/sample-review.mjs.tpl', to: '.claude/scripts/sample-review.mjs' },
+      { from: 'templates/scripts/loop-sla.mjs.tpl', to: '.claude/scripts/loop-sla.mjs' },
+      { from: 'templates/scripts/predeploy-check.mjs.tpl', to: '.claude/scripts/predeploy-check.mjs' },
+      // Tiers de risque (racine .claude/) : consommés par sample-review et par
+      // write-plan/execute-plan (plancher de tier déterministe).
+      { from: 'templates/risk-tiers.json.tpl', to: '.claude/risk-tiers.json' },
       { from: 'templates/scripts/quality-checks/index.mjs.tpl', to: '.claude/scripts/quality-checks/index.mjs' },
       { from: 'templates/scripts/quality-checks/lib.mjs.tpl', to: '.claude/scripts/quality-checks/lib.mjs' },
       { from: 'templates/scripts/quality-checks/format.mjs.tpl', to: '.claude/scripts/quality-checks/format.mjs' },
@@ -405,13 +438,16 @@ function docsHtmlToolkitFiles() {
 }
 
 // Post-install docs-html, exécuté après un rendu réussi (jamais en dry-run):
-// (a) merge non destructif des scripts npm dans package.json du projet,
+// (a) merge non destructif des scripts npm dans package.json du projet
+//     (dont test:coverage + diff-coverage, et diff-coverage câblé dans validate),
 // (b) création des dossiers d'artefacts déclarés dans docs-map.json
 //     (check-docs-map exige leur existence — exit 1 sinon),
 // (c) génération du hub docs/index.html (best-effort),
-// (d) résultat consigné dans le rapport.
+// (d) extension add-if-vitest du glob include de la config vitest vers les tests
+//     de hooks/scripts co-localisés sous .claude/ (idempotent),
+// (e) résultat consigné dans le rapport.
 function runPostInstall(projectDir, variables = {}, detection = null) {
-  const post = { npmScripts: null, artifactDirs: null, makeIndex: null };
+  const post = { npmScripts: null, artifactDirs: null, makeIndex: null, vitestInclude: null };
 
   const pkgPath = path.join(projectDir, 'package.json');
   if (!fs.existsSync(pkgPath)) {
@@ -427,6 +463,12 @@ function runPostInstall(projectDir, variables = {}, detection = null) {
         : testFw === 'jest' ? 'jest'
         : testFw === 'mocha' ? 'mocha'
         : 'echo "(no unit tests yet)" && exit 0';
+      // Variante coverage: alimente coverage/coverage-final.json (istanbul JSON) que
+      // diff-coverage lit. Mocha n'émet pas ce format sans nyc → on retombe sur un
+      // no-op explicite plutôt que d'inventer une commande qui échouerait.
+      const testCovCmd = testFw === 'vitest' ? 'vitest run --coverage'
+        : testFw === 'jest' ? 'jest --coverage'
+        : 'echo "(no coverage configured)" && exit 0';
       // TS projects get a standalone `typecheck` script (`tsc --noEmit`) so the
       // governance docs that tell agents to run `<pm> run typecheck` resolve, and
       // so `validate` type-checks. Folded into the validate chain below for TS.
@@ -442,12 +484,19 @@ function runPostInstall(projectDir, variables = {}, detection = null) {
         'size-guard': 'node .claude/scripts/file-size-growth-guard.mjs',
         ...(hasTs ? { 'typecheck': 'tsc --noEmit' } : {}),
         'test': testCmd,
+        'test:coverage': testCovCmd,
+        // diff-coverage seul lit le coverage déjà produit ; le script `diff-coverage`
+        // enchaîne coverage + mesure pour un run humain/agent à la demande.
+        'diff-coverage': `${run} test:coverage && node .claude/scripts/diff-coverage.mjs`,
         // mark-validate-pass.mjs is the FINAL `&&` step: it writes the success
         // sentinel (.claude/tmp/last-validate-ok) only when every prior gate
         // passed. track-workflow keys the Stop-gate off that sentinel's mtime, so
         // a failed/masked validate never advances the gate (PostToolUse exposes no
         // exit code — command text alone cannot prove the gate passed).
-        'validate': `${run} quality:check && ${run} size-guard${hasTs ? ` && ${run} typecheck` : ''} && ${run} test && node .claude/scripts/mark-validate-pass.mjs`,
+        // diff-coverage tourne juste avant le sceau : sur un nouveau bootstrap sans
+        // coverage il fait fail-soft (exit 0, « skipped »), donc validate reste vert
+        // tant que la couverture n'est pas branchée ; il mord dès qu'elle l'est.
+        'validate': `${run} quality:check && ${run} size-guard${hasTs ? ` && ${run} typecheck` : ''} && ${run} test && node .claude/scripts/diff-coverage.mjs && node .claude/scripts/mark-validate-pass.mjs`,
         'validate:fast': `${run} quality:check${hasTs ? ` && ${run} typecheck` : ''}`,
         'docs-map:check': 'node .claude/scripts/check-docs-map.mjs',
         'docs:index': 'node .claude/scripts/docs-html/make-index.mjs',
@@ -510,7 +559,76 @@ function runPostInstall(projectDir, variables = {}, detection = null) {
     }
   }
 
+  // Glob vitest : les tests de hooks/scripts vivent sous .claude/, hors du glob
+  // include restreint que certains projets posent (ex. include: ['src/**']). On y
+  // ajoute les deux patterns .claude/**/*.test.mjs quand — et seulement quand — un
+  // include explicite existe (sans include, le défaut vitest les capte déjà).
+  post.vitestInclude = augmentVitestInclude(projectDir, detection);
+
   return post;
+}
+
+// Étend l'`include` de la config vitest/vite vers les tests co-localisés sous
+// .claude/ (hooks + scripts). add-if-vitest + idempotent + best-effort : sans
+// vitest, sans config, ou sans include explicite → no-op documenté (le motif par
+// défaut de vitest, **/*.test.mjs, couvre déjà nos tests). N'écrit que pour
+// combler un include restreint, jamais pour créer de config.
+function augmentVitestInclude(projectDir, detection) {
+  if (detection?.stack?.testFramework !== 'vitest') {
+    return { applied: false, raison: 'vitest non détecté — tests de hooks non posés' };
+  }
+  const cfgPath = findVitestConfig(projectDir);
+  if (!cfgPath) {
+    return { applied: false, raison: 'aucune config vitest/vite — include par défaut couvre déjà .claude/**/*.test.mjs' };
+  }
+  let src;
+  try {
+    src = fs.readFileSync(cfgPath, 'utf8');
+  } catch (err) {
+    return { applied: false, raison: `config illisible: ${err.message}`, file: path.basename(cfgPath) };
+  }
+  const globs = ['.claude/hooks/**/*.test.mjs', '.claude/scripts/**/*.test.mjs'];
+  const missing = globs.filter((g) => !src.includes(g));
+  if (missing.length === 0) {
+    return { applied: false, raison: 'déjà présent', file: path.basename(cfgPath) };
+  }
+  // On n'augmente qu'un `include: [...]` EXPLICITE situé dans un bloc `test: {`
+  // (évite de toucher un include de build dans un vite.config). Sans bloc/include,
+  // le défaut vitest suffit → on ne crée rien.
+  const testBlock = /\btest\s*:\s*\{/.exec(src);
+  if (!testBlock) {
+    return { applied: false, raison: 'pas de bloc test: — défaut vitest couvre déjà .claude/**/*.test.mjs', file: path.basename(cfgPath) };
+  }
+  const after = src.slice(testBlock.index);
+  const inc = /include\s*:\s*\[/.exec(after);
+  if (!inc) {
+    return { applied: false, raison: "pas d'include explicite dans test: — défaut vitest suffit", file: path.basename(cfgPath) };
+  }
+  const q = detectQuote(src);
+  const insertAt = testBlock.index + inc.index + inc[0].length;
+  const addition = missing.map((g) => `${q}${g}${q}, `).join('');
+  const out = src.slice(0, insertAt) + addition + src.slice(insertAt);
+  try {
+    fs.writeFileSync(cfgPath, out);
+  } catch (err) {
+    return { applied: false, raison: `écriture impossible: ${err.message}`, file: path.basename(cfgPath) };
+  }
+  return { applied: true, added: missing, file: path.basename(cfgPath) };
+}
+
+// Premier fichier de config vitest/vite trouvé (vitest.config prioritaire).
+function findVitestConfig(projectDir) {
+  const names = [
+    'vitest.config.ts', 'vitest.config.mts', 'vitest.config.cts',
+    'vitest.config.js', 'vitest.config.mjs', 'vitest.config.cjs',
+    'vite.config.ts', 'vite.config.mts', 'vite.config.cts',
+    'vite.config.js', 'vite.config.mjs', 'vite.config.cjs',
+  ];
+  for (const n of names) {
+    const p = path.join(projectDir, n);
+    if (fs.existsSync(p)) return p;
+  }
+  return null;
 }
 
 // Préfixe d'exécution de script npm selon le gestionnaire de paquets détecté.

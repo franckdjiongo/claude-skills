@@ -16,8 +16,13 @@ process.env.PATH = `${PATH_PREFIX}:${process.env.PATH || ''}`;
 
 export const VALIDATE_COMMAND = '{{VALIDATE_COMMAND}}';
 
+// Completion-style phrasing in the last assistant message. EN markers keep their
+// ASCII \b boundaries; the FR markers use \p{L} lookarounds (the `u` flag) so that
+// accented letters count as word chars at the edges. « fait » is left out on
+// purpose — it collides with « en fait » / « ça fait ». The EN set is unchanged
+// (additive), and only strong FR completion markers are added.
 export const COMPLETION_REGEX =
-  /\b(done|completed|finished|implemented|updated|set up|ready for review|ready to commit|review checklist|what changed|verification|verified|you can review|no commit)\b/i;
+  /\b(done|completed|finished|implemented|updated|set up|ready for review|ready to commit|review checklist|what changed|verification|verified|you can review|no commit)\b|(?<![\p{L}])(terminée?|complétée?|finie?|implémentée?|validée?|prête?|livrée?|c['’]est bon|tu peux (?:relire|vérifier|committer)|à relire)(?![\p{L}])/iu;
 
 // Only the FULL validate gate satisfies the Stop-hook completion check — not a
 // partial `test`/`lint`/`build`/`quality:check`, and not `validate:fast` (the
@@ -98,7 +103,13 @@ export function reduceWorkflowState(prev = {}, event = {}) {
 }
 
 export function shouldBlockOnStop(state = {}, lastAssistantMessage = '') {
-  if (!COMPLETION_REGEX.test(lastAssistantMessage || '')) return null;
+  // MG_HEADLESS_RUN is read at call time (not module load) so the gate follows
+  // the env of the process that invokes the hook. An autonomous run has no
+  // legitimate progress without a validate, so under headless the gate applies
+  // regardless of the message wording; interactive sessions still key off the
+  // completion phrasing. The editAt > validateAt condition below holds either way.
+  const headless = process.env.MG_HEADLESS_RUN === '1';
+  if (!headless && !COMPLETION_REGEX.test(lastAssistantMessage || '')) return null;
   const editAt = state.lastEdit || 0;
   const validateAt = state.lastValidate || 0;
   if (editAt === 0 || validateAt >= editAt) return null;

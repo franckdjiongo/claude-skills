@@ -277,6 +277,16 @@
 <td>A hook that throws exits 0 and blocks nothing — the guard silently does not exist</td>
 <td>Ship the hook&#39;s simulation/test in the same commit, exercising block AND allow paths (detected by <code>audit-project.mjs</code> area <code>hook-tests</code>)</td>
 </tr>
+<tr>
+<td>Guard contournable (angle mort Bash)</td>
+<td>A PreToolUse guard scoped to <code>Edit</code>/<code>Write</code> protects a path, but the same write reaches the target through a <code>Bash</code> redirect / <code>tee</code> / <code>sed -i</code> / <code>heredoc</code> — the guard never sees it, so the invariant holds for one vector only</td>
+<td>Pair the Edit-scoped guard with a Bash companion (<code>bash-write-guard.mjs</code>) that parses the command via <code>detectWriteTargets</code>; deny the protected vectors, shadow-log <code>src/**</code> until <code>BASH_WRITE_GUARD_ENFORCE=1</code> promotes them (area <code>bash-write-guard</code>, v1.15.0)</td>
+</tr>
+<tr>
+<td>Suite verte vacuous — les tests tournent, pas qu'ils attrapent</td>
+<td>A green suite proves the tests ran, not that they would fail on a real regression: asserts on props not behavior, mocks that never touch the boundary, a guard test with no block-path case</td>
+<td>Every guard/rule test carries a POSITIVE case (blocks the forbidden) AND a NEGATIVE case (lets the legitimate through); above ~1000 cases, mutation-test the highest-value guards — flip the condition, confirm a test goes red (see <code>governance-cadence.html</code> mutation-testing ritual)</td>
+</tr>
 </tbody>
 </table></div>
 <h3 id="mcp-anti-patterns" tabindex="-1"><a class="header-anchor" href="#mcp-anti-patterns" aria-hidden="true">#</a> MCP anti-patterns</h3>
@@ -497,6 +507,9 @@
 <li><strong>Convex data-contract anti-patterns</strong> (gated <code>isConvex</code>): crons without a <code>cost-justified</code> marker, tests hitting a real deployment (area <code>convex-frugality</code>, v1.7.1); type casts on <code>useMutation</code>/<code>useAction</code> args (area <code>convex-mutation-casts</code>, HIGH, callee-bound heuristic, v1.11.0).</li>
 <li><strong>Env drift</strong> (gated <code>isVite</code>, only when <code>.env.local</code> exists): <code>VITE_*</code> keys read bare by <code>src/</code> via <code>import.meta.env.*</code> but missing from <code>.env.local</code> (area <code>env-parity</code>, MEDIUM, with a declarable <code>optionalEnvKeys</code> escape hatch in <code>docs/docs-map.json</code>, v1.11.0).</li>
 <li><strong>Hook / guard test discipline</strong>: a project-authored <code>.claude/hooks/*.mjs</code> (outside the canonical set) with no associated simulation/test (area <code>hook-tests</code>, HIGH, v1.12.0) — a broken guard fails open silently.</li>
+<li><strong>Guard-vector parity</strong> (v1.15.0): an Edit/Write-scoped protection with no Bash companion, so a redirect/<code>tee</code>/<code>sed -i</code> slips past (area <code>bash-write-guard</code>, HIGH when a protected path has an unguarded write vector).</li>
+<li><strong>Runtime parity</strong> (v1.15.0): a governance/workflow guard present for one runtime but not its twin — a hook wired in <code>settings.json</code> with no Codex mirror, or vice-versa (area <code>runtime-parity</code>, MEDIUM).</li>
+<li><strong>CI policy</strong> (v1.15.0): the absence of server-side CI. When <code>.claude/.meta-govern.json</code> declares <code>ciPolicy: 'local-compensation'</code>, the missing CI is presented as an OPTION, not a finding; the local Stop gate + <code>predeploy-check.mjs</code> are the documented compensation (area <code>ci-policy</code>).</li>
 </ul>
 <p>Output: severity-tagged findings with file:line references.</p>
 <h2 id="when-to-surface" tabindex="-1"><a class="header-anchor" href="#when-to-surface" aria-hidden="true">#</a> When to surface</h2>

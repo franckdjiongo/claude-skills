@@ -32,6 +32,13 @@ Template variables:
 {{IF_BILINGUAL}} ... {{/IF}}
 {{IF_STACK_HAS_TAILWIND}} ... {{/IF}}
 {{IF_PALIER_GTE_3}} ... {{/IF}} — subagent-plan-edit-guard hook
+
+Design skill: `ship-polished-ui` is provided by the design-studio PLUGIN (optional design
+dependency), NOT a user/project skill. The bare `skills: ship-polished-ui` ref (below)
+resolves to it via Claude Code's skill priority cascade (enterprise > personal > project >
+plugin) — it is not a missing skill; do NOT "fix" it to the namespaced `design-studio:ship-polished-ui`
+form (that hard-binds to the plugin name and loses project-shadow ability). If the plugin is
+absent, the inline Step 2 / Step 4 design phase is the fallback. Ref: references/subagent-canonical-structure.html.
 -->
 
 # ui-implementer — {{PROJECT_NAME}}

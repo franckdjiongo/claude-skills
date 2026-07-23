@@ -63,6 +63,8 @@ Ask the user (or decide from context):
 node .claude/scripts/quality-checks/index.mjs --scope all --json
 ```
 
+This deterministic script is one input; it is separate from `{{PACKAGE_MANAGER}} run validate`, which additionally runs the test suite under coverage. Inside `validate`, two coverage steps sit UPSTREAM of the `mark-validate-pass` sentinel (the final `&&` step that records success): the coverage floor (whole-repo line/branch minimum) and `diff-coverage.mjs` (≥85% of the added/modified `src` lines of `merge-base...HEAD`, fail-soft when there is no diff or no coverage file). Because they precede the sentinel, a coverage shortfall stops `validate` before the sentinel is written, so the Stop-gate never advances on a run that skipped coverage.
+
 The script returns JSON:
 
 ```json
@@ -175,6 +177,7 @@ node .claude/scripts/quality-checks/index.mjs --check colors-hex
 ## Cross-references
 
 - `.claude/scripts/quality-checks/checks/` — per-check source (id, severity, regex, match rationale) lives in each `checks/*.mjs`; `.claude/scripts/quality-checks/index.mjs` is the runner and the place to register a new check.
+- `.claude/scripts/diff-coverage.mjs` — the diff-coverage step of `validate` (added/modified `src` lines held at ≥85%); its `computeDiffCoverage` is a pure, unit-tested function.
 - `execute-plan` skill — invokes this skill at FINAL SCAN.
 - `govern-claude` skill — audits whether this skill itself is wired correctly (script exists, package.json wrapper, etc.).
 - `docs/backlog-deferred.html` — destination for deferred findings.

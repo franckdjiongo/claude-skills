@@ -35,6 +35,10 @@ These create rigid loops or defensive scaffolding:
 
 Negations always pair with an alternative: not "don't do X" but "don't do X; do Y instead."
 
+## Shadow mode for new blocking rules
+
+A new blocking rule — a hook that denies, a gate that fails a run — starts in observation. It logs what it would have stopped (a JSONL line, a warning) and lets the action through, so a window of real traffic shows it fires only on the cases it means to. Promote it to enforce once that window passes clean, via an `<GUARD>_ENFORCE=1` env flag (uppercased guard name) or a `shadow` field the rule reads. The bash-write-guard already works this way: it shadow-logs `src/**` writes and denies them only under `BASH_WRITE_GUARD_ENFORCE=1`. Shipping straight to enforce trades that evidence for a guard whose first false positive lands on a live session.
+
 ## Frontmatter discipline
 
 - **Skills**: `name`, `description`, optional `allowed-tools`. Description starts with "Use this skill when…".

@@ -84,6 +84,14 @@
 <td>When the user <strong>says &quot;drift&quot; / &quot;audit&quot; / &quot;what's missing&quot;</strong></td>
 <td>Run AUDIT</td>
 </tr>
+<tr>
+<td>When a <strong>guard suite grows large</strong> (&gt;~1000 cases, so a spot read no longer proves coverage)</td>
+<td>Run a <strong>mutation-testing ritual</strong>: in a throwaway branch, flip each guard's decision condition (deny↔allow, invert the target regex) and confirm a test turns red; a surviving mutant marks a vacuous assertion — the suite runs but does not catch. Fix the test, discard the branch</td>
+</tr>
+<tr>
+<td>On each <strong>autonomous (headless) run wakeup</strong> (<code>MG_HEADLESS_RUN=1</code>)</td>
+<td>Do not sweep every project each night. <strong>Weighted-sample</strong> the active projects — weight up recent-drift and higher-palier ones — and AUDIT that subset within the run's <strong>SLA</strong> (a fixed wall-clock budget), so each project is reached on a predictable cadence without blowing the window</td>
+</tr>
 </tbody>
 </table></div>
 <h2 id="self-healing%3A-the-lesson-lifecycle" tabindex="-1"><a class="header-anchor" href="#self-healing%3A-the-lesson-lifecycle" aria-hidden="true">#</a> Self-healing: the lesson lifecycle</h2>
@@ -104,14 +112,27 @@
    ↓
 5. Still violated under load
    ↓
-6. Promoted to DETERMINISTIC HOOK
+6. SHADOW MODE — a deterministic hook that observes, does not deny
+   - Logs every hit as JSONL (`{ ts, command, target, vector, mode:'shadow' }`)
+   - Measures the true hit rate and any false positives on real sessions
+   - Promotes to enforce via `&lt;GUARD&gt;_ENFORCE=1` once the log reads clean
+     (e.g. `BASH_WRITE_GUARD_ENFORCE=1` turns src/** writes from log to deny)
+   ↓
+7. DETERMINISTIC HOOK (enforce)
    - 100% enforcement at the cost of zero context
+   ↓
+8. TEST THE HOOK
+   - A hook that throws exits 0 and blocks nothing — the guard silently
+     does not exist. Ship its test alongside it, exercising the BLOCK path
+     AND the ALLOW path
+   - The loop closes: incident → lesson → rule → shadow → hook → TEST of the hook
 </code></pre>
 <p>This is the &quot;rule emerges from violation&quot; cycle observed in Temps Chantier:</p>
 <ul>
 <li><code>state-context-leak.md</code> (rule) → emerged after BUG-03, BUG-06, BUG-04, #5a, #5b, #8 all reproduced the same class</li>
 <li><code>subagent-plan-edit-guard.mjs</code> (hook) → emerged after textual rule violations under load</li>
 <li><code>agent-dispatch-preflight.mjs</code> (hook) → emerged after manual rituals were skipped</li>
+<li><code>bash-write-guard.mjs</code> (shadow → enforce) → the Edit-scoped docs guard had a Bash blind spot; a companion hook first shadow-logged <code>src/**</code> writes, then flipped to deny under <code>BASH_WRITE_GUARD_ENFORCE=1</code>, each vector covered by a block/allow test</li>
 </ul>
 <p>meta-govern's job is to <strong>detect</strong> when a lesson recurs (via the lessons-log.html append-only journal) and <strong>propose</strong> the promotion to a higher tier.</p>
 <h2 id="lessons-log-discipline" tabindex="-1"><a class="header-anchor" href="#lessons-log-discipline" aria-hidden="true">#</a> Lessons-log discipline</h2>

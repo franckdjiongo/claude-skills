@@ -106,6 +106,7 @@ tools: Read, Grep, Glob, Bash       # tools the agent can use
 </tr>
 </tbody>
 </table></div>
+<p><strong><code>skills:</code> and plugin scope.</strong> A <code>skills:</code> value may legitimately resolve to a <em>plugin-provided</em> skill (e.g. <code>ship-polished-ui</code>, provided by the <code>design-studio</code> plugin), not just a user- or project-scope skill. Claude Code resolves a bare skill name via the priority cascade <strong>enterprise &gt; personal &gt; project &gt; plugin</strong>, so a bare name with no matching skill under <code>~/.claude/skills/</code> or <code>&lt;project&gt;/.claude/skills/</code> is <strong>not</strong> dangling — check the plugin scope (<code>~/.claude/plugins/</code>) before flagging it. Prefer the bare name over the fully-qualified <code>plugin:skill</code> form: bare is functional, keeps a project free to shadow the skill with its own copy, and does not hard-bind to a plugin name that may be renamed. (The one form that genuinely fails is when the providing plugin is absent entirely — neither bare nor namespaced resolves then.)</p>
 <h2 id="effort-frontmatter-%E2%80%94-by-role" tabindex="-1"><a class="header-anchor" href="#effort-frontmatter-%E2%80%94-by-role" aria-hidden="true">#</a> Effort frontmatter — by role</h2>
 <p>Per <code>model-effort-defaults.html</code>:</p>
 <div class="table-wrap"><table>

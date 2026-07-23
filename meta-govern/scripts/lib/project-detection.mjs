@@ -408,6 +408,7 @@ function computeIndicators(projectDir, artifacts, pkg) {
     deferred: 0,
     multiRuntime: false,
     claudeMdLines: 0,
+    localDeployGate: false,
   };
 
   if (artifacts.sourceOfTruth.spec) {
@@ -443,6 +444,16 @@ function computeIndicators(projectDir, artifacts, pkg) {
   const ciDir = path.join(projectDir, '.github/workflows');
   if (fs.existsSync(ciDir)) indicators.ci = 'github';
   else if (fs.existsSync(path.join(projectDir, '.gitlab-ci.yml'))) indicators.ci = 'gitlab';
+
+  // Compensation locale de la CI serveur (leçon 7): un projet en ciPolicy
+  // 'local-compensation' porte le palier 4 via predeploy-check.mjs (posé par
+  // migrate à la promotion palier 4) plutôt qu'une CI serveur. On garde ce
+  // signal distinct de la CI pour que detectPalier traite les deux voies.
+  // diff-coverage.mjs (défaut bootstrap, présent dès le palier 1) n'entre pas
+  // ici — il sur-promouvrait tout projet amorcé.
+  indicators.localDeployGate = fs.existsSync(
+    path.join(projectDir, '.claude/scripts/predeploy-check.mjs'),
+  );
 
   if (fs.existsSync(path.join(projectDir, 'convex')) || fs.existsSync(path.join(projectDir, 'src/api'))) {
     indicators.backend = 'in-progress';
@@ -552,7 +563,9 @@ function detectPalier(indicators, artifacts) {
   if (artifacts.coreSkills.length < 3) return 0;
   if (indicators.deferred >= 30) return 6;
   if (indicators.multiRuntime) return 5;
-  if (indicators.ci !== 'absent') return 4;
+  // Palier 4: une CI serveur OU un gate de déploiement local (compensation
+  // documentée de l'option CI). La CI reste un signal, pas une équation.
+  if (indicators.ci !== 'absent' || indicators.localDeployGate) return 4;
   if (artifacts.extraAgents.some(a => a.includes('spec-reviewer'))) return 3;
   if (artifacts.extraSkills.includes('spec-tracer') || artifacts.extraSkills.includes('qa-plan')) return 2;
   return 1;

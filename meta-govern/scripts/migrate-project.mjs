@@ -4,9 +4,14 @@
 //
 // Usage:
 //   node migrate-project.mjs <project-path> --target=palier-N [--dry-run]
+//   node migrate-project.mjs <project-path> --target=palier-4 --ci-policy=server-ci
 //   node migrate-project.mjs <project-path> --target=v1.1.0 [--dry-run]
 //   node migrate-project.mjs <project-path> --target=v1.2.0 --archetype=B --architecture-pattern=framework-native-feature-first
 //   node migrate-project.mjs <project-path> --target=html-docs [--dry-run]
+//
+// --ci-policy=<local-compensation|server-ci> : décision CI tracée à la promotion
+//   palier 4 (leçon 7). Défaut 'local-compensation' (CI serveur = option recommandée,
+//   compensée localement par predeploy-check.mjs + gate Stop durci).
 //
 // Produces a step-by-step plan; applies steps with checkpoint commits between.
 // NEVER bulk-migrates. One step at a time.
@@ -32,6 +37,7 @@ let migrateTarget = null;
 let dryRun = false;
 let archetype = null;
 let architecturePattern = null;
+let ciPolicy = null;
 for (let i = 0; i < args.length; i++) {
   const a = args[i];
   if (a === '--dry-run') dryRun = true;
@@ -41,7 +47,14 @@ for (let i = 0; i < args.length; i++) {
   else if (a === '--archetype' && args[i + 1]) archetype = args[++i];
   else if (a.startsWith('--architecture-pattern=')) architecturePattern = a.slice('--architecture-pattern='.length);
   else if (a === '--architecture-pattern' && args[i + 1]) architecturePattern = args[++i];
+  else if (a.startsWith('--ci-policy=')) ciPolicy = a.slice('--ci-policy='.length);
+  else if (a === '--ci-policy' && args[i + 1]) ciPolicy = args[++i];
   else if (!a.startsWith('--')) target = a;
+}
+
+if (ciPolicy !== null && ciPolicy !== 'local-compensation' && ciPolicy !== 'server-ci') {
+  process.stderr.write(`--ci-policy invalide « ${ciPolicy} » — attendu: local-compensation | server-ci\n`);
+  process.exit(2);
 }
 
 if (!target || !migrateTarget) {
@@ -172,6 +185,21 @@ for (const step of plan) {
       report.errors.push({ step: step.title, error: result.error });
       process.stderr.write(`  ✗ ${step.title}: ${result.error}\n`);
     }
+  } else if (step.action === 'wire-husky-parity') {
+    const result = wireHuskyParity(projectDir);
+    if (result.ok) {
+      report.applied++;
+      process.stderr.write(
+        result.added
+          ? `  ✓ .husky/pre-commit câblé → check-runtime-parity.mjs\n`
+          : `  ✓ .husky/pre-commit déjà câblé (check-runtime-parity)\n`
+      );
+    } else if (step.bestEffort) {
+      process.stderr.write(`  • ${step.title} (non bloquant): ${result.error}\n`);
+    } else {
+      report.errors.push({ step: step.title, error: result.error });
+      process.stderr.write(`  ✗ ${step.title}: ${result.error}\n`);
+    }
   } else if (step.action === 'note') {
     process.stderr.write(`  [note] ${step.message}\n`);
   } else if (step.action === 'manual') {
@@ -192,6 +220,13 @@ if (report.errors.length === 0) {
   if (archetype) newState.archetype = archetype;
   if (architecturePattern) newState.architecturePattern = architecturePattern;
   if (migrateTarget === 'html-docs') newState.docsDoctrine = 'html';
+  // Leçon 7 (§9): la promotion qui atteint le palier 4 trace la décision CI dans
+  // ciPolicy. Le flag --ci-policy l'emporte ; sinon on préserve une décision
+  // antérieure ; sinon défaut 'local-compensation' (predeploy-check.mjs installé).
+  const targetPalierNum = parseTargetPalier(migrateTarget);
+  if (targetPalierNum !== null && currentPalier < 4 && targetPalierNum >= 4) {
+    newState.ciPolicy = ciPolicy || detection.metaGovernState?.ciPolicy || 'local-compensation';
+  }
   writeMetaGovernState(projectDir, newState);
 }
 
@@ -238,10 +273,18 @@ function buildMigrationPlan(detection, targetStr, currentVersion, latestVersion)
 
 function buildPalierPromotionPlan(detection, currentPalier, targetPalier) {
   const plan = [];
+  // Tests co-localisés (L3): un palier qui installe un hook/garde installe aussi
+  // son .test.mjs frère — uniquement quand le projet embarque vitest (les tests du
+  // canon sont écrits en vitest).
+  const hasVitest = detection.stack.testFramework === 'vitest';
+  const pm = detection.stack.packageManager || 'npm';
+  const pmRunPrefix = pm === 'bun' ? 'bun run' : pm === 'pnpm' ? 'pnpm' : pm === 'yarn' ? 'yarn' : 'npm run';
   const variables = {
     PROJECT_NAME: detection.projectName,
     PROJECT_SLUG: detection.projectName,
     PACKAGE_MANAGER: detection.stack.packageManager,
+    // predeploy-check.mjs (palier 4) lance cette commande comme moitié « compensation locale ».
+    VALIDATE_COMMAND: `${pmRunPrefix} validate`,
     META_GOVERN_VERSION: '1.0.0',
   };
   const flags = {
@@ -279,16 +322,76 @@ function buildPalierPromotionPlan(detection, currentPalier, targetPalier) {
         message: 'Use create-subagent to scaffold spec-reviewer.md (split from reviewer). Add subagent-plan-edit-guard.mjs hook (modeled from Temps Chantier).',
       });
     } else if (p === 4) {
+      // Leçon 7 (v1.15.0): la CI GitHub Actions + branch protection ne sont plus un
+      // manquement bloquant mais une OPTION recommandée. La moitié « compensation
+      // locale » est posée par défaut ici — predeploy-check.mjs (barrière humaine
+      // avant déploiement) — l'autre moitié (gate Stop durci MG_HEADLESS_RUN) étant
+      // déjà en place depuis le palier 1. La décision est tracée dans
+      // .claude/.meta-govern.json → ciPolicy à la fin du run (défaut local-compensation ;
+      // --ci-policy=server-ci pour l'opt-in pipeline serveur).
+      const resolvedCi = ciPolicy || 'local-compensation';
+      plan.push({
+        action: 'render-file',
+        title: 'Palier 4: compensation locale — installer predeploy-check.mjs',
+        template: 'templates/scripts/predeploy-check.mjs.tpl',
+        outputPath: '.claude/scripts/predeploy-check.mjs',
+        variables,
+        flags,
+      });
+      plan.push({
+        action: 'note',
+        title: 'Palier 4: politique CI enregistrée',
+        message: `ciPolicy=${resolvedCi} sera écrit dans .claude/.meta-govern.json à la fin du run. Compensation locale = predeploy-check.mjs (à lancer par l'humain avant déploiement) + gate Stop durci (MG_HEADLESS_RUN exige validate sur les runs autonomes). Relancer avec --ci-policy=server-ci pour tracer le choix d'un pipeline serveur.`,
+      });
       plan.push({
         action: 'manual',
-        title: 'Palier 4: add CI workflows + release-notes skill',
-        message: 'Add .github/workflows/lint-typecheck-test.yml. Use skill-creator to add release-notes skill.',
+        title: 'Palier 4 (option recommandée): CI serveur + release-notes',
+        message: resolvedCi === 'server-ci'
+          ? 'Choix serveur tracé: ajouter .github/workflows/lint-typecheck-test.yml (lint + typecheck + test sur PR) et activer la branch protection (checks requis avant merge). Utiliser skill-creator pour la skill release-notes.'
+          : 'Option recommandée (compensée localement, donc non requise): ajouter .github/workflows/lint-typecheck-test.yml + branch protection dès que le projet passe en collaboration multi-dev. Utiliser skill-creator pour la skill release-notes.',
       });
     } else if (p === 5) {
+      // Palier 5 (v1.15.0): la parité runtime .claude/ ↔ .agents/ devient OUTILLÉE,
+      // et non plus une simple note manuelle. On pose le garde (check-runtime-parity.mjs)
+      // + son manifest à `pairs` vide (runtime-parity.json), son test co-localisé
+      // quand vitest est présent (L3), et on câble .husky/pre-commit. L'inventaire
+      // des paires reste la moitié humaine: le miroir .agents/ n'existe pas encore
+      // avant ce palier, donc `diff -rq .claude .agents` se peuple juste après.
+      plan.push({
+        action: 'render-file',
+        title: 'Palier 5: installer le garde de parité runtime (check-runtime-parity.mjs)',
+        template: 'templates/scripts/check-runtime-parity.mjs.tpl',
+        outputPath: '.claude/scripts/check-runtime-parity.mjs',
+        variables,
+        flags,
+      });
+      plan.push({
+        action: 'render-file',
+        title: 'Palier 5: installer le manifest de parité (runtime-parity.json, pairs vide)',
+        template: 'templates/runtime-parity.json.tpl',
+        outputPath: '.claude/runtime-parity.json',
+        variables,
+        flags,
+      });
+      if (hasVitest) {
+        plan.push({
+          action: 'render-file',
+          title: 'Palier 5: installer le test co-localisé du garde de parité',
+          template: 'templates/scripts/check-runtime-parity.test.mjs.tpl',
+          outputPath: '.claude/scripts/check-runtime-parity.test.mjs',
+          variables,
+          flags,
+        });
+      }
+      plan.push({
+        action: 'wire-husky-parity',
+        title: 'Palier 5: câbler .husky/pre-commit → check-runtime-parity.mjs',
+        bestEffort: true,
+      });
       plan.push({
         action: 'manual',
-        title: 'Palier 5: dual-runtime adapter (.codex/, AGENTS.md)',
-        message: 'Mirror .claude/ structure into .codex/. Add AGENTS.md (Codex equivalent of CLAUDE.md). Add sync-claude-mirrors.mjs script.',
+        title: 'Palier 5: miroir dual-runtime (.agents/, AGENTS.md) + inventaire des paires',
+        message: "Refléter la structure .claude/ dans .agents/ et ajouter AGENTS.md (équivalent Codex de CLAUDE.md). Puis peupler .claude/runtime-parity.json: `diff -rq .claude .agents` liste les paires à déclarer (sync:\"exact\", ou \"documented-divergence\" avec `reason`). Relancer node .claude/scripts/check-runtime-parity.mjs jusqu'au vert.",
       });
     } else if (p === 6) {
       plan.push({
@@ -611,6 +714,33 @@ function syncDocsMap(projectDir, step) {
   }
   fs.writeFileSync(mapAbs, JSON.stringify(map, null, 2) + '\n', 'utf8');
   return { ok: true, created, dropped };
+}
+
+// Câble le garde de parité runtime dans .husky/pre-commit (palier 5) — APPEND
+// idempotent d'une ligne, sans jamais réécrire le hook existant ni inventer une
+// config husky que le projet n'a pas. Best-effort: l'absence de .husky/pre-commit
+// n'est pas une erreur bloquante (le step est marqué bestEffort), on renvoie une
+// consigne manuelle. Détection par sous-chaîne du basename (idempotent).
+function wireHuskyParity(projectDir) {
+  const hookPath = path.join(projectDir, '.husky', 'pre-commit');
+  const line = 'node .claude/scripts/check-runtime-parity.mjs';
+  try {
+    if (!fs.existsSync(hookPath)) {
+      return {
+        ok: false,
+        error: '.husky/pre-commit absent — installer husky puis ajouter `' + line + '` au hook',
+      };
+    }
+    const content = fs.readFileSync(hookPath, 'utf8');
+    if (content.includes('check-runtime-parity.mjs')) {
+      return { ok: true, added: false };
+    }
+    const sep = content.length === 0 || content.endsWith('\n') ? '' : '\n';
+    fs.writeFileSync(hookPath, content + sep + line + '\n', 'utf8');
+    return { ok: true, added: true };
+  } catch (err) {
+    return { ok: false, error: `.husky/pre-commit non modifiable: ${err.message}` };
+  }
 }
 
 // Sécurité: n'exécute QUE des scripts du projet cible sous .claude/scripts/

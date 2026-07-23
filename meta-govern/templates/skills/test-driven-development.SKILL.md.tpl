@@ -138,10 +138,10 @@ For React components:
 {{IF_STACK_HAS_DATA_LAYER}}
 For repositories / mutations / queries:
 - Use {{TEST_FRAMEWORK}} + in-memory test harness or test DB
-- Mock external services with format fidelity (real shape, not stubs)
+- Mock external services with format fidelity — and prove it: assert the mock's shape against the boundary's own manifest/schema (OpenAPI, generated types, metadata) in a real test, so the mock goes red the day the real shape moves. Prose that says "matches the real shape" drifts silently.
 - Test the cache invalidation contract (which queries are invalidated by which mutations)
 {{IF_STACK_POWER_PLATFORM}}
-- For Dataverse: test mock format fidelity (`@odata.bind`, GUID case, FormattedValue exclusion)
+- For Dataverse: assert mock fidelity structurally (`@odata.bind`, GUID case, FormattedValue exclusion) against the entity metadata, not by eyeballing a fixture
 {{/IF}}
 {{/IF}}
 
@@ -170,8 +170,10 @@ Or single combined commit if small (`feat: <feature> + tests`).
 Before marking the task complete, re-read the AC checklist:
 - [ ] Each AC has a test that would FAIL if that criterion were removed from the code (prove it — delete the behavior mentally and confirm the test goes red). A test that still passes after the behavior is gone is testing the wrong thing.
 - [ ] For any "before X" / ordering behavior, the test asserts the SEQUENCE, not just the final state (a criterion like "render X before Y" verified only by final state passes incorrectly).
-- [ ] All tests pass
-- [ ] {{PACKAGE_MANAGER}} run validate succeeds (quality + size-guard + docs guards + typecheck + tests)
+- [ ] Pure calculation functions carry a property-based check (fast-check, pinned seed) for their invariants — sum-preservation, idempotence, bounds — not only hand-picked examples.
+- [ ] Complex business outputs (rendered document, exported ledger) have a golden/approval test, and a witness mutation confirms the golden can actually go red.
+- [ ] All tests pass; changed lines clear the diff-coverage floor (≥85% of added/modified src lines executed)
+- [ ] {{PACKAGE_MANAGER}} run validate succeeds (quality + size-guard + docs guards + typecheck + coverage + tests)
 - [ ] No new TODO / FIXME without DEFERRED-XXX entry
 - [ ] No `console.log` in production paths
 

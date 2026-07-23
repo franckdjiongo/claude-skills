@@ -72,7 +72,11 @@ async function main() {
     lastAssistantText(event.transcript_path) ||
     '';
 
-  if (!COMPLETION_REGEX.test(lastAssistantMessage)) {
+  // An autonomous run (MG_HEADLESS_RUN=1) requires a validate regardless of the
+  // final message, so the completion-phrasing short-circuit only applies outside
+  // headless mode. Interactive sessions keep exiting quietly when the last
+  // message carries no completion marker (EN or FR — the regex now covers both).
+  if (process.env.MG_HEADLESS_RUN !== '1' && !COMPLETION_REGEX.test(lastAssistantMessage)) {
     process.exit(0);
   }
 
@@ -110,11 +114,14 @@ async function main() {
 
   const reason = [
     'BLOCKED: validate gate not satisfied.',
-    `Last edit: ${editedFile} (${editIso}).`,
-    `Last validate: ${validateIso}.`,
+    'BLOQUÉ : gate de validation non satisfait.',
+    `Last edit / Dernière édition : ${editedFile} (${editIso}).`,
+    `Last validate / Dernière validation : ${validateIso}.`,
     '',
     `Run \`{{VALIDATE_COMMAND}}\` before ending the session.`,
+    `Lance \`{{VALIDATE_COMMAND}}\` avant de terminer la session.`,
     'Fix any errors before claiming the task is done.',
+    'Corrige les erreurs avant de déclarer la tâche terminée.',
   ].join('\n');
 
   writeLastHookOutput('enforce-workflow', { decision: 'block', reason });

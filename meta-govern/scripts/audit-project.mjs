@@ -18,6 +18,19 @@ process.env.PATH = `${PATH_PREFIX}:${process.env.PATH || ""}`;
 const SEVERITY_RANK = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1, INFO: 0 };
 const FAIL_LEVEL_MAP = { critical: 4, high: 3, medium: 2, all: 1 };
 
+// Hooks meta-govern installs and owns the proofs for. Two audit checks
+// grandfather them: the inverse wiring inventory (a canonical hook may land on
+// disk ahead of its settings entry on a ≤1.14.1 project) and the hook-tests
+// discipline (the canon ships their own block/allow tests). Project-authored
+// guards are held to both.
+const CANONICAL_HOOKS = new Set([
+  'session-start-env-check.mjs', 'track-workflow.mjs', 'enforce-workflow.mjs',
+  'precompact-handoff.mjs', 'postcompact-reinject.mjs', 'block-docs-markdown.mjs',
+  'docs-index-refresh.mjs', 'subagent-plan-edit-guard.mjs', 'agent-dispatch-preflight.mjs',
+  'plan-closeout-guard.mjs', 'validate-plan.mjs', 'daily-drift-alert.mjs',
+  'bash-write-guard.mjs',
+]);
+
 const args = process.argv.slice(2);
 const target = args.find(a => !a.startsWith('--')) || process.cwd();
 const asJson = args.includes('--json');
@@ -71,7 +84,7 @@ for (const agent of expectedAgents) {
   }
 }
 
-const expectedHooks = ['session-start-env-check.mjs', 'track-workflow.mjs', 'enforce-workflow.mjs', 'precompact-handoff.mjs', 'postcompact-reinject.mjs'];
+const expectedHooks = ['session-start-env-check.mjs', 'track-workflow.mjs', 'enforce-workflow.mjs', 'precompact-handoff.mjs', 'postcompact-reinject.mjs', 'bash-write-guard.mjs'];
 for (const hook of expectedHooks) {
   if (!detection.artifacts.coreHooks.includes(hook)) {
     add('MEDIUM', 'inventory', `Missing core hook: ${hook}`);
@@ -436,6 +449,73 @@ if (detection.stack.isVite) {
   }
 }
 
+// === Runtime parity (.claude ↔ .agents) ===
+// Multi-runtime projects (palier 5) mirror governance files between .claude/
+// (Claude Code) and .agents/ (Codex). Any pair declared sync:"exact" in
+// .claude/runtime-parity.json that has drifted means one runtime's copy is stale
+// — a governance lie, exactly the failure the parity gate exists to catch. This
+// is the read-only mirror of .claude/scripts/check-runtime-parity.mjs (that
+// script is the enforcing gate; this only surfaces the drift in the audit).
+// Fail-soft: absent/invalid manifest = nothing to check. Documented-divergence
+// and malformed pairs are the gate script's concern, not the audit's.
+if (detection.indicators.multiRuntime) {
+  const parityManifest = path.join(projectDir, '.claude/runtime-parity.json');
+  if (fs.existsSync(parityManifest)) {
+    let manifest = null;
+    try { manifest = JSON.parse(fs.readFileSync(parityManifest, 'utf8')); } catch { manifest = null; }
+    const pairs = Array.isArray(manifest?.pairs) ? manifest.pairs : [];
+    const readNorm = (rel) => {
+      try { return fs.readFileSync(path.join(projectDir, rel), 'utf8').replace(/\r\n/g, '\n'); } catch { return null; }
+    };
+    for (const pair of pairs) {
+      const claudePath = pair && typeof pair.claudePath === 'string' ? pair.claudePath : null;
+      const agentsPath = pair && typeof pair.agentsPath === 'string' ? pair.agentsPath : null;
+      const sync = pair && typeof pair.sync === 'string' ? pair.sync : 'exact';
+      if (!claudePath || !agentsPath || sync !== 'exact') continue;
+      const claudeContent = readNorm(claudePath);
+      const agentsContent = readNorm(agentsPath);
+      if (claudeContent === null && agentsContent === null) continue; // declared but neither side exists yet
+      if (claudeContent === null || agentsContent === null) {
+        add('HIGH', 'runtime-parity',
+          `Paire de parité « exact » présente d'un seul côté — ${claudeContent === null ? claudePath : agentsPath} manquant. Les miroirs .claude/ ↔ .agents/ doivent rester alignés ; resynchroniser puis vérifier via node .claude/scripts/check-runtime-parity.mjs.`,
+          parityManifest);
+      } else if (claudeContent !== agentsContent) {
+        add('HIGH', 'runtime-parity',
+          `Divergence de parité runtime (paire « exact ») — ${claudePath} ≠ ${agentsPath} : une copie de gouvernance est périmée. Resynchroniser les deux runtimes puis vérifier via node .claude/scripts/check-runtime-parity.mjs.`,
+          parityManifest);
+      }
+    }
+  }
+}
+
+// === CI policy (leçon 7) ===
+// Server-side CI is a recommended OPTION at palier 4+, not a fixed requirement. A
+// project may instead record ciPolicy:'local-compensation' in
+// .claude/.meta-govern.json and carry the coverage locally (the Stop gate under
+// MG_HEADLESS_RUN + predeploy-check.mjs). Under that policy the missing CI is
+// surfaced as an OPTION (INFO), never a manquement. Policy undecided at palier 4+
+// with no CI → a nudge to decide (LOW). Policy says server-ci but none is wired →
+// a real drift (MEDIUM). Read-only; no value is ever executed.
+{
+  const hasServerCi = detection.indicators.ci === 'github' || detection.indicators.ci === 'gitlab';
+  const ciPolicy = detection.metaGovernState?.ciPolicy || null;
+  if (!hasServerCi && detection.palier >= 4) {
+    if (ciPolicy === 'local-compensation') {
+      const compensation = detection.indicators.localDeployGate
+        ? 'gate Stop sous MG_HEADLESS_RUN + predeploy-check.mjs'
+        : 'gate Stop sous MG_HEADLESS_RUN (predeploy-check.mjs absent — le poser via migrate palier 4)';
+      add('INFO', 'ci-policy',
+        `Pas de CI serveur — politique assumée ciPolicy:'local-compensation'. Compensation locale : ${compensation}. Une CI serveur (GitHub Actions / GitLab + branch protection) reste une OPTION, pas un manquement. Voir evolution-roadmap.html.`);
+    } else if (ciPolicy === 'server-ci') {
+      add('MEDIUM', 'ci-policy',
+        `.claude/.meta-govern.json déclare ciPolicy:'server-ci' mais aucun workflow CI n'est présent (.github/workflows ou .gitlab-ci.yml). Poser la CI serveur, ou basculer la politique en 'local-compensation' (compensation locale documentée). Voir evolution-roadmap.html.`);
+    } else {
+      add('LOW', 'ci-policy',
+        `Pas de CI serveur au palier ${detection.palier} et aucune politique de release enregistrée. Décider : soit poser une CI serveur (GitHub Actions / GitLab + branch protection), soit enregistrer ciPolicy:'local-compensation' dans .claude/.meta-govern.json (compensation locale = gate Stop + predeploy-check.mjs). Voir evolution-roadmap.html.`);
+    }
+  }
+}
+
 // === Wiring checks ===
 
 if (detection.artifacts.hasSettingsJson) {
@@ -450,6 +530,40 @@ if (detection.artifacts.hasSettingsJson) {
     }
   } catch (err) {
     add('HIGH', 'wiring', `settings.json parse error: ${err.message}`);
+  }
+}
+
+// Inverse inventory (disk → settings/agents): the forward check above catches a
+// settings entry whose script is missing; this catches the dead matcher — a hook
+// .mjs on disk wired nowhere, neither in settings(.local).json nor in an agent
+// frontmatter, so it never fires. Canonical hooks are grandfathered (a ≤1.14.1
+// project may carry one on disk ahead of its wiring). The vitest
+// hooks-inventory.test.mjs is the strict proof where installed; this is its
+// read-only, fail-soft audit-side mirror.
+{
+  const hooksDirInv = path.join(projectDir, '.claude/hooks');
+  if (fs.existsSync(hooksDirInv)) {
+    let wired = '';
+    for (const name of ['settings.json', 'settings.local.json']) {
+      try { wired += '\n' + fs.readFileSync(path.join(projectDir, '.claude', name), 'utf8'); } catch { /* absent: skip */ }
+    }
+    const agentsDirInv = path.join(projectDir, '.claude/agents');
+    if (fs.existsSync(agentsDirInv)) {
+      for (const agentFile of fs.readdirSync(agentsDirInv).filter(f => f.endsWith('.md'))) {
+        try { wired += '\n' + fs.readFileSync(path.join(agentsDirInv, agentFile), 'utf8'); } catch { /* fail-soft */ }
+      }
+    }
+    let diskHooks = [];
+    try { diskHooks = fs.readdirSync(hooksDirInv).filter(f => f.endsWith('.mjs')); } catch { /* fail-soft */ }
+    for (const hookFile of diskHooks) {
+      if (hookFile.startsWith('lib') || /\.(test|spec|sim)\.[cm]?[jt]sx?$/.test(hookFile)) continue;
+      if (CANONICAL_HOOKS.has(hookFile)) continue;
+      if (!wired.includes(hookFile)) {
+        add('MEDIUM', 'wiring',
+          `Hook ${hookFile} present on disk but wired nowhere — absent from settings.json/settings.local.json and from every agent frontmatter (dead matcher: it never fires). Declare it (a matcher in settings.json, or an agent hooks: block) or remove it.`,
+          path.join(hooksDirInv, hookFile));
+      }
+    }
   }
 }
 
@@ -601,12 +715,6 @@ if (fs.existsSync(hooksDir)) {
 // guard ships its simulation/test in the same commit. Canonical hooks are
 // grandfathered (the canon owns their proofs). Fail-soft, absolute paths.
 if (fs.existsSync(hooksDir)) {
-  const CANONICAL_HOOKS = new Set([
-    'session-start-env-check.mjs', 'track-workflow.mjs', 'enforce-workflow.mjs',
-    'precompact-handoff.mjs', 'postcompact-reinject.mjs', 'block-docs-markdown.mjs',
-    'docs-index-refresh.mjs', 'subagent-plan-edit-guard.mjs', 'agent-dispatch-preflight.mjs',
-    'plan-closeout-guard.mjs', 'validate-plan.mjs', 'daily-drift-alert.mjs',
-  ]);
   const TEST_SIM_RE = /\.(test|spec|sim)\.[cm]?[jt]sx?$/;
   const SKIP = new Set(['node_modules', '.git', 'dist', 'build', 'out', 'coverage', '.next', '.vercel', '.wrangler', '_generated']);
   const testCorpus = [];
@@ -621,15 +729,39 @@ if (fs.existsSync(hooksDir)) {
   for (const hookFile of fs.readdirSync(hooksDir).filter(f => f.endsWith('.mjs'))) {
     if (hookFile.startsWith('lib') || CANONICAL_HOOKS.has(hookFile) || TEST_SIM_RE.test(hookFile)) continue;
     const base = hookFile.replace(/\.mjs$/, '');
-    let referenced = ['test', 'spec', 'sim'].some(k => fs.existsSync(path.join(hooksDir, `${base}.${k}.mjs`)));
-    for (let i = 0; !referenced && i < testCorpus.length; i++) {
-      let c;
-      try { c = fs.readFileSync(testCorpus[i], 'utf8'); } catch { continue; }
-      if (c.includes(hookFile) || c.includes(`hooks/${base}`)) referenced = true;
+    // Collect the CONTENT of every file that exercises this guard: a co-located
+    // sibling (base.{test,spec,sim}.mjs) or any corpus file that names it.
+    const refTexts = [];
+    for (const k of ['test', 'spec', 'sim']) {
+      const sib = path.join(hooksDir, `${base}.${k}.mjs`);
+      if (fs.existsSync(sib)) {
+        try { refTexts.push(fs.readFileSync(sib, 'utf8')); } catch { /* fail-soft */ }
+      }
     }
-    if (!referenced) {
+    for (const tf of testCorpus) {
+      let c;
+      try { c = fs.readFileSync(tf, 'utf8'); } catch { continue; }
+      if (c.includes(hookFile) || c.includes(`hooks/${base}`)) refTexts.push(c);
+    }
+    if (refTexts.length === 0) {
       add('HIGH', 'hook-tests',
-        `Project-authored guard ${hookFile} ships no simulation/test — a hook that throws fails silently (exit 0, blocks nothing). Add ${base}.sim.mjs (or .test.mjs) exercising block AND allow paths in the same commit. See hook-canonical-patterns.html.`,
+        `Project-authored guard ${hookFile} ships no simulation/test — a hook that throws fails silently (exit 0, blocks nothing). Add ${base}.test.mjs (or .sim.mjs) exercising block AND allow paths in the same commit. See hook-canonical-patterns.html.`,
+        path.join(hooksDir, hookFile));
+      continue;
+    }
+    // Presence of a test is not enough: a smoke test that only loads the guard
+    // proves nothing. Require BOTH a positive case (the forbidden input is
+    // denied/blocked) AND a negative case (the legitimate input is allowed — a
+    // silent exit 0 with null stdout). PreToolUse guards deny; Stop gates block.
+    const corpus = refTexts.join('\n');
+    const provesBlock = /\b(deny|block|reject|refus)\b/i.test(corpus);
+    const provesAllow = /toBeNull|\ballow\b/i.test(corpus) || /\.toBe\(\s*(['"])\1\s*\)/.test(corpus);
+    if (!provesBlock || !provesAllow) {
+      const gap = !provesBlock && !provesAllow ? 'ni cas bloquant ni cas passant'
+        : !provesBlock ? 'pas de cas bloquant (positif)'
+        : 'pas de cas passant (négatif)';
+      add('HIGH', 'hook-tests',
+        `Project-authored guard ${hookFile} has a test that only proves presence — ${gap}. Assert the deny/block decision on the forbidden input AND the silent allow (null stdout, exit 0) on the legitimate one, so a guard that stops enforcing is caught. See hook-canonical-patterns.html.`,
         path.join(hooksDir, hookFile));
     }
   }

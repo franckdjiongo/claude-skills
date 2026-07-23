@@ -242,11 +242,11 @@ export function isValidateBash(command) {
 <ul>
 <li>More complex: includes <code>analyzePlanToolUse</code>, <code>buildPromptRouterContext</code>, <code>buildUiWriteContext</code>, <code>buildDataLayerWriteContext</code>, <code>reduceWorkflowState</code>, <code>shouldBlockOnStop</code>, <code>shouldRequireValidationOnStop</code></li>
 <li>Uses 24h cache via <code>tmp/last-full-scan.json</code></li>
-<li>Detects completion-style words via regex: <code>\b(done|completed|finished|implemented|updated|set up|ready for review|ready to commit|review checklist|what changed|verification|verified|you can review|no commit)\b</code></li>
+<li>Detects completion-style words via a <strong>bilingual</strong> regex (FR + EN, since sessions here dictate in both): <code>\b(done|completed|finished|implemented|updated|set up|ready for review|ready to commit|review checklist|what changed|verification|verified|you can review|no commit|fait|terminé|complété|implémenté|mis à jour|prêt pour revue|prêt à commiter|vérifié|vérification|rien à commiter|revue|constat)\b</code> — an English-only pattern silently skips the Stop gate on a French wrap-up like « c'est terminé, prêt pour revue »</li>
 </ul>
 <p>meta-govern's <code>templates/hooks/lib/hook-utils.mjs.tpl</code> provides a starting point per palier.</p>
 <h2 id="validation" tabindex="-1"><a class="header-anchor" href="#validation" aria-hidden="true">#</a> Validation</h2>
-<p><code>scripts/audit-project.mjs</code> checks each hook script for:</p>
+<p><code>scripts/audit-project.mjs</code> checks each hook script — and each co-located hook test (<code>*.test.mjs</code>) — for:</p>
 <ul class="contains-task-list">
 <li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> PATH_PREFIX export at top</label></li>
 <li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> No <code>nvm</code> references</label></li>
@@ -255,6 +255,7 @@ export function isValidateBash(command) {
 <li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> No interactive prompts</label></li>
 <li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> Has executable bit (for <code>.sh</code> files)</label></li>
 <li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> Referenced in settings.json (or documented exception)</label></li>
+<li class="task-list-item"><label><input class="task-list-item-checkbox" disabled="" type="checkbox"> Co-located hook tests (<code>*.test.mjs</code>) <code>import { PATH_PREFIX } from './hook-utils.mjs'</code> and apply it — a test that hardcodes or drops the prefix runs under a minimal Apple-Silicon PATH and the <code>macos-hardening</code> detector flags it</label></li>
 </ul>
 <p>Findings emit MEDIUM severity. The user can <code>--fix</code> for some (e.g., adding PATH_PREFIX) but not others (e.g., removing nvm dependency).</p>
 

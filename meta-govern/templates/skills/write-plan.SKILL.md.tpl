@@ -152,7 +152,7 @@ Two classes of requirement fall out of the AC list unless the plan names them ex
 - **STANDARD** — pattern-following: a component matching an existing pattern, a backend query of standard shape, a hook wrapping `useQuery`. One reviewer pass per group of 3–5.
 - **RIGOROUS** — complex logic, state machines, role/permission code, anything > 150 lines added, anything touching schema files. Per-task reviewer + per-task commit.
 
-Be honest. Marking everything STANDARD to "go faster" defeats the system. When in doubt, escalate one tier.
+**Risk-tier floor (deterministic).** Cross each task's target files against `.claude/risk-tiers.json`. A task that touches any `critique` path (repositories, domain, security, payroll/`calculs-paie`, `.claude/hooks/**`) rises to at least STANDARD — mechanical-looking or not — so it never lands as BATCH. This turns "when in doubt, escalate" into a rule: the riskiest path a task touches sets its floor, and human judgment only raises the tier from there. Marking everything STANDARD to "go faster" defeats the system — tier honestly, and escalate one tier when unsure.
 
 ## Step 6 — Identify parallel groups
 

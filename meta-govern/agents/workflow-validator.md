@@ -171,3 +171,4 @@ Run the file-size-growth-guard and quality-checks scripts on a no-op (no staged 
 - If only frontmatter discipline issues exist, return FINDINGS (caller can fix).
 - Match expected_palier carefully: a palier-2 expectation includes spec-tracer, qa-plan; if those missing, FINDINGS.
 - The quality-checks script may report MEDIUM findings on the project's existing source — that's fine; only ERROR-on-script-startup is a meta-govern issue.
+- A `skills:` value that resolves to a plugin skill (via the enterprise > personal > project > plugin cascade — e.g. `ship-polished-ui` from the `design-studio` plugin) is legitimate, not a frontmatter-discipline violation. Don't flag a bare `skills:` name as missing without checking `~/.claude/plugins/`. See `references/subagent-canonical-structure.html`.

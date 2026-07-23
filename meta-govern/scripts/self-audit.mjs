@@ -143,15 +143,34 @@ const templatesDir = path.join(SKILL_DIR, 'templates');
 if (!fs.existsSync(templatesDir)) {
   add('CRITICAL', 'inventory', 'No templates/ directory in meta-govern.');
 } else {
+  // Chemins relatifs à templates/. Inclut la brique de vérification v1.15.0
+  // (bash-write-guard, harnais de tests de hooks, parité multi-runtime, gates
+  // locaux de couverture/predeploy, tiers de risque) : ces templates SONT du
+  // code de production, leur absence rend l'inventaire ROUGE.
   const expectedTemplates = [
     'CLAUDE.md.tpl',
     'settings.json.tpl',
     'HANDOFF.md.tpl',
     'governance-baseline.md.tpl',
+    'risk-tiers.json.tpl',
+    'runtime-parity.json.tpl',
+    'hooks/bash-write-guard.mjs.tpl',
+    'hooks/lib/bash-write-detect.mjs.tpl',
+    'hooks/lib/hook-test-util.mjs.tpl',
+    'hooks/bash-write-guard.test.mjs.tpl',
+    'hooks/hooks-inventory.test.mjs.tpl',
+    'hooks/block-docs-markdown.test.mjs.tpl',
+    'hooks/enforce-workflow.test.mjs.tpl',
+    'scripts/check-runtime-parity.mjs.tpl',
+    'scripts/check-runtime-parity.test.mjs.tpl',
+    'scripts/diff-coverage.mjs.tpl',
+    'scripts/sample-review.mjs.tpl',
+    'scripts/loop-sla.mjs.tpl',
+    'scripts/predeploy-check.mjs.tpl',
   ];
   for (const tpl of expectedTemplates) {
     if (!fs.existsSync(path.join(templatesDir, tpl))) {
-      add('HIGH', 'inventory', `Missing top-level template: ${tpl}`);
+      add('HIGH', 'inventory', `Missing template: ${tpl}`);
     }
   }
 
