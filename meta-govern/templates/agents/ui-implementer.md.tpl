@@ -94,7 +94,7 @@ Run the `ship-polished-ui` skill's design phase: load its contracts (`design-int
 - {{PACKAGE_MANAGER}} run build → PASS
 
 ### Step 7: Visual QA (hard gate for UI)
-Unit / jsdom tests are blind to render: contrast, padding, saturated modal backgrounds, illegible highlights, stacking-context bugs. This step is not optional polish. If a live / visual verification path exists (the orchestrator's `ship-polished-ui` → `visual-qa-inspector`, or the project's live-app testing — multi-position screenshots, zooms, interactive states), it runs and must pass. If no live session is available, return the result with `NEEDS_VISUAL_QA` set in Blockers / Deferred — never report a UI task fully done on jsdom-green alone.
+Unit / jsdom tests are blind to render: contrast, padding, saturated modal backgrounds, illegible highlights, stacking-context bugs. This step is not optional polish. If a live / visual verification path exists (the orchestrator's `ship-polished-ui` → `visual-qa-inspector`, or the project's live-app testing — multi-position screenshots, zooms, interactive states), it runs and must pass. If no live session is available, return the result with `NEEDS_VISUAL_QA` set in Blockers / Deferred — never report a UI task fully done on jsdom-green alone. Beyond correctness, this loop is the cost-effective lever: on current models, agentic tool use — cropping, analyzing, visually verifying, running code — scales multimodal performance better than more thinking alone, at equal or lower cost, and UI/frontend visual replication is a current strength. Give it the tools rather than more effort.
 
 ## Result summary contract (7 sections)
 

@@ -9,6 +9,14 @@ paths:
 
 N independent agents → 1 message with N Agent blocks. Not N messages serially.
 
+## First: should you delegate at all?
+
+Batching *how* and deciding *whether* are different questions. Current models delegate readily, and small delegations cost more than they return.
+
+- Delegate large tracks that are genuinely independent and parallelizable — a wide multi-file investigation, an audit across disjoint areas. Measured payoff: a 10-agent team reaches +3.1pp with a 5.6–5.9× latency speedup on wide search; a 5-agent team, 2.2× latency at equal score. Small or non-parallelizable work doesn't clear that bar.
+- Work you can finish in a handful of tool calls stays inline. One subagent when one suffices.
+- No subagent to check your own output — you already do that. A reviewer reading someone else's diff against the spec is a different job and it stays.
+
 ## Applies when at least 2 conditions hold
 
 - Brief says "parallel" or "single message".

@@ -44,7 +44,8 @@
 <h1>The Four-Tier Architecture — Progressive Context Disclosure</h1>
 <p>Source: synthesis of <code>Progressive Context Disclosure for Claude Code on Windows.md</code>, <code>Claude Code Architecture Research.md</code>. Confirmed by both production projects.</p>
 <h2 id="the-four-tiers" tabindex="-1"><a class="header-anchor" href="#the-four-tiers" aria-hidden="true">#</a> The four tiers</h2>
-<p>Standing context degrades quality at scale. Even with 1M context, accuracy drops from 93% (256K) to 76% (1M). Practitioners observe ~2% effectiveness loss per 100K tokens added. <strong>The four-tier hierarchy is how the user keeps standing context small while shipping comprehensive standards.</strong></p>
+<p>Standing context costs on every turn of every session — in tokens, in latency, and in signal-to-noise. <strong>The four-tier hierarchy is how the user keeps standing context small while shipping comprehensive standards.</strong></p>
+<p>The degradation figures this section used to lead with (93% accuracy at 256K falling to 76% at 1M; ~2% effectiveness loss per 100K tokens) come from the pre-Claude-5 research corpus and have <strong>not</strong> been re-measured on the current lineup. Opus 5's sources state the opposite for that model: instruction following, tool calling and reasoning stay consistent across its 1M window, and ProgramBench pass rate <em>improves</em> 83% → 93% across episodes on fresh budgets up to 1M (p.149, p.156). Treat the numbers as historical; the discipline stands on cost, latency and noise without them.</p>
 <pre><code>Tier 1 ──── CLAUDE.md ────────────────────────── ≤120 lines, always loaded
             project identity + invariants + pointers + commands
             ↓
@@ -116,7 +117,7 @@ React 19, TypeScript 5.8, Vite 6, Convex, R2. Runtime: Bun.
 - `tests/**/*.test.*` → `.claude/rules/testing.md`
 
 ## Default model + effort
-Sonnet 5 high is the workhorse default. Sonnet 5/Opus 4.8 xhigh for the hardest work; Opus 4.8 for hardest pure reasoning + fallback. Plan mode on the stronger model for plan-then-build.
+Sonnet 5 high is the workhorse default. Opus 5 xhigh for the hardest refactor/debug/architecture and pure reasoning; Sonnet 5 xhigh is the cheaper first step. Effort sets thinking, not response length. Opus 5 self-verifies — don't ask for a re-check; independent spec review stays.
 
 ## Après compaction
 Re-read this file. If `HANDOFF.md` exists, read it. Resume work.

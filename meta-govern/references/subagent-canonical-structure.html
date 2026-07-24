@@ -339,6 +339,8 @@ When sources conflict, follow this order:
 ❌ Skills not declared in frontmatter (subagents don't auto-inherit)
 ❌ No <code>effort:</code> set (inherits session xhigh; mechanical agents waste tokens)
 ❌ Defensive scaffolding in agent body (&quot;MUST always&quot;, &quot;double-check&quot;) — Claude 4.7+/5-family anti-pattern
+❌ A subagent dispatched to verify the <em>dispatcher's own</em> output — current models already self-verify, and the extra pass costs without adding (distinct from the reviewer loop, where the reviewer reads someone else's diff against the spec)
+❌ Delegating work you could finish in a handful of tool calls, or spawning several agents where one suffices — Opus 5 delegates readily; the payoff threshold is genuinely independent, sizeable tracks (p.164, p.166)
 ❌ Plugin agents with <code>hooks:</code> / <code>mcpServers:</code> / <code>permissionMode:</code> (silently ignored)
 ❌ Required context not documented in description (callers dispatch without context, agent flounders)</p>
 

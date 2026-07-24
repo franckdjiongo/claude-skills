@@ -169,7 +169,7 @@ PASS — plan ready for review
 - NEVER bulk-migrate. Each step is atomic, validated, committed.
 - If source and target differ by >5 minor versions → suggest splitting into multiple invocations (don't stack 50 steps).
 - For palier promotion, follow the evolution-roadmap.html additions — don't skip paliers.
-- For model-release migrations (e.g., Sonnet 4.6 → Sonnet 5, Opus 4.7 → 4.8), the highest-impact rewrites are: skill descriptions (markers may need updating), agent effort levels (defaults may shift), CLAUDE.md model+effort block.
+- For model-release migrations (e.g., Opus 4.8 → Opus 5), the highest-impact rewrites are: skill descriptions (markers may need updating), agent effort levels (defaults may shift), CLAUDE.md model+effort block.
 - Document which steps are auto-applicable vs manual. Auto-applicable: render-file with overwrite. Manual: anything that requires user judgment (e.g., "this skill description should be rewritten because...").
 - After EVOLVE, ALWAYS run self-audit before declaring PASS. Don't ship a broken master skill.
 - A doctrine or template delta is PRESENT or ABSENT by reading the target section semantically, never by grepping canon strings. A project's installed doctrine is often reworded or richer than canon — especially the source project a lesson was born from — so an exact-string grep of a canon phrase reports « absent » on a present-but-reworded section, and re-applying it duplicates doctrine. Treat any caller-supplied « confirmed absent/present » grep claim as a hypothesis to re-verify by reading the section.

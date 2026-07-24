@@ -223,6 +223,23 @@ for (const s of expectedScripts) {
   }
 }
 
+// Retired artifacts. A deletion has no memory: v1.7.2 removed two docs-html
+// scripts AND their expectedScripts entries in the same commit, which deleted
+// the only detector that could have seen them come back — and a319d10 brought
+// all three back sixteen days later, two of them no longer even parsing.
+// Retiring a file adds it here, so a resurrection is a finding instead of a
+// silent regression.
+const retiredArtifacts = [
+  ['references/opus-4-7-defaults.html', 'v1.7.0 (renamed → references/model-effort-defaults.html)'],
+  ['scripts/docs-html/verify.mjs', 'v1.7.2 (one-shot MD→HTML fidelity gate, migration complete)'],
+  ['scripts/docs-html/convert-references.mjs', 'v1.7.2 (one-shot corpus converter, unrunnable standalone)'],
+];
+for (const [rel, retiredIn] of retiredArtifacts) {
+  if (fs.existsSync(path.join(SKILL_DIR, rel))) {
+    add('MEDIUM', 'inventory', `Retired artifact is back on disk: ${rel} — removed in ${retiredIn}. Delete it, or retire the entry here if it was reinstated on purpose.`);
+  }
+}
+
 // Corpus propre: hub index.html + registre docs-map.json à la racine du skill.
 if (!fs.existsSync(path.join(SKILL_DIR, 'docs-map.json'))) {
   add('HIGH', 'inventory', 'docs-map.json (registre du corpus meta-govern) manquant.');

@@ -30,7 +30,8 @@ These create rigid loops or defensive scaffolding:
 
 - "MUST" / "ALWAYS" in caps — prefer "use", "favor", or stating the positive form.
 - "n'oublie pas de…" / "do not forget" — list the action plainly.
-- "double-check before returning" / "verify before returning" — describe the check, not the meta-instruction.
+- "double-check before returning" / "verify before returning" / "re-verify before responding" — describe the check, not the meta-instruction.
+- "include a final verification step" / "use a subagent to verify" — current models already verify their own work; asking again produces self-built verification pipelines that burn the budget. Deterministic gates and review of someone else's diff are a different thing, and they live in hooks and agents, not here.
 - "do not skip any step" — write the steps so they're load-bearing, not optional decoration.
 
 Negations always pair with an alternative: not "don't do X" but "don't do X; do Y instead."

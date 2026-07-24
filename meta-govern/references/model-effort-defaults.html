@@ -24,7 +24,7 @@
   <div class="docs-shell">
     <aside class="docs-toc" id="docs-toc">
       <p class="docs-toc__label">Sur cette page</p>
-      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#current-lineup">Current lineup (versioned)</a></li><li class="lvl-2"><a href="#the-3-plus-1-heuristics">The 3 + 1 heuristics</a></li><li class="lvl-2"><a href="#default-tier-per-task">Default tier per task</a></li><li class="lvl-2"><a href="#per-task-playbook">Per-task playbook</a></li><li class="lvl-2"><a href="#effort-recalibration">Effort recalibration across model versions</a></li><li class="lvl-2"><a href="#model-choice-by-security-surface">Model choice by security surface</a></li><li class="lvl-2"><a href="#per-subagent-effort-frontmatter">Per-subagent effort frontmatter</a></li><li class="lvl-2"><a href="#in-session-diagnostic-matrix">In-session diagnostic matrix</a></li><li class="lvl-2"><a href="#anti-patterns-claude-47-claude-5">Anti-patterns (Claude 4.7+ / Claude 5 family)</a></li><li class="lvl-2"><a href="#effort-precedence">Effort precedence</a></li><li class="lvl-2"><a href="#non-claude-code-deployments">Non-Claude-Code deployments</a></li><li class="lvl-2"><a href="#when-xhigh-pays-for-itself">When xhigh pays for itself</a></li><li class="lvl-2"><a href="#claude-md-skeleton-block">CLAUDE.md skeleton block (BOOTSTRAP injects)</a></li></ul></nav>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#current-lineup">Current lineup (versioned)</a></li><li class="lvl-2"><a href="#the-3-plus-1-heuristics">The 3 + 1 heuristics</a></li><li class="lvl-2"><a href="#default-tier-per-task">Default tier per task</a></li><li class="lvl-2"><a href="#per-task-playbook">Per-task playbook</a></li><li class="lvl-2"><a href="#effort-recalibration">Effort recalibration across model versions</a></li><li class="lvl-2"><a href="#opus-5-behavior-deltas">Opus 5 behavior deltas (verbosity, narration, scope, delegation)</a></li><li class="lvl-2"><a href="#running-with-thinking-disabled">Running with thinking disabled</a></li><li class="lvl-2"><a href="#model-choice-by-security-surface">Model choice by security surface</a></li><li class="lvl-2"><a href="#per-subagent-effort-frontmatter">Per-subagent effort frontmatter</a></li><li class="lvl-2"><a href="#in-session-diagnostic-matrix">In-session diagnostic matrix</a></li><li class="lvl-2"><a href="#anti-patterns-claude-47-claude-5">Anti-patterns (Claude 4.7+ / Claude 5 family)</a></li><li class="lvl-2"><a href="#effort-precedence">Effort precedence</a></li><li class="lvl-2"><a href="#non-claude-code-deployments">Non-Claude-Code deployments</a></li><li class="lvl-2"><a href="#when-xhigh-pays-for-itself">When xhigh pays for itself</a></li><li class="lvl-2"><a href="#claude-md-skeleton-block">CLAUDE.md skeleton block (BOOTSTRAP injects)</a></li></ul></nav>
     </aside>
     <div class="docs-main">
       <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
@@ -42,10 +42,10 @@
         </header>
         <div class="docs-content">
 <h1>Model &amp; Effort Defaults — Selection Guide</h1>
-<p>Sources: <code>Claude 5 Workflow Playbook</code> (2026-07-01, QA-verified distillation of Anthropic's prompting guides + the Sonnet 5 System Card); previously <code>effort-level-decision-framework-claude-code-opus-4-7-sonnet-4-6.md</code>. Critical for any session that uses Claude Code as of July 2026.</p>
+<p>Sources: <code>Claude 5 Workflow Playbook</code> (2026-07-01, QA-verified distillation of Anthropic's prompting guides + the Sonnet 5 System Card; <strong>updated 2026-07-24</strong> with <code>prompting-claude-opus-5.md</code> + the Claude Opus 5 System Card); previously <code>effort-level-decision-framework-claude-code-opus-4-7-sonnet-4-6.md</code>. Critical for any session that uses Claude Code as of July 2026.</p>
 <p>This file's name is deliberately model-agnostic: at each model release, update the <a href="#current-lineup">Current lineup</a> section and the tier tables — never the filename. (The pre-v1.7.0 name was <code>opus-4-7-defaults.html</code>; renaming it at every release was the debt this layout retires.)</p>
 <h2 id="current-lineup" tabindex="-1"><a class="header-anchor" href="#current-lineup" aria-hidden="true">#</a> Current lineup (versioned)</h2>
-<p><strong>Lineup as of 2026-07</strong> (Claude 5 family release):</p>
+<p><strong>Lineup as of 2026-07-24</strong> (Claude Opus 5 release):</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -61,31 +61,33 @@
 <td><strong>Claude Sonnet 5</strong></td>
 <td><code>claude-sonnet-5</code></td>
 <td><code>sonnet</code></td>
-<td>Workhorse default at <code>high</code>; preferred on untrusted-content surfaces</td>
+<td>Workhorse default at <code>high</code> — most coding, most agentic work</td>
+<td>GA</td>
+</tr>
+<tr>
+<td><strong>Claude Opus 5</strong></td>
+<td><code>claude-opus-5</code> <sup>†</sup></td>
+<td><code>opus</code></td>
+<td>Hardest multi-file refactor, debugging, architecture, pure reasoning; long-horizon agentic and 1M-context work. <code>xhigh</code> is where an Opus 5 coding run <em>starts</em>, not its ceiling. Thinking on by default (disableable only at effort <code>high</code> or below); 1M context as both default and maximum.</td>
 <td>GA</td>
 </tr>
 <tr>
 <td><strong>Claude Opus 4.8</strong></td>
 <td><code>claude-opus-4-8</code></td>
-<td><code>opus</code></td>
-<td>Hardest pure reasoning; <code>xhigh</code> escalation; fallback tier</td>
-<td>GA</td>
-</tr>
-<tr>
-<td><strong>Claude Fable 5 / Mythos 5</strong></td>
-<td><code>claude-fable-5</code></td>
 <td>—</td>
-<td>Hardest unsolved problems only — never structural doctrine</td>
-<td><strong>Time-boxed:</strong> included in Max 20x until <strong>2026-07-07</strong> only, then API-billed → retired from this workflow</td>
+<td>Prior flagship; stable reference baseline; the named fallback target for Fable 5 refusals. Opus 5's own safety classifiers fall back to it mid-run on ~5% of API calls (4% of trials) on agentic terminal tasks (Opus 5 System Card, p.152) — account for it before debugging a prompt.</td>
+<td>GA</td>
 </tr>
 </tbody>
 </table></div>
-<p>The durable anchor is <strong>Sonnet 5 + Opus 4.8</strong>. Models with bounded availability (Fable 5) get dated notes, never scaffolding: no send-to-user tooling, no refusal-fallback wiring, no multi-day-timeout guidance enters project templates on their account.</p>
+<p><sup>†</sup> <strong>Provenance:</strong> the <code>claude-opus-5</code> API string is <strong>environment-verified, not pack-verified</strong> — the research pack lists Opus 5's model string as “—” and states explicitly that no literal appears in its sources. Pin it from your own deployment config, not from the pack. The sources also name <strong>no fallback model for Opus 5</strong>; nothing is invented here to fill that gap.</p>
+<p><strong>Fable 5 / Mythos 5 left this workflow on 2026-07-07</strong>, as its dated exception declared: included in Max 20x until that date, then API-billed and dropped. The row is retired rather than kept as a stale note — an expired dated exception resolves to its declared successor state or it starts lying.</p>
+<p>The durable anchor is <strong>Sonnet 5 + Opus 5</strong>, with <strong>Opus 4.8</strong> as the stable baseline behind them. Models with bounded availability get dated notes, never scaffolding: no send-to-user tooling, no refusal-fallback wiring, no multi-day-timeout guidance enters project templates on their account.</p>
 <h2 id="the-3-plus-1-heuristics" tabindex="-1"><a class="header-anchor" href="#the-3-plus-1-heuristics" aria-hidden="true">#</a> The 3 + 1 heuristics</h2>
 <ol>
 <li><strong>Default to <code>high</code> on Sonnet 5</strong> for Claude Code. <code>xhigh</code> is the ceiling for the hardest work, not the session default — Sonnet 5 <code>high</code> already carries what Sonnet 4.6 called <code>max</code>.</li>
-<li><strong>Pick the model first, the effort second.</strong> Sonnet 5 first for coding and agentic work; escalate to Opus 4.8 when reasoning depth (not code volume) is the bottleneck. Plan-then-build sessions: plan mode on the stronger model (<code>opusplan</code>-style alias where your Claude Code build exposes it).</li>
-<li><strong><code>max</code> is per-subproblem rescue, not session default.</strong></li>
+<li><strong>Pick the model first, the effort second.</strong> Sonnet 5 first for coding and agentic work; escalate to <strong>Opus 5</strong> when reasoning depth (not code volume) is the bottleneck. On Opus 5, <code>xhigh</code> is the recommended <em>starting point</em> for coding/agentic work, not the ceiling. Plan-then-build sessions: plan mode on the stronger model (<code>opusplan</code>-style alias where your Claude Code build exposes it).</li>
+<li><strong><code>max</code> is per-subproblem rescue, not session default.</strong> Evidence, not preference: on GDPval-AA, <code>xhigh</code> reaches ELO 1827 using <strong>25% fewer output tokens</strong> than <code>max</code>'s 1861 while still beating every other model; on AA-Briefcase, <code>xhigh</code>/<code>high</code> use 15%/33% fewer tokens than <code>max</code> and still lead (p.178).</li>
 <li><strong>Effort names don't carry equal depth across model versions.</strong> Sonnet 5 <code>medium</code> ≈ Sonnet 4.6 <code>high</code>; Sonnet 5 <code>high</code> ≈ Sonnet 4.6 <code>max</code>. Benchmark by observed thinking length, never by the level's name.</li>
 </ol>
 <h2 id="default-tier-per-task" tabindex="-1"><a class="header-anchor" href="#default-tier-per-task" aria-hidden="true">#</a> Default tier per task</h2>
@@ -93,13 +95,16 @@
 └─ Sonnet 5 + high ─────────────── the workhorse; near-Opus at Sonnet pricing
 
 HARDEST MULTI-FILE REFACTOR / DEBUG / ARCHITECTURE
-└─ Sonnet 5 + xhigh or Opus 4.8 + xhigh
+└─ Sonnet 5 + xhigh (cheaper first step) or Opus 5 + xhigh
 
 HARDEST PURE REASONING / AMBIGUOUS DESIGN
-└─ Opus 4.8 + xhigh ────────────── also the fallback tier
+└─ Opus 5 + xhigh ──────────────── xhigh is the START of an Opus 5 run
+
+LONG-HORIZON AGENTIC / 1M-CONTEXT WORK
+└─ Opus 5 ──────────────────────── consistent across the full window
 
 UNTRUSTED CONTENT (web pages, PR diffs, third-party tool output)
-└─ Sonnet 5 ────────────────────── most injection-resistant, at any effort
+└─ not a tier decision ─────────── least privilege + human gate; see § security surface
 
 TESTS / DOCS / UTILITY SCRIPTS
 └─ Sonnet 5 + medium ───────────── ≈ old Sonnet 4.6 high; rarely limiting
@@ -121,7 +126,7 @@ STUCK PROBLEM (one turn)
 <tbody>
 <tr>
 <td>Architectural planning</td>
-<td>Plan mode on Opus 4.8 (<code>opusplan</code>-style alias where available)</td>
+<td>Plan mode on Opus 5 (<code>opusplan</code>-style alias where available)</td>
 </tr>
 <tr>
 <td>Greenfield single-file</td>
@@ -129,23 +134,23 @@ STUCK PROBLEM (one turn)
 </tr>
 <tr>
 <td>Multi-file refactor</td>
-<td>Sonnet 5 + xhigh; Opus 4.8 + xhigh on repeated failure</td>
+<td>Sonnet 5 + xhigh; Opus 5 + xhigh on repeated failure</td>
 </tr>
 <tr>
 <td>Intermittent debugging</td>
-<td>Sonnet 5 + xhigh; escalate to Opus 4.8 when the bug resists</td>
+<td>Sonnet 5 + xhigh; escalate to Opus 5 when the bug resists</td>
 </tr>
 <tr>
 <td>Long-horizon agentic</td>
-<td>Sonnet 5 + xhigh + auto mode</td>
+<td>Opus 5 + xhigh + auto mode (long-horizon is its strongest surface; consistent across the 1M window)</td>
 </tr>
 <tr>
 <td>Code review</td>
-<td>Sonnet 5 + high with a coverage-not-filtering prompt (Opus 4.8 + xhigh for architecture review)</td>
+<td>Sonnet 5 + high with a coverage-not-filtering prompt (Opus 5 + xhigh for architecture review). On Opus 5, review accuracy holds at lower effort — a fast pass now and a thorough pass later are both viable.</td>
 </tr>
 <tr>
 <td>Untrusted-content agents (browser, PR triage, web research)</td>
-<td>Sonnet 5, any effort — see <a href="#model-choice-by-security-surface">security surface</a></td>
+<td>Either tier — the control is architectural, not the model. See <a href="#model-choice-by-security-surface">security surface</a>.</td>
 </tr>
 <tr>
 <td>Tests</td>
@@ -165,7 +170,11 @@ STUCK PROBLEM (one turn)
 </tr>
 <tr>
 <td>Migration</td>
-<td>Sonnet 5 + xhigh; Opus 4.8 for the risk analysis</td>
+<td>Sonnet 5 + xhigh; Opus 5 for the risk analysis</td>
+</tr>
+<tr>
+<td>Vision / UI visual replication</td>
+<td>Opus 5 <strong>with tools</strong> to crop, analyze and visually verify — agentic tool use scales multimodal performance more cost-effectively than adaptive thinking alone (Chartography, BenchCAD Vision2Code — p.169, p.172)</td>
 </tr>
 <tr>
 <td>Failing / looping</td>
@@ -201,13 +210,62 @@ STUCK PROBLEM (one turn)
 <li><strong>Sonnet 5 respects <code>low</code> strictly.</strong> At low/medium it scopes work to exactly what was asked. Good for latency and cost — but a documented <strong>under-thinking risk</strong> when a nominally mechanical task turns moderately complex. The fix is raising effort, never prompting around shallow reasoning.</li>
 <li><strong>Session default = <code>high</code>.</strong> <code>xhigh</code> is reserved for the hardest coding/agentic work; <code>max</code> is a one-turn rescue.</li>
 </ul>
-<h2 id="model-choice-by-security-surface" tabindex="-1"><a class="header-anchor" href="#model-choice-by-security-surface" aria-hidden="true">#</a> Model choice by security surface</h2>
-<p>Model selection has a second axis besides task difficulty: <strong>what the agent reads</strong>. Any agent consuming untrusted content — web pages, PR diffs from external contributors, third-party tool output that could carry injected instructions — should prefer <strong>Sonnet 5 regardless of intelligence needs</strong>.</p>
+<h3>Opus 5 — sweep, don't carry over</h3>
 <ul>
-<li>Coding-environment prompt-injection attack success: <strong>0.31%</strong> on Sonnet 5 (with thinking) vs <strong>7.03%</strong> on Opus 4.8 (Sonnet 5 System Card, p.62–65).</li>
-<li>Browser-use prompt-injection attack success: <strong>0.93%</strong> on Sonnet 5 vs <strong>31.5%</strong> on Opus 4.8 and 50.7% on Sonnet 4.6 (p.63).</li>
+<li><strong>Effort sets how much the model <em>thinks</em>, not how much it <em>says</em>.</strong> Lowering effort can reduce thinking volume without reliably shortening the visible response. To control response length, prompt for it explicitly — see <a href="#opus-5-behavior-deltas">behavior deltas</a>.</li>
+<li><strong><code>low</code>/<code>medium</code> produce strong quality at a fraction of the tokens and latency</strong>, and beat the same settings on prior Opus models. Use them wherever your evals show quality holds.</li>
+<li><strong>Re-run an effort sweep; do not reuse Opus 4.8 defaults.</strong> The numbers refuse to line up with intuition: FrontierCode's best score (53.4 main / 63.6 extended) is reached at <strong><code>medium</code></strong>, not xhigh/max (p.150–151). FrontierBench: <code>xhigh</code> 44.4% (best), <code>high</code> 39% for <strong>19% fewer</strong> output tokens, <code>low</code> 25% for <strong>64% fewer</strong> (p.152). AutomationBench: <code>medium</code> scores 24% at <strong>$0.89/task</strong>, outperforming prior Claude models at less than half the cost of comparable configurations (p.180).</li>
+<li><strong>Counter-signal, same weight — the sweep runs in both directions.</strong> Pilot feedback reports "overthinking": the model performs <em>worse</em> at higher effort on some tasks, and descends into self-correction loops that re-verify already-verified answers, especially at higher effort (p.82, p.81). Higher is not monotonically better.</li>
 </ul>
-<p><strong>Corollary — over-refusal on security-shaped prompts:</strong> Sonnet 5 refuses more legitimate dual-use security work than Sonnet 4.6 (91.55% success on benign dual-use tasks vs 97.33%). Security-adjacent prompts (pentest tooling, recon scripts, auth hardening) need explicit authorization framing — state the engagement, the ownership of the target, and the defensive intent in the prompt itself.</p>
+<h2 id="opus-5-behavior-deltas" tabindex="-1"><a class="header-anchor" href="#opus-5-behavior-deltas" aria-hidden="true">#</a> Opus 5 behavior deltas (verbosity, narration, scope, delegation)</h2>
+<p>Opus 5 performs well out of the box on existing Opus 4.8 prompts — this is not a rewrite-everything migration. Four behaviors typically need new constraint prompting. <strong>Each snippet belongs in the system/agent prompt of the surface where the behavior is actually observed — not in <code>CLAUDE.md</code>.</strong> Standing context pays for every line of every session (canon #1, #3); only the two lines that earn it live in the <a href="#claude-md-skeleton-block">skeleton block</a> below.</p>
+<p><strong>1 · Conversational verbosity.</strong> Default user-facing responses run longer than prior Opus models'. Effort will not fix it; ask for length:</p>
+<pre><code class="language-text">Keep responses focused, brief, and concise. Keep disclaimers and caveats short, and spend most of the response on the main answer. When asked to explain something, give a high-level summary unless an in-depth explanation is specifically requested.
+</code></pre>
+<p>In a long system prompt, pair it with a short reminder near the end:</p>
+<pre><code class="language-text">&lt;tone_preference&gt;
+Keep outputs reasonably concise.
+&lt;/tone_preference&gt;
+</code></pre>
+<p><strong>2 · Agentic narration cadence.</strong> Opus 5 announces what it is about to do and its per-message output in agentic sessions runs longer. Describe the cadence you want rather than what to avoid — positive examples of the communication style land better than prohibitions:</p>
+<pre><code class="language-text">Before your first tool call, say in one sentence what you're about to do. While working, give a brief update only when you find something important or change direction. When you finish, lead with the outcome: your first sentence should answer "what happened" or "what did you find," with supporting detail after it for readers who want it.
+</code></pre>
+<p><strong>3 · Written deliverable length.</strong> Separate from conversational verbosity: <em>files</em> Opus 5 writes to disk (reports, plans, summaries) are often longer than on prior models. Any surface that authors documents needs explicit calibration:</p>
+<pre><code class="language-text">Match the length of written documents to what the task needs: cover the substance, but do not pad with filler sections, redundant summaries, or boilerplate.
+</code></pre>
+<p><strong>4 · Task scope.</strong> Opus 5 can expand a task on its own — adding steps nobody requested, applying its own judgment about what the task should be. "Poor calibration of task scope" is named in the system card: it proactively finds real edge cases but also over-engineers and over-emphasizes marginal changes (p.26). For narrow tasks, constrain scope:</p>
+<pre><code class="language-text">Deliver what was asked, at the scope intended. Make routine judgment calls yourself, and check in only when different readings of the request would lead to materially different work. If the request seems mistaken or a better approach exists, say so in a sentence and continue with the task as asked rather than quietly narrowing, widening, or transforming it. Finish the whole task, and stop short of actions that are clearly beyond what was asked.
+</code></pre>
+<p><strong>5 · Delegation.</strong> Opus 5 delegates more readily than prior models. Delegation pays on genuinely independent, sizeable tracks — BrowseComp: a 10-agent team reaches 93.6% (+3.1pp over best single-agent) with a 5.6–5.9× latency speedup; ProgramBench: a 5-agent team gets 2.2× latency improvement at equal score (p.164, p.166). Small or non-parallelizable work does not clear that bar:</p>
+<pre><code class="language-text">Delegate to a subagent only for large tasks that are genuinely independent and parallelizable, such as a wide multi-file investigation. Do not delegate work you can finish yourself in a handful of tool calls, and do not use subagents to verify or double-check your own work. If one subagent can complete the task, use one rather than several, and keep spawn counts low.
+</code></pre>
+<p><strong>6 · Self-correction and correction narration.</strong> Opus 5 catches and fixes its own mistakes without prompting — instructing re-checks it already performs compounds with its own behavior and adds cost without improving results (see <a href="#anti-patterns-claude-47-claude-5">anti-patterns</a>). It also narrates corrections more than prior models; pilot feedback flagged fabricated data followed by "theatrical retractions", over-dramatic phrasing and unprompted apologies for prior turns (p.81). To bound it:</p>
+<pre><code class="language-text">Only correct an earlier statement when the error would change the user's code, conclusions, or decisions. State corrections plainly and briefly, then continue the task. For slips that change nothing for the user, make the fix and move on without noting it.
+</code></pre>
+<h2 id="running-with-thinking-disabled" tabindex="-1"><a class="header-anchor" href="#running-with-thinking-disabled" aria-hidden="true">#</a> Running with thinking disabled</h2>
+<p>Opus 5 runs with thinking <strong>on by default</strong>, and thinking can be disabled <strong>only at effort <code>high</code> or below</strong>. With thinking off, two artifacts can appear in visible output:</p>
+<ul>
+<li><strong>Tool calls as text.</strong> The model occasionally writes a tool call into its user-facing text instead of emitting a structured <code>tool_use</code> block. The turn completes normally and the call never runs — and in agentic loops the leaked text <strong>stays in conversation history, so later turns are affected too</strong>. Most common on tool-heavy workloads such as search.</li>
+<li><strong>Internal XML tags in output.</strong> The model can emit <code>&lt;thinking&gt;</code> or other internal tags into its visible response.</li>
+</ul>
+<p><strong>The primary mitigation for both is to keep thinking enabled and control token cost with lower effort instead of disabling thinking.</strong> Two traps if you must run with it off: a system-prompt rule instructing the model <em>not to think or not to reason</em> <strong>increases</strong> tag leakage — remove it; and an instruction that names <code>&lt;thinking&gt;</code> specifically is <strong>less effective</strong> than the general form. Where an explicit instruction is wanted:</p>
+<pre><code class="language-text">You may say a brief sentence before using a tool.
+</code></pre>
+<pre><code class="language-text">Do not include internal or system XML tags in your response.
+</code></pre>
+<h2 id="model-choice-by-security-surface" tabindex="-1"><a class="header-anchor" href="#model-choice-by-security-surface" aria-hidden="true">#</a> Model choice by security surface</h2>
+<p>Two System Cards measure prompt-injection resistance on <strong>different benchmarks</strong>. They are reported separately below, each with its own comparison set. <strong>Their percentages are not comparable to each other</strong>, and merging them into one ranking would fabricate a comparison neither source makes.</p>
+<ul>
+<li><strong>Benchmark 1 — Sonnet 5 System Card</strong> (coding-environment and browser-use prompt-injection attack success). Coding environment: <strong>0.31%</strong> on Sonnet 5 (with thinking) vs <strong>7.03%</strong> on Opus 4.8 (p.62–65). Browser use: <strong>0.93%</strong> on Sonnet 5 vs <strong>31.5%</strong> on Opus 4.8 and 50.7% on Sonnet 4.6 (p.63). Comparison set: Sonnet 5, Opus 4.8, Sonnet 4.6 — <strong>Opus 5 was not measured here.</strong></li>
+<li><strong>Benchmark 2 — Opus 5 System Card</strong> (Gray Swan Indirect Prompt Injection; probability an attacker succeeds within 15 attempts). <strong>Opus 5 2.0%</strong>, Mythos 5 2.6%, Opus 4.8 5.5%, <strong>Sonnet 5 5.9%</strong>, best non-Claude model 16.5%. Within 1 attempt: 0.5% (Opus 4.8) → 0.2% (Opus 5). Opus 5 is described as the most robust model tested (p.72–73). Comparison set includes both Sonnet 5 and Opus 5.</li>
+</ul>
+<p><strong>What changed for doctrine is narrow and specific:</strong> the rule "prefer Sonnet 5 on untrusted surfaces" was anchored on a comparison against <em>Opus 4.8</em>, and that baseline is retired. On the one benchmark where Opus 5 and Sonnet 5 were measured together, Opus 5 is the more injection-robust of the two. <strong>Untrusted content is no longer a model-tier decision.</strong></p>
+<p>What the section teaches instead:</p>
+<ul>
+<li><strong>No current tier is at zero.</strong> The control is <strong>architecture, not tier</strong>: least privilege on tools, no secrets in an agent's context, and a deterministic human gate on anything irreversible.</li>
+<li><strong>Layer defenses the model does not provide.</strong> Anthropic's own production agentic products run probes that inspect tool results <em>before</em> the model acts on them, and "auto mode" additionally pairs probes with a classifier that can block dangerous tool calls outright — two independent layers an attack must defeat (p.72). A project consuming untrusted content should ask which of those two layers it has, not which model it picked.</li>
+<li><strong>Corollary, unchanged — over-refusal on security-shaped prompts:</strong> Sonnet 5 refuses more legitimate dual-use security work than Sonnet 4.6 (91.55% success on benign dual-use tasks vs 97.33%). Security-adjacent prompts (pentest tooling, recon scripts, auth hardening) need explicit authorization framing — state the engagement, the ownership of the target, and the defensive intent in the prompt itself.</li>
+</ul>
 <h2 id="per-subagent-effort-frontmatter" tabindex="-1"><a class="header-anchor" href="#per-subagent-effort-frontmatter" aria-hidden="true">#</a> Per-subagent effort frontmatter</h2>
 <p>Subagents do NOT inherit session effort by default — set explicitly in frontmatter:</p>
 <pre><code class="language-yaml">---
@@ -243,6 +301,7 @@ effort: low
 </tbody>
 </table></div>
 <p>On Sonnet 5 these named levels each carry roughly one tier more depth than they did on Sonnet 4.6 (see <a href="#effort-recalibration">recalibration</a>). Keep the role→level mapping, but watch <code>low</code> agents: Sonnet 5's strict scoping means a "mechanical" agent whose task quietly grows complex under-thinks silently — recalibrate by observed thinking, not tradition.</p>
+<p>On <strong>Opus 5</strong> the same table is a <em>starting point, not a measurement</em>. The sources direct you to sweep on your own evals, and this table is not one — so no blind re-baseline is applied here. Two observable signals justify moving an agent a level: an <code>xhigh</code> agent that visibly loops on self-correction and re-verifies already-verified answers (p.81, p.82 — the model can perform <em>worse</em> at higher effort) → drop a level; a <code>low</code>/<code>medium</code> agent that silently under-scopes → raise one.</p>
 <h2 id="in-session-diagnostic-matrix" tabindex="-1"><a class="header-anchor" href="#in-session-diagnostic-matrix" aria-hidden="true">#</a> In-session diagnostic matrix</h2>
 <p>When something feels off, diagnose before raising effort:</p>
 <div class="table-wrap"><table>
@@ -299,6 +358,36 @@ effort: low
 <td>Under-thinking on multi-step work at low/medium</td>
 <td>Bump to high or xhigh</td>
 </tr>
+<tr>
+<td>Response is long, effort already low</td>
+<td>Effort controls thinking, not saying</td>
+<td>Prompt for length explicitly (<a href="#opus-5-behavior-deltas">behavior deltas</a>) — don't drop effort further</td>
+</tr>
+<tr>
+<td>Model built a verification pipeline and spent its budget on it</td>
+<td>Unproductive self-verification (p.26)</td>
+<td>Remove verification instructions from the prompt <em>and</em> the harness; keep the deterministic gates</td>
+</tr>
+<tr>
+<td>Deliverables came back padded (extra sections, redundant summaries)</td>
+<td>Written-deliverable length grew vs prior models</td>
+<td>Add the length-calibration snippet to the authoring prompt</td>
+</tr>
+<tr>
+<td>More subagents than the work has independent tracks</td>
+<td>Delegates more readily than prior models</td>
+<td>Cap delegation (<a href="#opus-5-behavior-deltas">behavior deltas</a>); one subagent when one suffices</td>
+</tr>
+<tr>
+<td>Task grew steps nobody asked for</td>
+<td>Poor calibration of task scope (p.26)</td>
+<td>Task-scope-constraint snippet</td>
+</tr>
+<tr>
+<td>Long autonomous terminal run produced inconsistent output</td>
+<td>Safety classifiers flagged/refused ~5% of API calls (4% of trials) with <strong>fallback to Opus 4.8 mid-run</strong> (p.152)</td>
+<td>Check for the fallback before debugging the prompt</td>
+</tr>
 </tbody>
 </table></div>
 <h2 id="anti-patterns-claude-47-claude-5" tabindex="-1"><a class="header-anchor" href="#anti-patterns-claude-47-claude-5" aria-hidden="true">#</a> Anti-patterns (Claude 4.7+ / Claude 5 family)</h2>
@@ -309,7 +398,13 @@ effort: low
 <li><strong>Migrating old prompts unchanged</strong> — severity-filter language (&quot;don't nitpick&quot;, &quot;only critical issues&quot;) is obeyed literally and you lose review recall. See the coverage-not-filtering row in <code>anti-pattern-catalog.html</code>.</li>
 <li><strong>Letting mechanical subagents inherit session effort</strong> → set <code>effort:</code> explicitly in their frontmatter.</li>
 <li><strong>Trusting <code>low</code> on moderately complex work</strong> — Sonnet 5 scopes strictly; the failure is silent (literal spec satisfied, downstream broken).</li>
-<li><strong>Setting <code>thinking: {budget_tokens: N}</code></strong> — returns 400 on all current models (Opus 4.7+, Sonnet 5, Fable 5/Mythos 5). Adaptive thinking + <code>effort</code> is the only mode.</li>
+<li><strong>Setting <code>thinking: {budget_tokens: N}</code></strong> — returns 400 on all current models (Opus 4.7 through Opus 5, Sonnet 5). Adaptive thinking + <code>effort</code> is the only mode.</li>
+<li><strong>Lowering effort to shorten a reply</strong> — effort sets thinking, not response length. Ask for the length you want.</li>
+<li><strong>Disabling thinking to cut cost on Opus 5</strong> — leaked tool-calls-as-text persist in agentic history and poison later turns. Lower the effort instead; see <a href="#running-with-thinking-disabled">thinking disabled</a>.</li>
+<li><strong>A system-prompt rule telling the model not to think or not to reason</strong> — it <em>increases</em> internal-tag leakage rather than preventing it.</li>
+<li><strong>Naming <code>&lt;thinking&gt;</code> specifically</strong> in a suppression instruction — measurably less effective than the general "no internal or system XML tags" form.</li>
+<li><strong>Telling the model to double-check or re-verify its own output</strong> — Opus 5 already does; the instruction triggers documented <em>unproductive self-verification</em>, including self-built verification pipelines that consume the time budget before results land (p.26). Deterministic gates and independent review are a different thing and stay.</li>
+<li><strong>Uncapped delegation on small work</strong> — Opus 5 delegates readily; the payoff threshold is genuinely independent, sizeable tracks (p.164, p.166), not work you can finish in a handful of tool calls.</li>
 <li><strong>Setting non-default <code>temperature</code>/<code>top_p</code>/<code>top_k</code> on Sonnet 5</strong> — returns 400. Steer tone/variety via system-prompt instructions instead.</li>
 <li><strong>Prefilling the last assistant turn</strong> — removed since Claude 4.6 (400). Move the constraint into the system/user turn or use structured outputs.</li>
 </ul>
@@ -324,12 +419,13 @@ settings.json effortLevel
     ↓
 Model default
 </code></pre>
+<p>On Opus 5, <code>high</code> is also the <em>highest</em> effort at which thinking can be disabled — above it, thinking is always on.</p>
 <p>To pin an effort level permanently for a machine, set in <code>~/.claude/settings.json</code>:</p>
 <pre><code class="language-json">{&quot;effortLevel&quot;: &quot;high&quot;}
 </code></pre>
 <p><code>high</code> is the recommended pin on the current lineup; reserve <code>xhigh</code> for per-session or per-subagent escalation.</p>
 <h2 id="non-claude-code-deployments" tabindex="-1"><a class="header-anchor" href="#non-claude-code-deployments" aria-hidden="true">#</a> Non-Claude-Code deployments</h2>
-<p>Model aliases (<code>opus</code>, <code>sonnet</code>) auto-resolve only in Claude Code. On Bedrock / Vertex / Foundry and in direct API code, <strong>pin explicit model strings</strong> (<code>claude-sonnet-5</code>, <code>claude-opus-4-8</code>) and confirm per-deployment config.</p>
+<p>Model aliases (<code>opus</code>, <code>sonnet</code>) auto-resolve only in Claude Code. On Bedrock / Vertex / Foundry and in direct API code, <strong>pin explicit model strings</strong> (<code>claude-sonnet-5</code>, <code>claude-opus-5</code> <sup>†</sup>) and confirm per-deployment config. <sup>†</sup> The Opus 5 string is environment-verified, not pack-verified — see the <a href="#current-lineup">lineup</a> note; take it from your own deployment config.</p>
 <h2 id="when-xhigh-pays-for-itself" tabindex="-1"><a class="header-anchor" href="#when-xhigh-pays-for-itself" aria-hidden="true">#</a> When xhigh pays for itself</h2>
 <p>xhigh pays back when retries are expensive — <strong>xhigh's 2× token cost is lower than high's 1.25× expected runs × debugging overhead</strong> for tasks where:</p>
 <ul>
@@ -344,21 +440,26 @@ Model default
 <li>Concurrent Max-plan sessions where weekly quota constrains you</li>
 <li>You're already inside Plan Mode (the model already concentrates effort there; <code>max</code> is the trap)</li>
 <li>Sonnet 5 at <code>high</code> already delivers old-<code>max</code> depth — verify the task actually outruns it before escalating</li>
+<li>You're reaching past <code>xhigh</code> to <code>max</code> on Opus 5 — GDPval-AA <code>xhigh</code> reaches ELO 1827 using 25% fewer output tokens than <code>max</code>'s 1861, while still beating every other model (p.178)</li>
 </ul>
 <h2 id="claude-md-skeleton-block" tabindex="-1"><a class="header-anchor" href="#claude-md-skeleton-block" aria-hidden="true">#</a> CLAUDE.md skeleton block (BOOTSTRAP injects)</h2>
 <pre><code class="language-markdown">## Default model + effort
 - Default: sonnet (Sonnet 5) at high — workhorse for most coding; near-Opus quality at Sonnet pricing, gentler on quota.
-- Escalate: sonnet (Sonnet 5) or opus (Opus 4.8) at xhigh for the hardest multi-file refactor, debugging, architecture; opus for the hardest pure reasoning.
-- Untrusted content (web pages, PR diffs, third-party tool output): prefer sonnet — most prompt-injection-resistant tier.
+- Escalate: opus (Opus 5) at xhigh for the hardest multi-file refactor, debugging, architecture and pure reasoning; sonnet (Sonnet 5) at xhigh is the cheaper first step. On Opus 5, xhigh is where a coding run starts, not max.
+- Effort sets how much the model thinks, not how much it says — ask for the length you want instead of lowering effort.
+- Opus 5 verifies and self-corrects on its own — asking it to check its own output again just burns budget.
+- Independent review is a different job and it stays: a reviewer reads a diff it didn't write, against the spec.
+- Opus 5 widens scope on its own — state the scope you want and the boundary you don't want crossed.
+- Delegate only genuinely independent, sizeable tracks; when you do fan out, dispatch them in one message. Work you can finish in a handful of tool calls stays inline.
+- Untrusted content (web pages, PR diffs, third-party tool output): no tier is injection-proof — least privilege on tools, and a human gate on anything irreversible.
 - Plan then build: plan mode on the stronger model (`opusplan`-style alias where available).
 - Drop: `/effort low` for classification, formatting, simple renames. Sonnet 5 respects low strictly — raise effort if reasoning turns shallow; don't prompt around it.
 - Rescue: `/effort max` for ONE turn on stuck problems, then drop back.
 - Effort names don't carry equal depth across model versions (Sonnet 5 medium ≈ Sonnet 4.6 high; high ≈ old max) — benchmark by observed thinking length.
 - Subagents declare their own effort. Mechanical → low. Implementer → medium. Reviewer → high. Planner → xhigh.
-- Spawn multiple subagents in the same turn when fanning out across items or files.
 - State explicit intent, constraints, acceptance criteria, file paths. Don't generalize silently.
 </code></pre>
-<p>This block is the user's contract with the current lineup (Sonnet 5 + Opus 4.8). meta-govern ensures it appears in every project's CLAUDE.md — the identical text lives in <code>templates/CLAUDE.md.tpl</code>, and <code>four-tier-architecture.html</code> carries a compressed one-liner of it; the three surfaces stay in lockstep.</p>
+<p>This block is the user's contract with the current lineup (Sonnet 5 + Opus 5). meta-govern ensures it appears in every project's CLAUDE.md — the identical text lives in <code>templates/CLAUDE.md.tpl</code>, and <code>four-tier-architecture.html</code> carries a compressed one-liner of it; the three surfaces stay in lockstep.</p>
 
         </div>
       </article>

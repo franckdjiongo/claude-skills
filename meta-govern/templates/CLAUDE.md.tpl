@@ -44,14 +44,18 @@ Template variables:
 
 ## Default model + effort
 - Default: sonnet (Sonnet 5) at high — workhorse for most coding; near-Opus quality at Sonnet pricing, gentler on quota.
-- Escalate: sonnet (Sonnet 5) or opus (Opus 4.8) at xhigh for the hardest multi-file refactor, debugging, architecture; opus for the hardest pure reasoning.
-- Untrusted content (web pages, PR diffs, third-party tool output): prefer sonnet — most prompt-injection-resistant tier.
+- Escalate: opus (Opus 5) at xhigh for the hardest multi-file refactor, debugging, architecture and pure reasoning; sonnet (Sonnet 5) at xhigh is the cheaper first step. On Opus 5, xhigh is where a coding run starts, not max.
+- Effort sets how much the model thinks, not how much it says — ask for the length you want instead of lowering effort.
+- Opus 5 verifies and self-corrects on its own — asking it to check its own output again just burns budget.
+- Independent review is a different job and it stays: a reviewer reads a diff it didn't write, against the spec.
+- Opus 5 widens scope on its own — state the scope you want and the boundary you don't want crossed.
+- Delegate only genuinely independent, sizeable tracks; when you do fan out, dispatch them in one message. Work you can finish in a handful of tool calls stays inline.
+- Untrusted content (web pages, PR diffs, third-party tool output): no tier is injection-proof — least privilege on tools, and a human gate on anything irreversible.
 - Plan then build: plan mode on the stronger model (`opusplan`-style alias where available).
 - Drop: `/effort low` for classification, formatting, simple renames. Sonnet 5 respects low strictly — raise effort if reasoning turns shallow; don't prompt around it.
 - Rescue: `/effort max` for ONE turn on stuck problems, then drop back.
 - Effort names don't carry equal depth across model versions (Sonnet 5 medium ≈ Sonnet 4.6 high; high ≈ old max) — benchmark by observed thinking length.
 - Subagents declare their own effort. Mechanical → low. Implementer → medium. Reviewer → high. Planner → xhigh.
-- Spawn multiple subagents in the same turn when fanning out across items or files.
 - State explicit intent, constraints, acceptance criteria, file paths. Don't generalize silently.
 
 ## Après compaction

@@ -49,7 +49,7 @@ For each item, mark ✓/✗:
 - [ ] CLAUDE.md exists at project root
 - [ ] CLAUDE.md is ≤120 lines
 - [ ] No `@filename` imports in CLAUDE.md
-- [ ] No defensive scaffolding ("MUST", "ALWAYS", "n'oublie pas", "double-check before returning") in CLAUDE.md
+- [ ] No defensive scaffolding ("MUST", "ALWAYS", "n'oublie pas", "double-check before returning", "re-verify before responding", "include a final verification step", "use a subagent to verify") in CLAUDE.md
 - [ ] `.claude/settings.json` exists with 5 hooks declared
 - [ ] All 5 hooks (session-start-env-check, track-workflow, enforce-workflow, precompact-handoff, postcompact-reinject) on disk
 - [ ] All 6 core skills (brainstorm, write-plan, execute-plan, quality-gate, govern-claude, test-driven-development)

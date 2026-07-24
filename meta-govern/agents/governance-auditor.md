@@ -46,7 +46,7 @@ Capture all findings.
 Beyond the script, look for:
 
 **Defensive scaffolding accretion**
-Grep `.claude/**/*.md` and CLAUDE.md for: `MUST`, `ALWAYS`, `NEVER`, `do not skip`, `n'oublie pas`, `verify before returning`, `double-check`, `Make sure to`, `It is critical that`, `Pay attention to`. Each match in BODY (not frontmatter description) is a finding. Source: `references/anti-pattern-catalog.html`.
+Grep `.claude/**/*.md` and CLAUDE.md for: `MUST`, `ALWAYS`, `NEVER`, `do not skip`, `n'oublie pas`, `verify before returning`, `double-check`, `re-verify`, `use a subagent to verify`, `final verification step`, `Make sure to`, `It is critical that`, `Pay attention to`. Each match in BODY (not frontmatter description) is a finding. Source: `references/anti-pattern-catalog.html`.
 
 **Volatile state in standing context (durable-only doctrine)**
 Read CLAUDE.md and AGENTS.md. Beyond the deterministic `stale-state`/`state-duplication` findings (version + palier, from audit-project.mjs), judge prose that duplicates state the script can't safely regex: "backend vivant = X", "Convex pas encore de schéma", "~N constats any/hex", "~N tests", "coverage currently thin", migration status, any "aujourd'hui/currently/pas encore". Apply the rot test — "can this go false without editing this file?". Each such statement → MEDIUM `stale-state`; recommend moving it to `.claude/.meta-govern.json` / `HANDOFF.md` / a living doc and leaving a durable pointer. Dated lines naming their expiry AND successor state ("X until 2026-07-07, then Y") are admissible. Source: `references/anti-pattern-catalog.html`.

@@ -82,7 +82,7 @@ File-size caps from `baseline.md` §4 exceeded → severity HIGH.
 ### Step 5 — Defensive scaffolding (Claude 4.7+/5-family anti-pattern)
 
 ```bash
-grep -rEn -i 'double[- ]check|verify before returning|do not skip any step|please make sure to|always remember to|n.?oubli(?:e|er)|attention.{0,3}à' .claude/ CLAUDE.md
+grep -rEn -i 'double[- ]check|verify before returning|re-?verify|use a subagent to verify|(include a )?final verification step|do not skip any step|please make sure to|always remember to|n.?oubli(?:e|er)|attention.{0,3}à' .claude/ CLAUDE.md
 ```
 
 Matches → MEDIUM, propose deletion. Aggressive markers belong in **frontmatter only** (they boost activation). In bodies they create instruction-following loops on current Claude models (4.7+/5).

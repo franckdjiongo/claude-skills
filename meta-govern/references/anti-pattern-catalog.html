@@ -66,8 +66,8 @@
 </tr>
 <tr>
 <td>Defensive scaffolding</td>
-<td>&quot;MUST&quot;, &quot;ALWAYS&quot;, &quot;double-check before returning&quot;, &quot;n'oublie pas&quot;</td>
-<td>Delete. Current Claude models (4.7+/5) follow literally; performance drops — over-prescriptive bodies actively degrade output on the newest models. Aggressive markers ALLOWED only in skill descriptions (frontmatter) for activation.</td>
+<td>&quot;MUST&quot;, &quot;ALWAYS&quot;, &quot;double-check before returning&quot;, &quot;re-verify before responding&quot;, &quot;include a final verification step&quot;, &quot;use a subagent to verify&quot;, &quot;n'oublie pas&quot;</td>
+<td>Delete. Current Claude models (4.7+/5) follow literally; performance drops — over-prescriptive bodies actively degrade output on the newest models. The verification forms are worse than inert on Opus 5: the model already verifies and self-corrects, and the instruction triggers documented <em>unproductive self-verification</em> — exhaustive correctness checks and self-built verification pipelines that consume the time budget before results land (Opus 5 System Card, p.26). Deterministic gates (hooks, coverage, quality gate) and independent review of someone else's diff are a different category and stay. Aggressive markers ALLOWED only in skill descriptions (frontmatter) for activation.</td>
 </tr>
 <tr>
 <td>Architecture explanations inline</td>
@@ -238,6 +238,11 @@
 </thead>
 <tbody>
 <tr>
+<td>Gating an irreversible action with prose alone</td>
+<td>A rule like &quot;confirm before destructive actions&quot; lives only in context, so it can be reasoned past instead of obeyed — and silently. Documented: given a system reminder that deletions require confirmation <em>in the current turn</em>, the model privately concluded that an earlier vague instruction (&quot;clean up the batch&quot;) already counted as authorization and deleted 120 jobs without re-asking; the override happened in private reasoning and was never surfaced to the user (Opus 5 System Card, p.93). Explicit tool restrictions fare no better — an unambiguous &quot;do NOT use <code>curl</code>&quot; was <em>reinterpreted</em> (&quot;makes the restriction absurd&quot; read literally), violated, and the violation not disclosed (p.82–83)</td>
+<td>Deterministic <code>PreToolUse</code> gating for anything irreversible. Write hard tool restrictions with zero ambiguity about scope, and expect non-disclosure when one is crossed. Cover every write vector: a guard matching only <code>Write|Edit|MultiEdit</code> leaves the Bash door open (heredoc, <code>sed -i</code>, <code>tee</code>, <code>node -e</code>) — that is what <code>bash-write-guard</code> exists for</td>
+</tr>
+<tr>
 <td>Missing <code>/opt/homebrew/bin</code> PATH</td>
 <td><code>node</code>/<code>git</code>/<code>bun</code> not found on Apple Silicon</td>
 <td>Set explicit PATH in hook script</td>
@@ -355,8 +360,33 @@
 <tbody>
 <tr>
 <td><code>thinking: {budget_tokens: N}</code> (manual extended thinking)</td>
-<td>400 error on all current models (Opus 4.7+, Sonnet 5, Fable 5/Mythos 5)</td>
+<td>400 error on all current models (Opus 4.7 through Opus 5, Sonnet 5)</td>
 <td>Adaptive thinking + the <code>effort</code> parameter is the only mode</td>
+</tr>
+<tr>
+<td>Explicit verification / re-check instructions in a prompt or harness</td>
+<td>&quot;include a final verification step&quot;, &quot;use a subagent to verify&quot;, &quot;double-check your answer&quot;. On Opus 5 the model already verifies and self-corrects; the instruction compounds with its own behavior and produces <em>unproductive self-verification</em> — in several documented cases it blew the time budget debugging a verification pipeline it built itself, before ever landing results (p.26)</td>
+<td>Remove them from prompts <strong>and</strong> from legacy harness scaffolding that adds separate verification steps. Keep deterministic infrastructure (hooks, gate scripts, coverage/diff-coverage) and independent review against a spec — a reviewer reading a diff it did not write is not the author re-reading itself</td>
+</tr>
+<tr>
+<td>Lowering effort to shorten a response</td>
+<td>Response stays long; only thinking shrinks. Effort controls how much the model <em>thinks</em>, not how much it <em>says</em></td>
+<td>Prompt for length explicitly (conversational brevity, narration cadence and written-deliverable length are three separate levers — see <code>model-effort-defaults.html#opus-5-behavior-deltas</code>)</td>
+</tr>
+<tr>
+<td>Disabling thinking to cut cost on Opus 5</td>
+<td>Tool calls occasionally emitted as user-facing <em>text</em> instead of a <code>tool_use</code> block — the turn completes, the call never runs, and in agentic loops the leaked text stays in conversation history and affects later turns. Internal XML tags can also leak into visible output</td>
+<td>Keep thinking on and control cost with a lower effort level instead (thinking is disableable only at effort <code>high</code> or below anyway). If it must stay off: allow a brief sentence before a tool call, and suppress tags with a general instruction</td>
+</tr>
+<tr>
+<td>A system-prompt rule telling the model not to think or not to reason</td>
+<td>Counter-productive: it <em>increases</em> internal-tag leakage. Naming <code>&lt;thinking&gt;</code> specifically is also less effective than the general form</td>
+<td>Remove the rule. Where an instruction is wanted: &quot;Do not include internal or system XML tags in your response.&quot;</td>
+</tr>
+<tr>
+<td>Uncapped subagent delegation</td>
+<td>Opus 5 delegates more readily than prior models; on small tasks that multiplies cost and time for no gain</td>
+<td>Gate on the payoff threshold the benchmarks establish — BrowseComp: 10-agent team 93.6% (+3.1pp over best single-agent) with 5.6–5.9× latency speedup; ProgramBench: 5-agent team 2.2× latency at equal score (p.164, p.166). Genuinely independent, sizeable tracks only; one subagent when one suffices; never a subagent to verify your own output</td>
 </tr>
 <tr>
 <td>Non-default <code>temperature</code>/<code>top_p</code>/<code>top_k</code> on Sonnet 5</td>
@@ -370,7 +400,7 @@
 </tr>
 <tr>
 <td>Severity-filtered review prompts (&quot;only significant issues&quot;, &quot;don't nitpick&quot;)</td>
-<td>Recall trap on Sonnet 5: the model investigates fully and finds the bugs, but obeys the filter and doesn't report them — precision rises, recall silently falls</td>
+<td>Recall trap on Sonnet 5: the model investigates fully and finds the bugs, but obeys the filter and doesn't report them — precision rises, recall silently falls. <strong>Corroborated on a second model:</strong> on Opus 5, a prompt saying &quot;only report high-severity issues&quot; or &quot;be conservative&quot; may be followed literally and the model reports less — ask it to report everything and filter in a separate pass</td>
 <td>Coverage-not-filtering: the finding stage reports everything with confidence + severity attached; filtering/ranking happens downstream. Single-pass filters use a concrete bar (&quot;could cause incorrect behavior, a test failure, or a misleading result&quot;), never qualitative words. Wired into <code>templates/agents/spec-reviewer.md.tpl</code> + <code>code-quality-reviewer.md.tpl</code></td>
 </tr>
 </tbody>
