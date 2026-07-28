@@ -268,7 +268,7 @@ const DIMENSIONS = [
 phase('Hunt')
 const results = await pipeline(
   DIMENSIONS,
-  (d) => agent(`${CONTEXT}\n\nDIMENSION: ${d.focus}`, { label:`hunt:${d.key}`, phase:'Hunt', schema:FINDINGS, effort:'high' }),
+  (d) => agent(`${CONTEXT}\n\nDIMENSION: ${d.focus}\n\nIf a finding overlaps another dimension's territory, note the overlap in one line rather than re-developing it — a later step dedupes same-file/line reports, so a full write-up per dimension only multiplies verify cost for one defect.`, { label:`hunt:${d.key}`, phase:'Hunt', schema:FINDINGS, effort:'high' }),
   (review) => parallel((review?.findings ?? []).map((f) => () =>
     agent(`${CONTEXT}\n\nADVERSARIALLY VERIFY this finding. First verify its FACTS against the real code, then set mustFix:
 - TRUE if some input makes it wrong/crash/lose data (correctness), OR it deviates from a repo idiom you can CITE in repoIdiomViolated / violates an external hard limit / is an unbounded read|scan|N+1|over-fetch — even if today's data makes it work.
@@ -369,8 +369,13 @@ field migration review ran 16→7→10→8→2→2 findings over six rounds), wh
 tokens. Pick the rule by changed-line count:
 
 - **Normal PR (≲5k changed lines):** loop until **two consecutive clean passes**; hard cap ~3 fix
-  rounds. If it hasn't converged by then, the changeset is too entangled — surface that to the user
-  with the open findings rather than grinding silently.
+  rounds. The cap binds: at the cap round the fan-out stops chasing zero. Surviving **P1/P2 still get
+  fixed and re-verified** past the cap until clean; remaining **P3 / low-severity findings convert to
+  follow-up chips** (`spawn_task`) instead of triggering another full fan-out — a P3 twin is worth a
+  chip, not a fresh multi-million-token round. If a P1/P2 hasn't converged by the cap, the changeset
+  is too entangled — surface that to the user with the open findings rather than grinding silently.
+  In the field, two runs that re-ran the whole fan-out past the cap for P3-only residue cost ~2 extra
+  rounds each (~4-6M subagent tokens).
 - **Large diff (≳5k changed lines / migration-scale):** drain instead of chasing zero — loop until
   **two consecutive rounds each yield ≤2 findings, none P1**, then fix those, stop, and report the
   **residual risk** honestly (what classes were swept, what the last rounds still surfaced, what was

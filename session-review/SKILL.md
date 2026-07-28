@@ -70,8 +70,40 @@ The script outputs (in markdown):
 - `--file <path>` — direct path to a .jsonl
 - `--cwd <path>` — override current working directory
 - `--json` / `--md` — output only one format (default: both, JSON first, then markdown)
+- `--rollup [N]` — **cross-session mode.** Aggregate the whole project instead of one session: `--rollup` covers every session in the project dir, `--rollup 10` the 10 most recent. Emits a per-session table + merged totals (subagent types, skills, slash commands, tool-error kinds, parallelism, commits, harness events). Use this whenever the request is about *multiple* sessions — see "Cross-session (project) review mode" below.
 
 **Then layer qualitative reflection on top.** The script gives you the skeleton (what happened, quantitatively). The rapport adds why it matters and what to do about it.
+
+---
+
+## Cross-session (project) review mode
+
+**Trigger this mode when the request is about MORE THAN the current session** — "analyze the last 10 sessions", "review the last N sessions", "review les N dernières sessions", "review the last N threads", "analyse toutes les sessions de ce projet", "review all the threads on this project", "lessons learned across the project", "what patterns keep recurring". The `--last N` / `--rollup N` flags map to this mode. Default `/session-review` (no such phrasing) stays single-session.
+
+> **Boundary — this is a *conversation* retrospective, not an artifact audit.** Cross-session mode aggregates what *happened* across sessions (interventions, friction, dispatch patterns). It does NOT grade the QUALITY of your design/plan artifacts or the skills that produce them — the 14-dimension grid, design→plan fidelity, remediation cycles, and an HTML audit report are a separate, heavier multi-agent job. For "audit my pipeline", "are my brainstorming / writing-plan / execute-plan skills good enough", or "full pipeline audit", use the **`pipeline-audit`** skill instead. Keep the line clean: session-review = how the conversations went; pipeline-audit = how good the artifacts and skills are. Do not try to do the full pipeline audit from here.
+
+In this mode the unit of analysis is the **project**, not one transcript. A single-session 5-dimension rapport applied to 10 sessions is the wrong shape — the value is in *recurring* patterns, not per-session events.
+
+**Procedure:**
+
+1. **Run the rollup first**, not the single-session analyzer:
+   ```bash
+   python3 ~/.claude/skills/session-review/scripts/analyze_session.py --rollup --md      # all sessions
+   python3 ~/.claude/skills/session-review/scripts/analyze_session.py --rollup 10 --md   # 10 most recent
+   python3 ~/.claude/skills/session-review/scripts/analyze_session.py --last 15 --md     # alias: the last 15 sessions
+   ```
+   This gives the per-session map + merged aggregate (subagent types, skills, slash commands, tool-error kinds, parallelism, commits, compactions/stop-hooks) as ground truth — no hand-aggregation.
+2. **Drill into the highest-signal individual sessions** with `--session <uuid>` / `--file <path>` (JSON) to pull the exact intervention/correction previews from `user_turns_detail` (the rollup intentionally omits per-turn text to stay compact). One drill-down per session that carries a recurring pattern is usually enough.
+3. **Score the workflow in aggregate**, not each session. State it's an aggregate of N sessions and weight by recurrence (a friction that appears in 6/10 sessions outranks a one-off). Use `active_duration_minutes_rounded`, not wall-clock, when citing effort — resumed sessions inflate wall-clock badly.
+4. **Reframe the 5 dimensions as cross-cutting:**
+   - **D1 (score):** aggregate /10 with a per-session map table.
+   - **D2 (worked):** transferable patterns that held *across* sessions (e.g. delta-at-start commits every time).
+   - **D3 (didn't):** recurring failures, ranked by how many sessions they appear in. A pattern in 1 session is an anecdote; in 5+ it's a systemic gap. Cite counts from the aggregate (e.g. `file_not_read_yet ×20`, `parallel_messages 0/15`).
+   - **D4 (agents/skills):** judge the *dispatch ecosystem* over the window (which agents dominate, parallelism never used, role bleed) rather than one invocation. Read the top agents' `.md` once, not per session.
+   - **D5 (suggestions):** prioritize fixes by recurrence × cost. The recurring hand-typed ritual or the never-used capability is usually the headline.
+5. **Synthèse:** name the 2-3 systemic levers, in priority order, that change the *most sessions going forward*.
+
+Everything else in this SKILL (calibration, anti-patterns, evidence-over-impression, each-complaint-pairs-a-fix) applies unchanged — only the unit of analysis widens.
 
 ---
 
@@ -319,7 +351,7 @@ If none of these apply, say so explicitly in your improvement section: "No gaps 
 - **ADD** new helper functions, classifiers, heuristics — never delete or simplify existing ones in ways that change their output.
 - **ADD** new classifier categories — never remove existing ones (even if they seem redundant).
 - **WIDEN** heuristic thresholds when a signal was missed — never narrow them except with strong cross-session evidence.
-- **PRESERVE** the command-line interface — all existing flags (`--cwd`, `--session`, `--file`, `--json`, `--md`) must keep their exact meaning.
+- **PRESERVE** the command-line interface — all existing flags (`--cwd`, `--session`, `--file`, `--json`, `--md`, `--rollup`) must keep their exact meaning.
 - **PRESERVE** the output schema — downstream consumers (this skill, future tooling) must be able to read older keys unchanged.
 
 If a change you want to make violates any of these, **do not apply it**. Instead, write a "proposed refactor" note in the improvement section and let the user decide in a future session.
@@ -426,6 +458,9 @@ Explicitly note compaction as a quality-of-session event. Was context recovery c
 
 ### Session had no user interventions and completed cleanly
 Candidate for 8-9/10. Be especially strict in Dimension 2 — "nothing went wrong" is not the same as "everything went great". Name the SPECIFIC decisions that worked, not the absence of problems.
+
+### Request spans multiple sessions ("analyze the last 10 sessions", "all the threads on this project")
+Switch to **Cross-session (project) review mode** (see that section). Run `--rollup` first, drill into the highest-signal sessions with `--session`, score the workflow in aggregate, and rank Dimension 3 findings by recurrence. Do NOT run a single-session rapport per session and concatenate.
 
 ---
 
