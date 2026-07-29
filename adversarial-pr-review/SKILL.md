@@ -99,7 +99,15 @@ Both modes run the **same engine** (below) and the **same core discipline**. The
      sits in.** "Unguarded FK ownership" means *every mutation × that FK anywhere in the diff*;
      "uncapped client array" means *every array arg × that cap*, repo-wide. The deliverable of a
      sweep is an **enumeration table** (each candidate site: swept / has-guard / missing) — a sweep
-     without the table is an assertion, not a sweep. A sweep scoped to the finding's module is
+     without the table is an assertion, not a sweep. **The table is emitted by YOU (the orchestrator,
+     in the main thread) at fix time, BEFORE declaring the sweep done** — an enumeration that exists
+     only inside a subagent's report is raw material, not the deliverable; and every grep hit the
+     sweep surfaced must appear in the table with a disposition (swept / has-guard / not-in-class,
+     with one line of why). In the field (2026-07-28, two independent runs): a duration-guard sweep
+     that traced delegations but emitted no table missed `recordTimerHistory` in the SAME file —
+     same class, re-found one round later; and a repo-wide grep left 4 hits undispositioned, which a
+     round-2 agent had to back-fill. Correct outcome, wrong owner, one round late — both times.
+     A sweep scoped to the finding's module is
      itself a review defect: in the field, one module-scoped FK-ownership sweep let the same class
      recur in two later rounds, costing ~2 extra rounds (~7M tokens) to re-find what the first
      sweep should have enumerated.
@@ -129,8 +137,8 @@ Run this the moment a PR is imminent. Steps:
    no point fanning out agents over a diff that doesn't compile.
 3. **Run the adversarial review engine** (next section) scaled to the diff size.
 4. **Fix every confirmed finding — BOTH gates** (correctness AND convention/scalability/platform-limit,
-   discipline #2), each with a **class-sweep** (discipline #3). Don't park a "works today" unbounded
-   query as P3; the bot won't.
+   discipline #2), each with a **class-sweep** (discipline #3) whose enumeration table you emit in the
+   main thread before moving on. Don't park a "works today" unbounded query as P3; the bot won't.
 5. **Re-run the engine** on the new diff. Repeat until the size-scaled convergence criterion is met
    (see "Scaling & cost").
 6. **Re-run the quality gate** to confirm fixes didn't break the build.
@@ -176,7 +184,10 @@ step-3 class-sweep or step-4 full-diff fan-out was too shallow — widen both be
 
 The engine is a **find → adversarially-verify → (you) fix** fan-out. With ultracode/workflows
 enabled (`CLAUDE_CODE_WORKFLOWS=1`), use the **Workflow tool**; otherwise fall back to parallel
-`Agent` subagents (same shape, fewer agents).
+`Agent` subagents (same shape, fewer agents). **Key this decision on the environment
+(`CLAUDE_CODE_WORKFLOWS` / whether the Workflow tool is actually available), never on "the user
+didn't ask for ultracode"** — the engine choice is yours to make from capability, not from the
+phrasing of the request (a field run mis-keyed on the latter and under-scaled its fan-out).
 
 **Shape:** dimension reviewers each attack the diff from one angle and emit findings → each finding
 gets an independent verifier that tries to *refute* it → you fix only what survives.
@@ -390,6 +401,10 @@ tokens. Pick the rule by changed-line count:
   a repo idiom (cite the sibling) or an external limit is **must-fix even if not triggerable today**.
 - ❌ Fixing the one instance the comment points at. → ✅ **Class-sweep**: grep every sibling with the
   same signature and fix them all in the same pass.
+- ❌ **Leaving the sweep's enumeration inside a subagent report (or emitting no table at all).** The
+  orchestrator declares "swept" on an assertion; undispositioned grep hits and same-file twins leak
+  into the next round (field: `recordTimerHistory`, re-found round 2). → ✅ The orchestrator emits
+  the table itself at fix time; every grep hit gets a disposition line.
 - ❌ **Scoping a class-sweep to the module the finding sits in.** The class recurs in every module the
   sweep skipped, one round at a time (~7M tokens of re-finding, in the field). → ✅ The class is the
   resource pattern across the ENTIRE diff (every mutation × that FK, every array × that cap); the

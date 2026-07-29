@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# ANALYZER_VERSION = "v1.29 — additive: markdown render only — when commits_during_session.count==0 but git_commit_tool_calls_observed>0, emit a ⚠️ line surfacing the observed count. The cwd-scoped `git log` misses commits landed in OTHER repos the session cd'd into (observed 2026-07-11, meta-govern overnight migration: 8 commits across automintech/eosa/personal-budget-app rendered as '0 commits (none)', hiding the v1.16 cross-check signal already present in the JSON). JSON schema UNCHANGED. Purely additive. 2026-07-11"
+# ANALYZER_VERSION = "v1.30 — additive: (a) skill_content_injection classifier category, tested right before the length heuristics in classify_user_turns. When a Skill tool fires, the harness injects the SKILL.md body as a user-role turn beginning 'Base directory for this skill:' (isMeta=true in the JSONL); their length after tool work mislabeled them new_request_mid_work / likely_intervention (observed 2026-07-29, banc d'essai cloud: 5 such turns across 3 of 4 exported transcripts read as user interventions and had to be hand-requalified in every rapport). Every other turn keeps its exact prior classification. (b) claude_browser bucket in _browser_verification: mcp__Claude_Browser__* calls (navigate/computer/read_page/javascript_tool/preview_*) were invisible to the v1.23 aggregate — a session with 49 such calls of real visual QA rendered browser_verification.used=false (observed 2026-07-29, workstation banc-essai transcript). New key claude_browser added to the dict; chrome_mcp/claude_preview/computer_use keep their exact prior counts; total_calls/used widen to include the new bucket (a missed-signal widening per the additive contract), and the markdown breakdown line renders claude_browser next to the three historical buckets (without it the block headlined '52 calls' over a row of three zeros). JSON schema is a superset. Purely additive. 2026-07-29"
+# ANALYZER_VERSION_PREVIOUS_V1_29 = "v1.29 — additive: markdown render only — when commits_during_session.count==0 but git_commit_tool_calls_observed>0, emit a ⚠️ line surfacing the observed count. The cwd-scoped `git log` misses commits landed in OTHER repos the session cd'd into (observed 2026-07-11, meta-govern overnight migration: 8 commits across automintech/eosa/personal-budget-app rendered as '0 commits (none)', hiding the v1.16 cross-check signal already present in the JSON). JSON schema UNCHANGED. Purely additive. 2026-07-11"
 # ANALYZER_VERSION_PREVIOUS_V1_28 = "v1.28 — additive: external_interruption_detected boolean per user turn + 🌐EXTERNAL-INTERRUPT render marker. Turns interrupted by the ENVIRONMENT (rate-limit, machine restart, API overloaded, session limit) were length-classified `other`/`likely_intervention`, forcing manual requalification of 'the user corrected me' vs 'the environment broke'. Case-insensitive keyword match over the lowercased preview: rate-limit, rate limit, overloaded, redémarr, redemarr, restart, crashed, session limit, api error, api overloaded. Never overrides category; every other turn keeps its exact prior classification. Purely additive. 2026-07-10"
 # ANALYZER_VERSION_PREVIOUS_V1_27 = "v1.27 — additive: `id` column (first 8 chars of session_id, backticked) prepended to the per-session table in render_rollup_markdown --rollup mode. A rollup rapport citing a specific session ('the 617-min run') previously gave the reader no handle to re-run `--session <id>` on it — the session_id was already in the per_session JSON rows but absent from the rendered table (improvement carried as State B from the 2026-07-02 session-review). Markdown rendering only: rollup()/per_session schema, single-session path, and every JSON key UNCHANGED. Purely additive. 2026-07-02"
 # ANALYZER_VERSION_PREVIOUS_V1_26 = "v1.26 — additive: local_command_echo classifier category, tested right BEFORE the likely_intervention branch in classify_user_turns. Harness-echoed local-command output turns (preview starting with '<local-command-caveat>', e.g. after /model) were length-classified as likely_intervention — false intervention signal observed 2026-07-02 (personal-budget-app convex-migration sessions). New category only claims turns whose preview (lstripped) starts with '<local-command-caveat>'; earlier branches (stop_hook_feedback, command_invocation, continuation, confirmation, short_directive) and every other turn keep their exact prior classification. Purely additive. 2026-07-02"
@@ -443,6 +444,9 @@ def classify_user_turns(turns):
             <local-command-caveat> (e.g. after /model). NOT user input — checked
             right before likely_intervention so the echo can't read as a
             correction.
+      - skill_content_injection: harness-injected SKILL.md body after a Skill
+            tool call ("Base directory for this skill:"). NOT user input —
+            checked right before the length heuristics (v1.30).
       - likely_intervention: short-to-medium (<= 500 chars) after >= 3 tool uses
       - new_request: long (> 500 chars) after work has happened
       - other: everything else
@@ -482,6 +486,15 @@ def classify_user_turns(turns):
         # other turn keeps its exact prior classification.
         elif turn["preview"].lstrip().startswith("<local-command-caveat>"):
             turn["category"] = "local_command_echo"
+        # v1.30 additive category: skill-content injection. When a Skill tool
+        # fires, the harness injects the SKILL.md body as a user-role turn
+        # beginning "Base directory for this skill:" (isMeta=true). Long bodies
+        # after tool work mislabeled these new_request_mid_work /
+        # likely_intervention (observed 2026-07-29: 5 turns across 3 transcripts
+        # read as user interventions). Tested right before the length
+        # heuristics; every other turn keeps its exact prior classification.
+        elif turn["preview"].lstrip().startswith("Base directory for this skill:"):
+            turn["category"] = "skill_content_injection"
         elif tools_before >= 3 and 20 < length <= 500:
             turn["category"] = "likely_intervention"
         elif length > 500 and tools_before >= 5:
@@ -924,12 +937,20 @@ def _browser_verification(tool_usage):
     asserted via API/unit tests.
     """
     chrome = preview = computer = 0
+    claude_browser = 0  # v1.30: mcp__Claude_Browser__* bucket
     by_tool = {}
     for name, count in tool_usage.items():
         low = name.lower()
         is_browser = False
         if "claude_in_chrome" in low or "claude-in-chrome" in low:
             chrome += count
+            is_browser = True
+        # v1.30 additive bucket — mcp__Claude_Browser__* (navigate/computer/
+        # read_page/javascript_tool/preview_*). Checked before the preview
+        # branch so mcp__Claude_Browser__preview_* lands here; bare preview_*
+        # tools keep hitting claude_preview exactly as before.
+        elif "claude_browser" in low or "claude-browser" in low:
+            claude_browser += count
             is_browser = True
         elif low.startswith("preview_") or "claude_preview" in low or "claude-preview" in low:
             preview += count
@@ -939,12 +960,13 @@ def _browser_verification(tool_usage):
             is_browser = True
         if is_browser:
             by_tool[name] = count
-    total = chrome + preview + computer
+    total = chrome + preview + computer + claude_browser
     return {
         "total_calls": total,
         "chrome_mcp": chrome,
         "claude_preview": preview,
         "computer_use": computer,
+        "claude_browser": claude_browser,  # v1.30 additive key
         "used": total > 0,
         "by_tool": by_tool,
     }
@@ -1346,6 +1368,11 @@ def render_markdown(report):
         lines.append(
             f"- chrome_mcp: {bv['chrome_mcp']} · claude_preview: "
             f"{bv['claude_preview']} · computer_use: {bv['computer_use']}"
+            # v1.30: the claude_browser bucket counts toward total_calls, so it
+            # must appear in the breakdown too — without it a 52-call session
+            # renders "(52 calls)" over a line of three zeros. `.get` keeps the
+            # renderer readable on a JSON produced by a pre-v1.30 analyzer.
+            f" · claude_browser: {bv.get('claude_browser', 0)}"
         )
         lines.append(
             "- _Signal: previewable UI was exercised in a real browser, "
