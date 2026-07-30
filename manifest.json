@@ -1,0 +1,1734 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-30T03:30:05.383Z",
+  "cargoBranch": "cargo/2026-07-30",
+  "resultsBranch": "results/2026-07-30",
+  "items": [
+    {
+      "kind": "skillJob",
+      "id": "job-1785281210659-519623",
+      "skill": "adversarial-pr-review",
+      "sessionId": "cb88b8a5-77bd-46a9-9aa8-5f0978caabae",
+      "projectSlug": "workstation",
+      "headSha": "8a31f6f8e8f06fce54b7d48459c9aa00026ac2a0",
+      "disposition": "local_only",
+      "transcriptBytes": 9780224,
+      "ageDays": 1.1689204166666667,
+      "reason": "transcript 9780224o > cap 6000000o"
+    },
+    {
+      "kind": "skillJob",
+      "id": "job-1785275228960-a6945f",
+      "skill": "adversarial-pr-review",
+      "sessionId": "cb88b8a5-77bd-46a9-9aa8-5f0978caabae",
+      "projectSlug": "workstation",
+      "headSha": "c3d6036fd0cc15df50cce9c12a0ba11b6dfcce9e",
+      "disposition": "local_only",
+      "transcriptBytes": 9780224,
+      "ageDays": 1.2381530439814814,
+      "reason": "transcript 9780224o > cap 6000000o"
+    },
+    {
+      "kind": "skillJob",
+      "id": "job-1785281770490-71a690",
+      "skill": "adversarial-pr-review",
+      "sessionId": "cb88b8a5-77bd-46a9-9aa8-5f0978caabae",
+      "projectSlug": "workstation",
+      "headSha": "a1ca9780478bbb3942a999f63b3712dd9da1b53d",
+      "disposition": "local_only",
+      "transcriptBytes": 9780224,
+      "ageDays": 1.1624408912037036,
+      "reason": "transcript 9780224o > cap 6000000o"
+    },
+    {
+      "kind": "skillJob",
+      "id": "job-1785278942365-5317b9",
+      "skill": "adversarial-pr-review",
+      "sessionId": "cb88b8a5-77bd-46a9-9aa8-5f0978caabae",
+      "projectSlug": "workstation",
+      "headSha": "c007bd458c3b5e976d5c921233c28999508bda9b",
+      "disposition": "local_only",
+      "transcriptBytes": 9780224,
+      "ageDays": 1.1951738194444443,
+      "reason": "transcript 9780224o > cap 6000000o"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a744897db02d9a803",
+      "sessionId": "agent-a744897db02d9a803",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-aa1c1d70e1a135dee",
+      "sessionId": "agent-aa1c1d70e1a135dee",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ae82b834d17fe7589",
+      "sessionId": "agent-ae82b834d17fe7589",
+      "projectSlug": "power-platform-ai-toolkit",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a8ba030e0f28cd34e",
+      "sessionId": "agent-a8ba030e0f28cd34e",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a1d71b0f4baa9cea2",
+      "sessionId": "agent-a1d71b0f4baa9cea2",
+      "projectSlug": "power-platform-ai-toolkit",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a47765e2438d660c6",
+      "sessionId": "agent-a47765e2438d660c6",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a7a1e7f511f2f8f45",
+      "sessionId": "agent-a7a1e7f511f2f8f45",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ac3c726e911973f15",
+      "sessionId": "agent-ac3c726e911973f15",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a5441526c6ade14ad",
+      "sessionId": "agent-a5441526c6ade14ad",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a9647f81acf3e2a49",
+      "sessionId": "agent-a9647f81acf3e2a49",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ad755b3bd2040743d",
+      "sessionId": "agent-ad755b3bd2040743d",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-af3f8964939bfb451",
+      "sessionId": "agent-af3f8964939bfb451",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ad515922198c29531",
+      "sessionId": "agent-ad515922198c29531",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a36a0e2bcaecbb1e9",
+      "sessionId": "agent-a36a0e2bcaecbb1e9",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a38dec7ee1311f937",
+      "sessionId": "agent-a38dec7ee1311f937",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a48098df68deb3474",
+      "sessionId": "agent-a48098df68deb3474",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a15c74469358b14a7",
+      "sessionId": "agent-a15c74469358b14a7",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a190f5b9b046d442d",
+      "sessionId": "agent-a190f5b9b046d442d",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a2b48a1e045fb36be",
+      "sessionId": "agent-a2b48a1e045fb36be",
+      "projectSlug": "power-platform-ai-toolkit",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a4cd3c50d0e5d443a",
+      "sessionId": "agent-a4cd3c50d0e5d443a",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-abac7e9a05afa4e39",
+      "sessionId": "agent-abac7e9a05afa4e39",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a97e56d4c664cfc90",
+      "sessionId": "agent-a97e56d4c664cfc90",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a0b7e8ffb2878ebcf",
+      "sessionId": "agent-a0b7e8ffb2878ebcf",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a6a2fe563b1065d9a",
+      "sessionId": "agent-a6a2fe563b1065d9a",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-af07511af84a0eaeb",
+      "sessionId": "agent-af07511af84a0eaeb",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a88b011903dec9fd1",
+      "sessionId": "agent-a88b011903dec9fd1",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a0d79a9e2c348f45e",
+      "sessionId": "agent-a0d79a9e2c348f45e",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a8b35911e2fe6a1ee",
+      "sessionId": "agent-a8b35911e2fe6a1ee",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ae2b94536e8b4f6f8",
+      "sessionId": "agent-ae2b94536e8b4f6f8",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a156bba125e482696",
+      "sessionId": "agent-a156bba125e482696",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a98387e11faf4d42b",
+      "sessionId": "agent-a98387e11faf4d42b",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-aa6674c966685d472",
+      "sessionId": "agent-aa6674c966685d472",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-aa1392b207f785573",
+      "sessionId": "agent-aa1392b207f785573",
+      "projectSlug": "power-platform-ai-toolkit",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-aa8772a189a7ed260",
+      "sessionId": "agent-aa8772a189a7ed260",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a0936f3baaaf36e28",
+      "sessionId": "agent-a0936f3baaaf36e28",
+      "projectSlug": "power-platform-ai-toolkit",
+      "disposition": "skipped_trivial",
+      "reason": "tier micro — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a51c9ccb7dfb69db9",
+      "sessionId": "agent-a51c9ccb7dfb69db9",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-acde82aedc29f59fb",
+      "sessionId": "agent-acde82aedc29f59fb",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ad4e55845db63c6f4",
+      "sessionId": "agent-ad4e55845db63c6f4",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ae0455a6d2e5e6954",
+      "sessionId": "agent-ae0455a6d2e5e6954",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-afaeae5cf7404e58b",
+      "sessionId": "agent-afaeae5cf7404e58b",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ac67c3a7fc9e10274",
+      "sessionId": "agent-ac67c3a7fc9e10274",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-aa7e72718fb3eed1a",
+      "sessionId": "agent-aa7e72718fb3eed1a",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-acd26631a15ceaca0",
+      "sessionId": "agent-acd26631a15ceaca0",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ae9cc62f3eb06370f",
+      "sessionId": "agent-ae9cc62f3eb06370f",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a1297958b7efe1905",
+      "sessionId": "agent-a1297958b7efe1905",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a986fe793bff31e06",
+      "sessionId": "agent-a986fe793bff31e06",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a21c5de638d5d6cfe",
+      "sessionId": "agent-a21c5de638d5d6cfe",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a4036cc8ded02bd0d",
+      "sessionId": "agent-a4036cc8ded02bd0d",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-aa34301358a1dc0a0",
+      "sessionId": "agent-aa34301358a1dc0a0",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a47e36f39f5988832",
+      "sessionId": "agent-a47e36f39f5988832",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a1a2f951086df426d",
+      "sessionId": "agent-a1a2f951086df426d",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a83b6ac28fbcff19a",
+      "sessionId": "agent-a83b6ac28fbcff19a",
+      "projectSlug": "power-platform-ai-toolkit",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a1e1eddf5209c420f",
+      "sessionId": "agent-a1e1eddf5209c420f",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a237c7cf973aac9a6",
+      "sessionId": "agent-a237c7cf973aac9a6",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-aac62689dcb7a2bbd",
+      "sessionId": "agent-aac62689dcb7a2bbd",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a7c355c42c1dc3de4",
+      "sessionId": "agent-a7c355c42c1dc3de4",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ab90f3bedd029188b",
+      "sessionId": "agent-ab90f3bedd029188b",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-aa97e99fce2afc41c",
+      "sessionId": "agent-aa97e99fce2afc41c",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ade788049a913504a",
+      "sessionId": "agent-ade788049a913504a",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a0f2494c62c0ec51e",
+      "sessionId": "agent-a0f2494c62c0ec51e",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a3d46d21b91f66c4c",
+      "sessionId": "agent-a3d46d21b91f66c4c",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a2022d0c35fafe925",
+      "sessionId": "agent-a2022d0c35fafe925",
+      "projectSlug": "power-platform-ai-toolkit",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-acc02a737b9a7ada9",
+      "sessionId": "agent-acc02a737b9a7ada9",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-acaec29ce214e2032",
+      "sessionId": "agent-acaec29ce214e2032",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ada0793d92c0e8207",
+      "sessionId": "agent-ada0793d92c0e8207",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a0aa49ce78fa526e1",
+      "sessionId": "agent-a0aa49ce78fa526e1",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a40c31c16462478ce",
+      "sessionId": "agent-a40c31c16462478ce",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ad76239990d4d608c",
+      "sessionId": "agent-ad76239990d4d608c",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a5746b9662bd17c05",
+      "sessionId": "agent-a5746b9662bd17c05",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-aba19c8592ff812cf",
+      "sessionId": "agent-aba19c8592ff812cf",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a8144cfc9f7333aa6",
+      "sessionId": "agent-a8144cfc9f7333aa6",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a8ec911504dc18b12",
+      "sessionId": "agent-a8ec911504dc18b12",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a81fdf4b42dd5a589",
+      "sessionId": "agent-a81fdf4b42dd5a589",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ab9a7a69597b1524f",
+      "sessionId": "agent-ab9a7a69597b1524f",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ae8c0b920c4102f43",
+      "sessionId": "agent-ae8c0b920c4102f43",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a2d98fa705f5443bd",
+      "sessionId": "agent-a2d98fa705f5443bd",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a44cba27797b15819",
+      "sessionId": "agent-a44cba27797b15819",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a38d681085b0d38d8",
+      "sessionId": "agent-a38d681085b0d38d8",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-af86b6f74b9ba128e",
+      "sessionId": "agent-af86b6f74b9ba128e",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-aa195258654e2b945",
+      "sessionId": "agent-aa195258654e2b945",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a3e3003c82d9c5f21",
+      "sessionId": "agent-a3e3003c82d9c5f21",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a38c157cf09031edd",
+      "sessionId": "agent-a38c157cf09031edd",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a5594d99df170f8c0",
+      "sessionId": "agent-a5594d99df170f8c0",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-af02475470b448554",
+      "sessionId": "agent-af02475470b448554",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a8768711dd918a93e",
+      "sessionId": "agent-a8768711dd918a93e",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a38a49fe502a88d30",
+      "sessionId": "agent-a38a49fe502a88d30",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a1ac307599d58b312",
+      "sessionId": "agent-a1ac307599d58b312",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a5d20d6cdf14968aa",
+      "sessionId": "agent-a5d20d6cdf14968aa",
+      "projectSlug": "power-platform-ai-toolkit",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ac0688d192e3f0711",
+      "sessionId": "agent-ac0688d192e3f0711",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ab194f176a189e816",
+      "sessionId": "agent-ab194f176a189e816",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a5995629d78c62fba",
+      "sessionId": "agent-a5995629d78c62fba",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a7e6aa900168d7ade",
+      "sessionId": "agent-a7e6aa900168d7ade",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ae520cd3c953f4b8b",
+      "sessionId": "agent-ae520cd3c953f4b8b",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a1240b9bdf52aff2a",
+      "sessionId": "agent-a1240b9bdf52aff2a",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ab9174ed5e0c0a024",
+      "sessionId": "agent-ab9174ed5e0c0a024",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a341c6c0453cd660f",
+      "sessionId": "agent-a341c6c0453cd660f",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a7fc4339ff5031081",
+      "sessionId": "agent-a7fc4339ff5031081",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a3ab0e50f7c5d4cca",
+      "sessionId": "agent-a3ab0e50f7c5d4cca",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a4d5b46d233d4bfd3",
+      "sessionId": "agent-a4d5b46d233d4bfd3",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ab470d55edf4f813c",
+      "sessionId": "agent-ab470d55edf4f813c",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ab30bcaa02d8e8ea1",
+      "sessionId": "agent-ab30bcaa02d8e8ea1",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a3ac2cbb7efc506d5",
+      "sessionId": "agent-a3ac2cbb7efc506d5",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a509745ce330edee4",
+      "sessionId": "agent-a509745ce330edee4",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ab2eaa8b2aa24f6f7",
+      "sessionId": "agent-ab2eaa8b2aa24f6f7",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ab359b06036abd9ec",
+      "sessionId": "agent-ab359b06036abd9ec",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a152ba2fb3ba230ed",
+      "sessionId": "agent-a152ba2fb3ba230ed",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ac0c023d605c23a3e",
+      "sessionId": "agent-ac0c023d605c23a3e",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a45f65f9331d5936d",
+      "sessionId": "agent-a45f65f9331d5936d",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a7a7bab79f115cc96",
+      "sessionId": "agent-a7a7bab79f115cc96",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a25dfcd3f5349e549",
+      "sessionId": "agent-a25dfcd3f5349e549",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a3611bc7d41003089",
+      "sessionId": "agent-a3611bc7d41003089",
+      "projectSlug": "power-platform-ai-toolkit",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a1aae83f3337a2048",
+      "sessionId": "agent-a1aae83f3337a2048",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a7e498b3252d79062",
+      "sessionId": "agent-a7e498b3252d79062",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ad12215e2a05b493d",
+      "sessionId": "agent-ad12215e2a05b493d",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-aa4a152ddb531f0ee",
+      "sessionId": "agent-aa4a152ddb531f0ee",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a3f9da2b78199e63b",
+      "sessionId": "agent-a3f9da2b78199e63b",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a5c0fcecec03e40c7",
+      "sessionId": "agent-a5c0fcecec03e40c7",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a3a46ab34578f8298",
+      "sessionId": "agent-a3a46ab34578f8298",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-af38fcc98dce38fde",
+      "sessionId": "agent-af38fcc98dce38fde",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a0b933b7e90c85c29",
+      "sessionId": "agent-a0b933b7e90c85c29",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a84f92b0f473513aa",
+      "sessionId": "agent-a84f92b0f473513aa",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-aaa325d2db56095ef",
+      "sessionId": "agent-aaa325d2db56095ef",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a388c4a84d8fe9f2e",
+      "sessionId": "agent-a388c4a84d8fe9f2e",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a4d95c52179496d4c",
+      "sessionId": "agent-a4d95c52179496d4c",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a6249f24b708c84d2",
+      "sessionId": "agent-a6249f24b708c84d2",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a73eeb5f4a62db6ba",
+      "sessionId": "agent-a73eeb5f4a62db6ba",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a154cc18f2b5e3a7d",
+      "sessionId": "agent-a154cc18f2b5e3a7d",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-aa773e6c35f88a320",
+      "sessionId": "agent-aa773e6c35f88a320",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a3bcbe855f02b8ede",
+      "sessionId": "agent-a3bcbe855f02b8ede",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-aa7e8340cf9250787",
+      "sessionId": "agent-aa7e8340cf9250787",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a368cc225bffee011",
+      "sessionId": "agent-a368cc225bffee011",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-aeb11369ac3e69fe6",
+      "sessionId": "agent-aeb11369ac3e69fe6",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ae0122b6e7b9f2973",
+      "sessionId": "agent-ae0122b6e7b9f2973",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ab2dd2e406dd1ab5b",
+      "sessionId": "agent-ab2dd2e406dd1ab5b",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-acb3689719ca0f4cf",
+      "sessionId": "agent-acb3689719ca0f4cf",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-abded798f58062bd4",
+      "sessionId": "agent-abded798f58062bd4",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a00a79f3ad92e2d62",
+      "sessionId": "agent-a00a79f3ad92e2d62",
+      "projectSlug": "workstation",
+      "disposition": "skipped_trivial",
+      "reason": "tier small — tampon skipped_trivial (posé localement, jamais exporté)"
+    },
+    {
+      "kind": "session",
+      "id": "f892feb5-3f4c-44d5-8522-c26013b698db",
+      "sessionId": "f892feb5-3f4c-44d5-8522-c26013b698db",
+      "projectSlug": "workstation",
+      "disposition": "export",
+      "reason": "sélectionné (frais)",
+      "ageDays": 0.06334649305555555,
+      "transcriptBytes": 3339292,
+      "transcriptRelPath": "transcripts/session-f892feb5-3f4c-44d5-8522-c26013b698db.jsonl",
+      "contentSha256": "4563b1db6223dc64fc069671b44bf43b5daea1588958d18f977b3f3d30f9b8df"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a6b0da6ebd06d8b71",
+      "sessionId": "agent-a6b0da6ebd06d8b71",
+      "projectSlug": "workstation",
+      "disposition": "export",
+      "reason": "sélectionné (frais)",
+      "ageDays": 0.12788131944444445,
+      "transcriptBytes": 550586,
+      "transcriptRelPath": "transcripts/session-agent-a6b0da6ebd06d8b71.jsonl",
+      "contentSha256": "724149e03077369bb8dc8fb8e4cf478a175e1ab06605b438b8cd0b28c347a904"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ac8da6e230734b9f6",
+      "sessionId": "agent-ac8da6e230734b9f6",
+      "projectSlug": "workstation",
+      "disposition": "export",
+      "reason": "sélectionné (frais)",
+      "ageDays": 0.12873104166666666,
+      "transcriptBytes": 487652,
+      "transcriptRelPath": "transcripts/session-agent-ac8da6e230734b9f6.jsonl",
+      "contentSha256": "5e4b5267b1b8e7c554a1b51b26d82dc1245860525afd8a4cfc68509d220767f2"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a02afd524321ba77a",
+      "sessionId": "agent-a02afd524321ba77a",
+      "projectSlug": "workstation",
+      "disposition": "export",
+      "reason": "sélectionné (frais)",
+      "ageDays": 0.12899708333333335,
+      "transcriptBytes": 510308,
+      "transcriptRelPath": "transcripts/session-agent-a02afd524321ba77a.jsonl",
+      "contentSha256": "51bdb6a04a855dd38ea99a51a97f35684a93bd6b30925f2261d8d91f04cc90e0"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a2e1971f24ce809d4",
+      "sessionId": "agent-a2e1971f24ce809d4",
+      "projectSlug": "workstation",
+      "disposition": "local_only",
+      "reason": "secretScan positif (secret-assignment)",
+      "ageDays": 0.14317652777777778,
+      "transcriptBytes": 562870
+    },
+    {
+      "kind": "session",
+      "id": "agent-a8a110e5bf7284b61",
+      "sessionId": "agent-a8a110e5bf7284b61",
+      "projectSlug": "workstation",
+      "disposition": "export",
+      "reason": "sélectionné (frais)",
+      "ageDays": 0.14353064814814814,
+      "transcriptBytes": 561484,
+      "transcriptRelPath": "transcripts/session-agent-a8a110e5bf7284b61.jsonl",
+      "contentSha256": "73d3685b1ae86b124ec199a1ec339be8487dd84ebf29727b0b6cdaaa50e1e4b2"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a6c2e84d976ae277b",
+      "sessionId": "agent-a6c2e84d976ae277b",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 0.14430015046296296
+    },
+    {
+      "kind": "session",
+      "id": "agent-ac57fd0d7db030764",
+      "sessionId": "agent-ac57fd0d7db030764",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 0.14505109953703704
+    },
+    {
+      "kind": "session",
+      "id": "agent-afa658fe8dd4d77ef",
+      "sessionId": "agent-afa658fe8dd4d77ef",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 0.14507377314814815
+    },
+    {
+      "kind": "session",
+      "id": "agent-a0e1fdca679ee9eea",
+      "sessionId": "agent-a0e1fdca679ee9eea",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 0.14528289351851853
+    },
+    {
+      "kind": "session",
+      "id": "9015f10f-71a0-4aa0-afc1-2b6910c4c15f",
+      "sessionId": "9015f10f-71a0-4aa0-afc1-2b6910c4c15f",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 0.19940061342592594
+    },
+    {
+      "kind": "session",
+      "id": "0b59d08c-5466-4895-a74e-fc647e261df8",
+      "sessionId": "0b59d08c-5466-4895-a74e-fc647e261df8",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 0.2675607175925926
+    },
+    {
+      "kind": "session",
+      "id": "28aca7c1-69cd-4956-9c00-4732b3f41df5",
+      "sessionId": "28aca7c1-69cd-4956-9c00-4732b3f41df5",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 0.2677923148148148
+    },
+    {
+      "kind": "session",
+      "id": "15e34fb8-13b8-492d-a76d-616ad1d85f16",
+      "sessionId": "15e34fb8-13b8-492d-a76d-616ad1d85f16",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 0.34939777777777775
+    },
+    {
+      "kind": "session",
+      "id": "cb88b8a5-77bd-46a9-9aa8-5f0978caabae",
+      "sessionId": "cb88b8a5-77bd-46a9-9aa8-5f0978caabae",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 1.161377025462963
+    },
+    {
+      "kind": "session",
+      "id": "e72f68d0-4baf-4498-8269-2363e674ecd5",
+      "sessionId": "e72f68d0-4baf-4498-8269-2363e674ecd5",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 1.6044767361111112
+    },
+    {
+      "kind": "session",
+      "id": "07699a3e-aadd-4361-bc2b-b6e81838de9d",
+      "sessionId": "07699a3e-aadd-4361-bc2b-b6e81838de9d",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 1.6083085185185184
+    },
+    {
+      "kind": "session",
+      "id": "agent-a4f36280b20d046e9",
+      "sessionId": "agent-a4f36280b20d046e9",
+      "projectSlug": "power-platform-ai-toolkit",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 2.0238391782407406
+    },
+    {
+      "kind": "session",
+      "id": "agent-a113cf3807740ba65",
+      "sessionId": "agent-a113cf3807740ba65",
+      "projectSlug": "power-platform-ai-toolkit",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 2.024418587962963
+    },
+    {
+      "kind": "session",
+      "id": "agent-a8ac18e61dd3611fb",
+      "sessionId": "agent-a8ac18e61dd3611fb",
+      "projectSlug": "power-platform-ai-toolkit",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 2.0244297685185186
+    },
+    {
+      "kind": "session",
+      "id": "agent-a6cd2be5fbcf61cd2",
+      "sessionId": "agent-a6cd2be5fbcf61cd2",
+      "projectSlug": "power-platform-ai-toolkit",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 2.024847002314815
+    },
+    {
+      "kind": "session",
+      "id": "agent-a8d3a4825c94dd8f1",
+      "sessionId": "agent-a8d3a4825c94dd8f1",
+      "projectSlug": "power-platform-ai-toolkit",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 2.0248985069444445
+    },
+    {
+      "kind": "session",
+      "id": "abaaeb4b-9a5f-4345-a5ba-8a5d108a1047",
+      "sessionId": "abaaeb4b-9a5f-4345-a5ba-8a5d108a1047",
+      "projectSlug": "power-platform-ai-toolkit",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 2.3263862152777777
+    },
+    {
+      "kind": "session",
+      "id": "agent-a282034ed849c324a",
+      "sessionId": "agent-a282034ed849c324a",
+      "projectSlug": "power-platform-ai-toolkit",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 2.584056284722222
+    },
+    {
+      "kind": "session",
+      "id": "agent-a22c0987d98b8b808",
+      "sessionId": "agent-a22c0987d98b8b808",
+      "projectSlug": "power-platform-ai-toolkit",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 2.5851721064814814
+    },
+    {
+      "kind": "session",
+      "id": "agent-aac93c71b3e6fbe0d",
+      "sessionId": "agent-aac93c71b3e6fbe0d",
+      "projectSlug": "power-platform-ai-toolkit",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 2.5857005787037037
+    },
+    {
+      "kind": "session",
+      "id": "4b43424a-ce09-4282-a360-361bd6c0901f",
+      "sessionId": "4b43424a-ce09-4282-a360-361bd6c0901f",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.0341949768518517
+    },
+    {
+      "kind": "session",
+      "id": "agent-a960130895c492c69",
+      "sessionId": "agent-a960130895c492c69",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.0946896296296296
+    },
+    {
+      "kind": "session",
+      "id": "agent-a97d749061c693fd5",
+      "sessionId": "agent-a97d749061c693fd5",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.0950173263888887
+    },
+    {
+      "kind": "session",
+      "id": "agent-acdd3e89b8a270f63",
+      "sessionId": "agent-acdd3e89b8a270f63",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.0954677083333335
+    },
+    {
+      "kind": "session",
+      "id": "agent-af914e602e9f44ad7",
+      "sessionId": "agent-af914e602e9f44ad7",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.095535902777778
+    },
+    {
+      "kind": "session",
+      "id": "agent-a95193251ee7cb3b9",
+      "sessionId": "agent-a95193251ee7cb3b9",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.0962974305555555
+    },
+    {
+      "kind": "session",
+      "id": "agent-a7d2b5a429a820de5",
+      "sessionId": "agent-a7d2b5a429a820de5",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.096389502314815
+    },
+    {
+      "kind": "session",
+      "id": "agent-ad4a1978c7c3995fb",
+      "sessionId": "agent-ad4a1978c7c3995fb",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.146924502314815
+    },
+    {
+      "kind": "session",
+      "id": "agent-a474b6ba9f374d168",
+      "sessionId": "agent-a474b6ba9f374d168",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.1470098379629627
+    },
+    {
+      "kind": "session",
+      "id": "agent-a97173c935a7ad77f",
+      "sessionId": "agent-a97173c935a7ad77f",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.1475839467592595
+    },
+    {
+      "kind": "session",
+      "id": "agent-a05a3df7df2ca1fc9",
+      "sessionId": "agent-a05a3df7df2ca1fc9",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.147671388888889
+    },
+    {
+      "kind": "session",
+      "id": "agent-a43c76da12a083cdb",
+      "sessionId": "agent-a43c76da12a083cdb",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.1481989930555554
+    },
+    {
+      "kind": "session",
+      "id": "agent-a91d897f3a85578ba",
+      "sessionId": "agent-a91d897f3a85578ba",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.1483976157407407
+    },
+    {
+      "kind": "session",
+      "id": "agent-a8ed44c69448df611",
+      "sessionId": "agent-a8ed44c69448df611",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.173923171296296
+    },
+    {
+      "kind": "session",
+      "id": "agent-a0117ee370927ea68",
+      "sessionId": "agent-a0117ee370927ea68",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.1761575810185185
+    },
+    {
+      "kind": "session",
+      "id": "agent-adccd530d55f61313",
+      "sessionId": "agent-adccd530d55f61313",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.1770178125
+    },
+    {
+      "kind": "session",
+      "id": "agent-a640ba71d13d00f0e",
+      "sessionId": "agent-a640ba71d13d00f0e",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.177301712962963
+    },
+    {
+      "kind": "session",
+      "id": "agent-a210ae7c4ed37b834",
+      "sessionId": "agent-a210ae7c4ed37b834",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.1774369791666666
+    },
+    {
+      "kind": "session",
+      "id": "agent-a2e43f9a91d3eecee",
+      "sessionId": "agent-a2e43f9a91d3eecee",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.19865244212963
+    },
+    {
+      "kind": "session",
+      "id": "agent-aff1a933c7a0ca3fa",
+      "sessionId": "agent-aff1a933c7a0ca3fa",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.2068177777777778
+    },
+    {
+      "kind": "session",
+      "id": "agent-a777ace11a199c206",
+      "sessionId": "agent-a777ace11a199c206",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.2410023726851853
+    },
+    {
+      "kind": "session",
+      "id": "agent-aaa2424b94de7e1a8",
+      "sessionId": "agent-aaa2424b94de7e1a8",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.2475423842592592
+    },
+    {
+      "kind": "session",
+      "id": "agent-a8593bf7ccae442ff",
+      "sessionId": "agent-a8593bf7ccae442ff",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.2863771180555554
+    },
+    {
+      "kind": "session",
+      "id": "agent-a5e956a920b56749b",
+      "sessionId": "agent-a5e956a920b56749b",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.286780810185185
+    },
+    {
+      "kind": "session",
+      "id": "agent-abb80ca238f6f7ddf",
+      "sessionId": "agent-abb80ca238f6f7ddf",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.287690636574074
+    },
+    {
+      "kind": "session",
+      "id": "agent-a6815b5f981bf6f2f",
+      "sessionId": "agent-a6815b5f981bf6f2f",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.2883671296296297
+    },
+    {
+      "kind": "session",
+      "id": "agent-a06bf3431346f4a69",
+      "sessionId": "agent-a06bf3431346f4a69",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.3549230092592595
+    },
+    {
+      "kind": "session",
+      "id": "1908adb0-66a1-43af-b72d-fda86edd4b92",
+      "sessionId": "1908adb0-66a1-43af-b72d-fda86edd4b92",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.3720627430555554
+    },
+    {
+      "kind": "session",
+      "id": "agent-a7cfd8e946683d22e",
+      "sessionId": "agent-a7cfd8e946683d22e",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.434574976851852
+    },
+    {
+      "kind": "session",
+      "id": "agent-a47a8bb46aeeaad8d",
+      "sessionId": "agent-a47a8bb46aeeaad8d",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.4350245254629628
+    },
+    {
+      "kind": "session",
+      "id": "agent-a7cc6aeb1bceb1651",
+      "sessionId": "agent-a7cc6aeb1bceb1651",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.4355179282407406
+    },
+    {
+      "kind": "session",
+      "id": "agent-a1e321df8de567fea",
+      "sessionId": "agent-a1e321df8de567fea",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.4361446296296294
+    },
+    {
+      "kind": "session",
+      "id": "agent-a21040177f2ed0330",
+      "sessionId": "agent-a21040177f2ed0330",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.436902164351852
+    },
+    {
+      "kind": "session",
+      "id": "agent-aefbabb3a76f4088f",
+      "sessionId": "agent-aefbabb3a76f4088f",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.437853449074074
+    }
+  ],
+  "budgets": {
+    "maxTranscriptBytes": 6000000,
+    "maxCargoBytes": 50000000,
+    "cargoBytesUsed": 5449322
+  },
+  "skillDrift": [
+    {
+      "skill": "session-review",
+      "status": "match",
+      "localSha": "0e72d5b21c306f3a517851a57ffef807b20e57c326f50554403042cfad11dff6",
+      "cargoSha": "0e72d5b21c306f3a517851a57ffef807b20e57c326f50554403042cfad11dff6"
+    },
+    {
+      "skill": "adversarial-pr-review",
+      "status": "drift",
+      "localSha": "c8c601a92b8c41ca3f39431b9f690cc071fc2097b57e7c7c47c8c3b2d3664131",
+      "cargoSha": "bccff8856c5a90d60e07b624953767ff5319fa65c2ddd5e71180e728b7227088",
+      "note": "sync-local-skills.py n'actualise PAS un skill déjà présent modifié localement — déclenchement (git push sur claude-skills) explicitement hors scope de ce chantier (Interdit #4) ; à faire manuellement ou en Lot 8."
+    }
+  ],
+  "counts": {
+    "local_only": 5,
+    "skipped_trivial": 137,
+    "export": 5,
+    "deferred": 54
+  }
+}
