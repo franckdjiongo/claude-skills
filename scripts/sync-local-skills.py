@@ -102,11 +102,22 @@ def has_skill_md(path):
     return os.path.isfile(os.path.join(path, "SKILL.md"))
 
 
+# Skills whose SOURCE lives in the workstation repo and reaches ~/.claude/skills
+# as a symlink (chantier skill-workstation-unifie, 2026-08-04). Syncing them here
+# would recreate the flat-copy duplication that chantier eliminated — the
+# workstation repo is their single source of truth, this marketplace never
+# mirrors them. Decision: Franck, hub workstation/2026-08-04-rapport-skill-
+# workstation-unifie (option « Réactiver avec exclusion »).
+REPO_PORTED_SKILLS = {"workstation", "lexicon-capture", "workstation-friction-capture"}
+
+
 def list_skill_dirs(root):
     if not os.path.isdir(root):
         return {}
     out = {}
     for name in os.listdir(root):
+        if name in REPO_PORTED_SKILLS:
+            continue
         p = os.path.join(root, name)
         if os.path.isdir(p) and has_skill_md(p):
             out[name] = p
