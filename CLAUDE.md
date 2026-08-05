@@ -80,7 +80,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `adversarial-pr-review` - Run an ultracode multi-agent ADVERSARIAL review over the working diff so a change is bulletproof and "compliant" BEFORE its pull request is opened,…
 - `update-dev-tools` - Autonomously update this macOS machine's local developer toolchain — Python (current stable) + its doc libraries and Node (LTS), both via mise, plus…
 - `brain-capture` - Extract 0-3 candidate memories (facts/decisions/preferences/lessons/routines/ conventions worth remembering long-term) from the session that is about…
-- `workstation-friction-capture` - Triage the workstation-tool frictions logged during the session that is about to end (failed calls to `bun run convo|chips|secrets|lexicon|remind|…
+- `workstation-friction-capture` - Triage the workstation-tool frictions logged during the session that is about to end and report genuine structural defects as chips/notes to the hub (source de vérité : repo workstation, copie conforme ici)
 - `brief-chantier` - Standard for autonomous-execution work plans ("plans de chantier").
 - `workos` - Use when the user asks for a WorkOS docs URL, term, or dashboard field (Sign-in endpoint, initiate_login_uri, Redirect URI, `WORKOS_*` env vars), or…
 
@@ -130,7 +130,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `prep-discussion` - Prepare discussion points with a colleague from reference files (Teams message, email, discussion list, or personal notes)
 - `meeting-to-tasks` - Reconcile meeting synthesis with codebase state to produce a structured task tracking document
 - `renommer-fichiers-rencontre` - Rename meeting transcription (.docx) and meeting summary (.md) files per personal naming conventions
-- `lexicon-capture` - Analyze the voice-dictated prompts of the session that is about to end, spot 0-N recurring mis-transcriptions (proper nouns, tools, jargon the…
+- `lexicon-capture` - Analyze the voice-dictated prompts of the session that is about to end, spot recurring mis-transcriptions, and submit each as a candidate correction to the workstation Lexique (source de vérité : repo workstation, copie conforme ici)
 
 **Development & DevOps**
 - `vercel-expert-developer` - Vercel serverless functions
@@ -157,7 +157,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `mac-uninstall` - Completely or partially uninstall macOS applications removing all associated files
 - `chatgpt-image-prompt-architect` - Turn a vague visual request into a premium, ready-to-paste ChatGPT image prompt (gpt-image-2) for logos, flyers, ads, mockups, and more, with automatic AutoMintech branding on marketing assets
 - `design-forge` - UX/UI Quality Analyst and Design Brief Architect with three modes: AUDIT (analyze screenshots/video for defects and AI slop, emit a scored report with paste-ready correction prompts), TEST (actively drive a live app with computer-use tools), and BRIEF (turn a non-designer's idea into a premium design prompt); includes a brief→build→verify pipeline
-- `galley` - HTML artifact review subsystem: read, edit, reply to, and resolve anchored comments living inside an HTML file
+- `galley` - POINTEUR — absorbé par le skill unifié `workstation` (source de vérité : repo workstation, references/galley.md) ; revue d'artefacts HTML via les outils MCP html_review_* ou la CLI `bun run review`
 - `ship-polished-ui` - Single entry point for all client websites and app UIs (create or improve); runs a non-negotiable real-browser visual QA loop and posts a Verification Ledger before done; documentary artifacts route to design-elevation (part of `design-studio` plugin)
 
 **Plugins (installable bundles)**

@@ -1190,7 +1190,7 @@ export const skills: Skill[] = [
   {
     id: 'galley',
     name: 'Galley',
-    description: 'HTML artifact review subsystem — read, edit, reply to, and resolve anchored comments living inside an HTML file',
+    description: 'POINTEUR — absorbé par le skill unifié `workstation` (source de vérité : repo workstation, references/galley.md). Revue d\'artefacts HTML via les outils MCP html_review_* ou la CLI `bun run review`',
     repository: 'claude-skills',
     category: 'specialized',
     categoryName: 'Specialized Workflows',
@@ -1334,7 +1334,7 @@ export const skills: Skill[] = [
   {
     id: 'lexicon-capture',
     name: "Lexicon Capture",
-    description: "Analyze the voice-dictated prompts of the session that is about to end, spot 0-N recurring mis-transcriptions (proper nouns, tools, jargon the…",
+    description: "Analyze the voice-dictated prompts of the session that is about to end, spot recurring mis-transcriptions, and submit each as a candidate correction to the workstation Lexique (source de vérité : repo workstation, copie conforme ici)",
     repository: 'claude-skills',
     category: 'meetings',
     categoryName: "Meeting & Transcript Analysis",
@@ -1345,7 +1345,7 @@ export const skills: Skill[] = [
   {
     id: 'workstation-friction-capture',
     name: "Workstation Friction Capture",
-    description: "Triage the workstation-tool frictions logged during the session that is about to end (failed calls to `bun run convo|chips|secrets|lexicon|remind|…",
+    description: "Triage the workstation-tool frictions logged during the session that is about to end and report genuine structural defects as chips/notes to the hub (source de vérité : repo workstation, copie conforme ici)",
     repository: 'claude-skills',
     category: 'claude-code',
     categoryName: "Claude Code & AI Extensibility",

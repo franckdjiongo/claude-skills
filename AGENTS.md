@@ -74,7 +74,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `adversarial-pr-review` - Run an ultracode multi-agent ADVERSARIAL review over the working diff so a change is bulletproof and "compliant" BEFORE its pull request is opened,…
 - `update-dev-tools` - Autonomously update this macOS machine's local developer toolchain — Python (current stable) + its doc libraries and Node (LTS), both via mise, plus…
 - `brain-capture` - Extract 0-3 candidate memories (facts/decisions/preferences/lessons/routines/ conventions worth remembering long-term) from the session that is about…
-- `workstation-friction-capture` - Triage the workstation-tool frictions logged during the session that is about to end (failed calls to `bun run convo|chips|secrets|lexicon|remind|…
+- `workstation-friction-capture` - Triage the workstation-tool frictions logged during the session that is about to end and report genuine structural defects as chips/notes to the hub (source de vérité : repo workstation, copie conforme ici)
 - `brief-chantier` - Standard for autonomous-execution work plans ("plans de chantier").
 - `workos` - Use when the user asks for a WorkOS docs URL, term, or dashboard field (Sign-in endpoint, initiate_login_uri, Redirect URI, `WORKOS_*` env vars), or…
 
@@ -108,7 +108,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `meeting-followup-extractor` - Extract action items from meetings
 - `cobacam-meeting-minutes-creator` - French Canadian meeting minutes (procès-verbaux)
 - `rotation-responsabilites` - Manage responsibility rotation schedules
-- `lexicon-capture` - Analyze the voice-dictated prompts of the session that is about to end, spot 0-N recurring mis-transcriptions (proper nouns, tools, jargon the…
+- `lexicon-capture` - Analyze the voice-dictated prompts of the session that is about to end, spot recurring mis-transcriptions, and submit each as a candidate correction to the workstation Lexique (source de vérité : repo workstation, copie conforme ici)
 
 **Development & DevOps**
 - `vercel-expert-developer` - Vercel serverless functions
@@ -130,7 +130,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `app-blueprint` - Reverse-engineer a codebase into a comprehensive Application Blueprint (EN/FR)
 - `brand-forge` - Automate end-to-end branding with naming, slogan, logo, and brand identity outputs
 - `seo-visibility` - Implement SEO, structured data, AI discoverability, and marketing visibility improvements
-- `galley` - HTML artifact review subsystem: read, edit, reply to, and resolve anchored comments living inside an HTML file
+- `galley` - POINTEUR — absorbé par le skill unifié `workstation` (source de vérité : repo workstation, references/galley.md) ; revue d'artefacts HTML via les outils MCP html_review_* ou la CLI `bun run review`
 - `ship-polished-ui` - Design then browser-QA premium, production-grade UI with a non-negotiable visual test loop
 
 **Email (Resend)**

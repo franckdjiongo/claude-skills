@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-07-14"
+last_updated: "2026-08-04"
 
 # =============================================================================
 # REPOSITORIES
@@ -322,7 +322,7 @@ categories:
       - name: workstation-friction-capture
         repository: claude-skills
         path: workstation-friction-capture/SKILL.md
-        description: "Triage the workstation-tool frictions logged during the session that is about to end (failed calls to `bun run convo|chips|secrets|lexicon|remind|…"
+        description: "Triage the workstation-tool frictions logged during the session that is about to end and report genuine structural defects as chips/notes to the hub (source de vérité : repo workstation, copie conforme ici)"
         tags: [claude-code, hooks]
 
       - name: brief-chantier
@@ -604,7 +604,7 @@ categories:
       - name: lexicon-capture
         repository: claude-skills
         path: lexicon-capture/SKILL.md
-        description: "Analyze the voice-dictated prompts of the session that is about to end, spot 0-N recurring mis-transcriptions (proper nouns, tools, jargon the…"
+        description: "Analyze the voice-dictated prompts of the session that is about to end, spot recurring mis-transcriptions, and submit each as a candidate correction to the workstation Lexique (source de vérité : repo workstation, copie conforme ici)"
         tags: [meetings, hooks, cli]
 
   # ---------------------------------------------------------------------------
@@ -760,7 +760,7 @@ categories:
       - name: galley
         repository: claude-skills
         path: galley/SKILL.md
-        description: HTML artifact review subsystem — read, edit, reply to, and resolve anchored comments living inside an HTML file
+        description: "POINTEUR — absorbé par le skill unifié `workstation` (source de vérité : repo workstation, references/galley.md). Revue d'artefacts HTML via les outils MCP html_review_* ou la CLI `bun run review`"
         tags: [html, review, annotations, workstation, mcp]
 
       - name: ship-polished-ui
