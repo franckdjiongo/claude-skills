@@ -41,6 +41,13 @@ export function tmpDir() {
   return dir;
 }
 
+// Sentinelle « batch en vol » — contrat producteur↔consommateur partagé :
+// agent-dispatch-preflight la pose/rafraîchit à chaque dispatch écrivant,
+// enforce-workflow la lit (fraîcheur par mtime-TTL). Nom et chemin vivent ici
+// pour qu'aucun hook ne reconstruise le littéral indépendamment.
+export const BATCH_SENTINEL_NAME = '.batch-in-flight';
+export const batchSentinelPath = () => path.join(tmpDir(), BATCH_SENTINEL_NAME);
+
 export function readJson(filePath, fallback = null) {
   try { return fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, 'utf8')) : fallback; }
   catch { return fallback; }

@@ -18,11 +18,10 @@
  * contrat producteur↔consommateur.
  */
 import fs from 'node:fs';
-import path from 'node:path';
-
-// Durcissement PATH macOS (Apple Silicon): les apps GUI ne voient pas /opt/homebrew/bin.
-const PATH_PREFIX = "/opt/homebrew/bin:/usr/local/bin:/opt/homebrew/sbin:/usr/sbin:/usr/bin:/sbin:/bin";
-process.env.PATH = `${PATH_PREFIX}:${process.env.PATH || ""}`;
+// hook-utils durcit le PATH macOS à l'import et est le SEUL endroit où le nom
+// de la sentinelle vit (BATCH_SENTINEL_NAME/batchSentinelPath) — rendu palier
+// 3+ garanti aux côtés de lib/hook-utils.mjs (enforce-workflow l'exige déjà).
+import { batchSentinelPath } from './lib/hook-utils.mjs';
 
 const WRITING_AGENTS = new Set(['implementer', 'ui-implementer']);
 
@@ -31,11 +30,10 @@ try {
   const payload = raw ? JSON.parse(raw) : {};
   const subagentType = payload?.tool_input?.subagent_type ?? '';
   if (WRITING_AGENTS.has(subagentType)) {
-    const dir = path.join(process.env.CLAUDE_PROJECT_DIR || process.cwd(), '.claude', 'tmp');
-    fs.mkdirSync(dir, { recursive: true });
     // writeFileSync crée la sentinelle ou la réécrit — le mtime est rafraîchi
     // dans les deux cas, ce qui réarme le TTL du consommateur.
-    fs.writeFileSync(path.join(dir, '.batch-in-flight'), `${new Date().toISOString()}\n`);
+    // batchSentinelPath() crée `.claude/tmp` au besoin (via tmpDir).
+    fs.writeFileSync(batchSentinelPath(), `${new Date().toISOString()}\n`);
   }
 } catch { /* fail-open : aucune sortie, aucun refus possible */ }
 process.exit(0);

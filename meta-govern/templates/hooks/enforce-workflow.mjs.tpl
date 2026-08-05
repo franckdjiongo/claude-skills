@@ -16,6 +16,7 @@ import {
   writeJsonStdout,
   readJson,
   tmpDir,
+  batchSentinelPath,
   shouldBlockOnStop,
   COMPLETION_REGEX,
   writeLastHookOutput,
@@ -96,7 +97,7 @@ async function main() {
   // resumes — producer and consumer agree on mtime semantics.
   let sentinelFresh = false;
   try {
-    sentinelFresh = Date.now() - statSync(path.join(tmpDir(), '.batch-in-flight')).mtimeMs < SENTINEL_TTL_MS;
+    sentinelFresh = Date.now() - statSync(batchSentinelPath()).mtimeMs < SENTINEL_TTL_MS;
   } catch { /* absente : le gate s'applique normalement */ }
   if (sentinelFresh) {
     writeLastHookOutput('enforce-workflow', {
