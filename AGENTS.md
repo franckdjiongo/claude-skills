@@ -132,6 +132,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `seo-visibility` - Implement SEO, structured data, AI discoverability, and marketing visibility improvements
 - `galley` - POINTEUR — absorbé par le skill unifié `workstation` (source de vérité : repo workstation, references/galley.md) ; revue d'artefacts HTML via les outils MCP html_review_* ou la CLI `bun run review`
 - `ship-polished-ui` - Design then browser-QA premium, production-grade UI with a non-negotiable visual test loop
+- `brief-preflight` - Pré-analyse d'un plan brief-chantier AVANT exécution : lint déterministe (script auto-exécuté à l'invocation) puis rounds ultracode adversariaux (7…
 
 **Email (Resend)**
 - `resend` - Resend email platform umbrella that routes to send, inbound, agent inbox, and template sub-skills

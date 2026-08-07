@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-08-04"
+last_updated: "2026-08-07"
 
 # =============================================================================
 # REPOSITORIES
@@ -774,6 +774,12 @@ categories:
         path: design-studio/.claude-plugin/plugin.json
         description: "Plugin container bundling brand-forge, ship-polished-ui, and design-elevation as three skills plus a visual-qa-inspector agent — the complete design pipeline (branding → premium UIs → documentary artifacts) as one installable plugin for Claude Code and Codex"
         tags: [plugin, design, design-system, branding, ui, documentary, visual-qa, container]
+
+      - name: brief-preflight
+        repository: claude-skills
+        path: brief-preflight/SKILL.md
+        description: "Pré-analyse d'un plan brief-chantier AVANT exécution : lint déterministe (script auto-exécuté à l'invocation) puis rounds ultracode adversariaux (7…"
+        tags: [specialized]
 
   # ---------------------------------------------------------------------------
   # EMAIL (RESEND)
@@ -2081,6 +2087,7 @@ skill_index:
   brief-chantier: { repo: claude-skills, category: claude-code }
   workos: { repo: claude-skills, category: claude-code }
   workos-widgets: { repo: claude-skills, category: development }
+  brief-preflight: { repo: claude-skills, category: specialized }
   # External skills (superpowers)
   test-driven-development: { repo: superpowers, category: superpowers-testing }
   systematic-debugging: { repo: superpowers, category: superpowers-testing }

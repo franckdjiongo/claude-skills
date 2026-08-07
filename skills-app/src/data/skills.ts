@@ -7,7 +7,7 @@ export const repositories: Repository[] = [
     url: 'https://github.com/franckdjiongo/claude-skills',
     description: 'Main skills library - Power Platform, Claude Code, text processing, and more',
     isLocal: true,
-    skillCount: 115,
+    skillCount: 116,
   },
   {
     id: 'superpowers',
@@ -68,14 +68,14 @@ export const repositories: Repository[] = [
 ];
 
 export const categories: Category[] = [
-  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 262, repository: 'claude-skills' },
+  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 263, repository: 'claude-skills' },
   { id: 'power-platform', name: 'Power Platform', icon: 'Zap', skillCount: 16, repository: 'claude-skills' },
   { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 26, repository: 'claude-skills' },
   { id: 'convex', name: 'Convex Database', icon: 'Database', skillCount: 30, repository: 'claude-skills' },
   { id: 'text-processing', name: 'Text & Documents', icon: 'FileText', skillCount: 4, repository: 'claude-skills' },
   { id: 'meetings', name: 'Meetings', icon: 'Users', skillCount: 8, repository: 'claude-skills' },
   { id: 'development', name: 'Development', icon: 'Code', skillCount: 11, repository: 'claude-skills' },
-  { id: 'specialized', name: 'Specialized', icon: 'Sparkles', skillCount: 15, repository: 'claude-skills' },
+  { id: 'specialized', name: 'Specialized', icon: 'Sparkles', skillCount: 16, repository: 'claude-skills' },
   { id: 'email', name: 'Email (Resend)', icon: 'Mail', skillCount: 5, repository: 'claude-skills' },
   { id: 'superpowers-testing', name: 'Testing & Debug', icon: 'Bug', skillCount: 3, repository: 'superpowers' },
   { id: 'superpowers-collaboration', name: 'Collaboration', icon: 'GitBranch', skillCount: 9, repository: 'superpowers' },
@@ -1384,6 +1384,17 @@ export const skills: Skill[] = [
     categoryName: "Development & DevOps",
     tags: ['development'],
     path: 'workos-widgets/SKILL.md',
+    isLocal: true,
+  },
+  {
+    id: 'brief-preflight',
+    name: "Brief Preflight",
+    description: "Pré-analyse d'un plan brief-chantier AVANT exécution : lint déterministe (script auto-exécuté à l'invocation) puis rounds ultracode adversariaux (7…",
+    repository: 'claude-skills',
+    category: 'specialized',
+    categoryName: "Specialized Workflows",
+    tags: ['specialized'],
+    path: 'brief-preflight/SKILL.md',
     isLocal: true,
   },
   // Superpowers: Testing & Debugging
