@@ -13,7 +13,12 @@
 import { describe, it, expect } from 'vitest';
 import path from 'node:path';
 import fs from 'node:fs';
+import { PATH_PREFIX } from './lib/hook-utils.mjs';
 import { projectRoot } from './lib/hook-test-util.mjs';
+
+// Durcissement PATH macOS (Apple Silicon) — sinon le détecteur d'audit
+// macos-hardening émet un finding HIGH sur ce test.
+process.env.PATH = `${PATH_PREFIX}:${process.env.PATH || ''}`;
 
 const HOOKS_DIR = path.join(projectRoot, '.claude', 'hooks');
 const AGENTS_DIR = path.join(projectRoot, '.claude', 'agents');

@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+// Template: templates/hooks/agent-dispatch-preflight.mjs.tpl
+// (aucune variable de template — le rendu est une copie littérale)
+//
 /**
  * agent-dispatch-preflight — Hook PreToolUse sur `Agent` (palier 3+).
  *
@@ -13,9 +16,22 @@
  * FAIL-OPEN STRUCTUREL : ce hook n'émet jamais de permissionDecision ni de
  * decision — toute branche sort en exit 0 sans stdout ; toutes les
  * opérations fs sont en try/catch. Le consommateur (enforce-workflow) borne
- * la fenêtre par mtime-TTL : une sentinelle abandonnée périme et le gate
- * reprend. Le rafraîchissement du mtime à CHAQUE dispatch écrivant est le
- * contrat producteur↔consommateur.
+ * la fenêtre par TTL sur le mtime de la sentinelle (voir SENTINEL_TTL_MS
+ * dans enforce-workflow.mjs) : une sentinelle abandonnée périme et le gate
+ * reprend. Le rafraîchissement de la sentinelle à CHAQUE dispatch écrivant
+ * est le contrat producteur↔consommateur.
+ *
+ * FORME DE LA SENTINELLE (contrat producteur↔consommateur) :
+ *   { "startedAt": "<ISO 8601>", "sessionId"?: "<session_id du dispatch>" }
+ * `sessionId` est omis quand le payload PreToolUse n'en porte pas (forme
+ * legacy, toujours acceptée côté lecture) ; il est porté pour rester
+ * compatible avec un lecteur qui scoperait un jour la sentinelle par session
+ * propriétaire du batch — le `enforce-workflow.mjs` canonique évalue
+ * aujourd'hui la fraîcheur de la sentinelle par mtime seul et ne consomme pas
+ * encore ce champ. Une chaîne nue (ex. `new Date().toISOString()`) N'EST PAS
+ * un JSON valide : un futur lecteur qui la reparserait (`JSON.parse`) lèverait
+ * et traiterait la sentinelle comme absente — écrire un objet JSON valide dès
+ * maintenant évite de reproduire ce piège au premier lecteur qui en dépendra.
  */
 import fs from 'node:fs';
 // hook-utils durcit le PATH macOS à l'import et est le SEUL endroit où le nom
@@ -30,10 +46,13 @@ try {
   const payload = raw ? JSON.parse(raw) : {};
   const subagentType = payload?.tool_input?.subagent_type ?? '';
   if (WRITING_AGENTS.has(subagentType)) {
-    // writeFileSync crée la sentinelle ou la réécrit — le mtime est rafraîchi
-    // dans les deux cas, ce qui réarme le TTL du consommateur.
-    // batchSentinelPath() crée `.claude/tmp` au besoin (via tmpDir).
-    fs.writeFileSync(batchSentinelPath(), `${new Date().toISOString()}\n`);
+    // JSON valide requis (voir docstring) — writeFileSync crée la sentinelle
+    // ou la réécrit, ce qui rafraîchit `startedAt` (et donc le TTL du
+    // consommateur) dans les deux cas. batchSentinelPath() crée `.claude/tmp`
+    // au besoin (via tmpDir).
+    const sentinel = { startedAt: new Date().toISOString() };
+    if (payload?.session_id) sentinel.sessionId = payload.session_id;
+    fs.writeFileSync(batchSentinelPath(), JSON.stringify(sentinel));
   }
 } catch { /* fail-open : aucune sortie, aucun refus possible */ }
 process.exit(0);

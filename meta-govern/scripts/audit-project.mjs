@@ -9,6 +9,7 @@
 
 import path from 'node:path';
 import fs from 'node:fs';
+import os from 'node:os';
 import { execSync, execFileSync } from 'node:child_process';
 import { detectProject } from './lib/project-detection.mjs';
 
@@ -30,6 +31,14 @@ const CANONICAL_HOOKS = new Set([
   'plan-closeout-guard.mjs', 'validate-plan.mjs', 'daily-drift-alert.mjs',
   'bash-write-guard.mjs',
 ]);
+
+// A `.claude/hooks/*.test.mjs` (or .spec/.sim) sibling is a vitest suite, not a
+// hook the Claude Code harness executes — it never runs standalone under the
+// harness's own PATH, so it is not a macos-hardening subject. Shared by the
+// macos-hardening loop AND the hook-tests discipline loop below, which already
+// excluded these files (the macos-hardening loop used to not, and flagged 3/4
+// of the canon's own test templates HIGH — see version.json changelog).
+const HOOK_TEST_FILE_RE = /\.(test|spec|sim)\.[cm]?[jt]sx?$/;
 
 const args = process.argv.slice(2);
 const target = args.find(a => !a.startsWith('--')) || process.cwd();
@@ -63,13 +72,16 @@ if (!detection.artifacts.hasClaudeMd) {
   add('HIGH', 'budget', `CLAUDE.md is ${detection.indicators.claudeMdLines} lines (cap: 120).`, 'CLAUDE.md');
 }
 
-const expectedSkills = ['brainstorm', 'write-plan', 'execute-plan', 'quality-gate', 'govern-claude', 'test-driven-development'];
-for (const skill of expectedSkills) {
-  if (!detection.artifacts.coreSkills.includes(skill)) {
-    add('HIGH', 'inventory', `Missing core skill: ${skill}`);
-  }
-}
+// Inventaire coeur. `inventoryPolicy:'lean-by-design'` dans .claude/.meta-govern.json
+// déclare que les skills/agents lourds vivent au scope USER et sont invoqués à la
+// demande — leur absence de .claude/ est un CHOIX, pas une lacune. Sans cette lecture,
+// un projet lean récolte ~23 findings d'absence à chaque passage et un BOOTSTRAP
+// « correctif » écraserait une doctrine maison délibérée (workstation, 2026-08-10).
+// On n'éteint pas la mesure : on la rend en UNE ligne INFO, auditable, plutôt qu'en
+// 23 findings actionnables qui noient le vrai signal.
+const leanByDesign = detection.metaGovernState?.inventoryPolicy === 'lean-by-design';
 
+const expectedSkills = ['brainstorm', 'write-plan', 'execute-plan', 'quality-gate', 'govern-claude', 'test-driven-development'];
 const expectedAgents = [
   'implementer.md',
   'ui-implementer.md',
@@ -78,45 +90,87 @@ const expectedAgents = [
   'persona-simulator.md',
   'codebase-reality-check.md',
 ];
-for (const agent of expectedAgents) {
-  if (!detection.artifacts.coreAgents.includes(agent)) {
-    add('MEDIUM', 'inventory', `Missing core agent: ${agent.replace('.md', '')}`);
-  }
-}
-
 const expectedHooks = ['session-start-env-check.mjs', 'track-workflow.mjs', 'enforce-workflow.mjs', 'precompact-handoff.mjs', 'postcompact-reinject.mjs', 'bash-write-guard.mjs'];
-for (const hook of expectedHooks) {
-  if (!detection.artifacts.coreHooks.includes(hook)) {
-    add('MEDIUM', 'inventory', `Missing core hook: ${hook}`);
-  }
-}
-
 const expectedRules = ['clean-code.md', 'file-size-budget.md', 'spec-protocol.md', 'claude-config-style.md', 'parallel-dispatch.md', 'testing.md'];
-for (const rule of expectedRules) {
-  if (!detection.artifacts.coreRules.includes(rule)) {
-    add('MEDIUM', 'inventory', `Missing core rule: ${rule}`);
+
+const missingSkills = expectedSkills.filter((s) => !detection.artifacts.coreSkills.includes(s));
+const missingAgents = expectedAgents.filter((a) => !detection.artifacts.coreAgents.includes(a));
+const missingHooks = expectedHooks.filter((h) => !detection.artifacts.coreHooks.includes(h));
+const missingRules = expectedRules.filter((r) => !detection.artifacts.coreRules.includes(r));
+
+if (leanByDesign) {
+  const total = missingSkills.length + missingAgents.length + missingHooks.length + missingRules.length;
+  if (total > 0) {
+    add('INFO', 'inventory',
+      `Inventaire déclaré « lean-by-design » (.claude/.meta-govern.json) : ${total} artefact(s) du canon absent(s) par CHOIX, pas par dérive — ` +
+      `skills [${missingSkills.join(', ') || '—'}] · agents [${missingAgents.map((a) => a.replace('.md', '')).join(', ') || '—'}] · ` +
+      `hooks [${missingHooks.join(', ') || '—'}] · règles [${missingRules.join(', ') || '—'}]. ` +
+      `Portée déclarée des skills coeur : ${detection.metaGovernState?.coreSkillsScope || 'non précisée'}. Ne pas BOOTSTRAPPER pour « combler ».`);
   }
+} else {
+  for (const skill of missingSkills) add('HIGH', 'inventory', `Missing core skill: ${skill}`);
+  for (const agent of missingAgents) add('MEDIUM', 'inventory', `Missing core agent: ${agent.replace('.md', '')}`);
+  for (const hook of missingHooks) add('MEDIUM', 'inventory', `Missing core hook: ${hook}`);
+  for (const rule of missingRules) add('MEDIUM', 'inventory', `Missing core rule: ${rule}`);
 }
 
-if (!detection.artifacts.sourceOfTruth.spec) {
-  add('HIGH', 'sources-of-truth', 'No spec doc found at expected paths (docs/*-spec.html, etc.).');
-}
-if (!detection.artifacts.sourceOfTruth.dataModel) {
-  add('HIGH', 'sources-of-truth', 'No data-model doc found at expected paths.');
-}
-if (!detection.artifacts.sourceOfTruth.catalog) {
-  add('MEDIUM', 'sources-of-truth', 'No component catalog found.');
+// Sources de vérité. Un projet peut DÉCLARER des sources non documentaires dans
+// .claude/.meta-govern.json → sourcesOfTruth : un schéma zod validé côté serveur à
+// chaque écriture est un contrat plus fort qu'un doc HTML, parce qu'il est EXÉCUTABLE.
+// Chercher uniquement docs/*-spec.html rend alors un « absent » qui est un décalage de
+// chemins, pas une absence (workstation, 2026-08-10). On vérifie que les chemins
+// déclarés existent VRAIMENT — une déclaration n'est pas une dispense.
+{
+  const declaredSot = detection.metaGovernState?.sourcesOfTruth || null;
+  const declaredPaths = declaredSot
+    ? Object.entries(declaredSot).filter(([k, v]) => k !== 'note' && typeof v === 'string')
+    : [];
+
+  if (declaredPaths.length > 0) {
+    const missing = declaredPaths.filter(([, rel]) => !fs.existsSync(path.join(projectDir, rel)));
+    for (const [key, rel] of missing) {
+      add('HIGH', 'sources-of-truth',
+        `.claude/.meta-govern.json déclare la source de vérité « ${key} » → ${rel}, mais le fichier est INTROUVABLE. Une déclaration périmée est pire qu'aucune : corriger le chemin ou retirer l'entrée.`);
+    }
+    if (missing.length < declaredPaths.length) {
+      add('INFO', 'sources-of-truth',
+        `Sources de vérité déclarées et présentes : ${declaredPaths.filter(([, rel]) => fs.existsSync(path.join(projectDir, rel))).map(([k, rel]) => `${k}=${rel}`).join(' · ')}.`);
+    }
+  } else {
+    if (!detection.artifacts.sourceOfTruth.spec) {
+      add('HIGH', 'sources-of-truth', 'No spec doc found at expected paths (docs/*-spec.html, etc.). Si la source de vérité de ce projet est du CODE (schéma zod, types), la déclarer dans .claude/.meta-govern.json → sourcesOfTruth.');
+    }
+    if (!detection.artifacts.sourceOfTruth.dataModel) {
+      add('HIGH', 'sources-of-truth', 'No data-model doc found at expected paths. Idem : un schéma exécutable se déclare dans .meta-govern.json → sourcesOfTruth.');
+    }
+    if (!detection.artifacts.sourceOfTruth.catalog) {
+      add('MEDIUM', 'sources-of-truth', 'No component catalog found.');
+    }
+  }
 }
 
 // === Doctrine docs HTML ===
 // Les docs humains sont en HTML; .md sous docs/ = dérive à migrer.
 {
   const doctrine = detection.docsDoctrine || {};
-  if (doctrine.format === 'md' || doctrine.format === 'mixed') {
+  // Carve-out DÉCLARÉ : « agent instructions stay in Markdown » ne se limite pas à
+  // CLAUDE.md/AGENTS.md/SKILL.md — un docs/<sous-système>.md dont le LECTEUR réel est
+  // un agent (protocole, contrat d'outil, rubrique) est légitimement en Markdown. Un
+  // projet enregistre ce choix via docsDoctrine:'markdown-agent-facing' dans
+  // .claude/.meta-govern.json ; l'audit le lit AVANT de compter des .md, sinon chaque
+  // passage re-litige une décision déjà prise (workstation, audit 2026-08-10 : 21 .md
+  // signalés en dérive alors que 48 des 56 HTML étaient des plans, doctrine respectée).
+  const docsDoctrineDeclared = detection.metaGovernState?.docsDoctrine || null;
+  const mdAgentFacing = docsDoctrineDeclared === 'markdown-agent-facing';
+
+  if (mdAgentFacing) {
+    add('INFO', 'docs-doctrine',
+      `Doctrine docs déclarée « markdown-agent-facing » (.claude/.meta-govern.json) : les .md sous docs/ sont des protocoles lus par les agents, pas une dérive. ${doctrine.mdCount ?? 0} .md / ${doctrine.htmlCount ?? 0} .html. Ne PAS lancer migrate --target=html-docs sur ce projet.`);
+  } else if (doctrine.format === 'md' || doctrine.format === 'mixed') {
     add('HIGH', 'markdown-docs-drift',
-      `docs/ contient ${doctrine.mdCount} fichier(s) .md (doctrine: docs humains = HTML). Lancer node ~/.claude/skills/meta-govern/scripts/migrate-project.mjs <projet> --target=html-docs.`);
+      `docs/ contient ${doctrine.mdCount} fichier(s) .md (doctrine: docs humains = HTML). Lancer node ~/.claude/skills/meta-govern/scripts/migrate-project.mjs <projet> --target=html-docs. Si ces .md sont des protocoles lus par des AGENTS, ce n'est pas une dérive — enregistrer docsDoctrine:'markdown-agent-facing' dans .claude/.meta-govern.json.`);
   }
-  if (detection.artifacts.hasClaudeDir) {
+  if (detection.artifacts.hasClaudeDir && !mdAgentFacing) {
     if (!doctrine.hasToolkit) {
       add('MEDIUM', 'docs-doctrine', 'Toolkit docs-html absent (.claude/scripts/docs-html/scaffold.mjs). BOOTSTRAP ou MIGRATE --target=html-docs.');
     }
@@ -523,7 +577,17 @@ if (detection.artifacts.hasSettingsJson) {
     const settings = JSON.parse(fs.readFileSync(path.join(projectDir, '.claude/settings.json'), 'utf8'));
     const declared = extractDeclaredHooks(settings);
     for (const declaredHook of declared) {
-      const scriptPath = declaredHook.replace('${CLAUDE_PROJECT_DIR}', projectDir);
+      // Both shell forms are valid and BOTH appear in real projects: `${CLAUDE_PROJECT_DIR}`
+      // and the unbraced `$CLAUDE_PROJECT_DIR`. Substituting only the braced form left the
+      // literal `$CLAUDE_PROJECT_DIR/...` in the path, existsSync failed, and a false
+      // CRITICAL fired on a hook that was present and working (workstation, audit 2026-08-10).
+      // Also expand $HOME/~ so a hook declared by absolute home path resolves.
+      const scriptPath = declaredHook
+        .replace(/\$\{CLAUDE_PROJECT_DIR\}/g, projectDir)
+        .replace(/\$CLAUDE_PROJECT_DIR\b/g, projectDir)
+        .replace(/\$\{HOME\}/g, os.homedir())
+        .replace(/\$HOME\b/g, os.homedir())
+        .replace(/^~(?=\/)/, os.homedir());
       if (!fs.existsSync(scriptPath)) {
         add('CRITICAL', 'wiring', `Hook declared in settings.json but script missing: ${scriptPath}`);
       }
@@ -683,16 +747,37 @@ if (fs.existsSync(skillsDir)) {
 }
 
 const hooksDir = path.join(projectDir, '.claude/hooks');
+// Commandes brutes déclarées dans settings(.local).json — servent à détecter un
+// durcissement PATH posé au site d'invocation plutôt que dans le script.
+const declaredHookCommands = (() => {
+  const cmds = [];
+  for (const f of ['.claude/settings.json', '.claude/settings.local.json']) {
+    const p = path.join(projectDir, f);
+    if (!fs.existsSync(p)) continue;
+    try {
+      cmds.push(...extractDeclaredHookCommands(JSON.parse(fs.readFileSync(p, 'utf8'))));
+    } catch { /* parse error already reported by the wiring check */ }
+  }
+  return cmds;
+})();
 if (fs.existsSync(hooksDir)) {
   for (const hookFile of fs.readdirSync(hooksDir).filter(f => f.endsWith('.mjs') || f.endsWith('.sh'))) {
     if (hookFile.startsWith('lib')) continue; // skip lib subdir entries
+    if (HOOK_TEST_FILE_RE.test(hookFile)) continue; // a test file is not a hook the harness runs
     const hookPath = path.join(hooksDir, hookFile);
     const content = fs.readFileSync(hookPath, 'utf8');
-    // Hook hardens PATH if any of: declares PATH_PREFIX itself, mutates process.env.PATH, OR imports from ./lib/hook-utils (which does both).
+    // Hook hardens PATH if any of: declares PATH_PREFIX itself, mutates process.env.PATH,
+    // imports ./lib/hook-utils (which does both), OR — third valid location — has the PATH
+    // inlined at its INVOCATION SITE in settings.json (`PATH="…" bun "$CLAUDE_PROJECT_DIR/…"`).
+    // Same guarantee, different place; only checking inside the script yielded a false HIGH
+    // on hooks that were correctly hardened at the call site (workstation, 2026-08-10).
     const hasOwnHardening = /PATH_PREFIX|process\.env\.PATH\s*=/.test(content);
     const importsLib = /from\s+['"]\.\/lib\/hook-utils(\.mjs)?['"]/.test(content) || /require\(['"]\.\/lib\/hook-utils/.test(content);
-    if (hookFile.endsWith('.mjs') && !hasOwnHardening && !importsLib) {
-      add('HIGH', 'macos-hardening', `Hook ${hookFile} missing PATH_PREFIX export (Apple Silicon).`, hookPath);
+    const hardenedAtCallSite = declaredHookCommands.some(
+      (cmd) => cmd.includes(hookFile) && /(^|\s)PATH\s*=\s*["']?[^"']*\/(usr\/bin|opt\/homebrew\/bin|shims)/.test(cmd),
+    );
+    if (hookFile.endsWith('.mjs') && !hasOwnHardening && !importsLib && !hardenedAtCallSite) {
+      add('HIGH', 'macos-hardening', `Hook ${hookFile} missing PATH_PREFIX export (Apple Silicon) — ni dans le script, ni inliné au site d'invocation dans settings.json.`, hookPath);
     }
     if (/\bnvm\s/.test(content)) {
       add('HIGH', 'macos-hardening', `Hook ${hookFile} depends on nvm (will fail in non-interactive subprocess).`, hookPath);
@@ -715,7 +800,7 @@ if (fs.existsSync(hooksDir)) {
 // guard ships its simulation/test in the same commit. Canonical hooks are
 // grandfathered (the canon owns their proofs). Fail-soft, absolute paths.
 if (fs.existsSync(hooksDir)) {
-  const TEST_SIM_RE = /\.(test|spec|sim)\.[cm]?[jt]sx?$/;
+  const TEST_SIM_RE = HOOK_TEST_FILE_RE;
   const SKIP = new Set(['node_modules', '.git', 'dist', 'build', 'out', 'coverage', '.next', '.vercel', '.wrangler', '_generated']);
   const testCorpus = [];
   (function walk(dir) {
@@ -733,9 +818,11 @@ if (fs.existsSync(hooksDir)) {
     // sibling (base.{test,spec,sim}.mjs) or any corpus file that names it.
     const refTexts = [];
     for (const k of ['test', 'spec', 'sim']) {
-      const sib = path.join(hooksDir, `${base}.${k}.mjs`);
-      if (fs.existsSync(sib)) {
-        try { refTexts.push(fs.readFileSync(sib, 'utf8')); } catch { /* fail-soft */ }
+      for (const ext of ['mjs', 'ts', 'js']) {
+        const sib = path.join(hooksDir, `${base}.${k}.${ext}`);
+        if (fs.existsSync(sib)) {
+          try { refTexts.push(fs.readFileSync(sib, 'utf8')); } catch { /* fail-soft */ }
+        }
       }
     }
     for (const tf of testCorpus) {
@@ -754,14 +841,32 @@ if (fs.existsSync(hooksDir)) {
     // denied/blocked) AND a negative case (the legitimate input is allowed — a
     // silent exit 0 with null stdout). PreToolUse guards deny; Stop gates block.
     const corpus = refTexts.join('\n');
-    const provesBlock = /\b(deny|block|reject|refus)\b/i.test(corpus);
-    const provesAllow = /toBeNull|\ballow\b/i.test(corpus) || /\.toBe\(\s*(['"])\1\s*\)/.test(corpus);
+    // Un hook CONSULTATIF (rappel non bloquant : jamais d'exit 2, jamais de
+    // permissionDecision 'deny') ne PEUT pas prouver un cas bloquant — exiger
+    // « deny/block » de son test est un faux positif structurel. Sa paire
+    // positif/négatif est « émet l'avis » vs « reste silencieux ».
+    let hookSource = '';
+    try { hookSource = fs.readFileSync(path.join(hooksDir, hookFile), 'utf8'); } catch { /* fail-soft */ }
+    const isAdvisoryOnly = hookSource !== '' &&
+      !/process\.exit\(\s*2\s*\)/.test(hookSource) &&
+      !/permissionDecision\s*:\s*['"]deny['"]/.test(hookSource);
+
+    const provesBlock = isAdvisoryOnly
+      ? /toContain|toMatch|not\.toBeNull|\bémet|\bemits?\b|\brappel/i.test(corpus)
+      : /\b(deny|block|reject|refus|bloqu)\w*\b/i.test(corpus) || /\.toBe\(\s*2\s*\)/.test(corpus);
+    const provesAllow = /toBeNull|\ballow\b|\bpasser\b|\bsilenc/i.test(corpus) ||
+      /\.toBe\(\s*(['"])\1\s*\)/.test(corpus) || /\.toBe\(\s*0\s*\)/.test(corpus);
+
     if (!provesBlock || !provesAllow) {
-      const gap = !provesBlock && !provesAllow ? 'ni cas bloquant ni cas passant'
-        : !provesBlock ? 'pas de cas bloquant (positif)'
+      const positive = isAdvisoryOnly ? "pas de cas « l'avis est émis »" : 'pas de cas bloquant (positif)';
+      const gap = !provesBlock && !provesAllow ? 'ni cas positif ni cas passant'
+        : !provesBlock ? positive
         : 'pas de cas passant (négatif)';
+      const expected = isAdvisoryOnly
+        ? "Ce garde est CONSULTATIF (aucun exit 2, aucun permissionDecision 'deny') : assert qu'il ÉMET son avis sur l'entrée concernée ET qu'il reste SILENCIEUX sur l'entrée hors périmètre."
+        : 'Assert the deny/block decision on the forbidden input AND the silent allow (null stdout, exit 0) on the legitimate one, so a guard that stops enforcing is caught.';
       add('HIGH', 'hook-tests',
-        `Project-authored guard ${hookFile} has a test that only proves presence — ${gap}. Assert the deny/block decision on the forbidden input AND the silent allow (null stdout, exit 0) on the legitimate one, so a guard that stops enforcing is caught. See hook-canonical-patterns.html.`,
+        `Project-authored guard ${hookFile} has a test that only proves presence — ${gap}. ${expected} See hook-canonical-patterns.html.`,
         path.join(hooksDir, hookFile));
     }
   }
@@ -809,6 +914,23 @@ function extractDeclaredHooks(settings) {
           const match = hook.command.match(/["']([^"']+\.(mjs|sh|js))["']/);
           if (match) out.push(match[1]);
         }
+      }
+    }
+  }
+  return out;
+}
+
+/** Raw `command` strings of every declared hook — needed to see hardening (PATH=…)
+ *  that lives at the INVOCATION SITE rather than inside the hook script. */
+function extractDeclaredHookCommands(settings) {
+  const out = [];
+  if (!settings?.hooks) return out;
+  for (const event of Object.keys(settings.hooks)) {
+    const declarations = Array.isArray(settings.hooks[event]) ? settings.hooks[event] : [settings.hooks[event]];
+    for (const decl of declarations) {
+      const hooks = Array.isArray(decl.hooks) ? decl.hooks : [decl];
+      for (const hook of hooks) {
+        if (typeof hook?.command === 'string') out.push(hook.command);
       }
     }
   }

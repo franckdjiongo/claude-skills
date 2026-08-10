@@ -10,7 +10,12 @@
 
 import { describe, it, expect } from 'vitest';
 import path from 'node:path';
+import { PATH_PREFIX } from './lib/hook-utils.mjs';
 import { runHook, projectRoot } from './lib/hook-test-util.mjs';
+
+// Durcissement PATH macOS (Apple Silicon) — sinon le détecteur d'audit
+// macos-hardening émet un finding HIGH sur ce test.
+process.env.PATH = `${PATH_PREFIX}:${process.env.PATH || ''}`;
 
 const DOCS_ROOT = '{{DOCS_ROOT}}';
 

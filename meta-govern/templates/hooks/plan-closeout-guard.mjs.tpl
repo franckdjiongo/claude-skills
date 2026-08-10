@@ -4,11 +4,15 @@
  *
  * Discipline de close-out des plans ({{DOCS_ROOT}}/plans/*.html) : une tâche
  * passe `data-status="done"` seulement quand TOUTES ses cases détaillées sont
- * cochées, ou explicitement marquées `PENDING-MANUAL: <raison>`. Ce hook
- * simule l'édition entrante et BLOQUE si elle INTRODUIT une section
- * `plan-task` à la fois `done` et porteuse de cases non cochées sans marqueur
- * — le « done » prématuré est refusé avant d'atterrir (PreToolUse, pas
- * PostToolUse : après coup l'edit fautif serait déjà dans le fichier).
+ * cochées, ou explicitement marquées `PENDING-MANUAL: <raison>`. La portée du
+ * marqueur est PAR CASE — il doit apparaître dans le même `<li>` que la case
+ * qu'il exempte, pas seulement quelque part dans la section (une case non
+ * cochée sans son propre marqueur reste une violation même si une AUTRE case
+ * de la section porte PENDING-MANUAL). Ce hook simule l'édition entrante et
+ * BLOQUE si elle INTRODUIT une section `plan-task` à la fois `done` et
+ * porteuse d'une case non cochée sans marqueur dans son `<li>` — le « done »
+ * prématuré est refusé avant d'atterrir (PreToolUse, pas PostToolUse : après
+ * coup l'edit fautif serait déjà dans le fichier).
  *
  * Diff-scopé : les sections déjà en violation AVANT l'édition ne bloquent
  * jamais une édition sans rapport. Fail-open : toute erreur => allow.
@@ -85,8 +89,30 @@ function simulate(toolName, toolInput, original) {
   return null;
 }
 
-// Ids des tâches `done` dont la section contient >=1 case non cochée et aucun
-// marqueur PENDING-MANUAL.
+// Une case décochée est une violation SAUF si le marqueur PENDING-MANUAL
+// apparaît dans le MÊME `<li class="task-list-item">…</li>` (portée par case,
+// pas par section — cf. docstring "TOUTES ses cases … ou explicitement
+// marquées"). Repli fail-closed : hors d'un `<li class="task-list-item">`
+// reconnaissable, une case décochée compte toujours comme violation (aucune
+// exemption sans structure claire à vérifier).
+function isUncheckedBoxViolation(body, matchIndex, tag) {
+  const liOpenTag = '<li class="task-list-item"';
+  const liStart = body.lastIndexOf(liOpenTag, matchIndex);
+  if (liStart === -1) return true;
+  const liEnd = body.indexOf('</li>', matchIndex);
+  if (liEnd === -1) return true;
+  // Le `<li>` trouvé doit bien envelopper cette case (pas un `<li>` antérieur
+  // dont le `</li>` est déjà passé) — sinon on ne peut pas garantir la portée.
+  const liOpenTagEnd = body.indexOf('>', liStart);
+  if (liOpenTagEnd === -1 || liOpenTagEnd > matchIndex) return true;
+  const between = body.indexOf('</li>', liStart);
+  if (between !== liEnd) return true;
+  const liContent = body.slice(liStart, liEnd);
+  return !liContent.includes('PENDING-MANUAL');
+}
+
+// Ids des tâches `done` dont la section contient >=1 case non cochée sans
+// marqueur PENDING-MANUAL dans SON PROPRE `<li>` (portée par case).
 function violatingTaskIds(content) {
   const ids = new Set();
   const sections = content.split(/<section\b[^>]*class="[^"]*plan-task[^"]*"[^>]*>/);
@@ -94,9 +120,16 @@ function violatingTaskIds(content) {
     const body = sections[i].split('</section>')[0];
     const h3 = body.match(/<h3\b[^>]*id="(task-[^"]+)"[^>]*>/);
     if (!h3 || !/data-status="done"/.test(h3[0])) continue;
-    if (body.includes('PENDING-MANUAL')) continue;
-    const inputs = body.match(/<input\b[^>]*task-list-item-checkbox[^>]*>/g) || [];
-    if (inputs.some((tag) => !/\bchecked\b/.test(tag))) ids.add(h3[1]);
+    const inputRe = /<input\b[^>]*task-list-item-checkbox[^>]*>/g;
+    let m;
+    while ((m = inputRe.exec(body)) !== null) {
+      const tag = m[0];
+      if (/\bchecked\b/.test(tag)) continue;
+      if (isUncheckedBoxViolation(body, m.index, tag)) {
+        ids.add(h3[1]);
+        break;
+      }
+    }
   }
   return ids;
 }
@@ -125,8 +158,8 @@ try {
   deny(
     `plan-closeout-guard: ${fresh.join(', ')} passe data-status="done" avec des cases détaillées non cochées.\n` +
       `Close-out complet requis : ① case pipeline ② data-status ③ TOUTES les cases détaillées cochées ` +
-      `(ou marquées "PENDING-MANUAL: <raison>" dans la section) ④ commit.\n` +
-      `Coche les cases réellement satisfaites ou pose le marqueur PENDING-MANUAL, puis rejoue l'édition.`
+      `(ou chacune marquée individuellement "PENDING-MANUAL: <raison>" dans son propre <li>) ④ commit.\n` +
+      `Coche les cases réellement satisfaites ou pose le marqueur PENDING-MANUAL sur CHAQUE case restante, puis rejoue l'édition.`
   );
 } catch {
   allow();

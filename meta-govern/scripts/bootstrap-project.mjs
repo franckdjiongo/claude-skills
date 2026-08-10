@@ -345,6 +345,10 @@ function buildDefaultPlan(projectDir) {
       // ne voit pas. Câblé en PreToolUse Bash dans settings.json.tpl — TOUJOURS posé.
       { from: 'templates/hooks/bash-write-guard.mjs.tpl', to: '.claude/hooks/bash-write-guard.mjs' },
       { from: 'templates/hooks/lib/bash-write-detect.mjs.tpl', to: '.claude/hooks/lib/bash-write-detect.mjs' },
+      // Sibling extraction (file-size-budget) : bash-write-detect.mjs importe
+      // sa table de vecteurs (tee/sed/install/dd/rsync/ln/truncate/enveloppes
+      // shell -c) depuis ce fichier — sans lui, l'import échoue au chargement.
+      { from: 'templates/hooks/lib/bash-write-detect.vectors.mjs.tpl', to: '.claude/hooks/lib/bash-write-detect.vectors.mjs' },
 
       // Harnais + tests de hooks : l'infra de vérification est du code de production,
       // donc elle se teste. Posés seulement si le projet a vitest (sinon fichiers morts).
@@ -368,6 +372,12 @@ function buildDefaultPlan(projectDir) {
       // (revue pondérée par risque, signaux SLA de loop, barrière pré-déploiement).
       { from: 'templates/scripts/diff-coverage.mjs.tpl', to: '.claude/scripts/diff-coverage.mjs' },
       { from: 'templates/scripts/sample-review.mjs.tpl', to: '.claude/scripts/sample-review.mjs' },
+      // tierOf() est la seule fonction pure du sampler ; son test co-localisé
+      // (comme le harnais de hooks plus haut) n'est posé que si le projet a
+      // vitest — sinon fichier mort.
+      ...(hasVitest
+        ? [{ from: 'templates/scripts/sample-review.test.mjs.tpl', to: '.claude/scripts/sample-review.test.mjs' }]
+        : []),
       { from: 'templates/scripts/loop-sla.mjs.tpl', to: '.claude/scripts/loop-sla.mjs' },
       { from: 'templates/scripts/predeploy-check.mjs.tpl', to: '.claude/scripts/predeploy-check.mjs' },
       // Tiers de risque (racine .claude/) : consommés par sample-review et par

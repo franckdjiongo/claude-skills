@@ -25,6 +25,7 @@ export function detectProject(projectDir) {
     artifacts: {},
     indicators: {},
     palier: null,
+    palierSource: 'inferred',
     isMetaGovernBootstrapped: false,
     metaGovernState: null,
     docsDoctrine: null,
@@ -35,8 +36,22 @@ export function detectProject(projectDir) {
   result.artifacts = detectArtifacts(projectDir);
   result.docsDoctrine = detectDocsDoctrine(projectDir);
   result.indicators = computeIndicators(projectDir, result.artifacts, result.packageJson);
-  result.palier = detectPalier(result.indicators, result.artifacts);
   result.metaGovernState = readMetaGovernState(projectDir);
+
+  // Palier : la DÉCLARATION prime sur l'inférence. `detectPalier` infère depuis
+  // l'inventaire canon — il rend 0 dès que < 3 skills coeur sont présents, ce
+  // qui écrase à tort un projet mature dont les skills vivent au scope user
+  // (inventoryPolicy 'lean-by-design'). Un projet qui a enregistré son palier
+  // dans .claude/.meta-govern.json a déjà tranché la question ; l'inférence
+  // reste le repli pour les projets non déclarés. Même précédent que ciPolicy.
+  const declaredPalier = result.metaGovernState?.palier;
+  if (Number.isInteger(declaredPalier) && declaredPalier >= 0 && declaredPalier <= 6) {
+    result.palier = declaredPalier;
+    result.palierSource = 'declared';
+    result.inferredPalier = detectPalier(result.indicators, result.artifacts);
+  } else {
+    result.palier = detectPalier(result.indicators, result.artifacts);
+  }
   result.isMetaGovernBootstrapped = result.artifacts.hasClaudeDir &&
                                      result.artifacts.coreSkills.length >= 3 &&
                                      result.metaGovernState !== null;
@@ -558,17 +573,52 @@ function countLoc(dir) {
   return total;
 }
 
+// Le palier est une ÉCHELLE DE CAPACITÉ, pas un proxy de maturité: chaque rang
+// n'est RAPPORTÉ ATTEINT que si SES PROPRES artefacts sont réellement sur le
+// disque (mêmes artefacts que buildPalierPromotionPlan de migrate-project.mjs
+// installe à la promotion). `indicators.deferred` / `indicators.multiRuntime`
+// (et funcIds/components/ci plus haut dans la chaîne) restent des signaux
+// d'ÉLIGIBILITÉ à une promotion — lus par analyze-project.mjs pour suggérer la
+// PROCHAINE étape — mais ne prouvent jamais qu'une tranche de gouvernance est
+// installée. Un backlog de 38 DEFERRED sans next-deferred-id.mjs n'est PAS le
+// palier 6 ; un miroir .agents/.codex sans check-runtime-parity.mjs n'est PAS
+// le palier 5 (constat 2026-08-02 sur personal-budget-app: deferred:38 +
+// multiRuntime:true, mais aucun artefact palier 4/5/6 installé — palier réel 2).
+//
+// Ascension en ESCALIER: migrate-project.mjs promeut palier par palier, dans
+// l'ordre (`for p = currentPalier+1 to targetPalier`), donc un rang N n'est
+// significatif que si tous les rangs 2..N-1 le sont aussi — on remonte tant
+// que le rang courant a son artefact, on s'arrête au premier trou.
 function detectPalier(indicators, artifacts) {
   if (!artifacts.hasClaudeDir || !artifacts.hasClaudeMd) return 0;
   if (artifacts.coreSkills.length < 3) return 0;
-  if (indicators.deferred >= 30) return 6;
-  if (indicators.multiRuntime) return 5;
+
+  // Palier 2: settings.json.tpl ne rend plan-closeout-guard.mjs que sous
+  // IF_PALIER_GTE_2 (jamais au BOOTSTRAP — hardcodé à false) ; spec-tracer /
+  // qa-plan sont les skills recommandées par le step palier 2 de migrate.
+  const hasPalier2 = artifacts.coreHooks.includes('plan-closeout-guard.mjs') ||
+    artifacts.extraSkills.includes('spec-tracer') ||
+    artifacts.extraSkills.includes('qa-plan');
+  // Palier 3: les deux hooks "higher-palier" du canon (CANONICAL_HOOKS
+  // d'audit-project.mjs) — subagent-plan-edit-guard (historique) et
+  // agent-dispatch-preflight (templaté depuis v1.11.0, voie actuelle).
+  const hasPalier3 = artifacts.coreHooks.includes('subagent-plan-edit-guard.mjs') ||
+    artifacts.coreHooks.includes('agent-dispatch-preflight.mjs');
   // Palier 4: une CI serveur OU un gate de déploiement local (compensation
-  // documentée de l'option CI). La CI reste un signal, pas une équation.
-  if (indicators.ci !== 'absent' || indicators.localDeployGate) return 4;
-  if (artifacts.extraAgents.some(a => a.includes('spec-reviewer'))) return 3;
-  if (artifacts.extraSkills.includes('spec-tracer') || artifacts.extraSkills.includes('qa-plan')) return 2;
-  return 1;
+  // documentée de l'option CI, leçon 7) — déjà fondé sur des artefacts réels
+  // (.github/workflows, .gitlab-ci.yml, .claude/scripts/predeploy-check.mjs).
+  const hasPalier4 = indicators.ci !== 'absent' || indicators.localDeployGate;
+  // Palier 5: le garde de parité runtime rendu par migrate (check-runtime-parity.mjs).
+  const hasPalier5 = artifacts.coreScripts.includes('check-runtime-parity.mjs');
+  // Palier 6: l'automation de backlog (next-deferred-id.mjs).
+  const hasPalier6 = artifacts.coreScripts.includes('next-deferred-id.mjs');
+
+  if (!hasPalier2) return 1;
+  if (!hasPalier3) return 2;
+  if (!hasPalier4) return 3;
+  if (!hasPalier5) return 4;
+  if (!hasPalier6) return 5;
+  return 6;
 }
 
 function readMetaGovernState(projectDir) {

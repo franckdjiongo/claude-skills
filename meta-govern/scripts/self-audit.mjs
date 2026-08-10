@@ -156,15 +156,26 @@ if (!fs.existsSync(templatesDir)) {
     'runtime-parity.json.tpl',
     'hooks/bash-write-guard.mjs.tpl',
     'hooks/lib/bash-write-detect.mjs.tpl',
+    'hooks/lib/bash-write-detect.vectors.mjs.tpl',
     'hooks/lib/hook-test-util.mjs.tpl',
     'hooks/bash-write-guard.test.mjs.tpl',
     'hooks/hooks-inventory.test.mjs.tpl',
     'hooks/block-docs-markdown.test.mjs.tpl',
     'hooks/enforce-workflow.test.mjs.tpl',
+    // Palier 2/3 : plan-closeout-guard.mjs.tpl et agent-dispatch-preflight.mjs.tpl
+    // sont déjà dans l'inventaire canon (voir CANONICAL_HOOKS d'audit-project.mjs) ;
+    // leurs .test.mjs.tpl frères comblent le trou identifié 2026-08-02 (aucun
+    // template de test n'existait pour ces deux gardes). Non wirés dans
+    // bootstrap-project.mjs (palier-1 uniquement, ces deux hooks n'y sont
+    // jamais rendus) — rendus au moment de la promotion palier 2/3, aux côtés
+    // du hook, quand le projet a vitest.
+    'hooks/agent-dispatch-preflight.test.mjs.tpl',
+    'hooks/plan-closeout-guard.test.mjs.tpl',
     'scripts/check-runtime-parity.mjs.tpl',
     'scripts/check-runtime-parity.test.mjs.tpl',
     'scripts/diff-coverage.mjs.tpl',
     'scripts/sample-review.mjs.tpl',
+    'scripts/sample-review.test.mjs.tpl',
     'scripts/loop-sla.mjs.tpl',
     'scripts/predeploy-check.mjs.tpl',
   ];

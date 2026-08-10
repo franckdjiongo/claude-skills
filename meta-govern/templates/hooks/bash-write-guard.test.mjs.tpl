@@ -78,6 +78,58 @@ describe('bash-write-guard — politique deny/shadow/allow', () => {
     expect(res.exitCode).toBe(0);
     expect(res.stdoutJson).toBeNull();
   });
+
+  it('FAIL-OPEN sur un stdin malformé (exit 0, pas de deny)', () => {
+    const res = runHook('bash-write-guard.mjs', undefined, {
+      stdinOverride: '{not json',
+    });
+    expect(res.exitCode).toBe(0);
+    expect(res.stdoutJson).toBeNull();
+  });
+});
+
+// Réfutation adversariale : le détecteur de redirection scannait le texte brut
+// sans conscience des guillemets d'une commande enveloppante. Pour
+// `bash -c 'cat > {{DOCS_ROOT}}/x.md'`, la branche cible-non-quotée avalait le
+// guillemet fermant de l'enveloppe et produisait `{{DOCS_ROOT}}/x.md'` — une
+// chaîne qui échoue les comparaisons exactes de isDocsMarkdown()/PROTECTED_PATHS,
+// donc allow() silencieux. Symétriquement, un `>` d'affichage pur dans un
+// `echo "…"` était lu comme une vraie redirection (faux positif). Ces cas
+// prouvent la fermeture des deux trous, plus la couverture install/dd.
+describe('bash-write-guard — enveloppes shell, install/dd, faux positif (réfutation)', () => {
+  it('REFUSE `bash -c \'cat > {{DOCS_ROOT}}/x.md\'` (enveloppe simple-quote)', () => {
+    const res = runHook('bash-write-guard.mjs', bashEvent("bash -c 'cat > {{DOCS_ROOT}}/x.md'"));
+    expect(res.stdoutJson?.hookSpecificOutput?.permissionDecision).toBe('deny');
+  });
+
+  it('REFUSE `sh -c "echo x > CLAUDE.md"` (enveloppe double-quote, chemin protégé)', () => {
+    const res = runHook('bash-write-guard.mjs', bashEvent('sh -c "echo x > CLAUDE.md"'));
+    expect(res.stdoutJson?.hookSpecificOutput?.permissionDecision).toBe('deny');
+  });
+
+  it('REFUSE `bash -c "cd /tmp && cat > {{DOCS_ROOT}}/y.md"` (enveloppe + `&&` interne)', () => {
+    const res = runHook('bash-write-guard.mjs', bashEvent('bash -c "cd /tmp && cat > {{DOCS_ROOT}}/y.md"'));
+    expect(res.stdoutJson?.hookSpecificOutput?.permissionDecision).toBe('deny');
+  });
+
+  it('REFUSE `install -m 644 /tmp/a.md {{DOCS_ROOT}}/b.md` (vecteur install)', () => {
+    const res = runHook('bash-write-guard.mjs', bashEvent('install -m 644 /tmp/a.md {{DOCS_ROOT}}/b.md'));
+    expect(res.stdoutJson?.hookSpecificOutput?.permissionDecision).toBe('deny');
+  });
+
+  it('REFUSE `dd if=/tmp/a of={{DOCS_ROOT}}/c.md` (vecteur dd)', () => {
+    const res = runHook('bash-write-guard.mjs', bashEvent('dd if=/tmp/a of={{DOCS_ROOT}}/c.md'));
+    expect(res.stdoutJson?.hookSpecificOutput?.permissionDecision).toBe('deny');
+  });
+
+  it('LAISSE PASSER un `>` purement affiché dans un echo quoté (faux positif)', () => {
+    const res = runHook(
+      'bash-write-guard.mjs',
+      bashEvent('echo "Tip: redirect output > {{DOCS_ROOT}}/notes.md and check the result"')
+    );
+    expect(res.exitCode).toBe(0);
+    expect(res.stdoutJson).toBeNull();
+  });
 });
 
 describe('detectWriteTargets — table de vecteurs', () => {
@@ -86,6 +138,23 @@ describe('detectWriteTargets — table de vecteurs', () => {
     { name: 'tee', cmd: 'echo hi | tee -a build.log', vector: 'tee', path: 'build.log' },
     { name: 'node -e', cmd: `node -e 'require("fs").writeFileSync("out.txt","x")'`, vector: 'node-e', path: 'out.txt' },
     { name: 'heredoc', cmd: 'cat > {{DOCS_ROOT}}/x.md <<EOF\nhi\nEOF', vector: 'heredoc', path: '{{DOCS_ROOT}}/x.md' },
+    { name: 'install', cmd: 'install -m 644 /tmp/a.md {{DOCS_ROOT}}/b.md', vector: 'install', path: '{{DOCS_ROOT}}/b.md' },
+    { name: 'dd of=', cmd: 'dd if=/tmp/a of={{DOCS_ROOT}}/c.md', vector: 'dd', path: '{{DOCS_ROOT}}/c.md' },
+    { name: 'rsync', cmd: 'rsync -av /tmp/src/ {{DOCS_ROOT}}/dest/', vector: 'rsync', path: '{{DOCS_ROOT}}/dest/' },
+    { name: 'ln', cmd: 'ln -s /tmp/target {{DOCS_ROOT}}/link', vector: 'ln', path: '{{DOCS_ROOT}}/link' },
+    { name: 'truncate', cmd: 'truncate -s 0 {{DOCS_ROOT}}/x.md', vector: 'truncate', path: '{{DOCS_ROOT}}/x.md' },
+    {
+      name: 'bash -c (enveloppe simple-quote)',
+      cmd: "bash -c 'cat > {{DOCS_ROOT}}/x.md'",
+      vector: 'redirect',
+      path: '{{DOCS_ROOT}}/x.md',
+    },
+    {
+      name: 'sh -c (enveloppe double-quote)',
+      cmd: 'sh -c "echo x > CLAUDE.md"',
+      vector: 'redirect',
+      path: 'CLAUDE.md',
+    },
   ];
   for (const c of cases) {
     it(`détecte le vecteur ${c.name}`, () => {
@@ -96,6 +165,12 @@ describe('detectWriteTargets — table de vecteurs', () => {
 
   it('exclut /dev/null', () => {
     expect(detectWriteTargets('echo x > /dev/null')).toEqual([]);
+  });
+
+  it('ignore un `>` purement textuel à l’intérieur d’un guillemet (faux positif)', () => {
+    expect(
+      detectWriteTargets('echo "Tip: redirect output > {{DOCS_ROOT}}/notes.md and check the result"')
+    ).toEqual([]);
   });
 
   it('retourne [] sur commande vide ou non-écrivante', () => {
