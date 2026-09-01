@@ -7,7 +7,7 @@ export const repositories: Repository[] = [
     url: 'https://github.com/franckdjiongo/claude-skills',
     description: 'Main skills library - Power Platform, Claude Code, text processing, and more',
     isLocal: true,
-    skillCount: 116,
+    skillCount: 118,
   },
   {
     id: 'superpowers',
@@ -68,9 +68,9 @@ export const repositories: Repository[] = [
 ];
 
 export const categories: Category[] = [
-  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 263, repository: 'claude-skills' },
+  { id: 'all', name: 'All Skills', icon: 'Layers', skillCount: 265, repository: 'claude-skills' },
   { id: 'power-platform', name: 'Power Platform', icon: 'Zap', skillCount: 16, repository: 'claude-skills' },
-  { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 26, repository: 'claude-skills' },
+  { id: 'claude-code', name: 'Claude Code & AI', icon: 'Bot', skillCount: 28, repository: 'claude-skills' },
   { id: 'convex', name: 'Convex Database', icon: 'Database', skillCount: 30, repository: 'claude-skills' },
   { id: 'text-processing', name: 'Text & Documents', icon: 'FileText', skillCount: 4, repository: 'claude-skills' },
   { id: 'meetings', name: 'Meetings', icon: 'Users', skillCount: 8, repository: 'claude-skills' },
@@ -1395,6 +1395,28 @@ export const skills: Skill[] = [
     categoryName: "Specialized Workflows",
     tags: ['specialized'],
     path: 'brief-preflight/SKILL.md',
+    isLocal: true,
+  },
+  {
+    id: 'commit-session-work',
+    name: "Commit Session Work",
+    description: "Finish Git work safely at the end of a Claude Code session: commit, and — depending on the mode — integrate, push, and clean up.",
+    repository: 'claude-skills',
+    category: 'claude-code',
+    categoryName: "Claude Code & AI Extensibility",
+    tags: ['claude-code'],
+    path: 'commit-session-work/SKILL.md',
+    isLocal: true,
+  },
+  {
+    id: 'ship-pr',
+    name: "Ship Pr",
+    description: "Merge one or more explicitly-named pull requests and land the result safely: verify each PR is mergeable and its required checks are green, merge it…",
+    repository: 'claude-skills',
+    category: 'claude-code',
+    categoryName: "Claude Code & AI Extensibility",
+    tags: ['claude-code'],
+    path: 'ship-pr/SKILL.md',
     isLocal: true,
   },
   // Superpowers: Testing & Debugging

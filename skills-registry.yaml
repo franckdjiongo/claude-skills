@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-08-07"
+last_updated: "2026-09-01"
 
 # =============================================================================
 # REPOSITORIES
@@ -336,6 +336,18 @@ categories:
         path: workos/SKILL.md
         description: "Use when the user asks for a WorkOS docs URL, term, or dashboard field (Sign-in endpoint, initiate_login_uri, Redirect URI, `WORKOS_*` env vars), or…"
         tags: [claude-code, cli, webhooks]
+
+      - name: commit-session-work
+        repository: claude-skills
+        path: commit-session-work/SKILL.md
+        description: "Finish Git work safely at the end of a Claude Code session: commit, and — depending on the mode — integrate, push, and clean up."
+        tags: [claude-code]
+
+      - name: ship-pr
+        repository: claude-skills
+        path: ship-pr/SKILL.md
+        description: "Merge one or more explicitly-named pull requests and land the result safely: verify each PR is mergeable and its required checks are green, merge it…"
+        tags: [claude-code]
 
   # ---------------------------------------------------------------------------
   # CONVEX DATABASE
@@ -2088,6 +2100,8 @@ skill_index:
   workos: { repo: claude-skills, category: claude-code }
   workos-widgets: { repo: claude-skills, category: development }
   brief-preflight: { repo: claude-skills, category: specialized }
+  commit-session-work: { repo: claude-skills, category: claude-code }
+  ship-pr: { repo: claude-skills, category: claude-code }
   # External skills (superpowers)
   test-driven-development: { repo: superpowers, category: superpowers-testing }
   systematic-debugging: { repo: superpowers, category: superpowers-testing }
