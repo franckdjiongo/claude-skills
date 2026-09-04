@@ -3,7 +3,7 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-09-01"
+last_updated: "2026-09-04"
 
 # =============================================================================
 # REPOSITORIES
@@ -348,6 +348,12 @@ categories:
         path: ship-pr/SKILL.md
         description: "Merge one or more explicitly-named pull requests and land the result safely: verify each PR is mergeable and its required checks are green, merge it…"
         tags: [claude-code]
+
+      - name: building-production-macos-apps
+        repository: claude-skills
+        path: building-production-macos-apps/SKILL.md
+        description: "Builds, debugs, refactors, tests, profiles, secures, polishes, and prepares production macOS apps using Swift, SwiftUI, AppKit, and Xcode."
+        tags: [claude-code, ui]
 
   # ---------------------------------------------------------------------------
   # CONVEX DATABASE
@@ -2102,6 +2108,7 @@ skill_index:
   brief-preflight: { repo: claude-skills, category: specialized }
   commit-session-work: { repo: claude-skills, category: claude-code }
   ship-pr: { repo: claude-skills, category: claude-code }
+  building-production-macos-apps: { repo: claude-skills, category: claude-code }
   # External skills (superpowers)
   test-driven-development: { repo: superpowers, category: superpowers-testing }
   systematic-debugging: { repo: superpowers, category: superpowers-testing }
