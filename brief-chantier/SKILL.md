@@ -121,7 +121,9 @@ Deux rôles. Détermine le tien et lis la section correspondante :
    conclure — lance le dev server du repo CIBLE en Bash (`bun run dev` dans le
    repo du plan) ; les outils `preview_*` du harnais sont liés à la racine de
    la session, pas au repo cible, et démarreraient le mauvais serveur. Puis
-   hygiène machine : arrête tout serveur dev que tu as lancé, ne laisse aucun
+   hygiène machine : relâche le verrou global (`sh ~/.claude/scripts/night-run-lock.sh release`
+   — oublié par le run Opus du 2026-09-08, seule violation de protocole de
+   la nuit), arrête tout serveur dev que tu as lancé, ne laisse aucun
    worker orphelin.
 7. **Rapporte.** Réponds dans la conversation hub du plan si elle existe
    (lots faits, commits, verdict des vérifications) ; sinon résume en fin de

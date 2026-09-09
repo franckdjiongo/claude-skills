@@ -279,13 +279,13 @@ const DIMENSIONS = [
 phase('Hunt')
 const results = await pipeline(
   DIMENSIONS,
-  (d) => agent(`${CONTEXT}\n\nDIMENSION: ${d.focus}\n\nIf a finding overlaps another dimension's territory, note the overlap in one line rather than re-developing it — a later step dedupes same-file/line reports, so a full write-up per dimension only multiplies verify cost for one defect.`, { label:`hunt:${d.key}`, phase:'Hunt', schema:FINDINGS, effort:'high' }),
+  (d) => agent(`${CONTEXT}\n\nDIMENSION: ${d.focus}\n\nIf a finding overlaps another dimension's territory, note the overlap in one line rather than re-developing it — a later step dedupes same-file/line reports, so a full write-up per dimension only multiplies verify cost for one defect.`, { label:`hunt:${d.key}`, phase:'Hunt', schema:FINDINGS, model:'sonnet', effort:'medium' }),
   (review) => parallel((review?.findings ?? []).map((f) => () =>
     agent(`${CONTEXT}\n\nADVERSARIALLY VERIFY this finding. First verify its FACTS against the real code, then set mustFix:
 - TRUE if some input makes it wrong/crash/lose data (correctness), OR it deviates from a repo idiom you can CITE in repoIdiomViolated / violates an external hard limit / is an unbounded read|scan|N+1|over-fetch — even if today's data makes it work.
 - FALSE only if it is pure STYLE, or its facts don't hold.
 Do NOT set mustFix=false merely because the output is correct today or "not triggerable" — that is the trap that lets review bots catch you.\n\n${JSON.stringify(f,null,2)}`,
-      { label:`verify:${f.file}:${f.line}`, phase:'Verify', schema:VERDICT, effort:'high' })
+      { label:`verify:${f.file}:${f.line}`, phase:'Verify', schema:VERDICT, model:'opus', effort:'high' })
       .then((v) => ({ finding:f, verdict:v }))))
 )
 // Different dimensions independently rediscover the SAME bug constantly (e.g. 7 dimensions all
@@ -314,6 +314,23 @@ once per `duplicateCount`) with a **class-sweep** (core
 discipline #3 — fix every sibling of the same anti-pattern in the same pass, repo-wide, with the
 enumeration table), then re-run the workflow on the **whole** new diff. Proceed once the size-scaled
 convergence criterion (see "Scaling & cost") is met.
+
+**Model policy (Franck's decision, 2026-09-09, after a blind replay of 12 Opus reviews in
+Sonnet on the same diffs — recall 5/8 of Opus's P1s, 4 new P1s with executed proofs, 0 Opus false
+positives):** HUNTERS run `model:'sonnet', effort:'medium'`; the independent VERIFY step per
+finding runs `model:'opus', effort:'high'` — the rigor that paid came from the protocol (second
+round on the fix diff, executed proofs, independent verify), not from the hunter's tier. Pin these
+in the agent opts as in the template above; never let a hunt inherit the session model. The second
+round on the fix diff and the Verify step are NOT optional: both Opus runs that skipped Verify
+missed boundary defects (state overwritten by a PUT body, the "item" half of a fix) that
+independent verification exists to catch.
+
+**Where the Workflow tool prompts, and where it does not (verified 2026-09-09):** LOCALLY, in a
+session running in auto mode, the Workflow tool launches WITHOUT any approval dialog (this skill's
+own fan-outs ran unattended in the field). In a CLOUD run (claude.ai routine), the Workflow tool
+prompts at every launch even under bypassPermissions (cost guard) and nobody can click — there,
+use the no-ultracode fallback below. Key the engine choice on the environment, not on the fear of
+a popup.
 
 **No-ultracode fallback:** spawn the same dimensions as parallel `Agent` calls returning the same
 findings shape, then one verifier `Agent` per finding. Fewer agents, same discipline.
