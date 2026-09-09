@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-# ANALYZER_VERSION = "v1.31 — additive: task_notification classifier category in classify_user_turns, tested right after skill_content_injection (before the length heuristics): turns carrying harness_injected=True (v1.9 — <task-notification>, [SYSTEM NOTIFICATION...]) that survive every earlier specific harness branch (stop_hook_feedback, command_invocation, local_command_echo, skill_content_injection) previously fell into likely_intervention/new_request_mid_work by length alone. Observed 2026-09-09 (session-review skill maintenance, workstation project): session 92e26910-d924-4e04-ba5c-c6ff311a7f05 (9 harness-injected turns — 4 likely_intervention + 4 new_request_mid_work + 1 other — all task-notifications from a 100%-autonomous run) and a24de35c-43c6-4808-a126-69a5ef30db00 (3 turns, same pattern): a false 'user intervention' signal hand-requalified in every rapport. harness_injected_turns and the 🤖harness-injected marker UNCHANGED; the new category surfaces automatically in turns.user_turns_by_category (JSON) and the 'User turns by category' markdown table via the existing dynamic Counter/dict-iteration render — same mechanism as v1.25/v1.26/v1.30, no render code added. NOTE: this repo copy trails the runtime-installed analyzer (~/.claude/skills/session-review/scripts/analyze_session.py, currently v1.35) by several additive versions (v1.31-v1.34 features — wakeup_burn_loops, commit_attempts, remote_triggers, --roster — not yet backported here); this version number is local to this file's own history, not equivalent to the installed script's v1.31. Purely additive. 2026-09-09"
+# ANALYZER_VERSION = "v1.35 — additive: (a) task_notification classifier category in classify_user_turns, tested right after skill_content_injection (before the length heuristics): turns carrying harness_injected=True (v1.9 — <task-notification>, [SYSTEM NOTIFICATION...]) that survive every earlier specific harness branch (stop_hook_feedback, command_invocation, local_command_echo, skill_content_injection) previously fell into likely_intervention/new_request_mid_work by length alone. Observed 2026-09-09: session 92e26910-d924-4e04-ba5c-c6ff311a7f05 (9 harness-injected turns — 4 likely_intervention + 4 new_request_mid_work + 1 other — all task-notifications from a 100%-autonomous run) and a24de35c-43c6-4808-a126-69a5ef30db00 (3 turns, same pattern): a false 'user intervention' signal hand-requalified in every rapport. harness_injected_turns and the 🤖harness-injected marker UNCHANGED; the new category surfaces automatically in turns.user_turns_by_category (JSON) and the 'User turns by category' markdown table via the existing dynamic Counter/dict-iteration render — same mechanism as v1.25/v1.26/v1.30, no render code added. (b) failure_patterns.commit_attempts (detect_commit_attempts, v1.34) no longer misclassifies a SUCCESSFUL `git commit -q ... && git log --oneline -1` chain as rejected: `-q` suppresses the `[branch sha]` summary line landed_re relied on, and the chained `git log --oneline -1` output ('<sha> <subject>') matched neither landed_re nor the 'file(s) changed' fallback, so landed=False regardless of hook_fail. Observed 2026-09-09: session 5440ef5c-1851-4092-8915-3f63f4aa4935 reported {attempts:3, succeeded:0, rejected:3} for THREE real, landed commits (068c694, 91fa218, 1392f06). Fix: pending[] now also carries the paired Bash command; detect_commit_attempts extracts the `-m \"...\"`/`-m '...'` commit message and, only when hook_fail is False, accepts a git-log-oneline-shaped line (`^[0-9a-f]{7,40}\\s+<message-prefix>`, MULTILINE) as a second landed signal — that line can only be present because the shell's `&&` gated it on the commit itself succeeding. A genuinely rejected commit (hook FAIL, no bracket line, chain never reaches `git log`) still has no such line and stays counted rejected — verified with a synthetic case. rejections[].hint, attempts/succeeded/rejected schema UNCHANGED. Purely additive. 2026-09-09"
+# ANALYZER_VERSION_PREVIOUS_V1_34 = "v1.34 — additive: (a) failure_patterns.wakeup_burn_loops ({total_wakeups, rapid_rearms, rapid_threshold_sec, median_gap_seconds, longest_streak, streaks:[{from_ts,to_ts,count}]}) via new detect_wakeup_burn_loops(): consecutive assistant ScheduleWakeup tool_use calls < 30 s apart mean the model re-armed a wakeup WITHOUT ending its turn (the tool result says the harness re-invokes it) — a polling burn loop. Motivation 2026-09-01 (temps-chantier chantier rebase-parcours-paie-dayforce, session 4b9a0b40, Sonnet 5 orchestrator under /goal): 132 ScheduleWakeup calls in ~30 min, 121 of them < 10 s apart, 44 ListAgents polls, while waiting for two background fix agents — the rapport had to compute the gaps by hand. (b) failure_patterns.commit_attempts ({attempts, succeeded, rejected, rejections:[{ts, hint}]}) via new detect_commit_attempts(): pairs each Bash `git commit` tool_use with its tool_result and flags pre-commit-hook rejections (husky / pre-commit script failed / lint-staged / quality-gate FAIL with no `[branch sha]` line) — same session: 4 of 22 commit attempts were rejected by the Minimum-Test-Count / Test-Coverage gate and re-committed after test padding, invisible in commits_during_session. Both rendered as ⚠️ blocks under Failure patterns detected, excluded from the flat loop like background_task_stalls. Existing keys, schema and every other path UNCHANGED. Purely additive. 2026-09-01"
+# ANALYZER_VERSION_PREVIOUS_V1_33 = "v1.33 — additive: new top-level key `remote_triggers` ({total, by_action, timeline:[{action, trigger_id, name, run_once_at, ts}]}) via new extract_remote_triggers(), + a markdown block '### Cloud routines (RemoteTrigger)' (rendered only when total > 0, right after 'Slash commands invoked'). Motivation 2026-08-16 (temps-chantier cloud-orchestration session, integration/dayforce-export): `RemoteTrigger` (the claude.ai routines API — create/update/run/list/get/list_runs/get_run_log) was the 2nd most-used tool (59 calls) and carried the entire session narrative — which cloud routines were created, replanned, or re-run — yet the analyzer only counted it as an anonymous `tool_usage` entry, forcing a hand-reconstruction of the routine timeline from the raw JSONL. `action`/`trigger_id` are read from the tool_use `input`; `name`/`run_once_at` are read from `input.body` (create/update calls), handling `body` as either a dict or a JSON-encoded string — a body that fails to parse yields `name`/`run_once_at` = None and never raises. Existing `tool_usage` and every other key UNCHANGED. Purely additive. 2026-08-16"
+# ANALYZER_VERSION_PREVIOUS_V1_32 = "v1.32 — additive: failure_patterns.background_task_stalls ({threshold_minutes, tasks_tracked, notifications_total, stalls:[{task_id, gap_minutes, from_ts, to_ts}]}) via new detect_background_task_stalls(): groups harness-injected <task-notification> events (user + queue-operation types only — assistant quotes excluded; deduped on (task_id, ts)) by <task-id> and flags every inter-notification gap > 60 min for the same task, rendered as a dedicated ⚠️ block under 'Failure patterns detected' (excluded from the flat loop like tool_error_kinds). Motivation 2026-08-14 (temps-chantier parallel-worktrees run 49d642f3): background chantier T89 was killed WITHOUT re-emitting a failure notification and sat silent ~5h — detected by the human, reconstructed by hand from worktree mtimes. Explicitly a heuristic (legitimate long tasks notify rarely): the rendered block says to cross-check disk state. Existing failure_patterns keys, schema, and every other path UNCHANGED. Purely additive. 2026-08-14"
+# ANALYZER_VERSION_PREVIOUS_V1_31 = "v1.31 — additive: `--roster` CLI flag. Instead of analyzing one session, emits a table of EVERY session in the project dir (same `~/.claude/projects/<encoded-cwd>/` the script already resolves via --cwd): session id (stem), first/last event timestamp, gitBranch (first non-null seen), file size, and the first non-trivial user prompt truncated to 120 chars (harness meta/hook turns — stop-hook feedback, local-command-caveat echoes, task-notifications, SYSTEM NOTIFICATION, skill-content injection — are skipped so the roster shows genuine user intent, not harness noise). New helper `_scan_session_roster()` does a single-pass read per file (no full analyze() pipeline — ~25 files in a typical project dir, simplicity over micro-optimization) feeding new entry point `build_roster()`; new top-level JSON key `{"roster": [...]}` and a new markdown table via `render_roster_markdown()`. `--roster` is exclusive of `--session`/`--file` (exits 1 if combined) and composes with `--json`/`--md` exactly like the existing modes. Complements `enumerate_candidate_sessions` (mtime/size/user_turn_count only, used internally for auto-selection warnings) with the signals a roster/index view actually needs. Single-session schema, `analyze()`, and `rollup()` UNCHANGED. Purely additive. 2026-08-07"
 # ANALYZER_VERSION_PREVIOUS_V1_30 = "v1.30 — additive: (a) skill_content_injection classifier category, tested right before the length heuristics in classify_user_turns. When a Skill tool fires, the harness injects the SKILL.md body as a user-role turn beginning 'Base directory for this skill:' (isMeta=true in the JSONL); their length after tool work mislabeled them new_request_mid_work / likely_intervention (observed 2026-07-29, banc d'essai cloud: 5 such turns across 3 of 4 exported transcripts read as user interventions and had to be hand-requalified in every rapport). Every other turn keeps its exact prior classification. (b) claude_browser bucket in _browser_verification: mcp__Claude_Browser__* calls (navigate/computer/read_page/javascript_tool/preview_*) were invisible to the v1.23 aggregate — a session with 49 such calls of real visual QA rendered browser_verification.used=false (observed 2026-07-29, workstation banc-essai transcript). New key claude_browser added to the dict; chrome_mcp/claude_preview/computer_use keep their exact prior counts; total_calls/used widen to include the new bucket (a missed-signal widening per the additive contract), and the markdown breakdown line renders claude_browser next to the three historical buckets (without it the block headlined '52 calls' over a row of three zeros). JSON schema is a superset. Purely additive. 2026-07-29"
 # ANALYZER_VERSION_PREVIOUS_V1_29 = "v1.29 — additive: markdown render only — when commits_during_session.count==0 but git_commit_tool_calls_observed>0, emit a ⚠️ line surfacing the observed count. The cwd-scoped `git log` misses commits landed in OTHER repos the session cd'd into (observed 2026-07-11, meta-govern overnight migration: 8 commits across automintech/eosa/personal-budget-app rendered as '0 commits (none)', hiding the v1.16 cross-check signal already present in the JSON). JSON schema UNCHANGED. Purely additive. 2026-07-11"
 # ANALYZER_VERSION_PREVIOUS_V1_28 = "v1.28 — additive: external_interruption_detected boolean per user turn + 🌐EXTERNAL-INTERRUPT render marker. Turns interrupted by the ENVIRONMENT (rate-limit, machine restart, API overloaded, session limit) were length-classified `other`/`likely_intervention`, forcing manual requalification of 'the user corrected me' vs 'the environment broke'. Case-insensitive keyword match over the lowercased preview: rate-limit, rate limit, overloaded, redémarr, redemarr, restart, crashed, session limit, api error, api overloaded. Never overrides category; every other turn keeps its exact prior classification. Purely additive. 2026-07-10"
@@ -247,6 +251,155 @@ def enumerate_candidate_sessions(cwd, selected_path=None):
     return out
 
 
+# ─── Roster (v1.31 additive) ────────────────────────────────────────────────
+
+
+_ROSTER_META_HOOK_PREFIXES = (
+    "stop hook feedback",
+    "<local-command-caveat>",
+    "[system notification",
+    "base directory for this skill:",
+)
+
+
+def _scan_session_roster(path: Path):
+    """v1.31 additive — single-pass, lightweight scan of one session JSONL for
+    `--roster`: first/last event timestamp, first non-null gitBranch, and the
+    first non-trivial user prompt (harness meta/hook turns skipped), WITHOUT
+    running the full analyze() pipeline (no tool_usage/subagent/turn-classifier
+    accounting). The project dir is ~25 files — a straight per-line pass for
+    every file is simple and fast enough that seek-from-end-of-file was not
+    worth the added complexity."""
+    first_ts = None
+    last_ts = None
+    git_branch = None
+    first_prompt = None
+    for ev in parse_jsonl(path):
+        ts = ev.get("timestamp")
+        ts_parsed = iso_from_timestamp(ts) if ts else None
+        if ts_parsed:
+            if first_ts is None or ts_parsed < first_ts:
+                first_ts = ts_parsed
+            if last_ts is None or ts_parsed > last_ts:
+                last_ts = ts_parsed
+        if git_branch is None:
+            gb = ev.get("gitBranch")
+            if gb:
+                git_branch = gb
+        if first_prompt is not None or ev.get("type") != "user":
+            continue
+        content = ev.get("message", {}).get("content", [])
+        is_pure_tool_result = (
+            isinstance(content, list)
+            and content
+            and all(
+                isinstance(b, dict) and b.get("type") == "tool_result"
+                for b in content
+            )
+        )
+        if is_pure_tool_result:
+            continue
+        text = ""
+        if isinstance(content, str):
+            text = content
+        elif isinstance(content, list):
+            for b in content:
+                if isinstance(b, dict) and b.get("type") == "text":
+                    text += b.get("text", "")
+        stripped = text.strip()
+        if not stripped:
+            continue
+        if stripped.startswith("<system-reminder>") and stripped.endswith("</system-reminder>"):
+            continue
+        low = stripped.lower()
+        # Skip harness-injected meta/hook turns (mirrors the categories
+        # classify_user_turns already knows to distinguish: stop_hook_feedback,
+        # local_command_echo, harness-injected task-notification / SYSTEM
+        # NOTIFICATION, skill_content_injection) so the roster's first-prompt
+        # column shows genuine user intent, not harness noise.
+        if any(low.startswith(pfx) for pfx in _ROSTER_META_HOOK_PREFIXES):
+            continue
+        if "<task-notification>" in stripped:
+            continue
+        cleaned = re.sub(
+            r"<system-reminder>.*?</system-reminder>", "", stripped, flags=re.DOTALL
+        ).strip()
+        candidate = (cleaned if cleaned else stripped).replace("\n", " ")
+        first_prompt = candidate[:120]
+    return {
+        "first_event_utc": first_ts.isoformat() if first_ts else None,
+        "last_event_utc": last_ts.isoformat() if last_ts else None,
+        "git_branch": git_branch,
+        "first_prompt_preview": first_prompt,
+    }
+
+
+def build_roster(cwd):
+    """v1.31 additive — `--roster` entry point: every *.jsonl session in the
+    project dir (same directory `find_current_session_jsonl`/
+    `enumerate_candidate_sessions` already resolve via --cwd), sorted by mtime
+    descending, with light per-session metadata. Distinct from
+    `enumerate_candidate_sessions` (mtime/size/user_turn_count only, used
+    internally for the multi-session-ambiguity warning) — this adds the
+    timestamps/branch/first-prompt columns a roster/index view needs. Does not
+    call analyze() — purely additive, new top-level mode."""
+    if not cwd:
+        return []
+    encoded = encode_cwd_for_projects_dir(cwd)
+    proj_dir = Path.home() / ".claude" / "projects" / encoded
+    if not proj_dir.exists():
+        return []
+    jsonls = sorted(
+        proj_dir.glob("*.jsonl"),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
+    out = []
+    for p in jsonls:
+        try:
+            st = p.stat()
+        except OSError:
+            continue
+        scan = _scan_session_roster(p)
+        out.append({
+            "session_id": p.stem,
+            "first_event_utc": scan["first_event_utc"],
+            "last_event_utc": scan["last_event_utc"],
+            "git_branch": scan["git_branch"],
+            "size_bytes": st.st_size,
+            "first_prompt_preview": scan["first_prompt_preview"],
+        })
+    return out
+
+
+def render_roster_markdown(cwd, roster_list):
+    """v1.31 additive — markdown table for `--roster --md` (and the default
+    combined output)."""
+    if not roster_list:
+        return f"**No sessions found for** `{cwd}`\n"
+    lines = [
+        "## Session roster (deterministic)",
+        "",
+        f"- **Project:** `{cwd}`",
+        f"- **Sessions found:** {len(roster_list)}",
+        "",
+        "| id | first event | last event | branch | size | first prompt |",
+        "|---|---|---|---|--:|---|",
+    ]
+    for s in roster_list:
+        sid = (s.get("session_id") or "?")[:8]
+        first_ev = s.get("first_event_utc") or "?"
+        last_ev = s.get("last_event_utc") or "?"
+        branch = s.get("git_branch") or "?"
+        size = s.get("size_bytes") or 0
+        prompt = (s.get("first_prompt_preview") or "").replace("|", "\\|")
+        lines.append(
+            f"| `{sid}` | {first_ev} | {last_ev} | {branch} | {size:,} | {prompt} |"
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
 # ─── Parsing ────────────────────────────────────────────────────────────────
 
 
@@ -451,7 +604,7 @@ def classify_user_turns(turns):
       - task_notification: harness-injected <task-notification> / [SYSTEM
             NOTIFICATION] turn (harness_injected flag, v1.9) that matched none
             of the more specific harness branches above. NOT user input —
-            checked right before the length heuristics (v1.31), so a background-
+            checked right before the length heuristics (v1.35), so a background-
             task completion notification never reads as likely_intervention /
             new_request_mid_work by length alone.
       - likely_intervention: short-to-medium (<= 500 chars) after >= 3 tool uses
@@ -502,7 +655,7 @@ def classify_user_turns(turns):
         # heuristics; every other turn keeps its exact prior classification.
         elif turn["preview"].lstrip().startswith("Base directory for this skill:"):
             turn["category"] = "skill_content_injection"
-        # v1.31 additive category: harness-injected task-notification / system
+        # v1.35 additive category: harness-injected task-notification / system
         # notification turns (harness_injected flag set in v1.9) that matched
         # none of the more specific branches above. Their length after tool
         # work mislabeled them likely_intervention / new_request_mid_work —
@@ -877,6 +1030,67 @@ def extract_slash_commands(user_turns):
     return {"total": sum(counter.values()), "by_name": dict(counter)}
 
 
+def extract_remote_triggers(events):
+    """v1.33 additive: RemoteTrigger (claude.ai routines API) call inventory.
+
+    In a cloud-orchestration session, `RemoteTrigger` (create/update/run/list/get/
+    list_runs/get_run_log/…) can be the tool that carries the entire narrative —
+    which routines were created, replanned, or re-run — yet it was previously
+    counted only as an anonymous entry in `tool_usage`. Observed 2026-08-16: a
+    session with 59 RemoteTrigger calls (2nd most-used tool) forced a manual
+    reconstruction of the routine timeline from the raw JSONL for the rapport.
+
+    Reads `action` and `trigger_id` from the tool_use `input`, and `name` /
+    `run_once_at` from `input.body` when present (create/update calls). `body`
+    can be a dict OR a JSON-encoded string depending on how the call was made;
+    both are handled, and a body that fails to parse never raises — it just
+    yields `name`/`run_once_at` = None. Purely additive — does not touch
+    `tool_usage` or any other field."""
+    total = 0
+    by_action = Counter()
+    timeline = []
+    for ev in events:
+        if ev.get("type") != "assistant":
+            continue
+        ts = ev.get("timestamp")
+        for name, inp in extract_tool_uses(ev):
+            if name != "RemoteTrigger":
+                continue
+            total += 1
+            inp = inp if isinstance(inp, dict) else {}
+            action = inp.get("action") or "(unknown)"
+            by_action[action] += 1
+            trigger_id = inp.get("trigger_id") or inp.get("triggerId") or inp.get("id")
+
+            trig_name = None
+            run_once_at = None
+            body = inp.get("body")
+            if isinstance(body, dict):
+                trig_name = body.get("name")
+                run_once_at = body.get("run_once_at") or body.get("runOnceAt")
+            elif isinstance(body, str):
+                try:
+                    parsed_body = json.loads(body)
+                except (json.JSONDecodeError, TypeError, ValueError):
+                    parsed_body = None
+                if isinstance(parsed_body, dict):
+                    trig_name = parsed_body.get("name")
+                    run_once_at = parsed_body.get("run_once_at") or parsed_body.get("runOnceAt")
+
+            timeline.append({
+                "action": action,
+                "trigger_id": trigger_id,
+                "name": trig_name,
+                "run_once_at": run_once_at,
+                "ts": ts,
+            })
+    return {
+        "total": total,
+        "by_action": dict(by_action),
+        "timeline": timeline,
+    }
+
+
 def extract_workflow_fanout(events):
     """v1.15 additive: extract Workflow fan-out metrics from task-notification
     <usage> blocks. A Workflow's internally-spawned agents (via the script's
@@ -942,6 +1156,259 @@ def extract_workflow_fanout(events):
         ):
             out.append(entry)
     return out
+
+
+def detect_wakeup_burn_loops(events, rapid_threshold_sec=30):
+    """v1.34 additive: detect ScheduleWakeup polling burn loops. A ScheduleWakeup
+    tool_result explicitly says "Nothing more to do this turn — the harness
+    re-invokes you when the wakeup fires"; the correct behavior is to END the
+    turn. When two consecutive ScheduleWakeup tool_use calls are < threshold
+    seconds apart, the model re-armed the wakeup without ending its turn — a
+    polling loop that burns turns/tokens and inflates the assistant turn count.
+    Motivation (2026-09-01, temps-chantier session 4b9a0b40, Sonnet 5 under
+    /goal): 132 wakeups in ~30 min, 121 of them < 10 s apart. Heuristic and
+    purely additive — never touches existing failure_patterns keys."""
+    stamps = []
+    for ev in events:
+        if ev.get("type") != "assistant":
+            continue
+        ts = iso_from_timestamp(ev.get("timestamp"))
+        if ts is None:
+            continue
+        for name, _inp in extract_tool_uses(ev):
+            if name == "ScheduleWakeup":
+                stamps.append((ts, ev.get("timestamp")))
+    stamps.sort(key=lambda x: x[0])
+    gaps = [
+        (b[0] - a[0]).total_seconds() for a, b in zip(stamps, stamps[1:])
+    ]
+    rapid = [g for g in gaps if g < rapid_threshold_sec]
+    median_gap = None
+    if gaps:
+        sg = sorted(gaps)
+        median_gap = round(sg[len(sg) // 2], 1)
+    # streaks: maximal runs of consecutive rapid re-arms
+    streaks = []
+    run_start = None
+    run_count = 0
+    for i, g in enumerate(gaps):
+        if g < rapid_threshold_sec:
+            if run_start is None:
+                run_start = i
+                run_count = 1
+            run_count += 1
+        else:
+            if run_start is not None and run_count >= 3:
+                streaks.append(
+                    {
+                        "from_ts": stamps[run_start][1],
+                        "to_ts": stamps[run_start + run_count - 1][1],
+                        "count": run_count,
+                    }
+                )
+            run_start = None
+            run_count = 0
+    if run_start is not None and run_count >= 3:
+        streaks.append(
+            {
+                "from_ts": stamps[run_start][1],
+                "to_ts": stamps[run_start + run_count - 1][1],
+                "count": run_count,
+            }
+        )
+    return {
+        "total_wakeups": len(stamps),
+        "rapid_rearms": len(rapid),
+        "rapid_threshold_sec": rapid_threshold_sec,
+        "median_gap_seconds": median_gap,
+        "longest_streak": max((st["count"] for st in streaks), default=0),
+        "streaks": streaks,
+    }
+
+
+def detect_commit_attempts(events):
+    """v1.34 additive: pair every Bash `git commit` tool_use with its
+    tool_result and count pre-commit-hook rejections. commits_during_session
+    (git log) only sees commits that LANDED; a commit refused by husky /
+    lint-staged / the quality gate and re-attempted after a fix is invisible
+    there, yet it is exactly the "reactive fire drill" a rapport must cite.
+    Rejection signature: the result mentions a hook failure (husky, pre-commit
+    script failed, lint-staged, quality gate FAIL/BLOCKED) AND carries no
+    `[<branch> <sha>]` commit summary line. Purely additive.
+
+    v1.35 additive: `git commit -q` suppresses that `[branch sha]` summary
+    line entirely, so a command chained as `git commit -q -m "..." && git log
+    --oneline -1` — a real, landed commit — matched neither landed_re nor the
+    'file(s) changed' fallback and was counted rejected (observed 2026-09-09,
+    session 5440ef5c-1851-4092-8915-3f63f4aa4935: 3/3 real commits reported as
+    rejected). `pending` now also carries the paired command so the commit
+    message can be extracted and matched against a trailing `git log
+    --oneline`-shaped line ('<sha> <subject>') — a line that can only be
+    present because the shell's `&&` gated it on `git commit` itself
+    succeeding. Only applied when hook_fail is False, so a genuine rejection
+    (hook FAIL, no bracket line, chain never reaches `git log`) is unaffected."""
+    pending = {}
+    for ev in events:
+        if ev.get("type") != "assistant":
+            continue
+        for name, inp, tid in extract_tool_uses_with_id(ev):
+            if name != "Bash":
+                continue
+            cmd = str(inp.get("command", ""))
+            if re.search(r"\bgit\s+commit\b", cmd) and "--dry-run" not in cmd:
+                pending[tid] = (ev.get("timestamp"), cmd)
+    attempts = 0
+    succeeded = 0
+    rejections = []
+    landed_re = re.compile(r"\[[^\]\n]+ [0-9a-f]{7,}\]")
+    commit_msg_re = re.compile(r"git\s+commit\b[^&|;\n]*-m\s+(\"([^\"]+)\"|'([^']+)')")
+    for ev in events:
+        if ev.get("type") != "user":
+            continue
+        content = ev.get("message", {}).get("content", [])
+        if not isinstance(content, list):
+            continue
+        for block in content:
+            if not isinstance(block, dict) or block.get("type") != "tool_result":
+                continue
+            tid = block.get("tool_use_id")
+            if tid not in pending:
+                continue
+            ts, cmd = pending[tid]
+            rc = block.get("content", "")
+            if isinstance(rc, list):
+                rc = " ".join(b.get("text", "") for b in rc if isinstance(b, dict))
+            text = str(rc)
+            attempts += 1
+            landed = bool(landed_re.search(text)) or "files changed" in text or "file changed" in text
+            low = text.lower()
+            hook_fail = (
+                "husky - pre-commit script failed" in low
+                or "pre-commit script failed" in low
+                or "pre-commit hook failed" in low
+                or ("lint-staged" in low and "failed" in low)
+                or "commit blocked" in low
+                or bool(block.get("is_error")) and "commit" in low
+            )
+            if not landed and not hook_fail:
+                # v1.35: `-q` suppressed the bracket summary line — look for a
+                # chained `git log --oneline`-style line ('<sha> <subject>')
+                # whose subject starts with this commit's own -m message. That
+                # line only exists because `&&` short-circuited on success.
+                msg_match = commit_msg_re.search(cmd)
+                commit_msg = msg_match.group(2) or msg_match.group(3) if msg_match else None
+                if commit_msg:
+                    prefix = re.escape(commit_msg.strip()[:24])
+                    if prefix and re.search(r"^[0-9a-f]{7,40}\s+" + prefix, text, re.MULTILINE):
+                        landed = True
+            if landed and not hook_fail:
+                succeeded += 1
+            elif hook_fail or not landed:
+                hint = "unknown"
+                for label in (
+                    "Minimum Test Count",
+                    "Test Coverage",
+                    "growth guard",
+                    "file-size",
+                    "Hardcoded",
+                    "eslint",
+                    "prettier",
+                    "typecheck",
+                    "tsc",
+                ):
+                    if label.lower() in low and ("fail" in low or "block" in low):
+                        hint = label
+                        break
+                rejections.append({"ts": ts, "hint": hint})
+    return {
+        "attempts": attempts,
+        "succeeded": succeeded,
+        "rejected": len(rejections),
+        "rejections": rejections,
+    }
+
+
+def detect_background_task_stalls(events, threshold_minutes=60):
+    """v1.32 additive: flag silent stalls of background tasks. Groups the
+    harness-injected <task-notification> user/queue events by <task-id> and
+    reports every gap > threshold between two consecutive notifications of the
+    SAME task. Motivation (2026-08-14, temps-chantier parallel-worktrees run):
+    a background chantier agent was killed without re-emitting a failure
+    notification and sat silent for ~5h (295 min) — the stall was detected by
+    the HUMAN, and the reviewer had to reconstruct it by hand from worktree
+    file mtimes. A >threshold inter-notification gap is only a HEURISTIC
+    (legitimate long tasks notify rarely) — the rapport must interpret, not
+    auto-condemn. Purely additive — never affects existing fields."""
+    notif_re = re.compile(r"<task-id>([^<]+)</task-id>")
+    by_task = {}
+    seen = set()
+    for ev in events:
+        # user + queue-operation events only: assistant messages QUOTING a
+        # notification (rapports, Edit new_strings) must not count.
+        if ev.get("type") not in ("user", "queue-operation"):
+            continue
+        ts = ev.get("timestamp")
+        if not ts:
+            continue
+        content = ev.get("message", {}).get("content", [])
+        text = ""
+        if isinstance(content, str):
+            text = content
+        elif isinstance(content, list):
+            for b in content:
+                if not isinstance(b, dict):
+                    continue
+                if isinstance(b.get("text"), str):
+                    text += b["text"]
+                inner = b.get("content")
+                if isinstance(inner, str):
+                    text += inner
+                elif isinstance(inner, list):
+                    for ib in inner:
+                        if isinstance(ib, dict) and isinstance(ib.get("text"), str):
+                            text += ib["text"]
+        if "<task-notification>" not in text:
+            continue
+        m = notif_re.search(text)
+        if not m:
+            continue
+        task_id = m.group(1)
+        # The same completion can persist as both a queue-operation and a user
+        # event with the same timestamp — dedupe on (task_id, ts).
+        key = (task_id, ts)
+        if key in seen:
+            continue
+        seen.add(key)
+        by_task.setdefault(task_id, []).append(ts)
+
+    stalls = []
+    notifications_total = 0
+    for task_id, ts_list in by_task.items():
+        ts_list.sort()
+        notifications_total += len(ts_list)
+        parsed = []
+        for ts in ts_list:
+            dt = iso_from_timestamp(ts)
+            if dt is not None:
+                parsed.append((ts, dt))
+        for (prev_raw, prev_dt), (cur_raw, cur_dt) in zip(parsed, parsed[1:]):
+            gap_min = (cur_dt - prev_dt).total_seconds() / 60.0
+            if gap_min > threshold_minutes:
+                stalls.append(
+                    {
+                        "task_id": task_id,
+                        "gap_minutes": round(gap_min, 1),
+                        "from_ts": prev_raw,
+                        "to_ts": cur_raw,
+                    }
+                )
+    stalls.sort(key=lambda s: -s["gap_minutes"])
+    return {
+        "threshold_minutes": threshold_minutes,
+        "tasks_tracked": len(by_task),
+        "notifications_total": notifications_total,
+        "stalls": stalls,
+    }
 
 
 def _browser_verification(tool_usage):
@@ -1112,6 +1579,12 @@ def analyze(jsonl_path: Path):
     user_turns = classify_user_turns(user_turns)
     turn_category_counts = Counter(t["category"] for t in user_turns)
     failure_patterns = detect_retries_and_failures(events)
+    # v1.32 additive: silent background-task stalls (inter-notification gaps
+    # > 60 min for the same task-id) — heuristic, interpreted by the rapport.
+    failure_patterns["background_task_stalls"] = detect_background_task_stalls(events)
+    # v1.34 additive: ScheduleWakeup burn loops + pre-commit rejections.
+    failure_patterns["wakeup_burn_loops"] = detect_wakeup_burn_loops(events)
+    failure_patterns["commit_attempts"] = detect_commit_attempts(events)
 
     # v1.3 additive: cluster Agent dispatches within 60s windows. Per-message
     # uuid counting (v1.2) misses intent-based parallelism because each tool_use
@@ -1283,6 +1756,9 @@ def analyze(jsonl_path: Path):
         "workflow_fanout": extract_workflow_fanout(events),
         # v1.8 additive: skills/commands launched via slash command (not Skill()).
         "slash_commands_invoked": extract_slash_commands(user_turns),
+        # v1.33 additive: RemoteTrigger (claude.ai routines API) call inventory —
+        # total, breakdown by action, and a create/update/run timeline.
+        "remote_triggers": extract_remote_triggers(events),
         "failure_patterns": failure_patterns,
         # v1.20 additive: context compactions + autonomous Stop-hook (/goal, /loop)
         # spans, so the rapport can grade compaction-recovery quality and attribute
@@ -1520,6 +1996,29 @@ def render_markdown(report):
         lines.append(f"### Slash commands invoked ({sci['total']} total)")
         for name, count in sci["by_name"].items():
             lines.append(f"- `/{name}`: {count}")
+    # v1.33 additive: RemoteTrigger (claude.ai routines API) inventory. Only
+    # rendered when RemoteTrigger was actually called — a non-cloud session
+    # must not gain an empty section.
+    rt = report.get("remote_triggers", {})
+    if rt.get("total"):
+        lines.append("")
+        lines.append(f"### Cloud routines (RemoteTrigger) ({rt['total']} calls)")
+        lines.append("- By action:")
+        for action, count in sorted(rt["by_action"].items(), key=lambda kv: -kv[1]):
+            lines.append(f"    - `{action}`: {count}")
+        lines.append("- Timeline:")
+        for entry in rt["timeline"]:
+            ts = entry.get("ts") or "?"
+            action = entry.get("action") or "?"
+            tid = entry.get("trigger_id") or "?"
+            name = entry.get("name")
+            run_once_at = entry.get("run_once_at")
+            extra = ""
+            if name:
+                extra += f", name={name!r}"
+            if run_once_at:
+                extra += f", run_once_at={run_once_at}"
+            lines.append(f"    - {ts} — `{action}` trigger=`{tid}`{extra}")
     lines.append("")
     lines.append("### User turns by category")
     for cat, count in report["turns"]["user_turns_by_category"].items():
@@ -1565,13 +2064,31 @@ def render_markdown(report):
     # v1.12 additive: tool_error_kinds is a dict — render it as sub-bullets, not
     # verbatim, so exclude it from the flat loop (same pattern as orphaned_agents).
     err_kinds = fp.get("tool_error_kinds", {}) if isinstance(fp, dict) else {}
+    # v1.32 additive: background_task_stalls is a dict — render it as its own
+    # block, excluded from the flat loop (same pattern as tool_error_kinds).
+    bg_stalls = fp.get("background_task_stalls", {}) if isinstance(fp, dict) else {}
     flat_fp_keys = [
-        k for k in fp.keys() if k not in ("orphaned_agents", "tool_error_kinds")
+        k
+        for k in fp.keys()
+        if k
+        not in (
+            "orphaned_agents",
+            "tool_error_kinds",
+            "background_task_stalls",
+            "wakeup_burn_loops",
+            "commit_attempts",
+        )
     ]
+    # v1.34 additive: two more dict-valued patterns rendered as their own blocks.
+    burn = fp.get("wakeup_burn_loops", {}) if isinstance(fp, dict) else {}
+    commits_att = fp.get("commit_attempts", {}) if isinstance(fp, dict) else {}
+    has_burn = isinstance(burn, dict) and burn.get("rapid_rearms", 0) >= 3
+    has_commit_rej = isinstance(commits_att, dict) and commits_att.get("rejected", 0) > 0
     has_flat = any(fp.get(k) for k in flat_fp_keys)
     has_orph = isinstance(orph, dict) and orph.get("count", 0) > 0
     has_err_kinds = isinstance(err_kinds, dict) and len(err_kinds) > 0
-    if has_flat or has_orph or has_err_kinds:
+    has_bg_stalls = isinstance(bg_stalls, dict) and len(bg_stalls.get("stalls", [])) > 0
+    if has_flat or has_orph or has_err_kinds or has_bg_stalls or has_burn or has_commit_rej:
         lines.append("")
         lines.append("### Failure patterns detected")
         for k in flat_fp_keys:
@@ -1591,6 +2108,42 @@ def render_markdown(report):
             )
             for item in orph.get("items", []):
                 lines.append(f"    - `{item['id']}` — {item['desc'][:60]}")
+        if has_bg_stalls:
+            lines.append(
+                f"- ⚠️ **background_task_stalls: {len(bg_stalls['stalls'])}** "
+                f"(gap > {bg_stalls.get('threshold_minutes', 60)} min between two "
+                "notifications of the same background task — heuristic: a killed/"
+                "silent agent and a legitimately long-running one look identical; "
+                "cross-check disk state before concluding)"
+            )
+            for s in bg_stalls["stalls"][:10]:
+                lines.append(
+                    f"    - `{s['task_id']}` — {s['gap_minutes']:.0f} min silent "
+                    f"({s['from_ts']} → {s['to_ts']})"
+                )
+        if has_burn:
+            lines.append(
+                f"- ⚠️ **wakeup_burn_loops: {burn['rapid_rearms']} rapid re-arms** "
+                f"out of {burn['total_wakeups']} ScheduleWakeup calls "
+                f"(< {burn['rapid_threshold_sec']} s apart; median gap "
+                f"{burn.get('median_gap_seconds')} s; longest streak "
+                f"{burn.get('longest_streak')}) — the model re-armed a wakeup without "
+                "ending its turn: a polling loop, not a wait. Cite it as wasted turns "
+                "and check whether the awaited subagents should have been foreground."
+            )
+            for st in burn.get("streaks", [])[:5]:
+                lines.append(
+                    f"    - {st['count']} re-arms {st['from_ts']} → {st['to_ts']}"
+                )
+        if has_commit_rej:
+            lines.append(
+                f"- ⚠️ **commit_attempts: {commits_att['rejected']} rejected** "
+                f"of {commits_att['attempts']} `git commit` attempts (pre-commit hook / "
+                "quality gate refused the commit — each one is a reactive fire drill "
+                "that a pre-commit check by the implementer would have caught)"
+            )
+            for r in commits_att.get("rejections", [])[:10]:
+                lines.append(f"    - {r['ts']} — {r['hint']}")
     # v1.20 additive: harness events — compactions + autonomous Stop-hook spans.
     he = report.get("harness_events", {})
     if isinstance(he, dict) and (he.get("compactions_detected") or he.get("stop_hook_activations")):
@@ -1850,11 +2403,39 @@ def main():
     # is untouched when neither flag is passed.
     p.add_argument("--last", nargs="?", const="all", default=None,
                    help="Alias for --rollup: aggregate the last N sessions (or all)")
+    # v1.31 additive: --roster lists every session in the project dir (id,
+    # timestamps, branch, size, first prompt) instead of analyzing one session.
+    # Exclusive of --session/--file (there is no single session to select);
+    # composes with --json/--md exactly like the existing modes.
+    p.add_argument("--roster", action="store_true",
+                   help="List every session in the project dir with light metadata "
+                        "(id, first/last event, branch, size, first prompt)")
     args = p.parse_args()
 
     # v1.24 additive: fold --last into --rollup (alias). If both are given, --rollup wins.
     if args.rollup is None and args.last is not None:
         args.rollup = args.last
+
+    # v1.31 additive: roster mode short-circuits everything else.
+    if args.roster:
+        if args.session or args.file:
+            print("ERROR: --roster is exclusive of --session/--file",
+                  file=sys.stderr)
+            sys.exit(1)
+        cwd = args.cwd or os.getcwd()
+        roster_list = build_roster(cwd)
+        out = {"roster": roster_list}
+        if args.json:
+            print(json.dumps(out, indent=2, ensure_ascii=False))
+        elif args.md:
+            print(render_roster_markdown(cwd, roster_list))
+        else:
+            print("```json")
+            print(json.dumps(out, indent=2, ensure_ascii=False))
+            print("```")
+            print()
+            print(render_roster_markdown(cwd, roster_list))
+        return
 
     # v1.21 additive: rollup mode short-circuits the single-session path.
     if args.rollup is not None:
