@@ -114,12 +114,22 @@
 
 <section id="s-contexte">
   <div class="sec-head"><span class="sec-num">01</span><h2>Contexte autonome — tout ce qu'il faut pour démarrer sans mémoire</h2></div>
+  <h3>Leçons du brain qui gouvernent ce chantier</h3>
+  <p class="muted">Étape 0 du standard — consultation obligatoire du Second Brain avant l'écriture du plan (memory_search / lessons_list_validated du MCP workstation-bus, CLI brain, ou miroir local). Citer ce qui s'applique, ou déclarer « aucune leçon applicable » : le silence est interdit.</p>
+  <ul class="list">
+    {{LECONS_BRAIN_LI — une ligne par leçon citée (source + application concrète à ce chantier), ou un unique <li>Aucune leçon applicable — recherche effectuée le {{DATE_ISO}} sur « <mots-clés> ».</li>}}
+  </ul>
   <h3>Le repo</h3>
   <ul class="list">
     <li><strong>Chemin</strong> : <code>{{CHEMIN_ABSOLU_REPO}}</code></li>
     <li><strong>Stack</strong> : {{STACK_EXACTE}}</li>
     <li><strong>Gestionnaire</strong> : {{BUN_OU_AUTRE}} — n'utilise jamais un autre.</li>
     <li><strong>Conventions dures du repo</strong> : {{CONVENTIONS_INVARIANTS_DU_PROJET}}</li>
+  </ul>
+  <h3>Agents du projet — à utiliser plutôt que general-purpose</h3>
+  <p class="muted">Si ce projet a déjà des subagents dédiés (visibles dans la liste d'agents de la session, ou <code>.claude/agents/</code> du repo cible), chaque lot du §03 précise lequel dispatcher dans son champ Agent. <code>general-purpose</code> est réservé aux projets qui n'ont PAS encore d'agents dédiés (ex. meta-govern pas encore passé dessus) — ne jamais l'utiliser par défaut si un agent du projet couvre déjà la tâche.</p>
+  <ul class="list">
+    {{AGENTS_PROJET_LI — un <li> par agent pertinent pour ce chantier (nom exact du subagent_type, modèle/effort, quand l'utiliser), ou un unique <li>Aucun agent dédié dans ce projet au moment de l'écriture — general-purpose pour tous les lots.</li>}}
   </ul>
   <h3>Commandes de vérification du projet</h3>
   <pre class="cmd">{{COMMANDES_VERIFICATION_EXACTES}}</pre>
@@ -151,16 +161,42 @@
   </ul>
 </section>
 
+<!-- ═══ SECTION OPTIONNELLE — FLOTTE PARALLÈLE ═══════════════════════════════════
+     À DÉCOMMENTER et remplir UNIQUEMENT si ce plan appartient à une VAGUE de
+     chantiers parallèles (rôle ORCHESTRATEUR, Phase 2, étape 4bis du standard).
+     Plan solo = laisse ce bloc commenté, ou supprime-le. Le lint l'ignore tant
+     qu'il dort dans ce commentaire ; dès qu'il est décommenté, les trois
+     marqueurs ci-dessous deviennent obligatoires (check 9 du préflight).
+     Ne pas oublier la ligne de TOC correspondante, en bas de ce fichier.
+
+<section id="s-flotte">
+  <div class="sec-head"><span class="sec-num">02b</span><h2>Flotte parallèle — vague, frères, plage d'identifiants</h2></div>
+  <ul class="list">
+    <li><strong>Vague</strong> : <span class="flotte-nom">{{NOM_DE_LA_VAGUE}}</span></li>
+    <li><strong>Plage d'identifiants réservée à CE chantier</strong> : <code class="plage-ids">{{PLAGE — ex. « DEFERRED 121-130 » ; ou « aucun compteur global » si ce chantier n'alloue aucun identifiant par script}}</code></li>
+  </ul>
+  <p><strong>Chantiers frères de la vague</strong> — surface d'ÉDITION disjointe de celle-ci :</p>
+  <ul class="list flotte-freres">
+    {{FRERES_LI — un <li> par chantier frère : slug, branche, plage attribuée}}
+  </ul>
+  <div class="callout danger"><div class="co-title">Pourquoi cette section existe</div>
+    <p>Tout compteur global alloué par script au moment de l'écriture (identifiants de backlog différé, numéros de migration, IDs de règle…) est <strong>aveugle aux branches sœurs non fusionnées</strong> : N chantiers parallèles partis du même socle appellent l'allocateur et reçoivent tous LE MÊME numéro. Observé le 15/08/2026 : trois chantiers ont attribué le même identifiant de backlog à trois findings différents, et la collision n'est apparue qu'à la fusion. N'alloue RIEN hors de la plage ci-dessus. Le préflight ne peut pas détecter la collision — il ne voit qu'un plan à la fois ; il vérifie seulement que ta plage est déclarée.</p>
+  </div>
+</section>
+     ═══ FIN SECTION OPTIONNELLE ══════════════════════════════════════════════ -->
+
 <section id="s-lots">
   <div class="sec-head"><span class="sec-num">03</span><h2>Les lots — dans l'ordre, un commit par lot</h2></div>
-  <p>Chaque lot laisse le repo vert et commitable. Après la vérification du lot : <code>git commit</code> — message <code>chantier({{SLUG_PLAN}}): lot N — &lt;titre&gt;</code>, jamais de ligne Co-Authored-By. Le git log est le suivi d'avancement : ne modifie pas ce fichier HTML.</p>
+  <p>Chaque lot laisse le repo vert et commitable. Après la vérification du lot : <code>git commit</code> — message <code>chantier({{SLUG_PLAN}}): lot N — &lt;titre&gt;</code>, jamais de ligne Co-Authored-By. <strong>Le DERNIER lot ne fait pas exception</strong> : c'est un lot de PROCESSUS (clôture, revue, PR/rapport), il porte quand même l'étiquette <code>lot N</code> — un message libre du genre « correctifs de revue » casse le <code>git log --grep</code> du run aval. Le git log est le suivi d'avancement : ne modifie pas ce fichier HTML. Lot sous gate humain explicite : run local → travail laissé staged jusqu'à validation ; run cloud éphémère → commit préfixé <code>[GATE-HELD]</code> devant le message normal du lot (le git log porte l'état « en attente de validation humaine » ; relecture par <code>git log --grep "GATE-HELD"</code>).</p>
 
   <!-- Répéter ce bloc par lot -->
   <div class="lot" id="lot-1">
     <div class="lot-head"><span class="ln">LOT 1</span><span class="lt">{{TITRE_LOT}}</span><span class="lh">{{ESTIMATION}} h</span></div>
     <div class="lot-body">
       <p><strong>Objectif</strong> : {{OBJECTIF_UNE_PHRASE}}</p>
+      <p><strong>Agent</strong> : {{AGENT_LOT — subagent_type exact du projet (ex. implementer, ui-implementer) si ce projet en a un adapté ; general-purpose SEULEMENT si aucun agent du projet ne couvre cette tâche ; "aucun — reste chez l'orchestrateur" si le lot ne doit pas être délégué (ex. clôture, PR, merge)}}</p>
       <p><strong>Fichiers touchés</strong> : {{FICHIERS_CHEMINS_ABSOLUS}}</p>
+      <p><strong>Commit du lot</strong> : <code class="commit-msg">chantier({{SLUG_PLAN}}): lot 1 — {{TITRE_LOT}}</code> — l'étiquette <code>lot 1</code> est OBLIGATOIRE dans le message, y compris sur un lot de PROCESSUS (clôture, revue, PR/rapport) : jamais un message libre du genre « correctifs de revue ». Le run aval d'une chaîne de chantiers vérifie sa précondition par un <code>git log --grep</code> LITTÉRAL sur cette étiquette ; sans elle il compte zéro et conclut à tort que ce chantier a échoué.</p>
       <ol class="list">
         {{ETAPES_LI}}
       </ol>
@@ -196,6 +232,14 @@
   </ol>
 </section>
 
+<section id="s-nice">
+  <div class="sec-head"><span class="sec-num">06</span><h2>Nice-to-have proposés — pour arbitrage, PAS pour ce run</h2></div>
+  <p class="muted">Au moins 5 sous-fonctionnalités adjacentes que ce chantier n'inclut PAS (souvent issues des lentilles personas/futur du préflight). L'utilisateur arbitre à l'approbation : intégrer au chantier (elles deviennent alors des lots) ou créer des chips. L'EXÉCUTANT n'implémente RIEN de cette section — elle n'existe que pour que les bonnes idées ne meurent pas en silence. Rappel de frontière : un must-have (la fonctionnalité est incomplète sans lui) n'a rien à faire ici — il va dans les lots.</p>
+  <ul class="list">
+    {{NICE_TO_HAVE_LI — un <li> par proposition (≥ 5) : quoi, pour qui (persona), pourquoi maintenant ou plus tard, effort estimé en une phrase}}
+  </ul>
+</section>
+
 <footer>
   Plan au standard brief-chantier (v1) · {{NOM_PROJET}} · {{DATE_ISO}} · exécutable sans mémoire de session — si une information manque pour démarrer, c'est un défaut du plan : ouvre un chip plutôt que de deviner.
 </footer>
@@ -210,10 +254,12 @@
   <a class="sec" href="#s-intention">00 — Intention</a>
   <a class="sec" href="#s-contexte">01 — Contexte autonome</a>
   <a class="sec" href="#s-approbation">02 — Approbation &amp; rapport</a>
+  <!-- À décommenter en même temps que la section flotte : <a class="sec" href="#s-flotte">02b — Flotte parallèle</a> -->
   <a class="sec" href="#s-lots">03 — Les lots</a>
   <a class="sub" href="#lot-1">Lot 1 — {{TITRE_LOT}}</a>
   <a class="sec" href="#s-verif">04 — Vérification de fin de run</a>
   <a class="sec" href="#s-convex">05 — Convex &amp; échec</a>
+  <a class="sec" href="#s-nice">06 — Nice-to-have proposés</a>
 </nav>
 <label for="ws-toc-toggle" class="ws-toc-btn" title="Table des matières">TOC</label>
 
