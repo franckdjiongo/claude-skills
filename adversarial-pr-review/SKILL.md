@@ -367,16 +367,26 @@ field round). Do not restart the round from scratch and do not respawn dead agen
 ## Sentinel (this is what unblocks `gh pr create`)
 
 The global hook `adversarial-pr-guard.mjs` blocks `gh pr create` unless the **current HEAD** has been
-recorded as reviewed. After Mode A passes **and you've committed the reviewed state**, record it:
+recorded as reviewed. After Mode A passes **and you've committed the reviewed state**, record it —
+**always with an explicit `cd` into the reviewed repo/worktree root in the SAME command**:
 
 ```bash
-git rev-parse HEAD > "$(git rev-parse --absolute-git-dir)/.adversarial-review-passed"
+cd <racine-absolue-du-repo-ou-worktree-revu> && git rev-parse HEAD > "$(git rev-parse --absolute-git-dir)/.adversarial-review-passed"
 ```
 
-This writes the reviewed commit sha into `.git/` (never committed, repo-local). The hook allows
-`gh pr create` only while that sha equals `HEAD`. If you commit more after reviewing, the sentinel
-goes stale and the hook re-blocks — **re-run the review** on the new diff, then re-record. Do **not**
-write the sentinel to bypass the review; that defeats the entire point.
+This writes the reviewed commit sha into the repo's own git dir (never committed, repo-local; for a
+worktree that is `.git/worktrees/<name>/`, NOT the shared `.git`). The explicit `cd` is not optional:
+running the bare command from the wrong cwd writes the wrong sha into the wrong git dir — observed
+2026-08-14 (temps-chantier T77): the bare form ran from the main repo root and dropped master's sha
+into the SHARED `.git`, forging a pass for a diff that hook never validated and potentially
+contaminating the sibling worktrees. After writing, confirm the printed sha equals the HEAD you just
+reviewed. The hook allows `gh pr create` only while that sha equals `HEAD` (and, for
+`--head <branch>`, the tip of that branch). If you commit more after reviewing, the sentinel goes
+stale and the hook re-blocks — **re-run the review** on the new diff, then re-record. Do **not**
+write the sentinel to bypass the review, and NEVER write it into a `.git` that is not the reviewed
+checkout's own git dir; that defeats the entire point and counts as a security incident. If the hook
+blocks despite a genuine completed review, that is an infra failure: stop and report it (chip /
+orchestrator), don't route around it.
 
 ---
 
