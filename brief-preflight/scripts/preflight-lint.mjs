@@ -3,9 +3,10 @@
  * preflight-lint.mjs — couche DÉTERMINISTE du skill brief-preflight.
  *
  * Usage : node preflight-lint.mjs <plan.html> <repo-cible> [--legacy]
- *   --legacy : rétrograde l'absence de section « Nice-to-have » (id="s-nice",
- *              ≥ 5 items) en avertissement, pour les plans antérieurs à la
- *              convention.
+ *   --legacy : rétrograde en AVERTISSEMENT les conventions POSTÉRIEURES au plan
+ *              — section « Nice-to-have » (id="s-nice", ≥ 5 items) et message de
+ *              commit du lot de clôture (check 8) — pour linter les plans écrits
+ *              avant ces conventions.
  *
  * Vérifie mécaniquement ce qui n'exige AUCUN jugement :
  *   1. placeholders {{…}} résiduels
@@ -17,12 +18,28 @@
  *   6. structure : sections obligatoires, chaque lot avec Agent + <pre.cmd> +
  *      bloc DONE, entrée TOC par lot
  *   7. section Nice-to-have (id="s-nice") avec ≥ 5 <li>
+ *   8. lot de CLÔTURE (le dernier lot du plan) : son message de commit est écrit
+ *      noir sur blanc et porte l'étiquette « lot N » — marqueur dédié
+ *      class="commit-msg", ou un <code>/<pre.cmd> contenant « git commit … lot N ».
+ *      Règle brief-chantier, rôle AUTEUR, étape 5bis : le run aval d'une chaîne de
+ *      chantiers vérifie sa précondition par un `git log --grep` LITTÉRAL sur cette
+ *      étiquette ; un lot de clôture commité « correctifs de revue » le fait
+ *      compter zéro et conclure à tort que l'amont a échoué.
+ *   9. flotte parallèle (OPTIONNEL — silencieux pour un plan solo) : si la section
+ *      id="s-flotte" existe, elle DOIT déclarer le nom de la vague
+ *      (class="flotte-nom"), les chantiers frères (<ul class="flotte-freres">,
+ *      ≥ 1 <li>) et la plage d'identifiants réservée à CE chantier
+ *      (class="plage-ids" : « N-M », ou « aucun compteur global »).
+ *      Règle brief-chantier, rôle ORCHESTRATEUR, Phase 2, étape 4bis.
+ *      Limite ASSUMÉE : le lint voit UN plan et ne peut pas détecter une collision
+ *      entre plans frères — il vérifie seulement que la plage est DÉCLARÉE.
  *
  * Sortie : findings groupés ERREUR / AVERTISSEMENT, code retour 1 si ≥ 1 erreur.
  */
 
 import { readFileSync, existsSync, statSync, readdirSync } from 'node:fs';
 import { join, isAbsolute, basename } from 'node:path';
+import { stripComments, textOf, readFlotte } from './flotte-shared.mjs';
 
 const args = process.argv.slice(2).filter((a) => a !== '--legacy');
 const legacy = process.argv.includes('--legacy');
@@ -190,6 +207,106 @@ if (niceIdx === -1) {
   const sec = html.slice(niceIdx, html.indexOf('</section>', niceIdx));
   const count = (sec.match(/<li/g) ?? []).length;
   if (count < 5) errors.push(`Section Nice-to-have : ${count} item(s), minimum 5`);
+}
+
+/* --- Vue « live » du plan, réservée aux checks 8 et 9 ---------------------
+   Le gabarit brief-chantier livre la section flotte (§02b) en COMMENTAIRE HTML :
+   un plan solo la laisse commentée, un plan de vague la décommente. Les checks
+   ci-dessous ne doivent donc pas réagir à ce qui dort dans un commentaire.
+   Les checks 1 à 7 continuent de lire `html` — contrat inchangé. */
+const htmlLive = stripComments(html);
+
+/* 8 — lot de clôture : message de commit explicite portant « lot N »
+   (règle brief-chantier, rôle AUTEUR, étape 5bis) */
+const lastLotStart = htmlLive.lastIndexOf('<div class="lot" ');
+if (lastLotStart !== -1) {
+  // Le dernier lot court jusqu'à la fin de la section des lots.
+  let lastLot = htmlLive.slice(lastLotStart);
+  const secEnd = lastLot.indexOf('</section>');
+  if (secEnd !== -1) lastLot = lastLot.slice(0, secEnd);
+  const idM = lastLot.match(/id="lot-(\d+)"/);
+  const lastN = idM ? idM[1] : null;
+  const lotTag = new RegExp(`\\blot\\s*${lastN ?? '\\d+'}\\b`, 'i');
+
+  const marked = [...lastLot.matchAll(/<([a-z]+)\b[^>]*class="[^"]*\bcommit-msg\b[^"]*"[^>]*>([\s\S]*?)<\/\1>/gi)].map(
+    (m) => textOf(m[2]),
+  );
+  const codes = [...lastLot.matchAll(/<(code|pre)\b[^>]*>([\s\S]*?)<\/\1>/gi)].map((m) => textOf(m[2]));
+
+  // Deux formes acceptées : le marqueur dédié, ou une commande git commit explicite.
+  const ok =
+    marked.some((t) => lotTag.test(t)) || codes.some((t) => /git\s+commit/i.test(t) && lotTag.test(t));
+
+  if (!ok) {
+    // Message libre éventuellement prescrit à la place — le citer rend le finding actionnable.
+    const freeform = codes.filter(
+      (t) => t.length <= 140 && /^[\w.@/-]+(\([^)]*\))?\s*:\s*\S/.test(t) && !lotTag.test(t),
+    );
+    const quoted = freeform.find((t) => /chantier\s*\(/i.test(t)) ?? freeform[0] ?? null;
+    const n = lastN ?? 'N';
+    (legacy ? warnings : errors).push(
+      `Lot de clôture (lot ${n}) : son message de commit n'est écrit nulle part dans le lot.` +
+        (quoted ? `\n      Message libre trouvé à la place : « ${quoted.slice(0, 120)} » — il ne porte pas l'étiquette « lot ${n} ».` : '') +
+        `\n      À AJOUTER dans ce lot : <code class="commit-msg">&lt;convention-du-projet&gt;: lot ${n} — &lt;titre du lot&gt;</code>` +
+        `\n      (ou un <pre class="cmd"> contenant « git commit -m "…: lot ${n} — …" »), avec la mention explicite que le` +
+        `\n      travail de clôture ne doit PAS être commité sous un message libre du genre « correctifs de revue ».` +
+        `\n      Raison : dans une chaîne de chantiers, le run aval vérifie sa précondition par un « git log --grep »` +
+        `\n      LITTÉRAL sur cette étiquette ; sans elle il compte zéro et conclut à tort que l'amont a échoué.` +
+        (legacy ? '' : `\n      (--legacy rétrograde ce finding en avertissement pour les plans antérieurs à la convention.)`),
+    );
+  }
+}
+
+/* 9 — flotte parallèle : plage d'identifiants déclarée
+   (règle brief-chantier, rôle ORCHESTRATEUR, Phase 2, étape 4bis).
+   Section OPTIONNELLE : absente = plan solo = check totalement silencieux. */
+const flotte = readFlotte(html);
+if (flotte.present) {
+  const { nom, freres, plage, plageParsed } = flotte;
+  if (!nom) {
+    errors.push(
+      'Section flotte (id="s-flotte") : nom de la vague absent.' +
+        '\n      À AJOUTER : <span class="flotte-nom">&lt;nom de la vague&gt;</span> — sans lui, impossible de savoir quels plans partagent l\'allocateur.',
+    );
+  }
+
+  if (freres <= 0) {
+    errors.push(
+      `Section flotte (id="s-flotte") : liste des chantiers frères ${freres === 0 ? 'vide' : 'absente'}.` +
+        '\n      À AJOUTER : <ul class="list flotte-freres"> avec un <li> par chantier frère de la vague (slug, branche, plage attribuée).',
+    );
+  }
+
+  if (!plage) {
+    errors.push(
+      'Section flotte (id="s-flotte") : plage d\'identifiants réservée NON déclarée — c\'est la faille que cette section existe pour fermer.' +
+        '\n      À AJOUTER : <code class="plage-ids">&lt;compteur&gt; N-M</code> (ex. « DEFERRED 121-130 »), ou <code class="plage-ids">aucun compteur global</code>' +
+        '\n      si ce chantier n\'alloue aucun identifiant par script.' +
+        '\n      Raison : tout compteur global alloué par script est aveugle aux branches sœurs non fusionnées — N chantiers partis du même' +
+        '\n      socle reçoivent tous LE MÊME numéro, et la collision n\'apparaît qu\'à la fusion (observé le 15/08/2026 sur 3 chantiers).',
+    );
+  } else if (!plageParsed) {
+    errors.push(
+      `Section flotte (id="s-flotte") : plage d'identifiants illisible — « ${plage.slice(0, 100)} ».` +
+        '\n      Attendu : une plage bornée « N-M » (ex. « DEFERRED 121-130 »), ou la mention « aucun compteur global ».',
+    );
+  } else if (!plageParsed.optout && plageParsed.from > plageParsed.to) {
+    errors.push(
+      `Section flotte (id="s-flotte") : plage inversée — « ${plage.slice(0, 100)} » (borne basse ${plageParsed.from} > borne haute ${plageParsed.to}).`,
+    );
+  }
+
+  if (!htmlLive.includes('href="#s-flotte"')) {
+    warnings.push('TOC : entrée manquante pour la section flotte (href="#s-flotte")');
+  }
+
+  warnings.push(
+    'Plan membre d\'une vague : ce lint ne voit QU\'UN plan et ne peut pas détecter une collision de plages.' +
+      '\n      Lance le lint de VAGUE sur les N plans frères avant de dispatcher la flotte :' +
+      '\n      node ' +
+      new URL('preflight-flotte.mjs', import.meta.url).pathname +
+      ' <plan1.html> <plan2.html> …',
+  );
 }
 
 /* Rapport */
