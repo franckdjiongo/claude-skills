@@ -245,20 +245,36 @@ A finding is reportable if it fails ANY gate:
 platform-limit/wiring/state-safety finding — those are precisely what a review bot flags. Refute
 ONLY pure style (naming/formatting/taste/restated guards).`
 
-const FINDINGS = { type:'object', additionalProperties:false, required:['findings'], properties:{ findings:{ type:'array', items:{
-  type:'object', additionalProperties:false,
-  required:['title','file','line','class','severity','scenario','suggestedFix'],
-  properties:{ title:{type:'string'}, file:{type:'string'}, line:{type:'string'},
-    class:{type:'string', enum:['correctness','convention','scalability','platform-limit','wiring','state-safety']},
-    severity:{type:'string', enum:['P1','P2','P3']}, scenario:{type:'string'}, suggestedFix:{type:'string'} } } } } }
+// `sweeps` + `residualRisk` are REQUIRED alongside `findings`: they are the restitution channel for
+// class-sweep enumeration and unresolved doubt. A sub-agent that swept a class but only wrote the
+// table into its reasoning (never into `sweeps`) is invisible to the orchestrator and the next
+// round — see "Reading sweeps and residualRisk" below. `additionalProperties:false` stays: the
+// schema grows by adding required fields, not by loosening it.
+const FINDINGS = { type:'object', additionalProperties:false, required:['findings','sweeps','residualRisk'], properties:{
+  findings:{ type:'array', items:{
+    type:'object', additionalProperties:false,
+    required:['title','file','line','class','severity','scenario','suggestedFix'],
+    properties:{ title:{type:'string'}, file:{type:'string'}, line:{type:'string'},
+      class:{type:'string', enum:['correctness','convention','scalability','platform-limit','wiring','state-safety']},
+      severity:{type:'string', enum:['P1','P2','P3']}, scenario:{type:'string'}, suggestedFix:{type:'string'} } } },
+  sweeps:{ type:'array', description:'One entry per class/pattern this dimension swept — the enumeration table, restituted, not left in reasoning.', items:{
+    type:'object', additionalProperties:false,
+    required:['target','sitesChecked','verdict'],
+    properties:{ target:{type:'string', description:'the class/pattern swept, e.g. "every route with the same validation"'},
+      sitesChecked:{type:'array', items:{type:'string'}, description:'file:line entries actually checked'},
+      verdict:{type:'string', enum:['clean','finding-filed','not-examined']} } } },
+  residualRisk:{type:'string', description:'Unconfirmed doubts and verifications that failed or could not be run. "none" is allowed if there truly are none.'} } } }
 
 // mustFix replaces isReal: it is true for a correctness defect OR a convention/scalability/platform
 // deviation backed by a cited repo idiom or external limit. Pure style => mustFix:false.
+// `checksPerformed` is REQUIRED restitution: the concrete commands/greps/tests actually executed
+// and their outcome — not a description of what verification "would" show.
 const VERDICT = { type:'object', additionalProperties:false,
-  required:['mustFix','class','reasoning'],
+  required:['mustFix','class','checksPerformed','reasoning'],
   properties:{ mustFix:{type:'boolean'},
     class:{type:'string', enum:['correctness','convention','scalability','platform-limit','wiring','state-safety','style']},
     repoIdiomViolated:{type:'string', description:'sibling file:line that does it right, or the external hard limit — REQUIRED to justify a non-correctness must-fix'},
+    checksPerformed:{type:'array', items:{type:'string'}, description:'the concrete commands/greps/tests you ran to verify or refute this finding, each with its outcome'},
     confidence:{type:'string',enum:['high','medium','low']}, reasoning:{type:'string'} } }
 
 // Always include `scalability` + `platform-limits` for any backend / data / messaging diff, and
@@ -279,15 +295,22 @@ const DIMENSIONS = [
 phase('Hunt')
 const results = await pipeline(
   DIMENSIONS,
-  (d) => agent(`${CONTEXT}\n\nDIMENSION: ${d.focus}\n\nIf a finding overlaps another dimension's territory, note the overlap in one line rather than re-developing it — a later step dedupes same-file/line reports, so a full write-up per dimension only multiplies verify cost for one defect.`, { label:`hunt:${d.key}`, phase:'Hunt', schema:FINDINGS, model:'sonnet', effort:'medium' }),
+  (d) => agent(`${CONTEXT}\n\nDIMENSION: ${d.focus}\n\nIf a finding overlaps another dimension's territory, note the overlap in one line rather than re-developing it — a later step dedupes same-file/line reports, so a full write-up per dimension only multiplies verify cost for one defect.\n\nRESTITUTION (required, not optional): anything you investigate but do not write into \`sweeps\` or \`residualRisk\` counts as NOT DONE — a class-sweep or a doubt that stays inside your reasoning is invisible to the orchestrator and to the next round. Explicitly close every focal question this dimension raises: one \`sweeps\` entry per class/pattern you swept, listing every site you actually checked (\`sitesChecked\`) and its \`verdict\` — \`not-examined\` is a valid, honest answer when you ran out of budget, silence is not. If you notice a defect while reasoning through this dimension — even low severity, even adjacent to your named focus — file it in \`findings\` rather than dropping it because it felt minor.`, { label:`hunt:${d.key}`, phase:'Hunt', schema:FINDINGS, model:'sonnet', effort:'medium' }),
   (review) => parallel((review?.findings ?? []).map((f) => () =>
     agent(`${CONTEXT}\n\nADVERSARIALLY VERIFY this finding. First verify its FACTS against the real code, then set mustFix:
 - TRUE if some input makes it wrong/crash/lose data (correctness), OR it deviates from a repo idiom you can CITE in repoIdiomViolated / violates an external hard limit / is an unbounded read|scan|N+1|over-fetch — even if today's data makes it work.
 - FALSE only if it is pure STYLE, or its facts don't hold.
-Do NOT set mustFix=false merely because the output is correct today or "not triggerable" — that is the trap that lets review bots catch you.\n\n${JSON.stringify(f,null,2)}`,
+Do NOT set mustFix=false merely because the output is correct today or "not triggerable" — that is the trap that lets review bots catch you.\n\nRESTITUTION (required, not optional): any command/grep/test you run to verify or refute this finding that you do not list in \`checksPerformed\` counts as NOT DONE — a check that only happened in your reasoning is unopposable by the orchestrator. Close the focal question this finding raises explicitly, with the outcome of each check. If, while verifying, you notice a DIFFERENT defect than the one you were sent to check, file it too rather than silently letting it go because it's out of scope for this verdict.\n\n${JSON.stringify(f,null,2)}`,
       { label:`verify:${f.file}:${f.line}`, phase:'Verify', schema:VERDICT, model:'opus', effort:'high' })
       .then((v) => ({ finding:f, verdict:v }))))
+    // Carry the hunt-level restitution (sweeps, residualRisk) alongside this dimension's verified
+    // findings — if it only lived on `review` inside this closure it would never reach the
+    // orchestrator's return value below, which is exactly the "trapped in reasoning" failure mode
+    // this schema change exists to close.
+    .then((verified) => ({ verified, sweeps: review?.sweeps ?? [], residualRisk: review?.residualRisk ?? 'none' }))
 )
+// results: one entry per dimension — { verified: [{finding,verdict}], sweeps, residualRisk }.
+
 // Different dimensions independently rediscover the SAME bug constantly (e.g. 7 dimensions all
 // flagging the same dead TOC anchor). Merge same-file/overlapping-line findings BEFORE you act on
 // the list, or you'll pay verify + fix cost N times for one defect and the round-count looks far
@@ -305,8 +328,21 @@ function dedupeFindings(items) {
   return merged
 }
 
-const confirmed = dedupeFindings(results.flat().filter(Boolean).filter((r) => r?.verdict?.mustFix))
-return { verdict: confirmed.length ? 'FINDINGS' : 'PASS', confirmed: confirmed.map((r) => ({ ...r.finding, verdict:r.verdict, duplicateCount:r.duplicateCount })) }
+const allVerified = results.flatMap((r) => r.verified ?? [])
+const confirmed = dedupeFindings(allVerified.filter(Boolean).filter((r) => r?.verdict?.mustFix))
+
+// Restitution rollup: `sweeps` and `residualRisk` are orchestrator-facing, not buried in a
+// subagent's report — surface them in the return so a `not-examined` sweep or an outstanding doubt
+// is visible even when `findings` alone looks clean (see "Reading sweeps and residualRisk" below).
+const sweeps = results.flatMap((r) => r.sweeps ?? [])
+const notExaminedSweeps = sweeps.filter((s) => s.verdict === 'not-examined')
+const residualRisks = results.map((r) => r.residualRisk).filter((r) => r && r !== 'none')
+
+return {
+  verdict: confirmed.length ? 'FINDINGS' : 'PASS',
+  confirmed: confirmed.map((r) => ({ ...r.finding, verdict:r.verdict, duplicateCount:r.duplicateCount })),
+  sweeps, notExaminedSweeps, residualRisks,
+}
 ```
 
 When the workflow returns `FINDINGS`, **you** fix each confirmed item (once per distinct defect, not
@@ -314,6 +350,22 @@ once per `duplicateCount`) with a **class-sweep** (core
 discipline #3 — fix every sibling of the same anti-pattern in the same pass, repo-wide, with the
 enumeration table), then re-run the workflow on the **whole** new diff. Proceed once the size-scaled
 convergence criterion (see "Scaling & cost") is met.
+
+**Reading `sweeps` and `residualRisk` is part of reading the results, not optional extra credit.**
+The workflow's return carries `sweeps`, `notExaminedSweeps`, and `residualRisks` alongside
+`verdict`/`confirmed` (manual fallback: the same fields, gathered by hand from each agent's report —
+see below) — read them the same way you read `findings`, every round:
+- Anything in `notExaminedSweeps` is an open focal question, not a clean pass — fold it into the next
+  round's scope (assign it to a dimension, or examine it yourself before declaring convergence).
+  Never silently treat `not-examined` as `clean`, and never declare `PASS`/convergence while
+  `notExaminedSweeps` is non-empty.
+- Anything in `residualRisks` is a doubt an agent could not resolve — carry it forward into the next
+  round's `CONTEXT`, or into the honest residual-risk report at convergence (see "Scaling & cost").
+  Do not let it fall out of the loop just because the round it surfaced in returned `PASS` on
+  `findings` alone.
+- Same discipline for `checksPerformed` on each VERDICT: if a must-fix verdict's `checksPerformed` is
+  thin or missing relative to what the reasoning claims, that verdict is under-restituted — treat it
+  as unresolved, not as a pass.
 
 **Model policy (Franck's decision, 2026-09-09, after a blind replay of 12 Opus reviews in
 Sonnet on the same diffs — recall 5/8 of Opus's P1s, 4 new P1s with executed proofs, 0 Opus false
@@ -333,7 +385,15 @@ use the no-ultracode fallback below. Key the engine choice on the environment, n
 a popup.
 
 **No-ultracode fallback:** spawn the same dimensions as parallel `Agent` calls returning the same
-findings shape, then one verifier `Agent` per finding. Fewer agents, same discipline.
+findings shape, then one verifier `Agent` per finding. Fewer agents, same discipline — and the SAME
+restitution fields, not a lighter version because there's no Workflow tool enforcing a schema. Each
+hunt agent's prompt/expected report must still require `findings`, `sweeps` (per class/pattern
+swept: target, sites checked, verdict), and `residualRisk` (unconfirmed doubts, or "none"); each
+verify agent's report must still require `checksPerformed` (the concrete checks it ran, with
+outcome) alongside `mustFix`/`class`/`reasoning`. When you (the orchestrator) read a hand-launched
+agent's final message back, hold it to the same bar as a Workflow schema result: no `sweeps` table,
+no `residualRisk` line, no `checksPerformed` list in the report means that work is NOT DONE, even if
+the agent's prose claims it happened.
 
 ### Parallel fixers on a shared tree
 
@@ -466,3 +526,8 @@ tokens. Pick the rule by changed-line count:
 - ❌ Declaring "compliant / no bugs" you can't back. → ✅ Re-verify the full diff; report honestly,
   including regressions you caused.
 - ❌ Writing the sentinel to skip the review. → ✅ The sentinel attests a real pass; earn it.
+- ❌ **Investigates but does not restitute** — real greps/tests actually run, a class genuinely swept,
+  a doubt actually weighed, but none of it lands in `sweeps` / `checksPerformed` / `residualRisk`, so
+  it stays trapped in the agent's reasoning and unopposable by the orchestrator. → ✅ Anything not
+  written into those fields is treated as NOT DONE; every focal question gets explicitly closed, and
+  a defect noticed mid-reasoning gets filed as a finding — even low severity — instead of dropped.
