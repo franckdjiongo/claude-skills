@@ -178,6 +178,12 @@ if (!fs.existsSync(templatesDir)) {
     'scripts/sample-review.test.mjs.tpl',
     'scripts/loop-sla.mjs.tpl',
     'scripts/predeploy-check.mjs.tpl',
+    // v1.18.0 : registre de routage des modèles + son gate (mode 'warn' au
+    // bootstrap, canon #13). Une release de modèle est un fait d'ÉTAT — voir
+    // anti-pattern-catalog.html § « version de modèle figée dans la prose ».
+    'model-routing.json.tpl',
+    'scripts/check-model-routing.mjs.tpl',
+    'scripts/check-model-routing.test.mjs.tpl',
   ];
   for (const tpl of expectedTemplates) {
     if (!fs.existsSync(path.join(templatesDir, tpl))) {

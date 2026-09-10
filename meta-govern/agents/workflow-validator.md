@@ -57,11 +57,13 @@ For each item, mark ✓/✗:
 - [ ] All 8 core rules (or stack-appropriate subset)
 - [ ] file-size-growth-guard.mjs in .claude/scripts/
 - [ ] quality-checks/ directory in .claude/scripts/
+- [ ] `.claude/model-routing.json` exists, `enforcement` is `"warn"` (BOOTSTRAP) and its `agents` keys match `ls .claude/agents/*.md` exactly
 
 **Wiring**
 - [ ] Every hook in settings.json has script on disk
 - [ ] `.husky/pre-commit` exists and references correct paths
 - [ ] `package.json` has validate, validate:fast, quality:check, size-guard, test scripts (every `{{COMMAND_*}}` CLAUDE.md points at resolves to a real script)
+- [ ] `claude:model-routing:check` is in `validate` and `validate:fast`, and `node .claude/scripts/check-model-routing.mjs` prints `PASS` (not `WARN`) on the fresh scaffold
 - [ ] For eslint/prettier stacks: `.prettierignore` and the eslint flat config both ignore `.claude/**`, `docs/**`, `archive/**`, `src/lib/paraglide/**` (a freshly scaffolded project must pass its OWN `validate`/`lint`)
 - [ ] SvelteKit: `ui-components.md` is the Svelte variant (`*.svelte` paths, not the dead React glob `src/lib/**/*.{ts,tsx,jsx}`)
 - [ ] `.gitignore` excludes `.claude/settings.local.json`, `.claude/tmp/`
@@ -76,6 +78,7 @@ For each item, mark ✓/✗:
 - [ ] Every skill has `name:` matching folder name
 - [ ] Every skill description has WHAT + WHEN + trigger phrases
 - [ ] Every agent has explicit `effort:` set
+- [ ] No agent pins a versioned model in `model:` — every one names an alias registered in `.claude/model-routing.json`
 - [ ] Every rule has `paths:` frontmatter
 - [ ] Every `SKILL.md` and agent `.md` has `---` at line 1 (no leading HTML comment, no blank line). The `<!-- Template variables ... -->` author-doc block, if it ever appears, breaks Claude Code's auto-discovery and is a CRITICAL failure.
 

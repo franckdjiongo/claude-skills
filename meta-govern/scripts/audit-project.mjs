@@ -40,6 +40,12 @@ const CANONICAL_HOOKS = new Set([
 // of the canon's own test templates HIGH — see version.json changelog).
 const HOOK_TEST_FILE_RE = /\.(test|spec|sim)\.[cm]?[jt]sx?$/;
 
+// Une release de modèle est un fait d'ÉTAT (anti-pattern-catalog § CLAUDE.md).
+// Le tiret est VOLONTAIREMENT hors du séparateur : `docs/architecture/opus-4-8/`
+// est un chemin réel et légitime, le flaguer serait un faux positif infixable.
+const MODEL_VERSION_PIN_RE = /\b(?:Claude[\s-]+)?(?:Opus|Sonnet|Haiku|Fable|Mythos)\s*\d+(?:\.\d+)?\b|\bclaude-(?:opus|sonnet|haiku|fable|mythos)-\d[\w.-]*/gi;
+const MODEL_ROUTING_WAIVER = 'model-routing:allow';
+
 const args = process.argv.slice(2);
 const target = args.find(a => !a.startsWith('--')) || process.cwd();
 const asJson = args.includes('--json');
@@ -743,6 +749,58 @@ if (fs.existsSync(skillsDir)) {
     if (skillName !== skillName.toLowerCase() || skillName.includes('_') || skillName.includes(' ')) {
       add('HIGH', 'anti-pattern', `Skill folder "${skillName}" not in kebab-case.`, skillDir);
     }
+  }
+}
+
+// --- Versions de modèle figées dans la prose gouvernée (v1.18.0) ---------------
+// Portée délibérée : .claude/rules + .claude/skills + .claude/agents. JAMAIS
+// CLAUDE.md/AGENTS.md/docs — ces surfaces NOMMENT la release courante par
+// doctrine (lockstep canon, voir model-effort-defaults.html § claude-md-skeleton-block).
+{
+  function walkModelRoutingTargets(dir, re) {
+    if (!fs.existsSync(dir)) return [];
+    const out = [];
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.name.startsWith('.')) continue;
+      const p = path.join(dir, entry.name);
+      if (entry.isDirectory()) out.push(...walkModelRoutingTargets(p, re));
+      else if (re.test(entry.name)) out.push(p);
+    }
+    return out;
+  }
+
+  const registryPath = path.join(projectDir, '.claude/model-routing.json');
+  let modelRoutingRegistry = null;
+  if (fs.existsSync(registryPath)) {
+    try {
+      modelRoutingRegistry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+    } catch {
+      // Un registre illisible est déjà couvert par check-model-routing.mjs
+      // (exit 2) ; l'AUDIT ne double pas ce constat.
+    }
+  }
+  const allowPaths = Array.isArray(modelRoutingRegistry?.allowPaths) ? modelRoutingRegistry.allowPaths : [];
+
+  const modelRoutingTargets = [
+    ...fs.existsSync(rulesDir) ? fs.readdirSync(rulesDir).filter(f => f.endsWith('.md')).map(f => path.join(rulesDir, f)) : [],
+    ...walkModelRoutingTargets(skillsDir, /\.(?:md|html)$/i),
+    ...walkModelRoutingTargets(agentsDir, /\.md$/i),
+  ].filter((f) => !allowPaths.some((p) => path.relative(projectDir, f).startsWith(p)));
+
+  let modelRoutingFindings = 0;
+  for (const file of modelRoutingTargets) {
+    const hits = new Set();
+    for (const line of fs.readFileSync(file, 'utf8').split('\n')) {
+      if (line.includes(MODEL_ROUTING_WAIVER)) continue;
+      for (const m of line.matchAll(MODEL_VERSION_PIN_RE)) hits.add(m[0]);
+    }
+    if (hits.size > 0) {
+      modelRoutingFindings++;
+      add('MEDIUM', 'model-version-pin', `${path.relative(projectDir, file)} fige une release de modèle (${[...hits].join(', ')}) — nommer l'alias opus/sonnet/haiku ou pointer .claude/model-routing.json (anti-pattern-catalog § CLAUDE.md).`, file);
+    }
+  }
+  if (modelRoutingRegistry?.enforcement === 'warn' && modelRoutingFindings === 0) {
+    add('INFO', 'model-version-pin', 'Registre model-routing en mode warn et 0 violation — candidat à la promotion enforcement:"error".');
   }
 }
 

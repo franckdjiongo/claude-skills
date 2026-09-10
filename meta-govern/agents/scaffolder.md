@@ -69,6 +69,7 @@ When acting manually, keep the same safety: add package.json keys only if missin
 For each scaffolded script:
 - `node .claude/scripts/file-size-growth-guard.mjs --help` (should exit 0)
 - `node .claude/scripts/quality-checks/index.mjs --help` (should exit 0)
+- `node .claude/scripts/check-model-routing.mjs` (should print `PASS`; a `WARN` on a fresh bootstrap means a template regressed — report it as FINDINGS, do not "fix" the registry to silence it)
 - For each hook: read first 5 lines, confirm shebang + PATH_PREFIX present
 
 Docs-html post-install verification:

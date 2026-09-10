@@ -28,6 +28,23 @@ process.env.PATH = `${PATH_PREFIX}:${process.env.PATH || ""}`;
 
 const SKILL_DIR = path.dirname(path.dirname(new URL(import.meta.url).pathname));
 
+// Défaut pour buildDefaultPlan (invocation sans --plan) : correspond EXACTEMENT
+// aux 6 agents coeur installés plus bas, vérifié contre leur frontmatter réel
+// (implementer/codebase-reality-check = sonnet/medium ; ui-implementer/
+// spec-reviewer/code-quality-reviewer/persona-simulator = sonnet/high). Un plan
+// d'architect fourni via --plan doit porter SA PROPRE variable MODEL_ROUTING_AGENTS
+// (agents/architect.md § Step 6) — ce défaut ne s'applique qu'au chemin sans plan.
+// Déclaré tôt (avant tout appel à buildDefaultPlan plus bas dans ce fichier) :
+// c'est un `const` module-scope, pas une function declaration — pas de hoisting.
+const DEFAULT_MODEL_ROUTING_AGENTS = JSON.stringify({
+  implementer: 'implementation',
+  'codebase-reality-check': 'implementation',
+  'ui-implementer': 'judgment',
+  'spec-reviewer': 'judgment',
+  'code-quality-reviewer': 'judgment',
+  'persona-simulator': 'judgment',
+});
+
 const args = process.argv.slice(2);
 let target = null;
 let planFile = null;
@@ -180,6 +197,26 @@ function readMetaGovernVersion() {
   }
 }
 
+// Lit version.json § modelDefaults — SEUL endroit du canon qui nomme une release
+// de modèle par valeur. bootstrap-project.mjs le lit pour remplir le registre
+// .claude/model-routing.json de chaque projet ; une future release ne se met
+// à jour qu'ICI (v1.18.0).
+function readModelDefaults() {
+  try {
+    const ver = JSON.parse(fs.readFileSync(path.join(SKILL_DIR, 'version.json'), 'utf8'));
+    const md = ver.modelDefaults || {};
+    return {
+      opusApiId: md.opus || 'claude-opus-5',
+      sonnetApiId: md.sonnet || 'claude-sonnet-5',
+      opusLabel: md.labels?.opus || md.opus || 'Claude Opus 5',
+      sonnetLabel: md.labels?.sonnet || md.sonnet || 'Claude Sonnet 5',
+    };
+  } catch {
+    return { opusApiId: 'claude-opus-5', sonnetApiId: 'claude-sonnet-5', opusLabel: 'Claude Opus 5', sonnetLabel: 'Claude Sonnet 5' };
+  }
+}
+
+
 function buildDefaultPlan(projectDir) {
   // Default palier-1 plan: full BOOTSTRAP scaffold.
   // Caller (architect agent) provides a richer plan with stack-specific variables.
@@ -192,6 +229,7 @@ function buildDefaultPlan(projectDir) {
   // vitest en post-install) ne sont posés que si le projet a déjà vitest — sur un
   // projet sans runner JS ils seraient des fichiers morts.
   const hasVitest = detection.stack.testFramework === 'vitest';
+  const modelDefaults = readModelDefaults();
   // ui-components: variante Svelte (paths *.svelte, Paraglide, runes) pour SvelteKit ;
   // sinon la variante React-shaped par défaut.
   const uiComponentsTpl = isSvelteKit
@@ -254,6 +292,13 @@ function buildDefaultPlan(projectDir) {
       ADDITIONAL_DOCS: '',
       IF_HAS_UI: '',
       IF_HAS_BACKEND: '',
+      // Registre de routage des modèles (v1.18.0) — voir readModelDefaults().
+      MODEL_OPUS_API_ID: modelDefaults.opusApiId,
+      MODEL_SONNET_API_ID: modelDefaults.sonnetApiId,
+      MODEL_OPUS_LABEL: modelDefaults.opusLabel,
+      MODEL_SONNET_LABEL: modelDefaults.sonnetLabel,
+      MODEL_ROUTING_AGENTS: DEFAULT_MODEL_ROUTING_AGENTS,
+      TODAY: new Date().toISOString().slice(0, 10),
     },
     flags: {
       // Full computed stack flag set (IF_STACK_REACT / _POWER_PLATFORM / _CONVEX /
@@ -383,6 +428,15 @@ function buildDefaultPlan(projectDir) {
       // Tiers de risque (racine .claude/) : consommés par sample-review et par
       // write-plan/execute-plan (plancher de tier déterministe).
       { from: 'templates/risk-tiers.json.tpl', to: '.claude/risk-tiers.json' },
+      // Registre de routage des modèles + son gate. Une release de modèle est un
+      // fait d'ÉTAT : elle vit dans .claude/model-routing.json, jamais dans la prose
+      // gouvernée. Le gate est rendu en mode 'warn' (shadow, canon #13) — il rapporte
+      // dans validate dès le bootstrap et ne mord qu'après promotion explicite.
+      { from: 'templates/scripts/check-model-routing.mjs.tpl', to: '.claude/scripts/check-model-routing.mjs' },
+      ...(hasVitest
+        ? [{ from: 'templates/scripts/check-model-routing.test.mjs.tpl', to: '.claude/scripts/check-model-routing.test.mjs' }]
+        : []),
+      { from: 'templates/model-routing.json.tpl', to: '.claude/model-routing.json' },
       { from: 'templates/scripts/quality-checks/index.mjs.tpl', to: '.claude/scripts/quality-checks/index.mjs' },
       { from: 'templates/scripts/quality-checks/lib.mjs.tpl', to: '.claude/scripts/quality-checks/lib.mjs' },
       { from: 'templates/scripts/quality-checks/format.mjs.tpl', to: '.claude/scripts/quality-checks/format.mjs' },
@@ -489,6 +543,12 @@ function runPostInstall(projectDir, variables = {}, detection = null) {
       // bootstrap installe toujours. validate/validate:fast/test ne sont posés que
       // si l'architect ne les a pas déjà fournis via additionalSteps (appliqués avant).
       const voulus = {
+        // Registre de routage des modèles — le gate le moins cher de la chaîne
+        // (mode 'warn' au bootstrap, canon #13) : ne peut pas faire échouer
+        // validate tant qu'il n'est pas promu en 'error'. Câblé en TÊTE, avant
+        // quality:check, précisément parce qu'il est incapable d'échouer en warn.
+        'claude:model-routing:check': 'node .claude/scripts/check-model-routing.mjs',
+        'claude:model-routing:sync': 'node .claude/scripts/check-model-routing.mjs --write',
         'quality:check': 'node .claude/scripts/quality-checks/index.mjs',
         'quality:check:staged': 'node .claude/scripts/quality-checks/index.mjs --scope staged --fail-level high',
         'size-guard': 'node .claude/scripts/file-size-growth-guard.mjs',
@@ -506,8 +566,8 @@ function runPostInstall(projectDir, variables = {}, detection = null) {
         // diff-coverage tourne juste avant le sceau : sur un nouveau bootstrap sans
         // coverage il fait fail-soft (exit 0, « skipped »), donc validate reste vert
         // tant que la couverture n'est pas branchée ; il mord dès qu'elle l'est.
-        'validate': `${run} quality:check && ${run} size-guard${hasTs ? ` && ${run} typecheck` : ''} && ${run} test && node .claude/scripts/diff-coverage.mjs && node .claude/scripts/mark-validate-pass.mjs`,
-        'validate:fast': `${run} quality:check${hasTs ? ` && ${run} typecheck` : ''}`,
+        'validate': `${run} claude:model-routing:check && ${run} quality:check && ${run} size-guard${hasTs ? ` && ${run} typecheck` : ''} && ${run} test && node .claude/scripts/diff-coverage.mjs && node .claude/scripts/mark-validate-pass.mjs`,
+        'validate:fast': `${run} claude:model-routing:check && ${run} quality:check${hasTs ? ` && ${run} typecheck` : ''}`,
         'docs-map:check': 'node .claude/scripts/check-docs-map.mjs',
         'docs:index': 'node .claude/scripts/docs-html/make-index.mjs',
         'docs:check': 'node .claude/scripts/docs-html/no-markdown-guard.mjs',

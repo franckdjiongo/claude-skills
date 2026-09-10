@@ -99,6 +99,11 @@
 <td>CLAUDE.md/AGENTS.md contient palier, version meta-govern, « ~416 constats », « N tests », « backend vivant = X », « Convex pas encore de schéma », « aujourd'hui/currently » — divergent du réel au premier changement</td>
 <td>Déplacer l'état vers sa source canonique (<code>.claude/.meta-govern.json</code>, <code>HANDOFF.md</code>, docs vivants, le code) ; laisser un pointeur durable. Test du rot : « cette phrase peut-elle devenir fausse sans éditer ce fichier ? ». AUDIT détecte (<code>stale-state</code> HIGH si divergent, <code>state-duplication</code> LOW si présent)</td>
 </tr>
+<tr>
+<td>Version de modèle figée dans la prose gouvernée</td>
+<td><code>.claude/rules/*.md</code>, <code>.claude/skills/**</code> ou <code>.claude/agents/**</code> nomment une release (« Opus 4.8 », « Sonnet 4.6 », <code>claude-opus-4-7</code>) comme si c'était « le modèle courant » — vrai le jour de l'écriture, faux à la release suivante, et silencieusement : rien ne casse, la doctrine ment juste. Variante du volatile-state, appliquée au seul fait d'état qui tourne SANS que le projet bouge. Constaté sur 12 fichiers d'un projet bootstrappé (temps-chantier-code-app, 2026-08-17)</td>
+<td>Registre unique <code>.claude/model-routing.json</code> (alias → release + effort par rôle) ; la prose nomme l'ALIAS (<code>opus</code>/<code>sonnet</code>/<code>haiku</code>) ou pointe le registre. Le bloc « Default model + effort » de <code>CLAUDE.md</code> reste la SEULE surface projet autorisée à nommer une release (lockstep avec <code>model-effort-defaults.html#claude-md-skeleton-block</code>). AUDIT détecte (<code>model-version-pin</code> MEDIUM) ; le gate projet <code>check-model-routing.mjs</code> mord après promotion en <code>enforcement:'error'</code>. Dérogation ponctuelle : marqueur de ligne <code>model-routing:allow</code> ou <code>allowPaths</code> du registre</td>
+</tr>
 </tbody>
 </table></div>
 <h3 id="rules-anti-patterns" tabindex="-1"><a class="header-anchor" href="#rules-anti-patterns" aria-hidden="true">#</a> Rules anti-patterns</h3>

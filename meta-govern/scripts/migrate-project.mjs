@@ -31,6 +31,18 @@ process.env.PATH = `${PATH_PREFIX}:${process.env.PATH || ""}`;
 
 const SKILL_DIR = path.dirname(path.dirname(new URL(import.meta.url).pathname));
 
+// Les 4 rôles canon du registre (mechanical/implementation/judgment/planning),
+// projection lisible par machine de la table déjà canon en
+// references/model-effort-defaults.html#per-subagent-effort-frontmatter.
+// Déclaré tôt (avant tout appel à buildMigrationPlan plus bas) : `const`
+// module-scope, pas une function declaration — pas de hoisting.
+const MODEL_ROUTING_CANONICAL_ROLES = {
+  mechanical: { alias: 'sonnet', effort: 'low' },
+  implementation: { alias: 'sonnet', effort: 'medium' },
+  judgment: { alias: 'sonnet', effort: 'high' },
+  planning: { alias: 'opus', effort: 'xhigh' },
+};
+
 const args = process.argv.slice(2);
 let target = null;
 let migrateTarget = null;
@@ -172,6 +184,21 @@ for (const step of plan) {
       report.errors.push({ step: step.title, error: result.error });
       process.stderr.write(`  ✗ ${step.title}: ${result.error}\n`);
     }
+  } else if (step.action === 'merge-model-routing-npm-scripts') {
+    const result = mergeModelRoutingNpmScripts(projectDir);
+    if (result.ok) {
+      report.applied++;
+      process.stderr.write(
+        result.ajoutes.length
+          ? `  ✓ scripts npm model-routing ajoutés à package.json: ${result.ajoutes.join(', ')}\n`
+          : `  ✓ scripts npm model-routing déjà présents (ou package.json absent: ${result.raison || 'n/a'})\n`
+      );
+    } else if (step.bestEffort) {
+      process.stderr.write(`  • ${step.title} (non bloquant): ${result.error}\n`);
+    } else {
+      report.errors.push({ step: step.title, error: result.error });
+      process.stderr.write(`  ✗ ${step.title}: ${result.error}\n`);
+    }
   } else if (step.action === 'sync-docs-map') {
     const result = syncDocsMap(projectDir, step);
     if (result.ok) {
@@ -220,6 +247,7 @@ if (report.errors.length === 0) {
   if (archetype) newState.archetype = archetype;
   if (architecturePattern) newState.architecturePattern = architecturePattern;
   if (migrateTarget === 'html-docs') newState.docsDoctrine = 'html';
+  if (migrateTarget === 'model-routing') newState.modelRouting = 'warn';
   // Leçon 7 (§9): la promotion qui atteint le palier 4 trace la décision CI dans
   // ciPolicy. Le flag --ci-policy l'emporte ; sinon on préserve une décision
   // antérieure ; sinon défaut 'local-compensation' (predeploy-check.mjs installé).
@@ -255,6 +283,15 @@ function buildMigrationPlan(detection, targetStr, currentVersion, latestVersion)
   // Migration doctrine docs HTML: installe le toolkit puis convertit docs/*.md → .html.
   if (targetStr === 'html-docs') {
     return buildHtmlDocsPlan(detection, latestVersion);
+  }
+
+  // v1.18.0 : registre de routage des modèles pour un projet déjà bootstrappé.
+  // Cible NOMMÉE plutôt qu'un repli sur --target=vX.Y.Z (qui n'est qu'une étape
+  // `note` ne rendant RIEN) : l'adoption est réellement séquencée — la map
+  // `agents` est DÉRIVÉE du disque, et le gate doit tourner en warn et être
+  // nettoyé AVANT toute promotion en 'error'.
+  if (targetStr === 'model-routing') {
+    return buildModelRoutingPlan(detection, latestVersion);
   }
 
   // Version-based migration: read changelog from version.json
@@ -530,6 +567,163 @@ function buildHtmlDocsPlan(detection, latestVersion) {
     action: 'manual',
     title: 'Vérification finale + commit',
     message: 'Relire docs/docs-map.json (sourcesOfTruth, artifactDirs, conventions — re-déclarer plus tard toute source retirée sous `_absents` après l\'avoir scaffoldée), lancer node .claude/scripts/check-docs-map.mjs (doit passer), puis committer la migration.',
+  });
+  return plan;
+}
+
+function readModelDefaultsForMigrate() {
+  try {
+    const ver = JSON.parse(fs.readFileSync(path.join(SKILL_DIR, 'version.json'), 'utf8'));
+    const md = ver.modelDefaults || {};
+    return {
+      opusApiId: md.opus || 'claude-opus-5',
+      sonnetApiId: md.sonnet || 'claude-sonnet-5',
+      opusLabel: md.labels?.opus || md.opus || 'Claude Opus 5',
+      sonnetLabel: md.labels?.sonnet || md.sonnet || 'Claude Sonnet 5',
+    };
+  } catch {
+    return { opusApiId: 'claude-opus-5', sonnetApiId: 'claude-sonnet-5', opusLabel: 'Claude Opus 5', sonnetLabel: 'Claude Sonnet 5' };
+  }
+}
+
+// Dérive la map `agents` (et d'éventuels rôles custom) DEPUIS le disque — jamais
+// depuis une liste déclarative, un projet migré a déjà les agents qu'il a.
+function deriveAgentsFromDisk(projectDir) {
+  const agentsDir = path.join(projectDir, '.claude', 'agents');
+  const agents = {};
+  const customRoles = {};
+  if (!fs.existsSync(agentsDir)) return { agents, customRoles };
+  for (const file of fs.readdirSync(agentsDir).filter((f) => f.endsWith('.md'))) {
+    const name = file.replace(/\.md$/, '');
+    const content = fs.readFileSync(path.join(agentsDir, file), 'utf8');
+    const modelMatch = content.match(/^model:\s*(.+)$/m);
+    const effortMatch = content.match(/^effort:\s*(.+)$/m);
+    const alias = modelMatch?.[1]?.trim().replace(/\s+#.*$/, '').replace(/^['"]|['"]$/g, '');
+    const effort = effortMatch?.[1]?.trim().replace(/\s+#.*$/, '').replace(/^['"]|['"]$/g, '');
+    if (!alias || !effort) continue; // agent sans frontmatter model/effort exploitable — laissé de côté, signalé par check-model-routing.mjs lui-même une fois le registre en place
+    const canonicalMatch = Object.entries(MODEL_ROUTING_CANONICAL_ROLES)
+      .find(([, r]) => r.alias === alias && r.effort === effort);
+    if (canonicalMatch) {
+      agents[name] = canonicalMatch[0];
+    } else {
+      // Combinaison (alias, effort) hors des 4 rôles canon : un rôle custom
+      // nommé plutôt qu'un silencieux mauvais classement.
+      const roleName = `custom-${alias}-${effort}`;
+      customRoles[roleName] = { alias, effort, scope: `dérivé du disque (${name}.md)` };
+      agents[name] = roleName;
+    }
+  }
+  return { agents, customRoles };
+}
+
+function mergeModelRoutingNpmScripts(projectDir) {
+  const pkgPath = path.join(projectDir, 'package.json');
+  if (!fs.existsSync(pkgPath)) {
+    return { ok: true, ajoutes: [], conserves: [], raison: 'package.json absent' };
+  }
+  try {
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+    pkg.scripts = pkg.scripts || {};
+    const voulus = {
+      'claude:model-routing:check': 'node .claude/scripts/check-model-routing.mjs',
+      'claude:model-routing:sync': 'node .claude/scripts/check-model-routing.mjs --write',
+    };
+    const ajoutes = [];
+    const conserves = [];
+    for (const [name, cmd] of Object.entries(voulus)) {
+      if (Object.prototype.hasOwnProperty.call(pkg.scripts, name)) {
+        conserves.push(name);
+      } else {
+        pkg.scripts[name] = cmd;
+        ajoutes.push(name);
+      }
+    }
+    // Préfixe validate/validate:fast s'ils existent et ne le sont pas déjà —
+    // idempotent, jamais de double-préfixage sur une migration relancée.
+    for (const key of ['validate', 'validate:fast']) {
+      const current = pkg.scripts[key];
+      if (typeof current === 'string' && !current.includes('claude:model-routing:check')) {
+        const run = pkg.scripts[key].match(/^yarn /) ? 'yarn' : pkg.scripts[key].match(/^pnpm /) ? 'pnpm' : 'npm run';
+        pkg.scripts[key] = `${run} claude:model-routing:check && ${current}`;
+        if (!ajoutes.includes(key)) ajoutes.push(`${key} (préfixé)`);
+      }
+    }
+    if (ajoutes.length > 0) {
+      fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
+    }
+    return { ok: true, ajoutes, conserves };
+  } catch (err) {
+    return { ok: false, error: `package.json illisible: ${err.message}` };
+  }
+}
+
+function buildModelRoutingPlan(detection, latestVersion) {
+  const hasVitest = detection.stack.testFramework === 'vitest';
+  const modelDefaults = readModelDefaultsForMigrate();
+  const { agents, customRoles } = deriveAgentsFromDisk(projectDir);
+  const variables = {
+    TODAY: new Date().toISOString().slice(0, 10),
+    MODEL_OPUS_API_ID: modelDefaults.opusApiId,
+    MODEL_SONNET_API_ID: modelDefaults.sonnetApiId,
+    MODEL_OPUS_LABEL: modelDefaults.opusLabel,
+    MODEL_SONNET_LABEL: modelDefaults.sonnetLabel,
+    MODEL_ROUTING_AGENTS: JSON.stringify(agents),
+  };
+
+  const plan = [];
+  plan.push({
+    action: 'render-file',
+    title: 'Installer .claude/model-routing.json (registre — agents dérivés du disque)',
+    template: 'templates/model-routing.json.tpl',
+    outputPath: '.claude/model-routing.json',
+    variables,
+    flags: {},
+  });
+  if (Object.keys(customRoles).length > 0) {
+    plan.push({
+      action: 'note',
+      title: 'Rôles custom détectés',
+      message: `${Object.keys(customRoles).length} agent(s) portent une combinaison (alias, effort) hors des 4 rôles canon : ${JSON.stringify(customRoles)}. Ajouter ces entrées à .claude/model-routing.json § roles à la main après le rendu (le renderer ne fait que de la substitution de variables, pas de fusion JSON profonde) — ne PAS les laisser en dehors du registre, check-model-routing.mjs échouerait au premier run en 'error'.`,
+    });
+  }
+  plan.push({
+    action: 'render-file',
+    title: 'Installer .claude/scripts/check-model-routing.mjs (le gate)',
+    template: 'templates/scripts/check-model-routing.mjs.tpl',
+    outputPath: '.claude/scripts/check-model-routing.mjs',
+    variables: {},
+    flags: {},
+  });
+  if (hasVitest) {
+    plan.push({
+      action: 'render-file',
+      title: 'Installer le test co-localisé du gate',
+      template: 'templates/scripts/check-model-routing.test.mjs.tpl',
+      outputPath: '.claude/scripts/check-model-routing.test.mjs',
+      variables: {},
+      flags: {},
+    });
+  }
+  plan.push({
+    action: 'merge-model-routing-npm-scripts',
+    title: 'Ajouter les scripts npm model-routing à package.json (et préfixer validate/validate:fast)',
+    bestEffort: true,
+  });
+  plan.push({
+    action: 'command',
+    title: 'Premier run du gate (mode warn — sa sortie EST la liste de travail)',
+    script: '.claude/scripts/check-model-routing.mjs',
+    bestEffort: true, // 'warn' ne peut structurellement pas échouer ; bestEffort couvre le cas registre absent/illisible
+  });
+  plan.push({
+    action: 'manual',
+    title: 'Résoudre chaque constat rapporté',
+    message: "Pour chaque ligne WARN : router la mention de version vers l'alias (opus/sonnet/haiku) ou vers .claude/model-routing.json, ou poser le marqueur `model-routing:allow` sur la ligne si la mention est délibérée et justifiée.",
+  });
+  plan.push({
+    action: 'manual',
+    title: 'Promouvoir en enforcement:"error" une fois à 0 constat',
+    message: 'Éditer .claude/model-routing.json § enforcement → "error", relancer node .claude/scripts/check-model-routing.mjs (doit passer PASS), puis committer la migration.',
   });
   return plan;
 }

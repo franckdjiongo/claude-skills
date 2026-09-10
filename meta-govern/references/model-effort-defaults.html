@@ -460,6 +460,7 @@ Model default
 - State explicit intent, constraints, acceptance criteria, file paths. Don't generalize silently.
 </code></pre>
 <p>This block is the user's contract with the current lineup (Sonnet 5 + Opus 5). meta-govern ensures it appears in every project's CLAUDE.md — the identical text lives in <code>templates/CLAUDE.md.tpl</code>, and <code>four-tier-architecture.html</code> carries a compressed one-liner of it; the three surfaces stay in lockstep.</p>
+<p><strong>Projection projet — <code>.claude/model-routing.json</code>.</strong> Ce fichier et le bloc CLAUDE.md ci-dessus sont les deux seules surfaces d'un projet gouverné autorisées à nommer une release. Ils ont deux métiers : le bloc porte la DOCTRINE (comment choisir), le registre porte le ROUTAGE (quel alias, quel effort, pour quel agent — projection lisible par l'outillage de la table § per-subagent-effort). Une release de modèle est un fait d'ÉTAT : partout ailleurs sous <code>.claude/**</code>, la prose nomme l'alias ou pointe le registre, et <code>check-model-routing.mjs</code> le vérifie. Les trois surfaces — ce fichier § Current lineup, le bloc CLAUDE.md, le registre de chaque projet — se rafraîchissent dans le MÊME change-set à chaque release.</p>
 
         </div>
       </article>

@@ -55,7 +55,7 @@ Based on `detected_state.stack` + `ddd_decision`, decide:
 - Which extras (palier-specific)
 - Which 5 core hooks (always: session-start-env-check, track-workflow, enforce-workflow, precompact-handoff, postcompact-reinject)
 - Which 8 core rules (mostly always; some stack-conditional)
-- Which scripts (file-size-guard + quality-checks + setup-worktree always)
+- Which scripts (file-size-guard + quality-checks + setup-worktree always + check-model-routing)
 - The docs-html payload (always: toolkit `scripts/docs-html/**`, check-docs-map, hooks block-docs-markdown + docs-index-refresh, assets `docs/assets/**`, `docs/docs-map.json`, and the docs `.html.tpl` set)
 
 ### Step 3: Compute variables
@@ -70,6 +70,7 @@ Build the variables map:
 - META_GOVERN_VERSION (read from version.json)
 - CURRENT_PALIER, NEXT_PALIER_TRIGGER (from detection + roadmap)
 - SCAFFOLD_DATE (today)
+- MODEL_ROUTING_AGENTS — REQUIRED. A JSON object mapping **every** agent you listed in Step 2 to a `.claude/model-routing.json` role (`mechanical`/`implementation`/`judgment`/`planning`), derived from the `effort:` you assign it: low→mechanical, medium→implementation, high→judgment, xhigh→planning. This becomes the registry's `agents` map — `check-model-routing.mjs` fails the build (once enforced) if your agent list and this map ever diverge. If you add or drop an agent from the 6 core, this map moves with it. MODEL_OPUS_API_ID / MODEL_SONNET_API_ID / MODEL_OPUS_LABEL / MODEL_SONNET_LABEL are pre-filled by `bootstrap-project.mjs` from `version.json` § modelDefaults — do not set them yourself.
 
 ### Step 4: Compute flags
 
@@ -98,9 +99,10 @@ Order matters. Recommend:
 5. .claude/hooks/*.mjs + lib (5 hooks + lib, + block-docs-markdown.mjs + docs-index-refresh.mjs)
 6. .claude/scripts/file-size-growth-guard.mjs + .claude/scripts/mark-validate-pass.mjs (validate success sentinel)
 7. .claude/scripts/quality-checks/*.mjs (7 files: index, lib, format, checks, checks/code, checks/style, checks/quality)
-8. The project's own govern-claude baseline: `baseline.md` under `.claude/skills/govern-claude/references/` (runtime instruction file — stays Markdown)
-9. Docs-html payload: `scripts/docs-html/**` → `.claude/scripts/docs-html/**` (incl. `lib/docs-config.mjs`), `scripts/check-docs-map.mjs` → `.claude/scripts/`, assets → `docs/assets/**`, `docs/docs-map.json.tpl` → `docs/docs-map.json`
-10. Canonical docs: `docs/spec.html.tpl`, `docs/data-model.html.tpl`, `docs/catalogue-composants.html.tpl`, `docs/architecture.html.tpl`, `docs/agent-playbook.html.tpl`, `docs/decisions/ADR-template.html.tpl` → their `.html` destinations
+8. .claude/model-routing.json (registre — sa clé `agents` DOIT correspondre exactement à la liste d'agents choisie au Step 2) + .claude/scripts/check-model-routing.mjs (+ .test.mjs si vitest) — registre de routage des modèles, gate rendu en mode `warn` (canon #13, ne peut pas casser un bootstrap frais)
+9. The project's own govern-claude baseline: `baseline.md` under `.claude/skills/govern-claude/references/` (runtime instruction file — stays Markdown)
+10. Docs-html payload: `scripts/docs-html/**` → `.claude/scripts/docs-html/**` (incl. `lib/docs-config.mjs`), `scripts/check-docs-map.mjs` → `.claude/scripts/`, assets → `docs/assets/**`, `docs/docs-map.json.tpl` → `docs/docs-map.json`
+11. Canonical docs: `docs/spec.html.tpl`, `docs/data-model.html.tpl`, `docs/catalogue-composants.html.tpl`, `docs/architecture.html.tpl`, `docs/agent-playbook.html.tpl`, `docs/decisions/ADR-template.html.tpl` → their `.html` destinations
 
 ### Step 6: Write the plan
 
@@ -127,7 +129,7 @@ Schema:
 ```
 
 What `bootstrap-project.mjs` applies deterministically (you don't need to enumerate these, but MAY override):
-- **Governance scripts** — `quality:check`, `size-guard`, `test`, `validate`, `validate:fast` are merged into `package.json` add-if-missing (package-manager-aware). The generated `validate` ends with `&& node .claude/scripts/mark-validate-pass.mjs` (writes the success sentinel the Stop-gate keys off — keep it the LAST `&&` step if you override). To impose a stack-specific body (e.g. SvelteKit's `validate = <pm> check && <pm> lint`), declare it as a `package-json-script` additionalStep — yours runs first and wins; end it with the sentinel step too.
+- **Governance scripts** — `claude:model-routing:check`, `quality:check`, `size-guard`, `test`, `validate`, `validate:fast` are merged into `package.json` add-if-missing (package-manager-aware). The generated `validate` ends with `&& node .claude/scripts/mark-validate-pass.mjs` (writes the success sentinel the Stop-gate keys off — keep it the LAST `&&` step if you override) and STARTS with `claude:model-routing:check` (the cheapest gate in the chain — in `warn` mode it cannot fail). To impose a stack-specific body (e.g. SvelteKit's `validate = <pm> check && <pm> lint`), declare it as a `package-json-script` additionalStep — yours runs first and wins; keep `claude:model-routing:check` FIRST and end it with the sentinel step too.
 - **`package-json-script` + `gitignore-add` additionalSteps** — applied by the script itself (no longer reliant on the scaffolder remembering).
 - **JS/TS lint-ignore payload** — for any stack with eslint/prettier, `.prettierignore` is augmented and an eslint global-ignores entry is inserted for `.claude/**`, `docs/**`, `archive/**`, `src/lib/paraglide/**`. No plan entry needed.
 
