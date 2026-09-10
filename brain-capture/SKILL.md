@@ -64,6 +64,8 @@ bun run --cwd /Users/elmabi/Desktop/my-projets/second-brain cli/index.ts capture
 
 `N` = candidates extracted in step 1 (may be 0). `M` = how many actually reached a `direct`/`pending`/`skipped_duplicate` outcome in step 3 (excludes hard failures). This writes an `audit_events` row (`tool: "brain-capture"`, `client: "claude-code"`) so a 0-memory pass is visible and auditable, never silent — this is what the V3 acceptance criterion "5/5 sessions trigger brain-capture, verifiable in audit_events" checks against.
 
+Then touch the debounce sentinel — run `touch ~/.claude/.brain-capture-last-run` (even at 0 candidates). This starts the 30-minute debounce window the Stop hook (`~/.claude/hooks/brain-capture-stop.mjs`) checks before re-blocking a session end, so a burst of session restarts doesn't re-trigger the block every time.
+
 ## Step 5 — Stop normally
 
 After step 4, the capture pass is complete. End your turn as you normally would — the Stop hook's `stop_hook_active` guard ensures it will not block you again this turn.
