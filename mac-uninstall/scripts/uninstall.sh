@@ -36,10 +36,9 @@ is_safe_to_delete() {
   # Must be absolute
   [[ "$p" != /* ]] && return 1
 
-  # ---- Hard-blocked paths — OS and user data, never touch ----
-  # This list covers system directories, the home root, and personal folders.
-  # Even if somehow passed as an argument, deletion is refused.
-  local BLOCKED=(
+  # ---- Hard-blocked subtrees — path AND everything beneath is refused ----
+  # No approved uninstall target ever lives under these.
+  local BLOCKED_SUBTREE=(
     "/"
     "/System"
     "/usr"
@@ -47,12 +46,10 @@ is_safe_to_delete() {
     "/sbin"
     "/etc"
     "/var"
-    "/private"
     "/Library"         # system-level /Library (not ~/Library)
     "/cores"
     "/dev"
     "/Applications/Utilities"   # macOS built-in utilities folder
-    "$HOME"
     "$HOME/Documents"
     "$HOME/Desktop"
     "$HOME/Downloads"
@@ -60,11 +57,24 @@ is_safe_to_delete() {
     "$HOME/Music"
     "$HOME/Movies"
     "$HOME/Public"
-    "$HOME/Library"    # ~/Library root itself — only subdirectories are OK
   )
-  for blocked in "${BLOCKED[@]}"; do
+  for blocked in "${BLOCKED_SUBTREE[@]}"; do
     if [[ "$p" == "$blocked" || "$p" == "${blocked}/"* ]]; then
       echo "SAFETY BLOCK: '$p' is inside a protected path ($blocked). Aborting." >&2
+      return 1
+    fi
+  done
+
+  # ---- Exact-match blocks — these roots are refused, but specific subpaths
+  # may be approved via the ALLOWED list below (e.g. ~/Library/Caches/).
+  local BLOCKED_EXACT=(
+    "$HOME"
+    "$HOME/Library"
+    "/private"
+  )
+  for blocked in "${BLOCKED_EXACT[@]}"; do
+    if [[ "$p" == "$blocked" ]]; then
+      echo "SAFETY BLOCK: '$p' is a protected root. Aborting." >&2
       return 1
     fi
   done
