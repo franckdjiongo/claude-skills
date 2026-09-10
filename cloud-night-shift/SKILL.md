@@ -44,9 +44,12 @@ Positionnement vis-à-vis des skills sœurs — choisis AVANT de continuer :
 
 Lis `references/readiness-checklist.md` et déroule les 7 vérifications sur le
 projet cible. Les bloquantes : remote GitHub joignable, commande de
-vérification déterministe (`validate` ou équivalent), environment claude.ai
-existant pour ce repo, artefacts gitignorés critiques au build identifiés et
-couverts par une navette.
+vérification déterministe (`validate` ou équivalent) **dont tu MESURES la
+durée et le coût CPU** (§2 de la checklist — cette mesure décide seule si les
+chartes ont besoin d'un timeout explicite ; ne présume jamais qu'un gate est
+lent ou rapide sur la foi d'un autre projet), environment claude.ai existant
+pour ce repo, artefacts gitignorés critiques au build identifiés et couverts
+par une navette.
 
 **Règle de refus.** Si une vérification bloquante échoue et ne peut pas être
 réparée séance tenante, n'arme RIEN. Explique ce qui manque et comment le
@@ -94,8 +97,49 @@ chartes — chacun a été appris d'un run réel :
 - **Bootstrap explicite** : `npm ci` (ou équivalent), restauration navette,
   puis un sanity check (typecheck) AVANT la mission. Un échec de bootstrap =
   rapport et arrêt, pas de bricolage.
-- **Pointer vers les skills du repo**, ne jamais recopier leurs conventions
-  dans la charte : le repo évolue, la charte non.
+- **Pointer vers un fichier du repo, ne jamais recopier.** Le message d'un
+  trigger est FIGÉ à la création ; un fichier du repo vit avec le code. Donc :
+  écris les invariants communs à tous les runs dans UN fichier de règles du
+  repo cible (protocole commun), et que chaque charte se contente de dire
+  « lis ce fichier EN ENTIER et applique-le » avant sa mission propre. C'est
+  ce qui rend une chaîne déjà armée corrigeable : le 15/08/2026, trois
+  correctifs de fond ont été poussés sur une chaîne de 7 runs — dont un qui
+  aurait tué la vague entière — sans ré-armer un seul trigger. Sans ce
+  fichier, chaque correctif est une réécriture de N chartes.
+- **Le nom de branche de la charte est un CONTRAT, pas une suggestion.**
+  L'environnement dépose le run sur une branche **suffixée automatiquement**
+  (`<branche-demandée>-<6 caractères>`), créée depuis la branche par défaut du
+  repo — observé sur 3 sondes sur 3 le 15/08/2026. Elle est propre, elle
+  existe déjà, la réutiliser paraît inoffensif : c'est le piège. Les runs
+  suivants vérifient leurs préconditions par un `git fetch` + `git log` sur la
+  ref EXACTE ; un seul caractère d'écart et l'aval conclut que l'amont a
+  échoué. Toute charte impose donc un checkout explicite suivi d'une
+  vérification, avant la moindre ligne de code :
+  `git checkout -B <NOM-EXACT> origin/<AMONT>` puis `git branch --show-current`
+  qui DOIT afficher le nom sans suffixe.
+- **Une précondition se vérifie sur ce que l'amont PRODUIT, jamais sur ce que
+  son plan ANNONCE.** Dériver un `git log --grep 'lot N'` du nombre de lots
+  d'un plan produit un gate faux par construction : le dernier lot est souvent
+  un lot de processus que les runs commitent sous un message libre. Écris la
+  précondition à partir de la convention de message réelle, et **teste-la
+  contre le dépôt avant d'armer** — un `git log --grep` qui renvoie 0 au
+  moment de l'écriture est un gate mort. Erreur commise le 15/08/2026, clonée
+  dans deux chartes, rattrapée 30 min avant le tir.
+- **Pas d'outil de workflow/ultracode dans un run non supervisé.** Il redemande
+  une confirmation humaine à chaque lancement, y compris sous un mode de
+  permission permissif — et personne ne répondra. Nomme explicitement dans la
+  charte l'outil à utiliser pour toute étape de revue ou de fan-out : des
+  sous-agents parallèles. Observé le 15/08/2026 : sur trois runs recevant la
+  même instruction non outillée, un s'est bloqué, deux ont abouti.
+- **Timeout explicite sur les commandes longues — issu de la MESURE de
+  l'audit** (§ Étape 1), jamais d'un chiffre hérité d'un autre projet. Si la
+  commande de vérification a été estimée sous 2 min pour ce projet, ne mets
+  rien : la charte reste courte. Si elle dépasse, la charte porte le paramètre
+  `timeout` explicite ET la durée mesurée, avec la phrase qui évite le
+  contresens : *une commande qui prend N minutes ici est NORMALE, ce n'est pas
+  une panne ; si elle est coupée, c'est le timeout par défaut de 2 minutes, pas
+  un échec du code.* Un run qui prend une coupure pour un échec repart corriger
+  un code sain — bien plus cher que l'attente qu'il croyait éviter.
 - **Convention de gates cloud** : une tâche marquée « validation humaine
   avant commit » est implémentée + testée + COMMITÉE (préfixe de message
   `[GATE-HELD]`), mais sa case de gate reste non cochée et le rapport final

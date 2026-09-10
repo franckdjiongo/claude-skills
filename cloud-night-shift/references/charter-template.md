@@ -22,13 +22,40 @@ Tu es dans le repo [PROJET] ([github.com/OWNER/REPO]). Mission ONE-SHOT :
 / « exécuter de bout en bout le plan Y »]. [Borne explicite : « Tu ÉCRIS le
 plan, tu ne l'exécutes PAS » / « N'improvise JAMAIS un plan »…]
 
+ÉTAPE 00 — TA BRANCHE (gate dur, avant toute autre chose) :
+L'environnement t'a déposé sur une branche SUFFIXÉE automatiquement
+([BRANCHE_TRAVAIL]-a1b2c3), créée depuis la branche par défaut du repo.
+IGNORE-LA : elle n'a ni ton amont, ni le bon nom.
+  git fetch origin [BRANCHE_AMONT]:refs/remotes/origin/[BRANCHE_AMONT]
+  git checkout -B [BRANCHE_TRAVAIL] origin/[BRANCHE_AMONT]
+  git push -u origin [BRANCHE_TRAVAIL]
+  git branch --show-current    # DOIT afficher [BRANCHE_TRAVAIL], SANS suffixe
+Si la dernière commande affiche autre chose, corrige AVANT d'écrire une ligne
+de code : les runs suivants cherchent cette ref au caractère près.
+
+[SI ET SEULEMENT SI l'audit a mesuré la commande de vérification à ≥ 2 min sur
+ ce projet — sinon SUPPRIME ce bloc, il n'a pas lieu d'être :]
+ÉTAPE 00b — TIMEOUT DES COMMANDES LONGUES :
+Mesuré sur ce projet : [COMMANDE] prend [N] s de wall-clock en local pour
+[S] secondes-CPU, soit de l'ordre de [M] MINUTES dans ce runner (2-3 cœurs
+utiles, plus lents). C'est NORMAL, ce n'est pas une panne.
+Or le timeout par DÉFAUT de l'outil Bash est de 2 MINUTES : sans paramètre
+explicite, la commande est TUÉE avant la fin, systématiquement. Un run qui
+prend cette coupure pour un échec repart corriger un code sain.
+Donc, sans exception, passe `timeout: [VALEUR_MS]` à l'outil Bash pour :
+[COMMANDE], l'installation de dépendances, les suites de tests complètes, et
+toute commande dont tu n'as pas mesuré la durée dans CETTE session.
+Si une commande atteint réellement la limite, c'est un FAIT à rapporter, pas
+à contourner : ne découpe pas le gate, ne saute aucune étape.
+
 ÉTAPE 0 — PRÉCONDITIONS (abort propre si non remplies) :
-1. git fetch origin [BRANCHE_AMONT]:refs/remotes/origin/[BRANCHE_AMONT] &&
-   git checkout [BRANCHE_AMONT]
-   [Run 1 : créer la branche de travail [BRANCHE_TRAVAIL] depuis l'amont.
-    Runs suivants : checkout direct de [BRANCHE_TRAVAIL].]
-2. Vérifie que [LIVRABLE DU RUN PRÉCÉDENT — chemin précis] existe.
-   S'il n'existe pas : ARRÊTE-TOI et rapporte l'échec — n'improvise rien.
+1. Vérifie que [LIVRABLE DU RUN PRÉCÉDENT — chemin précis, OU commande de
+   vérification tirée de la CONVENTION DE MESSAGE DE COMMIT réelle de l'amont]
+   existe. S'il n'existe pas : ARRÊTE-TOI et rapporte l'échec — n'improvise
+   rien, n'achève JAMAIS le travail d'un run amont à sa place.
+   [Cette précondition a été TESTÉE contre le dépôt avant l'armement : elle
+    renvoie bien 1 aujourd'hui. Une précondition dérivée du plan plutôt que du
+    produit réel est un gate faux par construction.]
 
 ÉTAPE 0b — BOOTSTRAP ENVIRONNEMENT :
 1. node --version (>= [N] requis ; sinon nvm install [N] ; sinon rapporte).
@@ -93,3 +120,17 @@ i18n, tokens, budgets de taille de fichier, scripts d'allocation d'IDs…]
   date/heure de la mission doit être explicite, jamais « aujourd'hui ».
 - allowed_tools de la routine : inclure l'outil de subagents si le repo
   l'utilise (sinon le fallback « exécute directement » de l'ÉTAPE 1 joue).
+- Branche suffixée automatiquement au démarrage : voir ÉTAPE 00, c'est le
+  piège le plus coûteux de la chaîne (3 sondes sur 3 s'y sont laissé prendre).
+- Un outil de workflow/ultracode redemande une confirmation humaine à CHAQUE
+  lancement, même sous un mode de permission permissif. Nomme explicitement
+  « sous-agents parallèles » pour toute revue ou fan-out — sinon un run sur
+  trois se bloquera là où les autres passent.
+- Un outil MCP peut être DIFFÉRÉ : absent de la liste d'outils initiale tant
+  qu'une recherche d'outils ne l'a pas chargé. Ne jamais conclure « ce canal
+  n'existe pas » sans avoir tenté le chargement explicite — une sonde s'y est
+  trompée et a rapporté comme absent un outil parfaitement disponible.
+- Une charte qui conclut à une ABSENCE (outil, fichier, hook, branche) doit
+  d'abord prouver qu'elle a cherché au bon endroit : sur la bonne branche,
+  après chargement des outils différés. Deux conclusions fausses sur quatre
+  sondes venaient de là.

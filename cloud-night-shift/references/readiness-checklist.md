@@ -23,6 +23,44 @@ Cherche dans l'ordre : script `validate` du package.json ; sinon compose
 interaction. Sans elle, le run ne peut pas prouver son travail → refus
 (même philosophie que `loop-autonomy`).
 
+**Mesure sa durée, ne la suppose jamais.** Lance-la UNE fois, chronométrée,
+sur l'état de départ du repo (ça vaut aussi baseline verte) :
+
+```bash
+/usr/bin/time -p <commande de vérification>    # note `real` ET `user`
+```
+
+Deux chiffres, tous deux nécessaires :
+
+- **`real`** — la durée sur CETTE machine. C'est un plancher, pas une
+  prédiction.
+- **`user` + `sys`** — les **secondes-CPU** consommées. C'est le seul chiffre
+  qui se transporte d'une machine à l'autre : le wall-clock d'un poste à N
+  cœurs ne dit rien de ce que fera un conteneur qui n'en accorde que 2 ou 3.
+
+Ordre de grandeur pour convertir : un runner cloud donne typiquement 2-3
+cœurs utiles, individuellement plus lents qu'un cœur de poste récent. Une
+commande consommant `S` secondes-CPU y prend donc grossièrement
+`S / 2.5 × 1.8` secondes de wall-clock. Concrètement : une suite à 40 s-CPU
+reste à quelques dizaines de secondes et ne demande aucun traitement
+particulier ; une suite à 450 s-CPU passe de ~1 min en local à 5-7 min en
+conteneur.
+
+**Ce que tu en fais, et rien de plus :**
+
+| Estimation cloud | Conséquence sur les chartes |
+|---|---|
+| < 2 min | Rien. N'encombre pas la charte — c'est le cas de la plupart des projets. |
+| ≥ 2 min | La charte DOIT porter un timeout explicite (§ Étape 4 du skill) **et citer la durée mesurée**, pour que le run sache qu'une longue attente est normale et non une panne. |
+
+Ne code JAMAIS en dur une durée héritée d'un autre projet. Le seuil qui
+compte n'est pas « c'est lent », c'est « ça dépasse le timeout par défaut de
+l'outil Bash », qui est de **2 minutes**.
+
+Si la commande est trop longue pour être mesurée pendant l'audit, mesure une
+sous-partie représentative (la suite de tests seule) et dis-le explicitement
+dans la charte plutôt que d'extrapoler en silence.
+
 ## 3. (B) Environment claude.ai pour ce repo
 
 ```
@@ -51,7 +89,7 @@ Indices forts : un script de setup de worktree qui symlinke des dossiers
 (c'est exactement la liste à faire voyager) ; un dossier `generated`/`sdk`
 importé par `src/`.
 
-**Pattern navette** (validé en production sur Temps Chantier) : une branche
+**Pattern navette** (validé en production) : une branche
 orpheline `cloud/<nom>-snapshot` contenant UNIQUEMENT le dossier, publiée
 par un script de plumbing git qui ne touche ni le working tree ni l'index :
 
