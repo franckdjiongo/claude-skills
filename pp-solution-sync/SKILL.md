@@ -1,104 +1,82 @@
 ---
 name: pp-solution-sync
 description: >
-  Synchronise les exports de solutions Power Platform depuis ~/Downloads vers les dossiers du projet local.
-  Utilise ce skill dès que l'utilisateur mentionne qu'il a téléchargé ou exporté une solution Power Platform,
-  qu'il veut mettre à jour son projet avec une nouvelle version, syncer des fichiers depuis Downloads,
-  ou appliquer les mises à jour d'une solution Power Platform dans son code. Même si l'utilisateur dit juste
-  "j'ai exporté la solution" ou "j'ai téléchargé depuis Power Platform", déclenche ce skill.
+  Exporte une solution Power Platform unmanaged avec PAC CLI ou utilise un artefact local, synchronise sa représentation dans le projet, exécute les générateurs déclarés par le projet et prépare une validation Git. Utiliser lorsqu'une solution Power Platform doit être actualisée localement depuis un environnement ou depuis Downloads.
 ---
 
-# Synchronisation de solutions Power Platform
+# Synchroniser une solution Power Platform
 
-L'objectif est de mettre à jour les dossiers du projet avec les fichiers d'une export Power Platform fraîchement téléchargée, en respectant scrupuleusement la structure déjà en place dans le projet — ni plus, ni moins.
+Utiliser le script déterministe du skill pour l'export, l'analyse, la copie et les suppressions. Le projet décrit ses solutions et ses commandes dérivées dans `.pp-solution-sync.json`.
 
-## Étape 1 — Collecter les informations
+## Modes
 
-Pose ces deux questions à l'utilisateur (tu peux les poser ensemble) :
+- **PAC direct** : si l'utilisateur donne un nom de solution, exporter depuis l'environnement attendu par le manifeste.
+- **Artefact local** : si l'utilisateur fournit un ZIP ou un dossier extrait, le passer avec `--artifact`. Ce mode remplace le parcours historique depuis `~/Downloads`.
 
-1. **Dossiers du projet** : "Quels sont les chemins des dossiers de projet à mettre à jour ? (tu peux en donner plusieurs)"
-2. **Dossiers téléchargés** : "Quels sont les noms des dossiers dans ~/Downloads qui contiennent les nouvelles versions ?"
+Ne jamais exécuter `pac solution publish`, exporter managed par défaut, importer dans Dataverse ou changer le profil PAC. Le script omet `--managed` et passe explicitement l'URL d'environnement du manifeste.
 
-L'utilisateur te donnera :
-- Un ou plusieurs chemins absolus vers des dossiers projet (ex: `/Users/x/projets/MonProjet/TempsChantier`)
-- Un ou plusieurs noms de dossiers dans Downloads (ex: `TempsChantier_1_0_0_44`, `DonnesTransversesCore_1_0_0_11`)
+## Préparer
 
-**Association dossier download ↔ dossier projet** : Le nom d'un dossier téléchargé suit le pattern `NomSolution_X_Y_Z_Build`. Supprime le suffixe de version (`_X_Y_Z_Build`) pour obtenir le nom de base, puis fais correspondre au dossier projet dont le nom contient ce même nom de base. Si l'association n'est pas évidente, demande à l'utilisateur de confirmer.
+1. Lire `.pp-solution-sync.json` et résoudre le nom unique, la cible, l'environnement et les mappings.
+2. Vérifier `git status --short`. Le script refuse un worktree sale. N'utiliser `--allow-dirty` qu'après autorisation explicite et audit des fichiers déjà modifiés; ne jamais inclure ces changements dans un commit de synchronisation.
+3. Lancer :
 
-## Étape 2 — Analyser la structure du projet
-
-Pour chaque dossier projet fourni, liste tous ses fichiers et répertoires. L'objectif est de comprendre **quelles catégories d'artefacts existent déjà** dans ce projet, car c'est cette structure qui fait loi.
-
-Identifie les catégories présentes en cherchant :
-
-| Catégorie | Indicateur de présence dans le projet |
-|-----------|--------------------------------------|
-| Flows / Workflows | Présence d'un dossier `flows/` ou `Workflows/` |
-| Fichiers connecteur | Fichiers `*_connectionparameters.json`, `*_openapidefinition.json`, etc. à la racine ou dans `Connector/` |
-| Formulas | Fichiers `*-FormulaDefinitions.yaml` à la racine ou dans `Formulas/` |
-| Variables d'environnement | Dossier `environmentvariabledefinitions/` |
-| aiskillconfigs | Dossier `aiskillconfigs/` |
-| WebResources | Dossier `WebResources/` |
-| CanvasApps | Dossier `CanvasApps/` |
-
-## Étape 3 — Construire le plan de synchronisation
-
-Pour chaque fichier dans le dossier téléchargé, détermine ce qu'il faut en faire selon ces règles :
-
-### Règle fondamentale
-**Ne jamais introduire une catégorie qui n'existait pas dans le projet.** Si le projet n'avait pas de `aiskillconfigs/`, `WebResources/`, ou `CanvasApps/`, ces dossiers sont ignorés même s'ils sont dans le téléchargement.
-
-### Mapping structurel
-
-**Fichiers racine** (`[Content_Types].xml`, `customizations.xml`, `solution.xml`) → toujours mis à jour à la racine du projet.
-
-**`Workflows/`** dans le téléchargement →
-- Si le projet a `flows/` → copier dans `flows/`
-- Si le projet a `Workflows/` → copier dans `Workflows/`
-- Si ni l'un ni l'autre n'existe → créer `Workflows/` (c'est une nouvelle catégorie légitime)
-
-**`Connector/`** dans le téléchargement →
-- Si le projet a des fichiers connecteur à la racine → copier à la racine
-- Si le projet a un dossier `Connector/` → copier dans `Connector/`
-- Si absent du projet → ignorer
-
-**`Formulas/`** dans le téléchargement →
-- Si le projet a des fichiers `*-FormulaDefinitions.yaml` à la racine → copier à la racine
-- Si le projet a un dossier `Formulas/` → copier dans `Formulas/`
-- Si absent du projet → ignorer
-
-**`environmentvariabledefinitions/`** → toujours mis à jour en conservant la même structure de sous-dossiers.
-
-**`aiskillconfigs/`**, **`WebResources/`**, **`CanvasApps/`** → seulement si ces dossiers existent déjà dans le projet. Sinon, ignorer.
-
-### Fichiers à supprimer
-Dans chaque catégorie mappée, identifie les fichiers qui existaient dans le projet mais qui ne sont plus présents dans la nouvelle export. Ces fichiers ont été supprimés de la solution et doivent être retirés du projet.
-
-## Étape 4 — Présenter le plan et demander confirmation
-
-Avant d'exécuter quoi que ce soit, présente un résumé clair des changements prévus pour chaque dossier projet :
-
-```
-📁 TempsChantier
-  ✏️  Mis à jour  : solution.xml, customizations.xml, [Content_Types].xml
-  ✏️  Mis à jour  : flows/ChildFlow-DayforceDataverseAffectations-[...].json (12 flows mis à jour)
-  ➕  Ajoutés     : flows/ChildFlow-DayforceDataversePeriodedepaie-[...].json (3 nouveaux flows)
-  ➕  Ajoutés     : gg_codedegestion-FormulaDefinitions.yaml (nouvelle formula)
-  ❌  Supprimés   : flows/ChildFlow-DayforceDataverseEmployeesWorkAssignment-[...].json
-  ⏭️  Ignorés     : aiskillconfigs/ (53 fichiers) — catégorie absente du projet
-  ⏭️  Ignorés     : WebResources/ (14 fichiers) — catégorie absente du projet
-
-Confirmes-tu ces changements ?
+```sh
+python3 <skill>/scripts/sync_solution.py prepare \
+  --project-root <projet> \
+  --solution <nom-unique>
 ```
 
-Attends la confirmation de l'utilisateur avant de continuer.
+Avec un artefact existant :
 
-## Étape 5 — Exécuter
+```sh
+python3 <skill>/scripts/sync_solution.py prepare \
+  --project-root <projet> \
+  --solution <nom-unique> \
+  --artifact <zip-ou-dossier>
+```
 
-Une fois confirmé, applique les changements dans l'ordre :
-1. Créer les nouveaux dossiers nécessaires
-2. Copier/écraser les fichiers mis à jour
-3. Copier les nouveaux fichiers
-4. Supprimer les fichiers obsolètes
+Le script exporte dans un dossier temporaire, lit le ZIP sans imposer le format `.cdsproj`/SolutionPackager, vérifie `solution.xml`, extrait seulement les mappings déclarés et écrit un plan JSON.
 
-Après l'exécution, confirme rapidement ce qui a été fait avec un bilan court.
+## Confirmer et appliquer
+
+Présenter les ajouts, modifications, suppressions et fichiers ignorés. Attendre une confirmation explicite avant :
+
+```sh
+python3 <skill>/scripts/sync_solution.py apply --plan <plan.json>
+```
+
+Le script vérifie que les fichiers cibles n'ont pas changé depuis le plan. En cas d'écart, arrêter et reconstruire le plan.
+
+## Régénérer et valider
+
+Après application, exécuter dans l'ordre chaque tableau `command` de `postSync`, puis de `validation`. Ne pas interpréter les chaînes avec un shell; passer les arguments tels qu'ils sont déclarés.
+
+Présenter ensuite : environnement, nom unique, version locale précédente et version exportée, compte des ajouts/modifications/suppressions, commandes dérivées, validations et `git diff --stat`.
+
+Si une commande échoue, conserver le dossier temporaire, diagnostiquer l'échec et ne pas déclarer la solution à jour.
+
+## Validation humaine, commit et nettoyage
+
+Attendre la validation de l'utilisateur avant le nettoyage. Le commit est optionnel et exige une demande ou une confirmation explicite; il ne contient que les changements attribuables à cette exécution.
+
+Après validation :
+
+```sh
+python3 <skill>/scripts/sync_solution.py cleanup --plan <plan.json>
+```
+
+Ne jamais supprimer un ZIP ou dossier fourni par l'utilisateur. `cleanup` ne supprime que le dossier temporaire créé par le script et protégé par son fichier sentinelle.
+
+## Manifeste de projet
+
+Le manifeste versionné porte :
+
+- `solutions.<nom>.target` : dossier local;
+- `expectedEnvironmentUrl` : environnement autorisé pour l'export;
+- `packageType` : actuellement `Unmanaged` uniquement;
+- `mappings` : fichiers, dossiers ou fichiers aplatis gérés;
+- `postSync` : générateurs propres au projet;
+- `validation` : barrières finales.
+
+Les mappings sont une liste d'autorisation. Une nouvelle catégorie de solution exige une mise à jour explicite du manifeste; ne jamais la copier implicitement.
