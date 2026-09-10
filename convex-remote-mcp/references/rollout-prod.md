@@ -52,13 +52,22 @@ curl -s <DEPLOYMENT_PROD>/.well-known/oauth-protected-resource<MCP_PATH>
 #   "OAuth discovery not configured"  = configureOAuth --prod not run yet
 ```
 
-**7. claude.ai:** Settings → Connectors → Add custom connector → URL
+**7. claude.ai:** Settings → Connectors → Add custom connector → **Name: ASCII ONLY —
+letters/digits/hyphens, e.g. `ai-toolkit`** (see pitfall below) → URL
 `<DEPLOYMENT_PROD><MCP_PATH>` → **Advanced OAuth fields EMPTY** → Add → log in with WorkOS
 (an allowlisted email) → Authorize. The tools appear. **dev→prod migration: delete the
 dev connector first.**
 
 ## Rollout pitfalls
 
+- **Connector display name must be plain ASCII (`[A-Za-z0-9-]`, e.g. `ai-toolkit`) — no
+  em dashes, accents, `&`, or fancy punctuation.** claude.ai namespaces tool names with
+  the connector name; a name like `Power Platform Toolkit — Notes & Tâches` ("—", "â")
+  produces tool identifiers that fail the API's `^[a-zA-Z0-9_-]+$` pattern, and every
+  tool is **silently dropped from chats** — while Settings→Connectors still lists them
+  and artifacts can still call them (different paths). Symptom: "connector connected but
+  the model says no tools exist"; hours were lost on this (2026-07-09) before renaming
+  the connector fixed it instantly.
 - **`configureOAuth` BEFORE adding the connector**, else
   `/.well-known/oauth-protected-resource<MCP_PATH>` → `"OAuth discovery not configured"`
   → can't connect.

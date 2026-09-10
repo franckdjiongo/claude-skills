@@ -5,6 +5,12 @@ verified-working setup is **WorkOS-direct**: claude.ai discovers WorkOS's OAuth
 metadata and registers itself (DCR/CIMD); the gateway points discovery at the AuthKit
 domain and **validates the token locally**.
 
+> **App-login (non-MCP) pitfalls** — verifying AuthKit tokens for a web APP's
+> own sign-in (AuthKit React SPA + Convex `auth.config.ts`) is a DIFFERENT flow
+> with its own traps (environment-client issuer, no `aud`, no email claims,
+> verbatim snake_case claims). Field-tested reference:
+> `~/.claude/skills/workos/references/workos-authkit-jwt-custom-backend.md`.
+
 ## Table of contents
 - [Auth flow, step by step](#auth-flow-step-by-step)
 - [WorkOS dashboard configuration](#workos-dashboard-configuration-manual-shared-devprod)
