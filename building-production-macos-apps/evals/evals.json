@@ -1,0 +1,133 @@
+{
+  "skill_name": "building-production-macos-apps",
+  "notes": "Run each eval in a fresh Claude Code context on a Mac with Xcode installed, once with the skill and once without (skill-creator workflow). Fixture projects live under evals/fixtures/ when present; otherwise the prompt describes what to generate. Assertions are written so a grader can check them from the transcript and the produced files.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "greenfield-commercial-app",
+      "prompt": "I want to build a commercial menu-bar app for macOS that shows my upcoming calendar events and lets me join video calls with one click. I plan to sell it. Start the project for me.",
+      "expected_output": "Environment discovery runs first (doctor.sh, Apple skill export attempt). A product brief, distribution decision (App Store vs Developer ID) and business model are established or explicitly asked. A feature-oriented project structure with a menu-bar scene, a calendar service boundary behind a protocol, Swift Testing tests for the domain, an entitlements file with only calendar access, a PRIVACY_INVENTORY.md seeded with the calendar data entry, and a first build/test run reported from the .xcresult.",
+      "files": [],
+      "assertions": [
+        "Runs or explains scripts/doctor.sh before choosing APIs; states the detected Xcode/SDK/deployment target",
+        "Asks for or records the distribution channel and business model before designing paid features",
+        "Creates a PRODUCT_BRIEF.md and ARCHITECTURE.md (or explicitly offers them) with real content, not placeholders",
+        "Project structure separates Application / Features / Domain / Platform layers or justifies a simpler layout for a small utility",
+        "Calendar access goes through a protocol-typed service so tests can substitute it",
+        "Entitlements are minimal (calendar, and sandbox on) and PRIVACY_INVENTORY.md lists the calendar data with purpose and retention",
+        "At least one Swift Testing test exists for domain logic and the test run result is quoted from the .xcresult",
+        "No release, upload, notarization, or git push is performed"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "broken-concurrency-app",
+      "prompt": "My app stopped compiling after I turned on Swift 6 language mode. I get 'sending value of non-Sendable type' and 'main actor-isolated property cannot be mutated from a nonisolated context' in ImportCoordinator.swift and LibraryModel.swift. Fix the build.",
+      "expected_output": "The failure is classified as Swift concurrency. The agent reads the files, explains the ownership problem (which type owns mutable state, which context mutates it), and fixes it by establishing isolation (main-actor model, actor for the import pipeline, or value types crossing the boundary), not by adding @unchecked Sendable, nonisolated(unsafe), or lowering the language mode. A regression test or compile-time guarantee is added and the build/test scripts are run.",
+      "files": ["evals/fixtures/concurrency-broken/"],
+      "assertions": [
+        "Classifies the failure as Swift concurrency / isolation before editing",
+        "Does not add @unchecked Sendable, nonisolated(unsafe), or reduce the Swift language mode as the fix",
+        "Explains which type owns the mutable state and which context should mutate it",
+        "Fix uses actors, main-actor isolation, or Sendable value types with a stated reason",
+        "Runs scripts/build.sh and scripts/test.sh (or equivalent xcodebuild commands) after the change and reports results",
+        "Adds or updates a test covering the import path, or explains why compile-time isolation makes one unnecessary"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "ugly-but-functional-ui",
+      "prompt": "The app works but looks like an iPad app stretched on a Mac. Make it look like a real premium native macOS app, with that Liquid Glass look Apple uses.",
+      "expected_output": "The ui-polish workflow is followed in order: inspect current UI, establish task hierarchy, native structure (sidebar/detail, toolbar, menu commands, settings scene), typography and spacing on system styles, then purposeful glass on floating controls only. The agent refuses stacked translucent cards in the content area and explains why. Keyboard, accessibility (Reduce Transparency, Increase Contrast), resizing matrix, and dark/light are reviewed. The app is run and the report includes before/after observations.",
+      "files": ["evals/fixtures/ugly-ui/"],
+      "assertions": [
+        "Inspects the existing UI and describes the user task hierarchy before changing visuals",
+        "Adds or verifies native macOS structure: menu commands with shortcuts, toolbar placement, Settings scene, sidebar/detail where appropriate",
+        "Applies Liquid Glass or materials only to controls floating over content, and explicitly rejects glass cards stacked in the content area",
+        "Checks the exported Apple SwiftUI skill or current docs before using glass APIs, and guards them with #available when the deployment target requires it",
+        "Reviews Reduce Transparency and Increase Contrast behavior and keyboard focus visibility",
+        "Tests at least narrow, default, and large window sizes and both appearances, and reports observations",
+        "Runs the app (build + launch) rather than stopping at a successful compile"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "coupled-legacy-refactor",
+      "prompt": "DocumentController.swift is 2,400 lines and does parsing, undo, autosave, export, and all the view state. Every change breaks something else. Clean it up.",
+      "expected_output": "The agent writes characterization tests around current behavior first, then extracts responsibilities incrementally (parsing → domain, autosave/export → services, view state → observable model) with a build and test run after each extraction. No big-bang rewrite. An ADR records the target structure. Before/after metrics (line counts per type, test count, build time) are reported.",
+      "files": ["evals/fixtures/legacy-document-controller/"],
+      "assertions": [
+        "Writes characterization tests capturing existing behavior before moving code",
+        "Extracts in at least three separate verified increments rather than one rewrite",
+        "Runs the test suite after each increment and reports pass/fail",
+        "Preserves undo/autosave/export behavior (tests still pass) and says so",
+        "Creates an ADR describing the target structure and why",
+        "Reports before/after numbers (file sizes, test counts, or build time)"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "release-candidate",
+      "prompt": "Version 1.2 is ready. Ship it — notarize it and push the tag.",
+      "expected_output": "The release workflow runs: full tests, Release build, release-build.sh, verify-release.sh, privacy-audit.sh, RELEASE_CHECKLIST.md. It surfaces deficiencies (a missing usage string, an entitlement absent from the inventory, a failing UI test, Hardened Runtime off — whatever the fixture contains). It does NOT run notarytool submit, does NOT create or push a git tag, and ends by printing the exact commands for the user with a readiness verdict.",
+      "files": ["evals/fixtures/release-candidate/"],
+      "assertions": [
+        "Runs the full test suite and a Release configuration build before any packaging",
+        "Runs or describes privacy-audit.sh and verify-release.sh and reports their findings",
+        "Identifies at least one concrete blocker present in the fixture (privacy, entitlement, signing, or test)",
+        "Does not execute notarytool submit, xcrun stapler staple on the user's behalf, App Store upload, git tag, or git push",
+        "Prints the exact publish commands for the user to run, with real paths",
+        "Produces a release-readiness report with blockers, accepted risks, and next actions"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "paid-feature-request",
+      "prompt": "Add a Pro tier: unlimited projects and PDF export are paid, everything else stays free. Users should be able to buy it.",
+      "expected_output": "The agent asks or determines the distribution channel first because it decides StoreKit versus direct licensing. It designs a single entitlement gate type, the verified-transaction pipeline (or license validation pipeline), restore/recovery, offline launch behavior, revocation handling, and StoreKit configuration testing. It does not default to a subscription without a stated reason, and it updates PRIVACY_INVENTORY.md.",
+      "files": [],
+      "assertions": [
+        "Establishes whether the app ships via the Mac App Store or Developer ID before choosing StoreKit or direct licensing",
+        "Discusses the business model (one-time unlock vs subscription vs paid upgrade) and does not silently choose subscriptions",
+        "Implements one entitlement gate type that all feature checks go through",
+        "Handles verified transactions, current entitlements on launch, transaction updates listener, restore, and revoked/expired states (or the direct-license equivalents)",
+        "Describes offline launch behavior with cached entitlement",
+        "Adds StoreKit configuration / test coverage for purchase, restore, and revocation",
+        "Updates PRIVACY_INVENTORY.md with the purchase or license data"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "new-xcode-installed",
+      "prompt": "I just installed the new Xcode release this morning. Make sure the project and your knowledge are up to date, then continue with the sidebar feature we were doing.",
+      "expected_output": "The agent re-runs doctor.sh, notices the toolchain change, re-exports Apple's agent skills (or reports the command is unavailable), reads the what's-new deltas, builds and tests on the new toolchain before writing new code, records toolchain notes in ARCHITECTURE.md, and only then resumes the feature — using the exported Apple guidance for any new SwiftUI API.",
+      "files": ["evals/fixtures/existing-project/"],
+      "assertions": [
+        "Runs scripts/doctor.sh and compares the detected Xcode/SDK to what the project recorded",
+        "Runs scripts/export-apple-skills.sh or explicitly reports that the export command is unavailable on this Xcode",
+        "Builds and runs the existing test suite on the new toolchain before adding code",
+        "Records dated toolchain notes (version, SDK, deltas) in the project's ARCHITECTURE.md or equivalent",
+        "Does not assert a specific 'latest Xcode' version from memory; all version facts come from the machine",
+        "Resumes the feature using the exported Apple skill for any new API and guards it with #available where needed"
+      ]
+    }
+  ],
+  "trigger_evals": [
+    {"query": "can you make me a small mac app that lives in the menu bar and toggles my dark mode on a schedule", "should_trigger": true},
+    {"query": "xcodebuild says 'Command CodeSign failed with a nonzero exit code' when I archive, worked yesterday", "should_trigger": true},
+    {"query": "my swiftui macos window forgets its size every launch and the sidebar looks wrong when I resize, fix it", "should_trigger": true},
+    {"query": "I have a Developer ID app, how do I make the notarization step part of my release checklist without you running it", "should_trigger": true},
+    {"query": "review my StoreKit code in EntitlementManager.swift, refunds still leave users with Pro", "should_trigger": true},
+    {"query": "the app beachballs when importing a 40MB CSV on my MacBook, profile it", "should_trigger": true},
+    {"query": "turn on swift 6 mode in my mac app and fix whatever breaks", "should_trigger": true},
+    {"query": "make this look like a real mac app with liquid glass, not a stretched ipad app", "should_trigger": true},
+    {"query": "write a SwiftUI iOS app for tracking water intake with HealthKit", "should_trigger": false},
+    {"query": "convert this React dashboard to a Tauri desktop app for windows and mac", "should_trigger": false},
+    {"query": "explain what liquid glass is in apple's design language for a blog post", "should_trigger": false},
+    {"query": "write a bash script that renames all .mov files in ~/Movies on my mac", "should_trigger": false},
+    {"query": "help me price my SaaS subscription tiers", "should_trigger": false},
+    {"query": "my python script crashes on macOS with a codesign error when I package it with pyinstaller", "should_trigger": false},
+    {"query": "set up a github actions workflow that runs pytest on ubuntu and macos runners", "should_trigger": false},
+    {"query": "what's new in the latest xcode release notes, summarize them", "should_trigger": false}
+  ]
+}

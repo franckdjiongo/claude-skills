@@ -85,6 +85,7 @@ The `description` field is critical - it determines when Claude Code should invo
 - `workos` - Use when the user asks for a WorkOS docs URL, term, or dashboard field (Sign-in endpoint, initiate_login_uri, Redirect URI, `WORKOS_*` env vars), or…
 - `commit-session-work` - Finish Git work safely at the end of a Claude Code session: commit, and — depending on the mode — integrate, push, and clean up.
 - `ship-pr` - Merge one or more explicitly-named pull requests and land the result safely: verify each PR is mergeable and its required checks are green, merge it…
+- `building-production-macos-apps` - Builds, debugs, refactors, tests, profiles, secures, polishes, and prepares production macOS apps using Swift, SwiftUI, AppKit, and Xcode.
 
 **Convex Database**
 - `convex-queries` - Convex query patterns and best practices
