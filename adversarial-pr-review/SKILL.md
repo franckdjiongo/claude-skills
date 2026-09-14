@@ -111,6 +111,16 @@ Both modes run the **same engine** (below) and the **same core discipline**. The
      itself a review defect: in the field, one module-scoped FK-ownership sweep let the same class
      recur in two later rounds, costing ~2 extra rounds (~7M tokens) to re-find what the first
      sweep should have enumerated.
+   - **Mandate coverage is 1:1, and the table's verdicts must reconcile.** Before accepting a
+     round, check the deliverable against the targets the mandate NAMED (files to read, consumer
+     classes, a question to answer numerically): every named target has a disposition — `clean`
+     with sites, `finding-filed` naming its finding, or an explicit `not-examined` with no sites —
+     and a target that is simply absent is NOT DONE, never implicitly clean (field, 2026-09-10/11:
+     two mandated consumer classes never appeared in any sweep, two mandated sibling files were
+     never opened after an empty grep passed without comment). A `finding-filed` row with no
+     finding behind it, or a `not-examined` row that lists inspected sites, is the same defect
+     from the other side (field, 2026-09-13, 4/6 verifiers). The engine below computes
+     `uncoveredTargets` and `inconsistentSweeps` for you; the manual fallback does it by hand.
    The classic loop is fixing one unbounded query while its twin three functions away waits to be
    flagged next round — same failure mode whether the twin is textual or structural.
 4. **Re-verify the FULL diff after fixing, before pushing** — the *same dimension fan-out* over the
@@ -128,8 +138,10 @@ Both modes run the **same engine** (below) and the **same core discipline**. The
    pipe proves only the absence of `foo`, and a 1.5 s run never type-checked a repo); "12/12 pass in
    file X" needs a run of file X (an aggregate "73 pass" over 7 files proves nothing per file); two
    batches that share a file do not add up to a total; a `sitesChecked` entry copied from the
-   mandate you were handed is not a site you checked. Write the command AND its observed output;
-   if you did not run it, write "not run". In the field (2026-09-13/14, one review round): a grep
+   mandate you were handed is not a site you checked. Write the command AND its observed output,
+   at the scope the command actually proved (a piped, grepped, or `head`-ed output grounds only
+   the narrowed claim); report the numbers the tool printed, per invocation, so totals stay
+   recomputable — never arithmetic on top of the output. If you did not run it, write "not run". In the field (2026-09-13/14, one review round): a grep
    declared "none found" that no tool call ever executed, a grep-filtered tsc reported as
    repo-wide, a per-file count inferred from an aggregate run, a double-counted test total, and a
    plist "confirmed read-only" that only the mandate had ever mentioned — five claims the trace
