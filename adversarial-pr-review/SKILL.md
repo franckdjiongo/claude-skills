@@ -122,6 +122,18 @@ Both modes run the **same engine** (below) and the **same core discipline**. The
    "always fits", "can't overflow"), reproduce that behavior or drop the claim. A bot WILL falsify it.
 6. **Report honestly.** If a pass found something you introduced, say so. If you can't verify a
    claim, say so. Never declare "compliant" you can't back.
+7. **Every verification claim must name a check you actually ran — and the check must be CAPABLE
+   of proving the claim.** Provenance, not just presence: "grep for X — none found" needs that grep
+   in the trace; "typecheck clean repo-wide" needs an UNFILTERED `tsc --noEmit` (a `| grep foo`
+   pipe proves only the absence of `foo`, and a 1.5 s run never type-checked a repo); "12/12 pass in
+   file X" needs a run of file X (an aggregate "73 pass" over 7 files proves nothing per file); two
+   batches that share a file do not add up to a total; a `sitesChecked` entry copied from the
+   mandate you were handed is not a site you checked. Write the command AND its observed output;
+   if you did not run it, write "not run". In the field (2026-09-13/14, one review round): a grep
+   declared "none found" that no tool call ever executed, a grep-filtered tsc reported as
+   repo-wide, a per-file count inferred from an aggregate run, a double-counted test total, and a
+   plist "confirmed read-only" that only the mandate had ever mentioned — five claims the trace
+   could not back, each caught one night later by the judge instead of by the orchestrator.
 
 ---
 
@@ -250,6 +262,11 @@ ONLY pure style (naming/formatting/taste/restated guards).`
 // table into its reasoning (never into `sweeps`) is invisible to the orchestrator and the next
 // round — see "Reading sweeps and residualRisk" below. `additionalProperties:false` stays: the
 // schema grows by adding required fields, not by loosening it.
+// The sweep `verdict` is a STRICT tri-state (field, 2026-09-13: "finding-filed" sweeps with no
+// finding behind them, and "not-examined" sweeps whose sitesChecked listed inspected sites, both
+// mis-routed the next round): `finding-filed` must point at a findings[] title via `findingRef`;
+// `not-examined` means NOTHING was inspected, so its sitesChecked is empty. The reconciliation
+// below turns any other combination into `inconsistentSweeps`.
 const FINDINGS = { type:'object', additionalProperties:false, required:['findings','sweeps','residualRisk'], properties:{
   findings:{ type:'array', items:{
     type:'object', additionalProperties:false,
@@ -257,13 +274,14 @@ const FINDINGS = { type:'object', additionalProperties:false, required:['finding
     properties:{ title:{type:'string'}, file:{type:'string'}, line:{type:'string'},
       class:{type:'string', enum:['correctness','convention','scalability','platform-limit','wiring','state-safety']},
       severity:{type:'string', enum:['P1','P2','P3']}, scenario:{type:'string'}, suggestedFix:{type:'string'} } } },
-  sweeps:{ type:'array', description:'One entry per class/pattern this dimension swept — the enumeration table, restituted, not left in reasoning.', items:{
+  sweeps:{ type:'array', description:'One entry per class/pattern this dimension swept — the enumeration table, restituted, not left in reasoning. Every target NAMED in the mandate (DIMENSION focus, NAMED TARGETS, residual items from the prior round) gets its own entry quoting that name verbatim in `target`.', items:{
     type:'object', additionalProperties:false,
     required:['target','sitesChecked','verdict'],
-    properties:{ target:{type:'string', description:'the class/pattern swept, e.g. "every route with the same validation"'},
-      sitesChecked:{type:'array', items:{type:'string'}, description:'file:line entries actually checked'},
-      verdict:{type:'string', enum:['clean','finding-filed','not-examined']} } } },
-  residualRisk:{type:'string', description:'Unconfirmed doubts and verifications that failed or could not be run. "none" is allowed if there truly are none.'} } } }
+    properties:{ target:{type:'string', description:'the class/pattern swept, e.g. "every route with the same validation" — a mandate-named target is quoted verbatim'},
+      sitesChecked:{type:'array', items:{type:'string'}, description:'file:line entries you actually opened or grepped IN THIS RUN — a tool call in your trace backs each one; never copied from the mandate or the CONTEXT'},
+      verdict:{type:'string', enum:['clean','finding-filed','not-examined'], description:'STRICT tri-state: clean = every listed site inspected, nothing to file; finding-filed = at least one findings[] entry exists for it (named in findingRef); not-examined = you did NOT inspect it, so sitesChecked MUST be empty — if you opened a site and drew a conclusion, the verdict is clean or finding-filed, never not-examined'},
+      findingRef:{type:'string', description:'REQUIRED when verdict is finding-filed: the exact `title` of the findings[] entry this sweep filed'} } } },
+  residualRisk:{type:'string', description:'Unconfirmed doubts and verifications that failed or could not be run — each as "command → observed output" or "not run". "none" is allowed if there truly are none.'} } }
 
 // mustFix replaces isReal: it is true for a correctness defect OR a convention/scalability/platform
 // deviation backed by a cited repo idiom or external limit. Pure style => mustFix:false.
@@ -274,13 +292,20 @@ const VERDICT = { type:'object', additionalProperties:false,
   properties:{ mustFix:{type:'boolean'},
     class:{type:'string', enum:['correctness','convention','scalability','platform-limit','wiring','state-safety','style']},
     repoIdiomViolated:{type:'string', description:'sibling file:line that does it right, or the external hard limit — REQUIRED to justify a non-correctness must-fix'},
-    checksPerformed:{type:'array', items:{type:'string'}, description:'the concrete commands/greps/tests you ran to verify or refute this finding, each with its outcome'},
+    checksPerformed:{type:'array', items:{type:'string'}, description:'the concrete commands/greps/tests you ran to verify or refute this finding, each as "command → observed output". The check must be CAPABLE of proving what you conclude from it: a piped/filtered command proves only what the filter can see, an aggregate run proves nothing per file, and a claim with no command behind it is written as "not run"'},
     confidence:{type:'string',enum:['high','medium','low']}, reasoning:{type:'string'} } }
 
 // Always include `scalability` + `platform-limits` for any backend / data / messaging diff, and
 // `tooling-effectiveness` + `wiring-and-contract` for any diff that ships/edits enforcement code
 // (hooks, lint/CI scripts, validators) or docs/agent-instructions — see the artifact-inventory step
 // above. Add domain dimensions; drop only the ones with zero surface in this diff.
+// Optional per dimension: `targets:[...]` — every consumer list, sibling file, symbol, or residual
+// item from the prior round that you want explicitly CLOSED by this dimension (e.g.
+// targets:['html-review-changed consumers','server/services/treeWatcher.ts','residual (b)']).
+// Each name is injected into the hunt prompt as a NAMED TARGET and checked 1:1 against `sweeps`
+// at the end of the round (`uncoveredTargets`). Field, 2026-09-11: three rounds in a row, targets
+// named in a dimension's focus came back with no sweep at all — not `not-examined`, just silence —
+// and the orchestrator read the empty `findings` as a clean pass.
 const DIMENSIONS = [
   { key:'correctness',     focus:'Logic bugs, off-by-one, null/undefined, error paths, edge cases — a triggerable wrong output.' },
   { key:'scalability',     focus:'Read-cost & scale. EVERY query reachable from changed code: bounded by an index range, or does it .collect()/scan an unbounded set? over-fetch (collect-all then discard)? N+1? Compare to the MOST-bounded sibling query in the repo and CITE it. Flag even if today\'s data is small — scale is the trigger.' },
@@ -295,21 +320,22 @@ const DIMENSIONS = [
 phase('Hunt')
 const results = await pipeline(
   DIMENSIONS,
-  (d) => agent(`${CONTEXT}\n\nDIMENSION: ${d.focus}\n\nIf a finding overlaps another dimension's territory, note the overlap in one line rather than re-developing it — a later step dedupes same-file/line reports, so a full write-up per dimension only multiplies verify cost for one defect.\n\nRESTITUTION (required, not optional): anything you investigate but do not write into \`sweeps\` or \`residualRisk\` counts as NOT DONE — a class-sweep or a doubt that stays inside your reasoning is invisible to the orchestrator and to the next round. Explicitly close every focal question this dimension raises: one \`sweeps\` entry per class/pattern you swept, listing every site you actually checked (\`sitesChecked\`) and its \`verdict\` — \`not-examined\` is a valid, honest answer when you ran out of budget, silence is not. If you notice a defect while reasoning through this dimension — even low severity, even adjacent to your named focus — file it in \`findings\` rather than dropping it because it felt minor.`, { label:`hunt:${d.key}`, phase:'Hunt', schema:FINDINGS, model:'sonnet', effort:'medium' }),
+  (d) => agent(`${CONTEXT}\n\nDIMENSION: ${d.focus}\n\nIf a finding overlaps another dimension's territory, note the overlap in one line rather than re-developing it — a later step dedupes same-file/line reports, so a full write-up per dimension only multiplies verify cost for one defect.\n\nRESTITUTION (required, not optional): anything you investigate but do not write into \`sweeps\` or \`residualRisk\` counts as NOT DONE — a class-sweep or a doubt that stays inside your reasoning is invisible to the orchestrator and to the next round. Explicitly close every focal question this dimension raises: one \`sweeps\` entry per class/pattern you swept, listing every site you actually checked (\`sitesChecked\`) and its \`verdict\` — \`not-examined\` is a valid, honest answer when you ran out of budget, silence is not. If you notice a defect while reasoning through this dimension — even low severity, even adjacent to your named focus — file it in \`findings\` rather than dropping it because it felt minor.\n\nCOVERAGE 1:1: every target named in this DIMENSION (a consumer list, a sibling file, a symbol, a residual item) needs its own \`sweeps\` entry quoting the name verbatim in \`target\` — clean, finding-filed, or not-examined. Before you emit, re-read the DIMENSION text and tick each named target against your sweeps; a named target with no entry is a restitution defect, not an omission.\n\nTRI-STATE, strictly: \`not-examined\` means you did NOT inspect it — its \`sitesChecked\` is empty. If you opened a site and drew a conclusion, the verdict is \`clean\` or \`finding-filed\`, never \`not-examined\`. \`finding-filed\` requires a real \`findings\` entry, named in \`findingRef\` — a defect that lives only in \`residualRisk\` prose is invisible to the dedupe and fix steps. A defect you noticed yourself (even adjacent) is filed, not parked as not-examined.\n\nPROVENANCE: every \`sitesChecked\` entry is a site YOU opened or grepped in this run — a tool call in your trace backs it; a path you only read in this prompt is not a checked site. Every claim in \`residualRisk\` names the command you ran and its observed output, and that command must be CAPABLE of proving the claim (a filtered/piped command proves only what the filter can see; an aggregate test run proves nothing per file; overlapping batches do not add up). If you did not run it, write "not run".${d.targets?.length ? `\n\nNAMED TARGETS (each needs its own \`sweeps\` entry quoting the name verbatim — clean, finding-filed, or not-examined; silence is a restitution defect): ${d.targets.join(' · ')}` : ''}`, { label:`hunt:${d.key}`, phase:'Hunt', schema:FINDINGS, model:'sonnet', effort:'medium' }),
   (review) => parallel((review?.findings ?? []).map((f) => () =>
     agent(`${CONTEXT}\n\nADVERSARIALLY VERIFY this finding. First verify its FACTS against the real code, then set mustFix:
 - TRUE if some input makes it wrong/crash/lose data (correctness), OR it deviates from a repo idiom you can CITE in repoIdiomViolated / violates an external hard limit / is an unbounded read|scan|N+1|over-fetch — even if today's data makes it work.
 - FALSE only if it is pure STYLE, or its facts don't hold.
-Do NOT set mustFix=false merely because the output is correct today or "not triggerable" — that is the trap that lets review bots catch you.\n\nRESTITUTION (required, not optional): any command/grep/test you run to verify or refute this finding that you do not list in \`checksPerformed\` counts as NOT DONE — a check that only happened in your reasoning is unopposable by the orchestrator. Close the focal question this finding raises explicitly, with the outcome of each check. If, while verifying, you notice a DIFFERENT defect than the one you were sent to check, file it too rather than silently letting it go because it's out of scope for this verdict.\n\n${JSON.stringify(f,null,2)}`,
+Do NOT set mustFix=false merely because the output is correct today or "not triggerable" — that is the trap that lets review bots catch you.\n\nRESTITUTION (required, not optional): any command/grep/test you run to verify or refute this finding that you do not list in \`checksPerformed\` counts as NOT DONE — a check that only happened in your reasoning is unopposable by the orchestrator. Close the focal question this finding raises explicitly, with the outcome of each check. If, while verifying, you notice a DIFFERENT defect than the one you were sent to check, file it too rather than silently letting it go because it's out of scope for this verdict.\n\nPROVENANCE: each \`checksPerformed\` entry is "command → observed output", and the command must be CAPABLE of proving what you conclude from it — "typecheck clean" needs an unfiltered tsc run (a \`| grep\` pipe proves only the absence of the grepped pattern), a per-file test count needs a run of that file, and a total across batches is only valid if the batches do not overlap. A conclusion with no command behind it is written as "not run", never as verified.\n\n${JSON.stringify(f,null,2)}`,
       { label:`verify:${f.file}:${f.line}`, phase:'Verify', schema:VERDICT, model:'opus', effort:'high' })
       .then((v) => ({ finding:f, verdict:v }))))
     // Carry the hunt-level restitution (sweeps, residualRisk) alongside this dimension's verified
     // findings — if it only lived on `review` inside this closure it would never reach the
     // orchestrator's return value below, which is exactly the "trapped in reasoning" failure mode
     // this schema change exists to close.
-    .then((verified) => ({ verified, sweeps: review?.sweeps ?? [], residualRisk: review?.residualRisk ?? 'none' }))
+    .then((verified) => ({ verified, sweeps: review?.sweeps ?? [], residualRisk: review?.residualRisk ?? 'none',
+      huntFindings: review?.findings ?? [] }))
 )
-// results: one entry per dimension — { verified: [{finding,verdict}], sweeps, residualRisk }.
+// results: one entry per dimension — { verified: [{finding,verdict}], sweeps, residualRisk, huntFindings }.
 
 // Different dimensions independently rediscover the SAME bug constantly (e.g. 7 dimensions all
 // flagging the same dead TOC anchor). Merge same-file/overlapping-line findings BEFORE you act on
@@ -338,10 +364,34 @@ const sweeps = results.flatMap((r) => r.sweeps ?? [])
 const notExaminedSweeps = sweeps.filter((s) => s.verdict === 'not-examined')
 const residualRisks = results.map((r) => r.residualRisk).filter((r) => r && r !== 'none')
 
+// Tri-state reconciliation (field, 2026-09-13): a `finding-filed` sweep with no findings[] entry
+// behind it is a GHOST filing — the defect exists only in prose, invisible to dedupe and to the fix
+// step; a `not-examined` sweep whose sitesChecked lists inspected sites is a dodged verdict. Both
+// are unresolved, not clean — surfaced separately so you re-ask that dimension or examine it
+// yourself before declaring convergence.
+const inconsistentSweeps = results.flatMap((r) => {
+  const titles = (r.huntFindings ?? []).map((f) => f.title)
+  return (r.sweeps ?? []).flatMap((s) => {
+    if (s.verdict === 'finding-filed' && !(s.findingRef && titles.includes(s.findingRef)))
+      return [{ ...s, problem: 'finding-filed with no matching findings[] title (ghost filing)' }]
+    if (s.verdict === 'not-examined' && (s.sitesChecked ?? []).length > 0)
+      return [{ ...s, problem: 'not-examined but sites were inspected — must be clean or finding-filed' }]
+    return []
+  })
+})
+
+// Mandate coverage 1:1 (field, 2026-09-11): targets the orchestrator NAMED in a dimension came back
+// with no sweeps entry at all — neither clean nor not-examined, just silence — and the empty
+// `findings` read as a clean pass. Any dimension may cover a name; what matters is that SOME sweep
+// quoted it. An uncovered target is an open focal question, exactly like `not-examined`.
+const namedTargets = DIMENSIONS.flatMap((d) => d.targets ?? [])
+const uncoveredTargets = namedTargets.filter((t) => !sweeps.some((s) =>
+  `${s.target} ${(s.sitesChecked ?? []).join(' ')}`.toLowerCase().includes(t.toLowerCase())))
+
 return {
   verdict: confirmed.length ? 'FINDINGS' : 'PASS',
   confirmed: confirmed.map((r) => ({ ...r.finding, verdict:r.verdict, duplicateCount:r.duplicateCount })),
-  sweeps, notExaminedSweeps, residualRisks,
+  sweeps, notExaminedSweeps, inconsistentSweeps, uncoveredTargets, residualRisks,
 }
 ```
 
@@ -352,13 +402,25 @@ enumeration table), then re-run the workflow on the **whole** new diff. Proceed 
 convergence criterion (see "Scaling & cost") is met.
 
 **Reading `sweeps` and `residualRisk` is part of reading the results, not optional extra credit.**
-The workflow's return carries `sweeps`, `notExaminedSweeps`, and `residualRisks` alongside
-`verdict`/`confirmed` (manual fallback: the same fields, gathered by hand from each agent's report —
-see below) — read them the same way you read `findings`, every round:
+The workflow's return carries `sweeps`, `notExaminedSweeps`, `inconsistentSweeps`,
+`uncoveredTargets`, and `residualRisks` alongside `verdict`/`confirmed` (manual fallback: the same
+fields, gathered by hand from each agent's report — see below) — read them the same way you read
+`findings`, every round:
 - Anything in `notExaminedSweeps` is an open focal question, not a clean pass — fold it into the next
   round's scope (assign it to a dimension, or examine it yourself before declaring convergence).
   Never silently treat `not-examined` as `clean`, and never declare `PASS`/convergence while
   `notExaminedSweeps` is non-empty.
+- Anything in `uncoveredTargets` is a target you NAMED that no sweep quoted — silence, which is
+  worse than `not-examined` because nothing flags it. Treat it exactly like `notExaminedSweeps`.
+  Before the round, name the targets you care about in `targets` (consumer lists, sibling files,
+  residual items from the prior round) so the reconciliation can catch the silence for you; after
+  the round, if you named nothing, do the tick-list by hand: every symbol/file/class the dimension
+  focus mentions gets a line in some sweep, or it goes into the next round.
+- Anything in `inconsistentSweeps` is a sweep whose verdict contradicts its own content: a
+  `finding-filed` with no `findings[]` entry behind it (the defect only exists in prose — it never
+  reaches dedupe or the fix step) or a `not-examined` whose `sitesChecked` shows the agent DID look.
+  Re-ask that dimension for a real verdict (file the finding, or decide clean), or examine the
+  sites yourself. Never count a ghost filing as "found and handled".
 - Anything in `residualRisks` is a doubt an agent could not resolve — carry it forward into the next
   round's `CONTEXT`, or into the honest residual-risk report at convergence (see "Scaling & cost").
   Do not let it fall out of the loop just because the round it surfaced in returned `PASS` on
@@ -366,6 +428,12 @@ see below) — read them the same way you read `findings`, every round:
 - Same discipline for `checksPerformed` on each VERDICT: if a must-fix verdict's `checksPerformed` is
   thin or missing relative to what the reasoning claims, that verdict is under-restituted — treat it
   as unresolved, not as a pass.
+- **Claims vs checks (discipline #7):** for every verification claim in `residualRisk` or
+  `checksPerformed`, ask "which command, and could THAT command prove THIS?". A "repo-wide clean"
+  backed by a `| grep` pipe, a per-file "N/N pass" backed by an aggregate run, a "none found" with
+  no grep named, a total that re-adds an overlapping batch, a `sitesChecked` path that only the
+  mandate ever mentioned — downgrade each to unverified and carry it into the next round's
+  `CONTEXT`. The judge caught five of these in one night; the orchestrator should have.
 
 **Model policy (Franck's decision, 2026-09-09, after a blind replay of 12 Opus reviews in
 Sonnet on the same diffs — recall 5/8 of Opus's P1s, 4 new P1s with executed proofs, 0 Opus false
@@ -393,7 +461,10 @@ verify agent's report must still require `checksPerformed` (the concrete checks 
 outcome) alongside `mustFix`/`class`/`reasoning`. When you (the orchestrator) read a hand-launched
 agent's final message back, hold it to the same bar as a Workflow schema result: no `sweeps` table,
 no `residualRisk` line, no `checksPerformed` list in the report means that work is NOT DONE, even if
-the agent's prose claims it happened.
+the agent's prose claims it happened. The same three reconciliations apply by hand: every target
+you named in the prompt has a sweep line (or it is `not-examined` for the next round); every
+`finding-filed` line points at a finding actually listed and every `not-examined` line has an
+empty site list; every claim names a command capable of proving it.
 
 ### Parallel fixers on a shared tree
 
@@ -531,3 +602,20 @@ tokens. Pick the rule by changed-line count:
   it stays trapped in the agent's reasoning and unopposable by the orchestrator. → ✅ Anything not
   written into those fields is treated as NOT DONE; every focal question gets explicitly closed, and
   a defect noticed mid-reasoning gets filed as a finding — even low severity — instead of dropped.
+- ❌ **A named target answered by silence** — the dimension focus names "html-review-changed
+  consumers" or a sibling file to read, and the report has no sweep for it: not `clean`, not
+  `not-examined`, nothing — and the orchestrator reads the empty `findings` as a pass (field,
+  2026-09-11, three rounds). → ✅ Coverage 1:1: every named target gets its own sweep line quoting
+  the name; the orchestrator names them in `targets` and reads `uncoveredTargets` like
+  `notExaminedSweeps`.
+- ❌ **Blurred tri-state** — a `finding-filed` sweep with no finding behind it (a ghost that dedupe
+  and fix never see), or a `not-examined` whose `sitesChecked` shows the agent looked and concluded,
+  or a self-spotted adjacent defect parked as `not-examined` (field, 2026-09-13, four sessions).
+  → ✅ `finding-filed` names its finding in `findingRef`; `not-examined` has an empty site list; a
+  site you opened gets a real verdict; `inconsistentSweeps` is unresolved, never clean.
+- ❌ **Claims that outrun their checks** — "grep — none found" with no grep in the trace, "tsc clean
+  repo-wide" from a grep-filtered pipe, "12/12 pass" per file inferred from an aggregate run, a
+  test total that double-counts an overlapping batch, a `sitesChecked` path copied from the mandate
+  (field, 2026-09-13/14, five claims in one round). → ✅ Discipline #7: every claim names the
+  command you ran and its observed output, and that command must be CAPABLE of proving the claim;
+  otherwise it is written as "not run" and carried forward as unverified.
