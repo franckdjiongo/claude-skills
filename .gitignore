@@ -34,3 +34,5 @@ npm-debug.log*
 
 # Build output
 *.skill
+# Git worktrees (per-chantier)
+.worktrees/

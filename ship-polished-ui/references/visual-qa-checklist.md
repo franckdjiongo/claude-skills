@@ -190,6 +190,15 @@ For each surface at each viewport, check:
 
 A frequent root cause for the overflow bug: a CSS grid given columns only at a breakpoint (`lg:grid-cols-2` with no base `grid-cols-1`) falls back, below that breakpoint, to an implicit `auto` track. An `auto` track sizes to its content's *max-content* — an image injects its full intrinsic width and blows the layout past the viewport. The fix is an explicit base column that is allowed to shrink: `grid-cols-1` (i.e. `minmax(0, 1fr)`).
 
+### How to actually get exact 320/360/375 widths
+
+A real Chrome window driven by `mcp__claude-in-chrome__*` **cannot be resized below ≈500px** — it's an OS window, not an emulator, and dragging it narrower is not an option. Two reliable methods, pick per situation:
+
+- **Unauthenticated page / dev server / deployed URL** — use the in-app preview browser instead: `mcp__Claude_Browser__resize_window` with `preset: "mobile"` (375×812) or a `width`/`height` pair for 320/360. It emulates the viewport properly (media queries, touch points, the works) and needs no dev-server restart.
+- **Authenticated / host-shell / SSO session that must stay in the real Chrome window** — resizing the window is not an option, so fake the viewport instead: open (or reuse) a **same-origin** blank tab, then use `javascript_tool` to inject an `<iframe>` pointed at the app's own origin (e.g. `src="/current/path"`) with `style="width:320px;height:<tall>px;border:0"`. Because the iframe shares the app's origin — unlike the cross-origin host-shell case in `iframe-and-host-shells.md` — `iframe.contentDocument` and `@media` queries both resolve against the iframe's own box, so it behaves exactly like a narrow real device: fully inspectable DOM, real breakpoint evaluation, real `scrollWidth` checks. This is the practical workaround, not a compromise — it's how the 320/360/375 classes actually got measured when the window floor made direct resize impossible.
+
+Record which method you used in the ledger's evidence column (e.g. `shot_a1 (Claude_Browser resize)` vs `shot_b2 (same-origin iframe 320)`) — a reviewer needs to know the width was real, not eyeballed from a wider render.
+
 ---
 
 ## ★ Section 9 — Stress-test data edge cases
@@ -306,6 +315,25 @@ Before **any client delivery**, run a WebKit pass on the **key surfaces** — be
   2. **Safari via computer-use** if Playwright's WebKit is unavailable.
   3. Else **`not-evidenced`** consigned in the ledger — never a declarative "works in Safari."
 - Record a transverse row per key surface checked (`hero · WebKit · PASS · shot_…` or `not-evidenced`).
+
+**For unauthenticated pages (dev server, deployed URL, static gallery/showcase export — no SSO, no logged-in session), the reliable setup observed in practice is `playwright-core` (not the full `playwright` package — lighter install, same API) driving a **cached** Chromium and WebKit binary:**
+
+```bash
+# one-time per machine — installs to the shared Playwright cache, not the project
+npx playwright install chromium webkit
+```
+
+```js
+// a short script beats the CLI one-liner once you need interaction states
+import { chromium, webkit } from "playwright-core";
+const browser = await webkit.launch(); // or chromium.launch()
+const page = await browser.newPage({ viewport: { width: 375, height: 812 } });
+await page.goto(url);
+await page.screenshot({ path: "shot.png" });
+await browser.close();
+```
+
+Both engines resolve to the machine's cached install (no re-download per run), so this is cheap to repeat across every surface in a gallery sweep. Use it whenever the page needs no authenticated session — it's faster and more scriptable than driving a real browser window through the Chrome extension for pages that don't need the user's own session, and it's the only path to a real WebKit render (`claude-in-chrome` and `Claude_Browser` are both Chromium-based). Reserve `claude-in-chrome` for pages that need the user's actual logged-in session or host-shell context.
 
 ### Post the ledger under the exact `VERIFICATION LEDGER` marker
 

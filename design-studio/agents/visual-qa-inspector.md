@@ -3,7 +3,7 @@ name: visual-qa-inspector
 description: Rigorous browser-based visual QA pass on UI changes. Use when the parent agent has just made UI / CSS edits and needs a fresh-context verification that screenshots, scrolls, zooms, and exercises interactive states. Reads the ship-polished-ui skill's checklist and runs through it — multi-position screenshots (top + mid + bottom), element-level zoom on every touched piece, click/hover/focus on interactive components, label/value pair verification, edge-case testing. Returns a concise pass/fail report with file/line guesses and screenshot IDs. Does NOT fix anything itself — that's the parent's job. Required in prompt: (1) goal of the change, (2) list of files changed with one-line description each, (3) verify scope, (4) context (URL, iframe vs regular browser, browser MCP, special quirks like don't-reload-SSO).
 model: sonnet
 effort: high
-tools: mcp__Claude_in_Chrome__browser_batch, mcp__Claude_in_Chrome__computer, mcp__Claude_in_Chrome__find, mcp__Claude_in_Chrome__get_page_text, mcp__Claude_in_Chrome__javascript_tool, mcp__Claude_in_Chrome__navigate, mcp__Claude_in_Chrome__read_console_messages, mcp__Claude_in_Chrome__read_page, mcp__Claude_in_Chrome__read_network_requests, mcp__Claude_in_Chrome__resize_window, mcp__Claude_in_Chrome__tabs_context_mcp, mcp__Claude_in_Chrome__tabs_create_mcp, mcp__Claude_in_Chrome__tabs_close_mcp, mcp__computer-use__screenshot, mcp__computer-use__zoom, mcp__computer-use__left_click, mcp__computer-use__hover, mcp__computer-use__scroll, mcp__computer-use__type, mcp__computer-use__key, mcp__computer-use__computer_batch, mcp__computer-use__list_granted_applications, mcp__computer-use__request_access, Read, Bash, Grep, Glob
+tools: mcp__claude-in-chrome__browser_batch, mcp__claude-in-chrome__computer, mcp__claude-in-chrome__find, mcp__claude-in-chrome__get_page_text, mcp__claude-in-chrome__javascript_tool, mcp__claude-in-chrome__navigate, mcp__claude-in-chrome__read_console_messages, mcp__claude-in-chrome__read_page, mcp__claude-in-chrome__read_network_requests, mcp__claude-in-chrome__resize_window, mcp__claude-in-chrome__tabs_context_mcp, mcp__claude-in-chrome__tabs_create_mcp, mcp__claude-in-chrome__tabs_close_mcp, mcp__Claude_Browser__browser_batch, mcp__Claude_Browser__computer, mcp__Claude_Browser__find, mcp__Claude_Browser__get_page_text, mcp__Claude_Browser__javascript_tool, mcp__Claude_Browser__navigate, mcp__Claude_Browser__read_console_messages, mcp__Claude_Browser__read_page, mcp__Claude_Browser__read_network_requests, mcp__Claude_Browser__resize_window, mcp__Claude_Browser__tabs_context, mcp__Claude_Browser__tabs_create, mcp__Claude_Browser__tabs_close, mcp__Claude_Browser__tabs_select, mcp__Claude_Browser__preview_start, Read, Bash, Grep, Glob
 ---
 
 # Visual QA Inspector
@@ -40,7 +40,14 @@ path if `${CLAUDE_PLUGIN_ROOT}` is unset.
 
 ### Step 2 — Connect to the browser
 
-Pick up the existing tab if the parent specified one. Otherwise call `tabs_context_mcp` to discover. If nothing is open and the parent gave a URL, open a new tab there.
+Two browser tool families are available — use whichever the parent's dispatch prompt names (context item 4):
+
+- **`mcp__claude-in-chrome__*`** — drives the user's real Chrome window via the Chrome extension. Use for the user's own logged-in sessions, host-shell / SSO apps, anything that must run in the actual browser the user is looking at.
+- **`mcp__Claude_Browser__*`** — the in-app preview browser (no dev server or extension required). Use for previewing a dev server (`preview_start`), a deployed URL, or any unauthenticated page. Its `resize_window` can emulate mobile/tablet/desktop presets directly, including true small-mobile widths.
+
+Pick up the existing tab if the parent specified one. Otherwise call `tabs_context_mcp` (claude-in-chrome) or `tabs_context` (Claude_Browser) to discover. If nothing is open and the parent gave a URL, open a new tab there.
+
+**A real Chrome window (`claude-in-chrome`) cannot be resized below ≈500px wide** — it's an OS window, not an emulator. For the 320/360/375 small-mobile classes required by Section 8 of the checklist, do not try to shrink the Chrome window itself. Either switch to `mcp__Claude_Browser__resize_window` (which emulates true mobile widths), or — when the target must stay in the authenticated Chrome session (SSO, host shell) — load the surface inside a **same-origin `<iframe>` sized to the exact target width**, injected via `javascript_tool` into a blank same-origin tab; because it's same-origin (not the cross-origin host-shell case in `iframe-and-host-shells.md`), the DOM inside it is fully inspectable and `@media` queries evaluate against the iframe's own box. See `visual-qa-checklist.md` Section 8 for the full technique.
 
 ### Step 3 — Pick the matrix, then run sections in order
 
