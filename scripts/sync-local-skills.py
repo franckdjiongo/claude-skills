@@ -108,7 +108,10 @@ def has_skill_md(path):
 # workstation repo is their single source of truth, this marketplace never
 # mirrors them. Decision: Franck, hub workstation/2026-08-04-rapport-skill-
 # workstation-unifie (option « Réactiver avec exclusion »).
-REPO_PORTED_SKILLS = {"workstation", "lexicon-capture", "workstation-friction-capture"}
+# me and ask-questions live in franckdjiongo/me-ask-questions-skills and reach
+# ~/.claude/skills as symlinks (decision Franck, 2026-09-22); never mirror them here.
+REPO_PORTED_SKILLS = {"workstation", "lexicon-capture", "workstation-friction-capture",
+                      "me", "ask-questions"}
 
 
 def list_skill_dirs(root):
