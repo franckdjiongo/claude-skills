@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "jobId": "job-1790224742596-be31aa",
+  "skill": "adversarial-pr-review",
+  "digest": {
+    "tier": "small",
+    "fanOutAgents": 4,
+    "dedupApplied": true,
+    "sentinelAfterCommit": true,
+    "tokensUsed": 82938,
+    "botFindingsAfterPreflight": 1,
+    "botFindingsSource": "gh_api"
+  },
+  "band": {
+    "min": 5,
+    "max": 7,
+    "reasons": [
+      "gh: 1 review/commentaire(s) trouvés après preflight"
+    ]
+  }
+}
