@@ -1,0 +1,54 @@
+{
+  "roles": {
+    "reviewer": { "provider": "anthropic", "model": "claude-fable-5" },
+    "evolver": { "provider": "anthropic", "model": "claude-opus-4-8" },
+    "localJudge": { "provider": "anthropic", "model": "claude-opus-5", "effort": "high" }
+  },
+  "reviewSince": "2026-07-22",
+  "minTier": "medium",
+  "quiescenceHours": 3,
+  "caps": {
+    "sessionsPerNight": 8,
+    "maxTranscriptBytes": 6000000,
+    "maxCargoBytes": 50000000
+  },
+  "schedulingPolicy": {
+    "freshRatio": 0.8,
+    "staleRatio": 0.2,
+    "maxAgeDays": 30
+  },
+  "projectPolicy": {
+    "mode": "allowlist",
+    "projects": [
+      "workstation",
+      "claude-skills",
+      "second-brain",
+      "personal-budget-app",
+      "meta-govern",
+      "htmlshare",
+      "env-variable-manager",
+      "cobacam-communicator",
+      "cobacam-management",
+      "power-platform-ai-toolkit",
+      "brillance-d-cor-inc",
+      "automintech",
+      "eosa",
+      "home-spectors"
+    ]
+  },
+  "cargoSkills": ["session-review", "adversarial-pr-review"],
+  "localJudge": {
+    "enabled": true,
+    "maxPerNight": 2,
+    "timeoutMinutes": 15,
+    "maxBudgetUsd": 2.5,
+    "maxAttempts": 3,
+    "maxConsecutiveFailures": 2
+  },
+  "retention": {
+    "captured": {
+      "enabled": true,
+      "retentionDays": 30
+    }
+  }
+}
