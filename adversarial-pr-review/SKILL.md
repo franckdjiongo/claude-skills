@@ -169,6 +169,14 @@ Run this the moment a PR is imminent. Steps:
 7. **Commit** the reviewed state (if not already committed).
 8. **Record the sentinel** so the hook lets the PR through (see "Sentinel").
 9. **Now create the PR.**
+10. **Read the bot's first pass before any merge.** Once the PR is open and before it is merged
+    (by you, by `ship-pr`, or handed to the user as "ready"), collect every comment and review —
+    `gh pr view <n> --json comments,reviews` and `gh api repos/<owner>/<repo>/pulls/<n>/comments` —
+    and read the **author and body** of each one on THIS PR. A deployment/preview bot (e.g.
+    `vercel[bot]`) is not a review, but you only know that once you have read it; never infer it from
+    another PR's comment. Anything that is a review finding goes to Mode B. Merging over an unread
+    comment is the recorded failure (field, 2026-09-25 and 2026-09-26: two consecutive graded jobs
+    merged with the post-preflight comment never read — `ship-pr` checked only mergeable + checks).
 
 > The PR body should briefly note what the adversarial review covered and that the gate is green —
 > it signals to human + bot reviewers that the change was self-audited.
@@ -477,6 +485,16 @@ the agent's prose claims it happened. The same three reconciliations apply by ha
 you named in the prompt has a sweep line (or it is `not-examined` for the next round); every
 `finding-filed` line points at a finding actually listed and every `not-examined` line has an
 empty site list; every claim names a command capable of proving it.
+
+**The fallback drops the Workflow tool, never a phase.** Whatever the tier, the fallback still runs
+(a) at least one verifier `Agent` per finding — the orchestrator re-reading the finding and agreeing
+with it ("valid finding, I'd seen it myself") is not a verify step — and (b) the second round on the
+fix diff as an `Agent` fan-out, not as the orchestrator's own re-read. If you verify something
+yourself anyway, it counts only when you emit its `checksPerformed` list ("command → observed
+output") in the visible thread; verification that lives in your reasoning is NOT DONE. Field,
+2026-09-25 and 2026-09-26: both graded jobs ran the fallback, replaced every verifier with
+self-verification and ran round 2 alone ("self-verification … sufficient for this tier") — the
+same shortcut the model-policy paragraph above records as missing boundary defects.
 
 ### Parallel fixers on a shared tree
 
