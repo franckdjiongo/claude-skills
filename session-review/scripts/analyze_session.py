@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# ANALYZER_VERSION = "v1.37 — (a) additive: new signature `hook_blocked` in _classify_tool_error (failure_patterns.tool_error_kinds), tested LAST right before the `other` fallback so every previously-classified error keeps its exact prior kind: a tool call refused by a PreToolUse/PostToolUse hook (`PreToolUse:Bash hook error: [...]: Blocked by ...`). Observed 2026-09-25 (banc d'essai cloud, workstation): 4 hook refusals across 3 of 5 exported transcripts (workstation-skill-gate ×3 in f202de62/56caa879/68fbee07, adversarial-pr-guard ×1 in 56caa879) all landed in `other`, mixed with shell exits — a governance signal the rapport had to hand-requalify. (b) correctness fix in detect_commit_attempts (failure_patterns.commit_attempts): `rejected` now requires POSITIVE rejection evidence (hook_fail signature or an is_error result mentioning commit — unchanged); a commit attempt whose result carries neither landed evidence nor rejection evidence is counted in the new key `unconfirmed` instead of `rejected` (attempts == succeeded + rejected + unconfirmed). Also, the v1.35 git-log-oneline landed signal now extracts the subject of a heredoc message (`git commit [-q] -F - <<'EOF'` → first non-empty line of the heredoc body), not only `-m \"...\"`. Observed 2026-09-24/25 across 3 transcripts (rule of recurrence): f202de62 reported rejected:2 for two real landed commits (d95150a via a chained command, e86fb4e via `-F - <<'EOF'` + `git log --oneline`); agent-a7db8e6f reported rejected:2 for `git commit -q` inside throwaway-repo simulations under set -e with no rejection signal; agent-a9485e05 (2026-09-24) same throwaway-repo pattern. A genuine hook rejection (husky/pre-commit/lint-staged/quality gate/is_error) is still counted rejected exactly as before. Schema: one new key (`unconfirmed`), every other key UNCHANGED. Markdown: the existing ⚠️ commit_attempts line (still gated on rejected > 0) now also states succeeded/unconfirmed so `N rejected of M attempts` no longer implies the rest landed. 2026-09-25"
+# ANALYZER_VERSION = "v1.38 — (a) additive: agent_message classifier category in classify_user_turns + widened harness_injected flag. When a background subagent or a sibling session hands back, the harness injects a user-role turn beginning 'Another Claude session sent a message:' followed by an <agent-message from=...> frame (subagent hand-back / inter-session message). It is NOT user input, but it matched neither the v1.9 harness_injected signature nor any specific branch, so its length after tool work (or its position after a zero-tool span) mislabeled it initial_request / new_request_mid_work / likely_intervention. Observed 2026-09-26 (banc d'essai cloud, workstation): 03390afc (8 hand-backs, 4 read as initial_request) and b5813354 (6 hand-backs, 4 initial_request) — a false 'user request' signal hand-requalified by both reviewers; ffabf5f1 carries one inter-session message counted nowhere. The flag now also covers these frames (harness_injected_turns widens — a missed-signal widening), and the new category `agent_message` is tested right before `task_notification` so a hand-back is named for what it is; every other turn keeps its exact prior classification. (b) correctness fix in agent_dispatch_pattern (v1.2): Claude Code persists ONE API assistant message as SEVERAL JSONL lines (one per content block) sharing the same message.id, so counting Agent calls per JSONL line reported every parallel dispatch as N solo messages. Counts are now aggregated per message.id (a line without message.id stays its own message, exactly as before). Observed 2026-09-26 on all 4 main transcripts of the night: 03390afc true max 4 (reported 1, parallel_messages 0), b5813354 true 7 (reported 1), ffabf5f1 true 4 with 5 parallel messages (reported 1 / 0), 200cb50b true 2 ×2 (reported 1 / 0) — the markdown then raised a false parallel-dispatch-failure hint. Keys and schema UNCHANGED; values now match the per-message semantics the v1.2 docstring always promised. (c) additive: session.agent_id — a subagent transcript (isSidechain=true) carries its PARENT's sessionId, so session.id was identical for every hunter of one review (observed 2026-09-26: agent-a5b2c4b7/agent-a570c180 both reported 12c1e9cc…, agent-a2887976/agent-a3fd477b both reported f9f3ad72…; both reviewers flagged the reports as indistinguishable). The first agentId seen on a sidechain event is now exposed; null for a main session; session.id UNCHANGED. 2026-09-26"
+# ANALYZER_VERSION_PREVIOUS_V1_37 = "v1.37 — (a) additive: new signature `hook_blocked` in _classify_tool_error (failure_patterns.tool_error_kinds), tested LAST right before the `other` fallback so every previously-classified error keeps its exact prior kind: a tool call refused by a PreToolUse/PostToolUse hook (`PreToolUse:Bash hook error: [...]: Blocked by ...`). Observed 2026-09-25 (banc d'essai cloud, workstation): 4 hook refusals across 3 of 5 exported transcripts (workstation-skill-gate ×3 in f202de62/56caa879/68fbee07, adversarial-pr-guard ×1 in 56caa879) all landed in `other`, mixed with shell exits — a governance signal the rapport had to hand-requalify. (b) correctness fix in detect_commit_attempts (failure_patterns.commit_attempts): `rejected` now requires POSITIVE rejection evidence (hook_fail signature or an is_error result mentioning commit — unchanged); a commit attempt whose result carries neither landed evidence nor rejection evidence is counted in the new key `unconfirmed` instead of `rejected` (attempts == succeeded + rejected + unconfirmed). Also, the v1.35 git-log-oneline landed signal now extracts the subject of a heredoc message (`git commit [-q] -F - <<'EOF'` → first non-empty line of the heredoc body), not only `-m \"...\"`. Observed 2026-09-24/25 across 3 transcripts (rule of recurrence): f202de62 reported rejected:2 for two real landed commits (d95150a via a chained command, e86fb4e via `-F - <<'EOF'` + `git log --oneline`); agent-a7db8e6f reported rejected:2 for `git commit -q` inside throwaway-repo simulations under set -e with no rejection signal; agent-a9485e05 (2026-09-24) same throwaway-repo pattern. A genuine hook rejection (husky/pre-commit/lint-staged/quality gate/is_error) is still counted rejected exactly as before. Schema: one new key (`unconfirmed`), every other key UNCHANGED. Markdown: the existing ⚠️ commit_attempts line (still gated on rejected > 0) now also states succeeded/unconfirmed so `N rejected of M attempts` no longer implies the rest landed. 2026-09-25"
 # ANALYZER_VERSION_PREVIOUS_V1_36 = "v1.36 — additive: two new signatures in _classify_tool_error (failure_patterns.tool_error_kinds), both tested right BEFORE the final `other` fallback so every previously-classified error keeps its exact prior kind: (a) read_token_limit — a Read tool_result rejected with `exceeds maximum allowed tokens` (the 30k-token cap on a large file). (b) tool_input_schema — a tool call rejected by the harness for a malformed or schema-violating input: `Output does not match required schema` (StructuredOutput missing a required property), `could not be parsed as JSON`, or an `InputValidationError`. Observed 2026-09-22 (banc d'essai cloud, brief-preflight lens wave of 2026-09-08 on plan provenance-session): 5 of 6 exported transcripts carried is_error results and ALL 6 errors landed in `other` — 2× Read >30k tokens (agent-a4017ba2 L23, agent-a510e2b0 L22), 2× StructuredOutput missing `mustHave` (agent-aafd1241 L92, agent-a01c9363 L176), 1× StructuredOutput unparsable JSON (agent-a510e2b0 L109) — so the breakdown discriminated nothing; the same Read >30k signature had been hand-counted in every rapport of the 2026-09-19/20/21 nights (×6 on 2026-09-21). Markdown render unchanged: tool_error_kinds is already rendered dynamically as sub-bullets (v1.12), so the new kinds appear automatically. tool_errors count, every existing kind, and every other key UNCHANGED. Purely additive. 2026-09-22"
 # ANALYZER_VERSION_PREVIOUS_V1_35 = "v1.35 — additive: (a) task_notification classifier category in classify_user_turns, tested right after skill_content_injection (before the length heuristics): turns carrying harness_injected=True (v1.9 — <task-notification>, [SYSTEM NOTIFICATION...]) that survive every earlier specific harness branch (stop_hook_feedback, command_invocation, local_command_echo, skill_content_injection) previously fell into likely_intervention/new_request_mid_work by length alone. Observed 2026-09-09: session 92e26910-d924-4e04-ba5c-c6ff311a7f05 (9 harness-injected turns — 4 likely_intervention + 4 new_request_mid_work + 1 other — all task-notifications from a 100%-autonomous run) and a24de35c-43c6-4808-a126-69a5ef30db00 (3 turns, same pattern): a false 'user intervention' signal hand-requalified in every rapport. harness_injected_turns and the 🤖harness-injected marker UNCHANGED; the new category surfaces automatically in turns.user_turns_by_category (JSON) and the 'User turns by category' markdown table via the existing dynamic Counter/dict-iteration render — same mechanism as v1.25/v1.26/v1.30, no render code added. (b) failure_patterns.commit_attempts (detect_commit_attempts, v1.34) no longer misclassifies a SUCCESSFUL `git commit -q ... && git log --oneline -1` chain as rejected: `-q` suppresses the `[branch sha]` summary line landed_re relied on, and the chained `git log --oneline -1` output ('<sha> <subject>') matched neither landed_re nor the 'file(s) changed' fallback, so landed=False regardless of hook_fail. Observed 2026-09-09: session 5440ef5c-1851-4092-8915-3f63f4aa4935 reported {attempts:3, succeeded:0, rejected:3} for THREE real, landed commits (068c694, 91fa218, 1392f06). Fix: pending[] now also carries the paired Bash command; detect_commit_attempts extracts the `-m \"...\"`/`-m '...'` commit message and, only when hook_fail is False, accepts a git-log-oneline-shaped line (`^[0-9a-f]{7,40}\\s+<message-prefix>`, MULTILINE) as a second landed signal — that line can only be present because the shell's `&&` gated it on the commit itself succeeding. A genuinely rejected commit (hook FAIL, no bracket line, chain never reaches `git log`) still has no such line and stays counted rejected — verified with a synthetic case. rejections[].hint, attempts/succeeded/rejected schema UNCHANGED. Purely additive. 2026-09-09"
 # ANALYZER_VERSION_PREVIOUS_V1_34 = "v1.34 — additive: (a) failure_patterns.wakeup_burn_loops ({total_wakeups, rapid_rearms, rapid_threshold_sec, median_gap_seconds, longest_streak, streaks:[{from_ts,to_ts,count}]}) via new detect_wakeup_burn_loops(): consecutive assistant ScheduleWakeup tool_use calls < 30 s apart mean the model re-armed a wakeup WITHOUT ending its turn (the tool result says the harness re-invokes it) — a polling burn loop. Motivation 2026-09-01 (temps-chantier chantier rebase-parcours-paie-dayforce, session 4b9a0b40, Sonnet 5 orchestrator under /goal): 132 ScheduleWakeup calls in ~30 min, 121 of them < 10 s apart, 44 ListAgents polls, while waiting for two background fix agents — the rapport had to compute the gaps by hand. (b) failure_patterns.commit_attempts ({attempts, succeeded, rejected, rejections:[{ts, hint}]}) via new detect_commit_attempts(): pairs each Bash `git commit` tool_use with its tool_result and flags pre-commit-hook rejections (husky / pre-commit script failed / lint-staged / quality-gate FAIL with no `[branch sha]` line) — same session: 4 of 22 commit attempts were rejected by the Minimum-Test-Count / Test-Coverage gate and re-committed after test padding, invisible in commits_during_session. Both rendered as ⚠️ blocks under Failure patterns detected, excluded from the flat loop like background_task_stalls. Existing keys, schema and every other path UNCHANGED. Purely additive. 2026-09-01"
@@ -560,6 +561,8 @@ def collect_user_turns(events):
             "<task-notification>" in stripped
             or stripped.startswith("[SYSTEM NOTIFICATION")
             or "[SYSTEM NOTIFICATION - NOT USER INPUT]" in stripped
+            # v1.38 additive: subagent hand-back / inter-session message frame.
+            or _is_agent_message(stripped)
         )
 
         # Strip system-reminder blocks from preview text for readability
@@ -579,6 +582,16 @@ def collect_user_turns(events):
         tool_uses_since_prev_user = 0
 
     return total_user_events, turns
+
+
+# v1.38 additive: the harness wraps a subagent hand-back or a message from a
+# sibling session in this frame, injected as a user-role turn. NOT user input.
+_AGENT_MESSAGE_PREFIX = "another claude session sent a message:"
+
+
+def _is_agent_message(text):
+    head = text.lstrip()[:200].lower()
+    return head.startswith(_AGENT_MESSAGE_PREFIX) or head.startswith("<agent-message")
 
 
 def classify_user_turns(turns):
@@ -609,6 +622,10 @@ def classify_user_turns(turns):
             checked right before the length heuristics (v1.35), so a background-
             task completion notification never reads as likely_intervention /
             new_request_mid_work by length alone.
+      - agent_message: harness-injected subagent hand-back / inter-session
+            message ("Another Claude session sent a message:" + <agent-message>
+            frame). NOT user input — checked right before task_notification
+            (v1.38).
       - likely_intervention: short-to-medium (<= 500 chars) after >= 3 tool uses
       - new_request: long (> 500 chars) after work has happened
       - other: everything else
@@ -666,6 +683,12 @@ def classify_user_turns(turns):
         # a24de35c-43c6-4808-a126-69a5ef30db00: 3 turns), hand-requalified in
         # every rapport. Tested right before the length heuristics; every
         # other turn keeps its exact prior classification.
+        # v1.38 additive category: subagent hand-back / inter-session message
+        # (observed 2026-09-26: 03390afc and b5813354, 8 of 14 hand-backs read
+        # as initial_request). Tested right before task_notification; every
+        # other turn keeps its exact prior classification.
+        elif _is_agent_message(turn["preview"]):
+            turn["category"] = "agent_message"
         elif turn.get("harness_injected"):
             turn["category"] = "task_notification"
         elif tools_before >= 3 and 20 < length <= 500:
@@ -1503,6 +1526,7 @@ def analyze(jsonl_path: Path):
     git_branch = None
     version = None
     forked_from = None  # v1.6: parent sessionId when this JSONL is a /branch fork
+    agent_id = None  # v1.38: subagent transcript's own id (sessionId is the parent's)
     first_ts = None
     last_ts = None
 
@@ -1514,6 +1538,9 @@ def analyze(jsonl_path: Path):
     # v1.2 additive: track Agent count per assistant message to surface
     # parallel-dispatch failures (N agents in N messages vs 1 multi-tool-use).
     agent_calls_per_assistant_msg = []
+    # v1.38: one API message is persisted as several JSONL lines sharing the
+    # same message.id — aggregate Agent counts per id (insertion-ordered).
+    agent_calls_by_msg_id = {}
     # v1.3 additive: timestamp-cluster parallel detection + orphan detection.
     # Each entry: (datetime|None, tool_use_id|None, description, subagent_type)
     agent_dispatches_with_ts = []
@@ -1548,6 +1575,8 @@ def analyze(jsonl_path: Path):
             git_branch = ev.get("gitBranch")
         if version is None:
             version = ev.get("version")
+        if agent_id is None and ev.get("isSidechain") and ev.get("agentId"):
+            agent_id = ev.get("agentId")
         if forked_from is None:
             ff = ev.get("forkedFrom")
             if isinstance(ff, dict):
@@ -1590,7 +1619,10 @@ def analyze(jsonl_path: Path):
                     workflow_calls.append({"ref": ref, "mode": mode})
             # v1.2 additive: record only if message had at least 1 Agent
             if agents_in_this_msg > 0:
-                agent_calls_per_assistant_msg.append(agents_in_this_msg)
+                # v1.38: key by message.id so the lines of one API message are
+                # counted as ONE message; a line without an id stays its own.
+                mid = (ev.get("message") or {}).get("id") or ("__line_%d" % len(agent_calls_by_msg_id))
+                agent_calls_by_msg_id[mid] = agent_calls_by_msg_id.get(mid, 0) + agents_in_this_msg
 
         # v1.3 additive: harvest tool_result ids from user events to compute
         # orphaned Agents (dispatched but no result returned).
@@ -1686,9 +1718,15 @@ def analyze(jsonl_path: Path):
                 "session — likely out-of-band / concurrent, not session-authored"
             )
 
+    # v1.38: one entry per API message (lines grouped by message.id above).
+    agent_calls_per_assistant_msg = list(agent_calls_by_msg_id.values())
+
     report = {
         "session": {
             "id": session_id,
+            # v1.38 additive: a subagent transcript (isSidechain) carries its
+            # parent's sessionId; agent_id is what tells two of them apart.
+            "agent_id": agent_id,
             "cwd": cwd,
             "git_branch": git_branch,
             "claude_code_version": version,
@@ -1824,6 +1862,8 @@ def render_markdown(report):
         "## Session signals (deterministic)",
         "",
         f"- **Session ID:** `{s['id']}`",
+        # v1.38 additive: subagent transcripts share their parent's sessionId.
+        *([f"- **Subagent ID:** `{s['agent_id']}` (sidechain — Session ID is the parent's)"] if s.get("agent_id") else []),
         f"- **Project cwd:** `{s['cwd']}`",
         f"- **Git branch:** `{s['git_branch']}`",
         f"- **Duration:** {s['duration_minutes_rounded']} min ({s['duration_seconds']}s)",
