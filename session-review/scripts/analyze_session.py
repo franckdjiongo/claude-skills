@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# ANALYZER_VERSION = "v1.38 — (a) additive: agent_message classifier category in classify_user_turns + widened harness_injected flag. When a background subagent or a sibling session hands back, the harness injects a user-role turn beginning 'Another Claude session sent a message:' followed by an <agent-message from=...> frame (subagent hand-back / inter-session message). It is NOT user input, but it matched neither the v1.9 harness_injected signature nor any specific branch, so its length after tool work (or its position after a zero-tool span) mislabeled it initial_request / new_request_mid_work / likely_intervention. Observed 2026-09-26 (banc d'essai cloud, workstation): 03390afc (8 hand-backs, 4 read as initial_request) and b5813354 (6 hand-backs, 4 initial_request) — a false 'user request' signal hand-requalified by both reviewers; ffabf5f1 carries one inter-session message counted nowhere. The flag now also covers these frames (harness_injected_turns widens — a missed-signal widening), and the new category `agent_message` is tested right before `task_notification` so a hand-back is named for what it is; every other turn keeps its exact prior classification. (b) correctness fix in agent_dispatch_pattern (v1.2): Claude Code persists ONE API assistant message as SEVERAL JSONL lines (one per content block) sharing the same message.id, so counting Agent calls per JSONL line reported every parallel dispatch as N solo messages. Counts are now aggregated per message.id (a line without message.id stays its own message, exactly as before). Observed 2026-09-26 on all 4 main transcripts of the night: 03390afc true max 4 (reported 1, parallel_messages 0), b5813354 true 7 (reported 1), ffabf5f1 true 4 with 5 parallel messages (reported 1 / 0), 200cb50b true 2 ×2 (reported 1 / 0) — the markdown then raised a false parallel-dispatch-failure hint. Keys and schema UNCHANGED; values now match the per-message semantics the v1.2 docstring always promised. (c) additive: session.agent_id — a subagent transcript (isSidechain=true) carries its PARENT's sessionId, so session.id was identical for every hunter of one review (observed 2026-09-26: agent-a5b2c4b7/agent-a570c180 both reported 12c1e9cc…, agent-a2887976/agent-a3fd477b both reported f9f3ad72…; both reviewers flagged the reports as indistinguishable). The first agentId seen on a sidechain event is now exposed; null for a main session; session.id UNCHANGED. 2026-09-26"
+# ANALYZER_VERSION = "v1.39 — additive: native Codex (OpenAI) transcript support. Codex Desktop persists {timestamp, type, payload} lines (session_meta / turn_context / event_msg / response_item) that the Claude event loop cannot read: `--file <codex.jsonl>` rendered scope_tier=Micro, tool_usage_total=0 and every turn count at 0 (observed 2026-10-01 on workstation-night-cargo transcripts 019e7be7 — 88 function_call + 5 custom_tool_call + 1 tool_search_call — and 019e7c00). New is_codex_transcript() (first line type=session_meta with a payload, or a strict majority of {timestamp,type,payload} lines) routes to analyze_codex(), which emits the SAME top-level keys as the Claude report (degraded values where Codex exports nothing) plus source_format='codex', format_supported='native'|'imported', degradation_notes[], tokens (last event_msg token_count totals), tool_calls_native / tool_calls_from_markers and failure_patterns.codex_tool_failures. Tools are counted from response_item function_call / custom_tool_call / tool_search_call / local_shell_call (MCP namespaces rendered mcp__ns__name) AND from inline '[external_agent_tool_call: X' markers of imported sessions (the only source the unmerged 2026-08-24 patch read — it returned 0 tools on native logs; this version supersedes it). User turns = response_item message role=user minus explicit injected wrappers (_CODEX_INJECTED_PREFIXES); '## My request for Codex:' preambles are reduced to the request; <skill> injections feed skills_invoked. Tool failures = *_call_output whose exit code (Process exited with code N / Exit code: N / metadata.exit_code) is non-zero; unknown codes are never failures. Shared helpers are reused unchanged (classify_scope_tier, classify_user_turns, detect_retries_and_failures / detect_commit_attempts / extract_branches_created / count_git_commit_tool_calls via Claude-shaped synthetic events, compute_active_duration). render_markdown() dispatches Codex reports to render_codex_markdown(). Claude path byte-for-byte unchanged (--json and --md diffed empty on two Claude transcripts). 2026-10-01"
+# ANALYZER_VERSION_PREVIOUS_V1_38 = "v1.38 — (a) additive: agent_message classifier category in classify_user_turns + widened harness_injected flag. When a background subagent or a sibling session hands back, the harness injects a user-role turn beginning 'Another Claude session sent a message:' followed by an <agent-message from=...> frame (subagent hand-back / inter-session message). It is NOT user input, but it matched neither the v1.9 harness_injected signature nor any specific branch, so its length after tool work (or its position after a zero-tool span) mislabeled it initial_request / new_request_mid_work / likely_intervention. Observed 2026-09-26 (banc d'essai cloud, workstation): 03390afc (8 hand-backs, 4 read as initial_request) and b5813354 (6 hand-backs, 4 initial_request) — a false 'user request' signal hand-requalified by both reviewers; ffabf5f1 carries one inter-session message counted nowhere. The flag now also covers these frames (harness_injected_turns widens — a missed-signal widening), and the new category `agent_message` is tested right before `task_notification` so a hand-back is named for what it is; every other turn keeps its exact prior classification. (b) correctness fix in agent_dispatch_pattern (v1.2): Claude Code persists ONE API assistant message as SEVERAL JSONL lines (one per content block) sharing the same message.id, so counting Agent calls per JSONL line reported every parallel dispatch as N solo messages. Counts are now aggregated per message.id (a line without message.id stays its own message, exactly as before). Observed 2026-09-26 on all 4 main transcripts of the night: 03390afc true max 4 (reported 1, parallel_messages 0), b5813354 true 7 (reported 1), ffabf5f1 true 4 with 5 parallel messages (reported 1 / 0), 200cb50b true 2 ×2 (reported 1 / 0) — the markdown then raised a false parallel-dispatch-failure hint. Keys and schema UNCHANGED; values now match the per-message semantics the v1.2 docstring always promised. (c) additive: session.agent_id — a subagent transcript (isSidechain=true) carries its PARENT's sessionId, so session.id was identical for every hunter of one review (observed 2026-09-26: agent-a5b2c4b7/agent-a570c180 both reported 12c1e9cc…, agent-a2887976/agent-a3fd477b both reported f9f3ad72…; both reviewers flagged the reports as indistinguishable). The first agentId seen on a sidechain event is now exposed; null for a main session; session.id UNCHANGED. 2026-09-26"
 # ANALYZER_VERSION_PREVIOUS_V1_37 = "v1.37 — (a) additive: new signature `hook_blocked` in _classify_tool_error (failure_patterns.tool_error_kinds), tested LAST right before the `other` fallback so every previously-classified error keeps its exact prior kind: a tool call refused by a PreToolUse/PostToolUse hook (`PreToolUse:Bash hook error: [...]: Blocked by ...`). Observed 2026-09-25 (banc d'essai cloud, workstation): 4 hook refusals across 3 of 5 exported transcripts (workstation-skill-gate ×3 in f202de62/56caa879/68fbee07, adversarial-pr-guard ×1 in 56caa879) all landed in `other`, mixed with shell exits — a governance signal the rapport had to hand-requalify. (b) correctness fix in detect_commit_attempts (failure_patterns.commit_attempts): `rejected` now requires POSITIVE rejection evidence (hook_fail signature or an is_error result mentioning commit — unchanged); a commit attempt whose result carries neither landed evidence nor rejection evidence is counted in the new key `unconfirmed` instead of `rejected` (attempts == succeeded + rejected + unconfirmed). Also, the v1.35 git-log-oneline landed signal now extracts the subject of a heredoc message (`git commit [-q] -F - <<'EOF'` → first non-empty line of the heredoc body), not only `-m \"...\"`. Observed 2026-09-24/25 across 3 transcripts (rule of recurrence): f202de62 reported rejected:2 for two real landed commits (d95150a via a chained command, e86fb4e via `-F - <<'EOF'` + `git log --oneline`); agent-a7db8e6f reported rejected:2 for `git commit -q` inside throwaway-repo simulations under set -e with no rejection signal; agent-a9485e05 (2026-09-24) same throwaway-repo pattern. A genuine hook rejection (husky/pre-commit/lint-staged/quality gate/is_error) is still counted rejected exactly as before. Schema: one new key (`unconfirmed`), every other key UNCHANGED. Markdown: the existing ⚠️ commit_attempts line (still gated on rejected > 0) now also states succeeded/unconfirmed so `N rejected of M attempts` no longer implies the rest landed. 2026-09-25"
 # ANALYZER_VERSION_PREVIOUS_V1_36 = "v1.36 — additive: two new signatures in _classify_tool_error (failure_patterns.tool_error_kinds), both tested right BEFORE the final `other` fallback so every previously-classified error keeps its exact prior kind: (a) read_token_limit — a Read tool_result rejected with `exceeds maximum allowed tokens` (the 30k-token cap on a large file). (b) tool_input_schema — a tool call rejected by the harness for a malformed or schema-violating input: `Output does not match required schema` (StructuredOutput missing a required property), `could not be parsed as JSON`, or an `InputValidationError`. Observed 2026-09-22 (banc d'essai cloud, brief-preflight lens wave of 2026-09-08 on plan provenance-session): 5 of 6 exported transcripts carried is_error results and ALL 6 errors landed in `other` — 2× Read >30k tokens (agent-a4017ba2 L23, agent-a510e2b0 L22), 2× StructuredOutput missing `mustHave` (agent-aafd1241 L92, agent-a01c9363 L176), 1× StructuredOutput unparsable JSON (agent-a510e2b0 L109) — so the breakdown discriminated nothing; the same Read >30k signature had been hand-counted in every rapport of the 2026-09-19/20/21 nights (×6 on 2026-09-21). Markdown render unchanged: tool_error_kinds is already rendered dynamically as sub-bullets (v1.12), so the new kinds appear automatically. tool_errors count, every existing kind, and every other key UNCHANGED. Purely additive. 2026-09-22"
 # ANALYZER_VERSION_PREVIOUS_V1_35 = "v1.35 — additive: (a) task_notification classifier category in classify_user_turns, tested right after skill_content_injection (before the length heuristics): turns carrying harness_injected=True (v1.9 — <task-notification>, [SYSTEM NOTIFICATION...]) that survive every earlier specific harness branch (stop_hook_feedback, command_invocation, local_command_echo, skill_content_injection) previously fell into likely_intervention/new_request_mid_work by length alone. Observed 2026-09-09: session 92e26910-d924-4e04-ba5c-c6ff311a7f05 (9 harness-injected turns — 4 likely_intervention + 4 new_request_mid_work + 1 other — all task-notifications from a 100%-autonomous run) and a24de35c-43c6-4808-a126-69a5ef30db00 (3 turns, same pattern): a false 'user intervention' signal hand-requalified in every rapport. harness_injected_turns and the 🤖harness-injected marker UNCHANGED; the new category surfaces automatically in turns.user_turns_by_category (JSON) and the 'User turns by category' markdown table via the existing dynamic Counter/dict-iteration render — same mechanism as v1.25/v1.26/v1.30, no render code added. (b) failure_patterns.commit_attempts (detect_commit_attempts, v1.34) no longer misclassifies a SUCCESSFUL `git commit -q ... && git log --oneline -1` chain as rejected: `-q` suppresses the `[branch sha]` summary line landed_re relied on, and the chained `git log --oneline -1` output ('<sha> <subject>') matched neither landed_re nor the 'file(s) changed' fallback, so landed=False regardless of hook_fail. Observed 2026-09-09: session 5440ef5c-1851-4092-8915-3f63f4aa4935 reported {attempts:3, succeeded:0, rejected:3} for THREE real, landed commits (068c694, 91fa218, 1392f06). Fix: pending[] now also carries the paired Bash command; detect_commit_attempts extracts the `-m \"...\"`/`-m '...'` commit message and, only when hook_fail is False, accepts a git-log-oneline-shaped line (`^[0-9a-f]{7,40}\\s+<message-prefix>`, MULTILINE) as a second landed signal — that line can only be present because the shell's `&&` gated it on the commit itself succeeding. A genuinely rejected commit (hook FAIL, no bracket line, chain never reaches `git log`) still has no such line and stays counted rejected — verified with a synthetic case. rejections[].hint, attempts/succeeded/rejected schema UNCHANGED. Purely additive. 2026-09-09"
@@ -1515,11 +1516,629 @@ def _browser_verification(tool_usage):
     }
 
 
+# ─── v1.39 additive: Codex (OpenAI) transcript support ──────────────────────
+#
+# Codex Desktop persists a different JSONL schema: every line is
+# {timestamp, type, payload} with type in session_meta / turn_context /
+# event_msg / response_item. The Claude event loop in analyze() reads none of
+# it (no `message`, no `tool_use`), so a 400-line Codex session with ~94 tool
+# calls rendered as an empty Micro skeleton. These helpers produce a report of
+# the SAME top-level shape as the Claude one (degraded values where Codex does
+# not export the signal) plus source_format / format_supported /
+# degradation_notes. Two Codex variants are covered:
+#   - "native"  : real response_item function_call / custom_tool_call /
+#                 tool_search_call / local_shell_call items (Codex Desktop logs);
+#   - "imported": sessions re-imported from another agent, where response_item
+#                 carries only `message` items and tool calls survive solely as
+#                 inline "[external_agent_tool_call: <Tool>" markers in
+#                 assistant text (the case the unmerged 2026-08-24 patch handled).
+# analyze() routes here ONLY when is_codex_transcript() is True, so the Claude
+# path is byte-for-byte unchanged.
+
+_CODEX_LINE_TYPES = ("session_meta", "turn_context", "event_msg", "response_item")
+
+# Inline tool markers of the "imported" variant.
+_CODEX_TOOL_CALL_RE = re.compile(r"\[external_agent_tool_call:\s*([A-Za-z_][\w.-]*)")
+
+# User-role response_item text blocks that are injected by Codex itself, NOT
+# typed by the user. A text block whose left-stripped text starts with one of
+# these prefixes is discarded; a user message made only of such blocks (and no
+# image) is not a user turn (counted in turns.injected_wrappers_excluded).
+_CODEX_INJECTED_PREFIXES = (
+    "# AGENTS.md instructions",     # project AGENTS.md dump
+    "<INSTRUCTIONS>",               # bare AGENTS.md body
+    "<user_instructions>",          # older Codex AGENTS.md wrapper
+    "<environment_context>",        # cwd / shell / date block
+    "<permissions instructions>",   # sandbox policy
+    "<app-context>",                # Codex Desktop app context
+    "<collaboration_mode>",         # collaboration-mode switch notice
+    "<skill>",                      # SKILL.md body injected after a $skill mention
+    "<turn_aborted>",               # harness notice after an interrupted turn
+    "<subagent_notification>",      # sub-agent hand-back frame
+)
+
+# Context preambles that WRAP a genuine request: the real text follows this
+# marker (e.g. "# In app browser:" / "# Files mentioned by the user:" blocks).
+_CODEX_REQUEST_MARKER = "## My request for Codex:"
+
+# Shell-like tool names whose arguments carry a command line.
+_CODEX_SHELL_TOOLS = ("exec_command", "shell", "shell_command", "local_shell", "container.exec")
+
+# Exit-code signatures in function_call_output / custom_tool_call_output text.
+_CODEX_EXIT_RE = re.compile(r"(?:Process exited with code|Exit code:?)\s*(-?\d+)")
+
+
+def is_codex_transcript(events):
+    """v1.39: True if this JSONL is a Codex transcript (not Claude Code).
+
+    Rule 1: the first parsed line has type == "session_meta" and a dict
+    `payload`. Rule 2 (fallback): a strict majority of lines are
+    {timestamp, type, payload} objects with a Codex line type. Claude Code
+    lines never carry a top-level `payload`, so neither rule fires for them.
+    """
+    if not events:
+        return False
+    first = events[0]
+    if (
+        isinstance(first, dict)
+        and first.get("type") == "session_meta"
+        and isinstance(first.get("payload"), dict)
+    ):
+        return True
+    n_codex = sum(
+        1 for ev in events
+        if isinstance(ev, dict)
+        and "timestamp" in ev
+        and isinstance(ev.get("payload"), dict)
+        and ev.get("type") in _CODEX_LINE_TYPES
+    )
+    return n_codex * 2 > len(events)
+
+
+def _codex_text_blocks(payload):
+    """Return the list of text strings of a Codex message payload."""
+    if not isinstance(payload, dict):
+        return []
+    msg = payload.get("message")
+    if isinstance(msg, str):  # event_msg agent_message / user_message
+        return [msg]
+    out = []
+    content = payload.get("content")
+    if isinstance(content, list):
+        for b in content:
+            if isinstance(b, dict) and isinstance(b.get("text"), str):
+                out.append(b["text"])
+    elif isinstance(content, str):
+        out.append(content)
+    return out
+
+
+def _codex_has_image(payload):
+    content = payload.get("content") if isinstance(payload, dict) else None
+    if isinstance(content, list):
+        return any(
+            isinstance(b, dict) and b.get("type") in ("input_image", "image")
+            for b in content
+        )
+    return bool(isinstance(payload, dict) and payload.get("images"))
+
+
+def _codex_is_injected(text):
+    head = text.lstrip()
+    return any(head.startswith(p) for p in _CODEX_INJECTED_PREFIXES)
+
+
+def _codex_genuine_user_text(payload):
+    """(genuine_text, skill_names) for a user-role Codex message payload.
+
+    Injected wrapper blocks are dropped (their <skill><name>X</name> is
+    harvested as a skill invocation); a context preamble carrying
+    '## My request for Codex:' is reduced to the request that follows it.
+    """
+    kept, skills = [], []
+    for text in _codex_text_blocks(payload):
+        if _codex_is_injected(text):
+            if text.lstrip().startswith("<skill>"):
+                m = re.search(r"<name>\s*([^<]+?)\s*</name>", text)
+                if m:
+                    skills.append(m.group(1))
+            continue
+        if _CODEX_REQUEST_MARKER in text:
+            text = text.split(_CODEX_REQUEST_MARKER, 1)[1]
+        kept.append(text)
+    return "\n".join(kept).strip(), skills
+
+
+def _codex_tool_name(payload):
+    """Tool name for a native Codex call item, Claude-style for MCP namespaces."""
+    ptype = payload.get("type")
+    if ptype == "tool_search_call":
+        return "tool_search"
+    if ptype == "local_shell_call":
+        return "local_shell"
+    name = payload.get("name") or "?"
+    ns = payload.get("namespace")
+    if isinstance(ns, str) and ns.startswith("mcp__"):
+        return f"{ns}__{name}"
+    return name
+
+
+def _codex_shell_command(payload):
+    """Best-effort command line of a shell-like call ('' if none)."""
+    if payload.get("type") == "local_shell_call":
+        cmd = (payload.get("action") or {}).get("command")
+    else:
+        args = payload.get("arguments")
+        if isinstance(args, str):
+            try:
+                args = json.loads(args)
+            except (json.JSONDecodeError, ValueError):
+                return args
+        if not isinstance(args, dict):
+            return ""
+        cmd = args.get("cmd") or args.get("command")
+    if isinstance(cmd, list):
+        cmd = " ".join(str(c) for c in cmd)
+    return cmd if isinstance(cmd, str) else ""
+
+
+def _codex_output_text(payload):
+    """Flatten a *_call_output `output` (str, JSON-in-str, or block list)."""
+    out = payload.get("output")
+    if isinstance(out, list):
+        return "\n".join(
+            b.get("text", "") for b in out
+            if isinstance(b, dict) and isinstance(b.get("text"), str)
+        )
+    if isinstance(out, dict):
+        return json.dumps(out, ensure_ascii=False)
+    return out if isinstance(out, str) else ""
+
+
+def _codex_exit_code(payload, text):
+    """Exit code of a tool output, or None when not detectable.
+
+    Heuristic (documented in degradation_notes): (1) a JSON-encoded output
+    {"output":..., "metadata":{"exit_code":N}} (older Codex CLI); (2) the
+    'Process exited with code N' line of exec_command outputs; (3) the
+    'Exit code: N' line of custom tool (apply_patch) outputs. An output that
+    says 'Process running with session ID' (a still-running command polled
+    later via write_stdin) or carries no signature is None (unknown), never a
+    failure.
+    """
+    raw = payload.get("output")
+    if isinstance(raw, str) and raw.lstrip().startswith("{"):
+        try:
+            obj = json.loads(raw)
+            code = (obj.get("metadata") or {}).get("exit_code") if isinstance(obj, dict) else None
+            if isinstance(code, int):
+                return code
+        except (json.JSONDecodeError, ValueError, AttributeError):
+            pass
+    m = _CODEX_EXIT_RE.search(text[:2000])
+    return int(m.group(1)) if m else None
+
+
+def analyze_codex(events, jsonl_path):
+    """v1.39: report for a Codex transcript, shaped like the Claude report."""
+    session_meta = {}
+    model = None
+    first_ts = last_ts = None
+    event_counts = Counter()
+    tool_usage = Counter()
+    native_calls = 0
+    marker_calls = 0
+    skill_names = Counter()
+    subagent_types = Counter()
+    token_usage = None
+    call_names = {}  # call_id -> tool name
+    synth = []       # Claude-shaped synthetic events for reused helpers
+    tool_failures = []
+    exit_unknown = 0
+    outputs_seen = 0
+    shell_nonzero = 0
+    injected_excluded = 0
+
+    # Variant pre-pass: which channels exist (avoids double counting the same
+    # user / assistant text that Codex logs both as response_item and event_msg).
+    has_ri_user = any(
+        (ev.get("payload") or {}).get("type") == "message"
+        and (ev.get("payload") or {}).get("role") == "user"
+        for ev in events if isinstance(ev, dict) and ev.get("type") == "response_item"
+    )
+    has_ri_assistant = any(
+        (ev.get("payload") or {}).get("type") == "message"
+        and (ev.get("payload") or {}).get("role") == "assistant"
+        for ev in events if isinstance(ev, dict) and ev.get("type") == "response_item"
+    )
+
+    user_turns = []
+    assistant_messages = 0
+    tools_since_prev_user = 0
+
+    for ev in events:
+        if not isinstance(ev, dict):
+            continue
+        t = ev.get("type")
+        pl = ev.get("payload") if isinstance(ev.get("payload"), dict) else {}
+        ptype = pl.get("type")
+        event_counts[f"{t}/{ptype}" if ptype else (t or "?")] += 1
+        ts = ev.get("timestamp")
+        ts_parsed = iso_from_timestamp(ts) if ts else None
+        if ts_parsed:
+            if first_ts is None or ts_parsed < first_ts:
+                first_ts = ts_parsed
+            if last_ts is None or ts_parsed > last_ts:
+                last_ts = ts_parsed
+
+        if t == "session_meta":
+            if not session_meta:
+                session_meta = pl
+            continue
+        if t == "turn_context":
+            if pl.get("model"):
+                model = pl.get("model")
+            continue
+
+        # ── native tool calls ──
+        if t == "response_item" and ptype in (
+            "function_call", "custom_tool_call", "tool_search_call", "local_shell_call"
+        ):
+            name = _codex_tool_name(pl)
+            tool_usage[name] += 1
+            native_calls += 1
+            tools_since_prev_user += 1
+            cid = pl.get("call_id") or pl.get("id")
+            if cid:
+                call_names[cid] = name
+            if name in ("spawn_agent", "Agent", "Task"):
+                subagent_types[name] += 1
+            cmd = _codex_shell_command(pl) if (
+                name in _CODEX_SHELL_TOOLS or ptype == "local_shell_call"
+            ) else ""
+            synth.append({
+                "type": "assistant", "timestamp": ts,
+                "message": {"content": [{
+                    "type": "tool_use", "id": cid,
+                    "name": "Bash" if cmd else name,
+                    "input": {"command": cmd} if cmd else {},
+                }]},
+            })
+            continue
+
+        # ── native tool outputs ──
+        if t == "response_item" and ptype in (
+            "function_call_output", "custom_tool_call_output", "local_shell_call_output"
+        ):
+            outputs_seen += 1
+            cid = pl.get("call_id")
+            text = _codex_output_text(pl)
+            code = _codex_exit_code(pl, text)
+            name = call_names.get(cid, "?")
+            if code is None:
+                exit_unknown += 1
+            elif code != 0:
+                tool_failures.append({
+                    "tool": name, "exit_code": code,
+                    "ts": ts_parsed.isoformat() if ts_parsed else None,
+                    "excerpt": text[:160].replace("\n", " "),
+                })
+                if name in _CODEX_SHELL_TOOLS or name == "local_shell":
+                    shell_nonzero += 1
+            synth.append({
+                "type": "user", "timestamp": ts,
+                "message": {"content": [{
+                    "type": "tool_result", "tool_use_id": cid,
+                    "content": text, "is_error": bool(code),
+                }]},
+            })
+            continue
+
+        # ── messages ──
+        is_ri_msg = t == "response_item" and ptype == "message"
+        role = pl.get("role") if is_ri_msg else None
+        is_assistant = (is_ri_msg and role == "assistant") or (
+            not has_ri_assistant and t == "event_msg" and ptype == "agent_message"
+        )
+        is_user = (is_ri_msg and role == "user") or (
+            not has_ri_user and t == "event_msg" and ptype == "user_message"
+        )
+        if is_assistant:
+            assistant_messages += 1
+            for text in _codex_text_blocks(pl):
+                for m in _CODEX_TOOL_CALL_RE.finditer(text):
+                    tool_usage[m.group(1)] += 1
+                    marker_calls += 1
+                    tools_since_prev_user += 1
+            continue
+        if is_user:
+            genuine, skills = _codex_genuine_user_text(pl)
+            for s_name in skills:
+                skill_names[s_name] += 1
+            has_img = _codex_has_image(pl)
+            if not genuine and not has_img:
+                injected_excluded += 1
+                continue
+            stripped = genuine or "(image only)"
+            user_turns.append({
+                "ordinal": len(user_turns) + 1,
+                "length": len(genuine),
+                "tool_uses_since_prev_user": tools_since_prev_user,
+                "is_command_invocation": "<command-name>" in stripped or stripped.startswith("/"),
+                "harness_injected": (
+                    "<task-notification>" in stripped
+                    or stripped.startswith("[SYSTEM NOTIFICATION")
+                    or _is_agent_message(stripped)
+                ),
+                "preview": stripped[:250].replace("\n", " "),
+            })
+            tools_since_prev_user = 0
+            continue
+
+        # ── tokens: keep the LAST token_count carrying totals ──
+        if t == "event_msg" and ptype == "token_count":
+            info = pl.get("info") or {}
+            tot = info.get("total_token_usage") if isinstance(info, dict) else None
+            if isinstance(tot, dict) and tot:
+                token_usage = dict(tot)
+                if info.get("model_context_window"):
+                    token_usage["model_context_window"] = info.get("model_context_window")
+
+    user_turns = classify_user_turns(user_turns)
+    turn_category_counts = Counter(u["category"] for u in user_turns)
+    tool_total = sum(tool_usage.values())
+
+    scope_tier = classify_scope_tier({
+        "tool_usage": dict(tool_usage),
+        "subagents_count_total": sum(subagent_types.values()),
+        "user_turns_nontrivial": len(user_turns),
+    })
+
+    if native_calls:
+        format_supported = "native"
+    elif marker_calls:
+        format_supported = "imported"
+    else:
+        format_supported = "native" if session_meta.get("originator") else "imported"
+
+    duration_s = (
+        int((last_ts - first_ts).total_seconds()) if (first_ts and last_ts) else None
+    )
+    active_dur = compute_active_duration(events)
+
+    # Failure patterns: same keys as Claude, computed by the SHARED helpers on
+    # Claude-shaped synthetic events (tool_use / tool_result pairs).
+    failure_patterns = detect_retries_and_failures(synth)
+    failure_patterns["bash_exit_nonzero"] = shell_nonzero
+    failure_patterns["background_task_stalls"] = detect_background_task_stalls([])
+    failure_patterns["wakeup_burn_loops"] = detect_wakeup_burn_loops([])
+    failure_patterns["commit_attempts"] = detect_commit_attempts(synth)
+    failure_patterns["orphaned_agents"] = {"count": 0, "items": []}
+    failure_patterns["codex_tool_failures"] = {
+        "outputs_seen": outputs_seen,
+        "nonzero_exit": len(tool_failures),
+        "exit_code_unknown": exit_unknown,
+        "items": tool_failures[:10],
+    }
+
+    full_cwd = session_meta.get("cwd")
+    commits = extract_commits_during_session(full_cwd, first_ts, last_ts)
+    if isinstance(commits, dict):
+        _git_commit_calls = count_git_commit_tool_calls(synth)
+        commits["git_commit_tool_calls_observed"] = _git_commit_calls
+        if commits.get("count", 0) > 0 and _git_commit_calls == 0:
+            commits["attribution_note"] = (
+                "commits in window but no `git commit` tool call observed this "
+                "session — likely out-of-band / concurrent, not session-authored"
+            )
+
+    git_info = session_meta.get("git") if isinstance(session_meta.get("git"), dict) else {}
+    notes = [
+        "Codex transcript (source_format='codex'): parsed by the dedicated Codex "
+        "extractor, not the Claude event loop; values below are degraded where "
+        "Codex does not export the signal.",
+        "session.cwd is the basename only (full path withheld).",
+        "User turns = response_item message role=user minus injected wrappers "
+        "(prefixes: " + ", ".join(_CODEX_INJECTED_PREFIXES) + "); a preamble "
+        "carrying '" + _CODEX_REQUEST_MARKER + "' is reduced to the request.",
+        "Tool failures: exit code read from 'Process exited with code N' / "
+        "'Exit code: N' / JSON metadata.exit_code in *_call_output; outputs "
+        "without a signature (still-running commands, MCP/js results) are "
+        "counted as exit_code_unknown, never as failures.",
+        "Subagents: Codex has no Agent tool; only spawn_agent/Agent/Task calls "
+        "are counted. agent_dispatch_pattern*, workflows, workflow_fanout, "
+        "remote_triggers, slash_commands and harness_events are Claude-only and "
+        "left empty.",
+        "duration is calendar span (first→last event); Codex Desktop sessions "
+        "can stay open between turns — see active_duration_*.",
+    ]
+    if format_supported == "imported":
+        notes.append(
+            "Imported variant: tool calls reconstructed from inline "
+            "'[external_agent_tool_call: <Tool>' markers in assistant text; "
+            "tool outputs/exit codes are not exported, failure counts are 0 by "
+            "construction."
+        )
+    if tool_total == 0:
+        notes.append(
+            "No tool call found (neither native items nor inline markers): "
+            "scope_tier may under-read the real work."
+        )
+    if token_usage is None:
+        notes.append("No event_msg token_count with totals: tokens unavailable.")
+
+    return {
+        "source_format": "codex",
+        "format_supported": format_supported,
+        "degradation_notes": notes,
+        "session": {
+            "id": session_meta.get("id") or session_meta.get("session_id"),
+            "agent_id": None,
+            "cwd": os.path.basename(full_cwd.rstrip("/")) if isinstance(full_cwd, str) and full_cwd else None,
+            "git_branch": git_info.get("branch"),
+            "claude_code_version": None,
+            "codex_cli_version": session_meta.get("cli_version"),
+            "originator": session_meta.get("originator"),
+            "model_provider": session_meta.get("model_provider"),
+            "model": model,
+            "jsonl_path": str(jsonl_path),
+            "first_event_utc": first_ts.isoformat() if first_ts else None,
+            "last_event_utc": last_ts.isoformat() if last_ts else None,
+            "duration_seconds": duration_s,
+            "duration_minutes_rounded": round(duration_s / 60, 1) if duration_s else None,
+            "active_duration_seconds": active_dur["active_seconds"],
+            "active_duration_minutes_rounded": active_dur["active_minutes_rounded"],
+            "idle_gaps_excluded": active_dur["idle_gaps_excluded"],
+            "forked_from": None,
+        },
+        "scope_tier": scope_tier,
+        "event_counts": dict(event_counts),
+        "turns": {
+            "user_total_events": len(user_turns) + injected_excluded,
+            "user_nontrivial": len(user_turns),
+            "assistant": assistant_messages,
+            "assistant_messages": assistant_messages,
+            "user_turns_by_category": dict(turn_category_counts),
+            "harness_injected_turns": sum(1 for u in user_turns if u.get("harness_injected")),
+            "injected_wrappers_excluded": injected_excluded,
+        },
+        "user_turns_detail": user_turns,
+        "tool_usage": dict(tool_usage.most_common()),
+        "tool_usage_total": tool_total,
+        "tool_calls_native": native_calls,
+        "tool_calls_from_markers": marker_calls,
+        "tokens": token_usage,
+        "browser_verification": _browser_verification(tool_usage),
+        "subagents": {
+            "total_dispatches": sum(subagent_types.values()),
+            "by_type": dict(subagent_types),
+            "by_description": {},
+        },
+        "agent_dispatch_pattern": {
+            "solo_messages": 0, "parallel_messages": 0, "max_parallelism": 0,
+            "messages_with_agents": 0, "per_message_distribution": [],
+        },
+        "agent_dispatch_pattern_v1_3": {
+            "timestamp_clusters": [], "max_cluster_size": 0,
+            "total_clusters": 0, "agents_in_clusters": 0,
+        },
+        "skills_invoked": {
+            "total": sum(skill_names.values()),
+            "by_name": dict(skill_names),
+        },
+        "workflows_invoked": {"total": 0, "calls": [], "internal_subagents_uncounted": False},
+        "workflow_fanout": extract_workflow_fanout([]),
+        "slash_commands_invoked": extract_slash_commands(user_turns),
+        "remote_triggers": extract_remote_triggers([]),
+        "failure_patterns": failure_patterns,
+        "harness_events": {"compactions_detected": 0, "stop_hook_activations": 0},
+        "commits_during_session": commits,
+        "branches_created": extract_branches_created(synth),
+        "candidate_sessions": [],
+    }
+
+
+def render_codex_markdown(report):
+    """v1.39: readable markdown for a Codex report."""
+    s = report["session"]
+    lines = [
+        "## Session signals (deterministic — Codex transcript)",
+        "",
+        f"> **Source format: Codex** (`format_supported={report.get('format_supported')}`). "
+        "Parsed by the Codex extractor; see *Degradations* for what is not measured.",
+        "",
+        f"- **Session ID:** `{s.get('id')}`",
+        f"- **Project (cwd basename):** `{s.get('cwd')}`",
+        f"- **Originator / provider / model:** {s.get('originator')} / "
+        f"{s.get('model_provider')} / `{s.get('model')}`",
+        f"- **Git branch (session start):** `{s.get('git_branch')}`",
+        f"- **Window:** {s.get('first_event_utc')} → {s.get('last_event_utc')}",
+        f"- **Duration (calendar):** {s.get('duration_minutes_rounded')} min "
+        f"({s.get('duration_seconds')}s)"
+        + (
+            f" — active span {s.get('active_duration_minutes_rounded')} min "
+            f"({s.get('idle_gaps_excluded')} idle gap(s) > 30 min excluded)"
+            if s.get("idle_gaps_excluded") else ""
+        ),
+        f"- **Scope tier (auto-detected):** **{report.get('scope_tier')}**",
+        "",
+        "### Turns",
+        f"- User turns (real): **{report['turns']['user_nontrivial']}** "
+        f"({report['turns'].get('injected_wrappers_excluded', 0)} injected wrapper message(s) excluded)",
+        f"- Assistant messages: **{report['turns']['assistant']}**",
+        "",
+        f"### Tool usage (total: {report.get('tool_usage_total', 0)} — "
+        f"native {report.get('tool_calls_native', 0)}, "
+        f"inline markers {report.get('tool_calls_from_markers', 0)})",
+    ]
+    for name, n in list(report.get("tool_usage", {}).items())[:12]:
+        lines.append(f"- `{name}`: {n}")
+    tf = report.get("failure_patterns", {}).get("codex_tool_failures", {})
+    lines += [
+        "",
+        f"### Tool failures (exit code ≠ 0): {tf.get('nonzero_exit', 0)} "
+        f"/ {tf.get('outputs_seen', 0)} outputs "
+        f"({tf.get('exit_code_unknown', 0)} without detectable exit code)",
+    ]
+    for it in tf.get("items", []):
+        lines.append(f"- `{it['tool']}` exit {it['exit_code']} — {it['excerpt'][:100]!r}")
+    tk = report.get("tokens")
+    if tk:
+        lines += [
+            "",
+            "### Tokens (last token_count)",
+            f"- total {tk.get('total_tokens')} · input {tk.get('input_tokens')} "
+            f"(cached {tk.get('cached_input_tokens')}) · output {tk.get('output_tokens')} "
+            f"(reasoning {tk.get('reasoning_output_tokens')})",
+        ]
+    sk = report.get("skills_invoked", {})
+    if sk.get("total"):
+        lines += ["", f"### Skills injected ({sk['total']})"]
+        for name, n in sk.get("by_name", {}).items():
+            lines.append(f"- `{name}`: {n}")
+    bv = report.get("browser_verification") or {}
+    if bv.get("total_calls"):
+        lines += ["", f"### Browser / visual verification ({bv['total_calls']} calls)"]
+        for name, n in bv.get("by_tool", {}).items():
+            lines.append(f"- `{name}`: {n}")
+    cds = report.get("commits_during_session") or {}
+    lines += [
+        "",
+        f"### Commits during session: {cds.get('count', 0)}"
+        + (f" ({cds['note']})" if cds.get("note") else "")
+        + f" — `git commit` tool calls observed: {cds.get('git_commit_tool_calls_observed', 0)}",
+    ]
+    for c in cds.get("commits", [])[:10]:
+        lines.append(f"- `{c['hash']}` {c['subject']}")
+    lines += ["", "### User turns by category"]
+    for cat, n in report["turns"].get("user_turns_by_category", {}).items():
+        lines.append(f"- `{cat}`: {n}")
+    lines += ["", "### User turns detail (for qualitative interpretation)"]
+    for u in report.get("user_turns_detail", []):
+        marker = " 🤖harness-injected" if u.get("harness_injected") else ""
+        lines.append(
+            f"{u['ordinal']}. [{u.get('category')}]{marker} {u['length']} chars, "
+            f"{u['tool_uses_since_prev_user']} tools since prev user — "
+            f"{u['preview'][:140]!r}"
+        )
+    lines += ["", "### Degradations"]
+    for d in report.get("degradation_notes", []):
+        lines.append(f"- {d}")
+    lines.append("")
+    return "\n".join(lines)
+
+
 def analyze(jsonl_path: Path):
     """Read the JSONL and produce the structured report."""
     events = list(parse_jsonl(jsonl_path))
     if not events:
         return {"error": f"no events in {jsonl_path}"}
+
+    # v1.39 additive: Codex transcripts ({timestamp,type,payload}) are routed to
+    # the dedicated extractor. Claude transcripts never match the detector and
+    # fall straight through to the unchanged Claude path below.
+    if is_codex_transcript(events):
+        return analyze_codex(events, jsonl_path)
 
     session_id = None
     cwd = None
@@ -1856,6 +2475,10 @@ def render_markdown(report):
     """Render a concise markdown summary of the report."""
     if "error" in report:
         return f"**ERROR:** {report['error']}\n"
+
+    # v1.39 additive: Codex reports have their own renderer.
+    if report.get("source_format") == "codex":
+        return render_codex_markdown(report)
 
     s = report["session"]
     lines = [
