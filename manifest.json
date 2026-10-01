@@ -1,0 +1,1811 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-01T03:30:05.927Z",
+  "cargoBranch": "cargo/2026-10-01",
+  "resultsBranch": "results/2026-10-01",
+  "items": [
+    {
+      "kind": "skillJob",
+      "id": "job-1790346406831-9b17df",
+      "skill": "adversarial-pr-review",
+      "sessionId": "12c1e9cc-dbd3-4848-b6ff-08f756e633e3",
+      "projectSlug": "workstation",
+      "headSha": "1d0e44d524279264cc52e583f22cde51032dbbb8",
+      "disposition": "local_only",
+      "transcriptBytes": 6813511,
+      "ageDays": 5.543971018518518,
+      "reason": "transcript 6813511o > cap 6000000o"
+    },
+    {
+      "kind": "session",
+      "id": "de756c00-c3db-4050-93d5-2d0f71b09947",
+      "sessionId": "de756c00-c3db-4050-93d5-2d0f71b09947",
+      "projectSlug": "workstation",
+      "disposition": "local_only",
+      "reason": "session en quarantaine (secret détecté à la capture)"
+    },
+    {
+      "kind": "session",
+      "id": "33cd3e17-3fad-4d2b-bd04-73fc733c7c67",
+      "sessionId": "33cd3e17-3fad-4d2b-bd04-73fc733c7c67",
+      "projectSlug": "workstation",
+      "disposition": "local_only",
+      "reason": "transcript 6262535o > cap 6000000o",
+      "ageDays": 1.9556508217592592,
+      "transcriptBytes": 6262535
+    },
+    {
+      "kind": "session",
+      "id": "agent-a9e857fedd21f3269",
+      "sessionId": "agent-a9e857fedd21f3269",
+      "projectSlug": "workstation",
+      "disposition": "local_only",
+      "reason": "secretScan positif (anthropic-api-key)",
+      "ageDays": 1.965891886574074,
+      "transcriptBytes": 663607
+    },
+    {
+      "kind": "session",
+      "id": "e71183fa-f318-4500-aabb-960c3ff07e4f",
+      "sessionId": "e71183fa-f318-4500-aabb-960c3ff07e4f",
+      "projectSlug": "workstation",
+      "disposition": "local_only",
+      "reason": "secretScan positif (secret-assignment)",
+      "ageDays": 1.9672076967592593,
+      "transcriptBytes": 4673907
+    },
+    {
+      "kind": "session",
+      "id": "agent-a0c9c6cff6193efa8",
+      "sessionId": "agent-a0c9c6cff6193efa8",
+      "projectSlug": "workstation",
+      "disposition": "local_only",
+      "reason": "secretScan positif (anthropic-api-key)",
+      "ageDays": 1.9736542476851853,
+      "transcriptBytes": 657455
+    },
+    {
+      "kind": "session",
+      "id": "16219ada-29a8-4d25-955d-002034676d83",
+      "sessionId": "16219ada-29a8-4d25-955d-002034676d83",
+      "projectSlug": "workstation",
+      "disposition": "local_only",
+      "reason": "transcript 6808832o > cap 6000000o",
+      "ageDays": 1.9926805555555556,
+      "transcriptBytes": 6808832
+    },
+    {
+      "kind": "session",
+      "id": "agent-a7a399578619b2b4d",
+      "sessionId": "agent-a7a399578619b2b4d",
+      "projectSlug": "workstation",
+      "disposition": "export",
+      "reason": "sélectionné (frais)",
+      "ageDays": 2.0192016435185187,
+      "transcriptBytes": 743722,
+      "transcriptRelPath": "transcripts/session-agent-a7a399578619b2b4d.jsonl",
+      "contentSha256": "4cbc1c832fe3ef4af6944bc7759c7185604195c6ce765bfb8754e482ad514584"
+    },
+    {
+      "kind": "session",
+      "id": "agent-aea447484ad5600f1",
+      "sessionId": "agent-aea447484ad5600f1",
+      "projectSlug": "workstation",
+      "disposition": "export",
+      "reason": "sélectionné (frais)",
+      "ageDays": 2.0193852199074076,
+      "transcriptBytes": 689779,
+      "transcriptRelPath": "transcripts/session-agent-aea447484ad5600f1.jsonl",
+      "contentSha256": "f8f94479988d72769d82c57a4aad63ee12ebab211f6f668e15f74c8ef45526a2"
+    },
+    {
+      "kind": "session",
+      "id": "agent-ad179d54ea53d7831",
+      "sessionId": "agent-ad179d54ea53d7831",
+      "projectSlug": "workstation",
+      "disposition": "export",
+      "reason": "sélectionné (frais)",
+      "ageDays": 2.019447349537037,
+      "transcriptBytes": 770768,
+      "transcriptRelPath": "transcripts/session-agent-ad179d54ea53d7831.jsonl",
+      "contentSha256": "4d98dfd6dc1e575f5f28cd8a428cd0bc86dddc7ac1033384432ff84639953fc6"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a5ddff4c6a0f8f566",
+      "sessionId": "agent-a5ddff4c6a0f8f566",
+      "projectSlug": "workstation",
+      "disposition": "export",
+      "reason": "sélectionné (frais)",
+      "ageDays": 2.0283616782407408,
+      "transcriptBytes": 809137,
+      "transcriptRelPath": "transcripts/session-agent-a5ddff4c6a0f8f566.jsonl",
+      "contentSha256": "0699c14c3a6d9456c784f92d8160b52805e78f4ef6a71284d3b4ddceb324fb91"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a85fac1d8e796075f",
+      "sessionId": "agent-a85fac1d8e796075f",
+      "projectSlug": "workstation",
+      "disposition": "local_only",
+      "reason": "secretScan positif (anthropic-api-key)",
+      "ageDays": 2.029049212962963,
+      "transcriptBytes": 777438
+    },
+    {
+      "kind": "session",
+      "id": "agent-a6fa6da2d54d83fa8",
+      "sessionId": "agent-a6fa6da2d54d83fa8",
+      "projectSlug": "workstation",
+      "disposition": "export",
+      "reason": "sélectionné (frais)",
+      "ageDays": 2.0296804282407406,
+      "transcriptBytes": 702578,
+      "transcriptRelPath": "transcripts/session-agent-a6fa6da2d54d83fa8.jsonl",
+      "contentSha256": "a1ba00c2c0ea99d494a84b3479341d3ed9b5524efaf069ea14ab73435ee9f6fd"
+    },
+    {
+      "kind": "session",
+      "id": "agent-a64fa82b5d578f310",
+      "sessionId": "agent-a64fa82b5d578f310",
+      "projectSlug": "workstation",
+      "disposition": "export",
+      "reason": "sélectionné (frais)",
+      "ageDays": 2.030096875,
+      "transcriptBytes": 667463,
+      "transcriptRelPath": "transcripts/session-agent-a64fa82b5d578f310.jsonl",
+      "contentSha256": "8cfdafcc211cf03ec7103ba0e8522fa8bc66e6418bb873bbdb4be112c3d57abf"
+    },
+    {
+      "kind": "session",
+      "id": "0b9f2f1b-54fd-4c54-9a42-9a9cd2e724e1",
+      "sessionId": "0b9f2f1b-54fd-4c54-9a42-9a9cd2e724e1",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 3.4081176967592595
+    },
+    {
+      "kind": "session",
+      "id": "12c1e9cc-dbd3-4848-b6ff-08f756e633e3",
+      "sessionId": "12c1e9cc-dbd3-4848-b6ff-08f756e633e3",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 5.4539616087962965
+    },
+    {
+      "kind": "session",
+      "id": "agent-a4f1a3d825a833d10",
+      "sessionId": "agent-a4f1a3d825a833d10",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 5.473953668981482
+    },
+    {
+      "kind": "session",
+      "id": "agent-a59f5b2177cd14fe1",
+      "sessionId": "agent-a59f5b2177cd14fe1",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 5.4745114467592595
+    },
+    {
+      "kind": "session",
+      "id": "agent-af0358723b7641ee5",
+      "sessionId": "agent-af0358723b7641ee5",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 5.492030925925926
+    },
+    {
+      "kind": "session",
+      "id": "agent-a322018f1a63643f7",
+      "sessionId": "agent-a322018f1a63643f7",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 5.492102384259259
+    },
+    {
+      "kind": "session",
+      "id": "agent-a469c81abeaee26c0",
+      "sessionId": "agent-a469c81abeaee26c0",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 5.4994466550925925
+    },
+    {
+      "kind": "session",
+      "id": "agent-a02be4fbe5eb61b1a",
+      "sessionId": "agent-a02be4fbe5eb61b1a",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 5.501236284722222
+    },
+    {
+      "kind": "session",
+      "id": "agent-a0624ada6621c530b",
+      "sessionId": "agent-a0624ada6621c530b",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 5.509064074074074
+    },
+    {
+      "kind": "session",
+      "id": "agent-a6f2c67ea2b8666c7",
+      "sessionId": "agent-a6f2c67ea2b8666c7",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 5.509526747685185
+    },
+    {
+      "kind": "session",
+      "id": "agent-a6a11941b40a1b34b",
+      "sessionId": "agent-a6a11941b40a1b34b",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 5.510010868055556
+    },
+    {
+      "kind": "session",
+      "id": "agent-af64b42b63da1860f",
+      "sessionId": "agent-af64b42b63da1860f",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 5.510930856481481
+    },
+    {
+      "kind": "session",
+      "id": "agent-a0e2f4b9b7798b2db",
+      "sessionId": "agent-a0e2f4b9b7798b2db",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 5.5116178125
+    },
+    {
+      "kind": "session",
+      "id": "agent-a09e719f9b4a162f1",
+      "sessionId": "agent-a09e719f9b4a162f1",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 5.511826550925926
+    },
+    {
+      "kind": "session",
+      "id": "f5cc6596-8342-4ca4-8410-e1183e411dcb",
+      "sessionId": "f5cc6596-8342-4ca4-8410-e1183e411dcb",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 5.61768431712963
+    },
+    {
+      "kind": "session",
+      "id": "01a0a6c2-e540-7a03-a36a-d332a8a444e2",
+      "sessionId": "01a0a6c2-e540-7a03-a36a-d332a8a444e2",
+      "projectSlug": "personal-budget-app",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 9.486805335648148
+    },
+    {
+      "kind": "session",
+      "id": "01a0a6c0-5d4a-70f0-a549-24a865201546",
+      "sessionId": "01a0a6c0-5d4a-70f0-a549-24a865201546",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 15.293148530092592
+    },
+    {
+      "kind": "session",
+      "id": "0845cdd3-f57c-45b8-8cd7-dd2371c29bb8",
+      "sessionId": "0845cdd3-f57c-45b8-8cd7-dd2371c29bb8",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 16.406741006944443
+    },
+    {
+      "kind": "session",
+      "id": "5440ef5c-1851-4092-8915-3f63f4aa4935",
+      "sessionId": "5440ef5c-1851-4092-8915-3f63f4aa4935",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 21.98760233796296
+    },
+    {
+      "kind": "session",
+      "id": "7bebdf64-bd8d-4d68-b0b4-a23c21dfd836",
+      "sessionId": "7bebdf64-bd8d-4d68-b0b4-a23c21dfd836",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 22.22232085648148
+    },
+    {
+      "kind": "session",
+      "id": "agent-a73182b09d22f0df7",
+      "sessionId": "agent-a73182b09d22f0df7",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 22.525000266203705
+    },
+    {
+      "kind": "session",
+      "id": "agent-aa3ce8ece6c860876",
+      "sessionId": "agent-aa3ce8ece6c860876",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 22.53120277777778
+    },
+    {
+      "kind": "session",
+      "id": "agent-aa711a4fab232cb11",
+      "sessionId": "agent-aa711a4fab232cb11",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 22.537721041666668
+    },
+    {
+      "kind": "session",
+      "id": "agent-af5cc17d4235849e9",
+      "sessionId": "agent-af5cc17d4235849e9",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 22.538144444444445
+    },
+    {
+      "kind": "session",
+      "id": "01a07499-0860-71d3-be37-bfdc6b0cddc0",
+      "sessionId": "01a07499-0860-71d3-be37-bfdc6b0cddc0",
+      "projectSlug": "workstation",
+      "disposition": "deferred",
+      "reason": "backlog frais au-delà du cap (8/nuit) — reporté à demain",
+      "ageDays": 24.39732699074074
+    },
+    {
+      "kind": "session",
+      "id": "019e7be7-43c1-7213-9fa4-09a3595ed9e9",
+      "sessionId": "019e7be7-43c1-7213-9fa4-09a3595ed9e9",
+      "projectSlug": "workstation",
+      "disposition": "export",
+      "reason": "sélectionné (ancien du backlog, 123.0j > 30j)",
+      "ageDays": 123.02486381944445,
+      "transcriptBytes": 3650524,
+      "transcriptRelPath": "transcripts/session-019e7be7-43c1-7213-9fa4-09a3595ed9e9.jsonl",
+      "contentSha256": "3dde8fbe05aac3ae6edda6d636a0335185fb245cdb6e7807ffeccada7f28a37f"
+    },
+    {
+      "kind": "session",
+      "id": "019e7c00-3dce-7d12-98c5-670826d9d8eb",
+      "sessionId": "019e7c00-3dce-7d12-98c5-670826d9d8eb",
+      "projectSlug": "workstation",
+      "disposition": "export",
+      "reason": "sélectionné (ancien du backlog, 123.0j > 30j)",
+      "ageDays": 123.00596864583333,
+      "transcriptBytes": 5799760,
+      "transcriptRelPath": "transcripts/session-019e7c00-3dce-7d12-98c5-670826d9d8eb.jsonl",
+      "contentSha256": "cb4bdf1f75aeeeef269a3dad68fa3d4818e8ac921487f8c5106e6cb38f86b785"
+    },
+    {
+      "kind": "session",
+      "id": "019e832c-7fd1-7d82-988f-20f445a1c3ec",
+      "sessionId": "019e832c-7fd1-7d82-988f-20f445a1c3ec",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 121.54232057870371
+    },
+    {
+      "kind": "session",
+      "id": "019eb2da-8761-7270-87ff-5e332799d12d",
+      "sessionId": "019eb2da-8761-7270-87ff-5e332799d12d",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 112.34243962962962
+    },
+    {
+      "kind": "session",
+      "id": "019efbc1-c416-7863-9bb7-2a27b7179e46",
+      "sessionId": "019efbc1-c416-7863-9bb7-2a27b7179e46",
+      "projectSlug": "home-spectors",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 98.20381679398149
+    },
+    {
+      "kind": "session",
+      "id": "019efbc1-b989-7291-8113-1e2ee3de3251",
+      "sessionId": "019efbc1-b989-7291-8113-1e2ee3de3251",
+      "projectSlug": "home-spectors",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 98.20361226851851
+    },
+    {
+      "kind": "session",
+      "id": "019efbc1-c822-76b2-96fa-83ba09476a51",
+      "sessionId": "019efbc1-c822-76b2-96fa-83ba09476a51",
+      "projectSlug": "home-spectors",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 98.2025503125
+    },
+    {
+      "kind": "session",
+      "id": "019efbc1-c0af-76f1-bc10-faf9ef7b21f5",
+      "sessionId": "019efbc1-c0af-76f1-bc10-faf9ef7b21f5",
+      "projectSlug": "home-spectors",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 98.20131238425925
+    },
+    {
+      "kind": "session",
+      "id": "019efbc1-b66a-7991-b792-0626f47cbcd4",
+      "sessionId": "019efbc1-b66a-7991-b792-0626f47cbcd4",
+      "projectSlug": "home-spectors",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 98.20104640046296
+    },
+    {
+      "kind": "session",
+      "id": "019efbc1-bd44-7c62-97c2-5ab4a00738d4",
+      "sessionId": "019efbc1-bd44-7c62-97c2-5ab4a00738d4",
+      "projectSlug": "home-spectors",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 98.2007555787037
+    },
+    {
+      "kind": "session",
+      "id": "019efbbd-c3b4-7a51-82ba-33a75943b2a0",
+      "sessionId": "019efbbd-c3b4-7a51-82ba-33a75943b2a0",
+      "projectSlug": "home-spectors",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 98.2000715162037
+    },
+    {
+      "kind": "session",
+      "id": "019f01dc-8db3-7190-8d16-6ec5047b6af9",
+      "sessionId": "019f01dc-8db3-7190-8d16-6ec5047b6af9",
+      "projectSlug": "eosa",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 97.02016339120371
+    },
+    {
+      "kind": "session",
+      "id": "019f01dd-fee4-73a0-ba68-08b12be63efc",
+      "sessionId": "019f01dd-fee4-73a0-ba68-08b12be63efc",
+      "projectSlug": "eosa",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 97.0194659375
+    },
+    {
+      "kind": "session",
+      "id": "019f01da-ddd1-7052-a8f0-2ad7a1e337f6",
+      "sessionId": "019f01da-ddd1-7052-a8f0-2ad7a1e337f6",
+      "projectSlug": "eosa",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 96.5241818287037
+    },
+    {
+      "kind": "session",
+      "id": "019f0497-2fb9-70e1-b96e-ef0f1b74ee99",
+      "sessionId": "019f0497-2fb9-70e1-b96e-ef0f1b74ee99",
+      "projectSlug": "automintech",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 96.48972127314815
+    },
+    {
+      "kind": "session",
+      "id": "019f0495-5339-73b3-85be-fa3628c4cb62",
+      "sessionId": "019f0495-5339-73b3-85be-fa3628c4cb62",
+      "projectSlug": "automintech",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 96.48683277777778
+    },
+    {
+      "kind": "session",
+      "id": "019f049f-f0d9-7331-9b1c-b56c174a37aa",
+      "sessionId": "019f049f-f0d9-7331-9b1c-b56c174a37aa",
+      "projectSlug": "automintech",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 96.48420533564814
+    },
+    {
+      "kind": "session",
+      "id": "019f04e8-08a0-7ad2-bef3-977b2ffd8bbe",
+      "sessionId": "019f04e8-08a0-7ad2-bef3-977b2ffd8bbe",
+      "projectSlug": "automintech",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 96.42622252314816
+    },
+    {
+      "kind": "session",
+      "id": "019f050b-fc8f-7d00-82dd-d2346e9495da",
+      "sessionId": "019f050b-fc8f-7d00-82dd-d2346e9495da",
+      "projectSlug": "automintech",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 96.40170313657407
+    },
+    {
+      "kind": "session",
+      "id": "agent-a6bec0a6dc5a0a275",
+      "sessionId": "agent-a6bec0a6dc5a0a275",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 62.328091747685185
+    },
+    {
+      "kind": "session",
+      "id": "agent-a52dcd318c7eb8651",
+      "sessionId": "agent-a52dcd318c7eb8651",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 62.32779037037037
+    },
+    {
+      "kind": "session",
+      "id": "agent-ad94940078a33022d",
+      "sessionId": "agent-ad94940078a33022d",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 62.32702005787037
+    },
+    {
+      "kind": "session",
+      "id": "agent-a8b13e3f881dd3da4",
+      "sessionId": "agent-a8b13e3f881dd3da4",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 62.325660266203705
+    },
+    {
+      "kind": "session",
+      "id": "agent-a2ca3ebbae2652c19",
+      "sessionId": "agent-a2ca3ebbae2652c19",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 62.325152314814815
+    },
+    {
+      "kind": "session",
+      "id": "agent-a0cf00969a6b0dc80",
+      "sessionId": "agent-a0cf00969a6b0dc80",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 62.29709679398148
+    },
+    {
+      "kind": "session",
+      "id": "agent-a08ba4a8bc696e10e",
+      "sessionId": "agent-a08ba4a8bc696e10e",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 62.29631479166667
+    },
+    {
+      "kind": "session",
+      "id": "agent-afeca22b6f4874967",
+      "sessionId": "agent-afeca22b6f4874967",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 62.29590949074074
+    },
+    {
+      "kind": "session",
+      "id": "agent-a0a0f2898d528dd97",
+      "sessionId": "agent-a0a0f2898d528dd97",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 62.29569931712963
+    },
+    {
+      "kind": "session",
+      "id": "agent-a6cb70b49b7e8717f",
+      "sessionId": "agent-a6cb70b49b7e8717f",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 62.29556672453704
+    },
+    {
+      "kind": "session",
+      "id": "agent-ade7feda65eea43a5",
+      "sessionId": "agent-ade7feda65eea43a5",
+      "projectSlug": "personal-budget-app",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.43616013888889
+    },
+    {
+      "kind": "session",
+      "id": "agent-a24b2fb04becb350d",
+      "sessionId": "agent-a24b2fb04becb350d",
+      "projectSlug": "personal-budget-app",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.435915810185186
+    },
+    {
+      "kind": "session",
+      "id": "agent-aa8e24d62aa1dce40",
+      "sessionId": "agent-aa8e24d62aa1dce40",
+      "projectSlug": "personal-budget-app",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.43473344907407
+    },
+    {
+      "kind": "session",
+      "id": "agent-a37c539a14da82eda",
+      "sessionId": "agent-a37c539a14da82eda",
+      "projectSlug": "personal-budget-app",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.4341125462963
+    },
+    {
+      "kind": "session",
+      "id": "agent-a94bd750230eb1b29",
+      "sessionId": "agent-a94bd750230eb1b29",
+      "projectSlug": "personal-budget-app",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.43407920138889
+    },
+    {
+      "kind": "session",
+      "id": "agent-a3f343bb50f8d641c",
+      "sessionId": "agent-a3f343bb50f8d641c",
+      "projectSlug": "personal-budget-app",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.414224849537035
+    },
+    {
+      "kind": "session",
+      "id": "agent-ac471ddc6884bef01",
+      "sessionId": "agent-ac471ddc6884bef01",
+      "projectSlug": "personal-budget-app",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.413342685185185
+    },
+    {
+      "kind": "session",
+      "id": "agent-ad68c4780eadcd390",
+      "sessionId": "agent-ad68c4780eadcd390",
+      "projectSlug": "personal-budget-app",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.41213002314815
+    },
+    {
+      "kind": "session",
+      "id": "agent-a0bfaa027917ab676",
+      "sessionId": "agent-a0bfaa027917ab676",
+      "projectSlug": "personal-budget-app",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.41207599537037
+    },
+    {
+      "kind": "session",
+      "id": "agent-a64cf357544a6f199",
+      "sessionId": "agent-a64cf357544a6f199",
+      "projectSlug": "personal-budget-app",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.41094429398148
+    },
+    {
+      "kind": "session",
+      "id": "agent-ae96be50f46f04e70",
+      "sessionId": "agent-ae96be50f46f04e70",
+      "projectSlug": "personal-budget-app",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.399383541666666
+    },
+    {
+      "kind": "session",
+      "id": "agent-a7ab7bb17c5021b67",
+      "sessionId": "agent-a7ab7bb17c5021b67",
+      "projectSlug": "personal-budget-app",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.396772337962965
+    },
+    {
+      "kind": "session",
+      "id": "agent-aefed5a1221f0649d",
+      "sessionId": "agent-aefed5a1221f0649d",
+      "projectSlug": "personal-budget-app",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.39631804398148
+    },
+    {
+      "kind": "session",
+      "id": "agent-af2b1bacae477564c",
+      "sessionId": "agent-af2b1bacae477564c",
+      "projectSlug": "personal-budget-app",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.394684768518516
+    },
+    {
+      "kind": "session",
+      "id": "agent-a6662bd0c14f554b2",
+      "sessionId": "agent-a6662bd0c14f554b2",
+      "projectSlug": "personal-budget-app",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.394596782407405
+    },
+    {
+      "kind": "session",
+      "id": "5e1648b3-07af-4c58-82cc-291d04b59fae",
+      "sessionId": "5e1648b3-07af-4c58-82cc-291d04b59fae",
+      "projectSlug": "htmlshare",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.19930144675926
+    },
+    {
+      "kind": "session",
+      "id": "b19155f9-e3df-4b4f-8fbf-258a94051844",
+      "sessionId": "b19155f9-e3df-4b4f-8fbf-258a94051844",
+      "projectSlug": "claude-skills",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.145479027777775
+    },
+    {
+      "kind": "session",
+      "id": "c21fe456-6241-4796-a3ad-13f92aafbf86",
+      "sessionId": "c21fe456-6241-4796-a3ad-13f92aafbf86",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.13451914351852
+    },
+    {
+      "kind": "session",
+      "id": "agent-a9023e62d441accde",
+      "sessionId": "agent-a9023e62d441accde",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.09888188657408
+    },
+    {
+      "kind": "session",
+      "id": "agent-a57303f542fa08296",
+      "sessionId": "agent-a57303f542fa08296",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.098784189814815
+    },
+    {
+      "kind": "session",
+      "id": "agent-a96e994525c7d0709",
+      "sessionId": "agent-a96e994525c7d0709",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.098457395833336
+    },
+    {
+      "kind": "session",
+      "id": "agent-a1a80971fe67f9d4e",
+      "sessionId": "agent-a1a80971fe67f9d4e",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.09843039351852
+    },
+    {
+      "kind": "session",
+      "id": "agent-a1491132969882826",
+      "sessionId": "agent-a1491132969882826",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.09831194444445
+    },
+    {
+      "kind": "session",
+      "id": "agent-ab04be9779e9358c5",
+      "sessionId": "agent-ab04be9779e9358c5",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.08348222222222
+    },
+    {
+      "kind": "session",
+      "id": "agent-ae2d80cce3d633c08",
+      "sessionId": "agent-ae2d80cce3d633c08",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.08322936342593
+    },
+    {
+      "kind": "session",
+      "id": "agent-a86c4ce7997f0bf5b",
+      "sessionId": "agent-a86c4ce7997f0bf5b",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.0828271875
+    },
+    {
+      "kind": "session",
+      "id": "agent-aadb951649723013d",
+      "sessionId": "agent-aadb951649723013d",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.082437488425924
+    },
+    {
+      "kind": "session",
+      "id": "agent-a07d4617eeeb87b62",
+      "sessionId": "agent-a07d4617eeeb87b62",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 57.08157634259259
+    },
+    {
+      "kind": "session",
+      "id": "agent-ad495106091f4dfa9",
+      "sessionId": "agent-ad495106091f4dfa9",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.6027566087963
+    },
+    {
+      "kind": "session",
+      "id": "agent-acc2ab65e9985d3eb",
+      "sessionId": "agent-acc2ab65e9985d3eb",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.58114857638889
+    },
+    {
+      "kind": "session",
+      "id": "agent-a1ce327dc2f2046b6",
+      "sessionId": "agent-a1ce327dc2f2046b6",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.56815493055556
+    },
+    {
+      "kind": "session",
+      "id": "agent-a9577e6db3cf4ded2",
+      "sessionId": "agent-a9577e6db3cf4ded2",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.55164511574074
+    },
+    {
+      "kind": "session",
+      "id": "agent-a5cf776a929629fbf",
+      "sessionId": "agent-a5cf776a929629fbf",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.41648670138889
+    },
+    {
+      "kind": "session",
+      "id": "agent-abd5cf8254bafb38b",
+      "sessionId": "agent-abd5cf8254bafb38b",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.41566365740741
+    },
+    {
+      "kind": "session",
+      "id": "agent-ae5e9f41522287cee",
+      "sessionId": "agent-ae5e9f41522287cee",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.414823668981484
+    },
+    {
+      "kind": "session",
+      "id": "agent-af38567432e0eb6ea",
+      "sessionId": "agent-af38567432e0eb6ea",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.41464447916667
+    },
+    {
+      "kind": "session",
+      "id": "agent-a9d00553760e24981",
+      "sessionId": "agent-a9d00553760e24981",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.41298390046296
+    },
+    {
+      "kind": "session",
+      "id": "agent-aceb04a7e02b6b757",
+      "sessionId": "agent-aceb04a7e02b6b757",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.398538101851855
+    },
+    {
+      "kind": "session",
+      "id": "agent-a0597eaf3908572e4",
+      "sessionId": "agent-a0597eaf3908572e4",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.397679386574076
+    },
+    {
+      "kind": "session",
+      "id": "agent-a4f16661cc6af0c75",
+      "sessionId": "agent-a4f16661cc6af0c75",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.39671506944445
+    },
+    {
+      "kind": "session",
+      "id": "agent-af0fc98e43616f5aa",
+      "sessionId": "agent-af0fc98e43616f5aa",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.39669712962963
+    },
+    {
+      "kind": "session",
+      "id": "agent-ae461aa61f82432aa",
+      "sessionId": "agent-ae461aa61f82432aa",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.395740277777776
+    },
+    {
+      "kind": "session",
+      "id": "agent-a87c23027f6e8fecb",
+      "sessionId": "agent-a87c23027f6e8fecb",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.381269456018515
+    },
+    {
+      "kind": "session",
+      "id": "agent-a7fecb7b786f7eb7f",
+      "sessionId": "agent-a7fecb7b786f7eb7f",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.38122556712963
+    },
+    {
+      "kind": "session",
+      "id": "agent-add2b11a53eb87e02",
+      "sessionId": "agent-add2b11a53eb87e02",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.37959939814815
+    },
+    {
+      "kind": "session",
+      "id": "agent-a9b4c3ee172fef879",
+      "sessionId": "agent-a9b4c3ee172fef879",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.37565583333333
+    },
+    {
+      "kind": "session",
+      "id": "b235b79d-fd41-4b40-83b5-4a06088893ce",
+      "sessionId": "b235b79d-fd41-4b40-83b5-4a06088893ce",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.36940710648148
+    },
+    {
+      "kind": "session",
+      "id": "1c96403d-8310-4d15-81bd-64cff5023b03",
+      "sessionId": "1c96403d-8310-4d15-81bd-64cff5023b03",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.27066780092593
+    },
+    {
+      "kind": "session",
+      "id": "agent-a5efbff9cfb91d671",
+      "sessionId": "agent-a5efbff9cfb91d671",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.24690666666667
+    },
+    {
+      "kind": "session",
+      "id": "agent-ad00495850d9256fe",
+      "sessionId": "agent-ad00495850d9256fe",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.24639990740741
+    },
+    {
+      "kind": "session",
+      "id": "agent-a1906a5b1e854e08a",
+      "sessionId": "agent-a1906a5b1e854e08a",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.24508974537037
+    },
+    {
+      "kind": "session",
+      "id": "agent-a1816df68f91ea4de",
+      "sessionId": "agent-a1816df68f91ea4de",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.22862195601852
+    },
+    {
+      "kind": "session",
+      "id": "agent-abe2409fc27453468",
+      "sessionId": "agent-abe2409fc27453468",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.228468657407404
+    },
+    {
+      "kind": "session",
+      "id": "agent-ad538018de30873d7",
+      "sessionId": "agent-ad538018de30873d7",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.22254909722222
+    },
+    {
+      "kind": "session",
+      "id": "agent-a9be2989171dadc0d",
+      "sessionId": "agent-a9be2989171dadc0d",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.221090833333335
+    },
+    {
+      "kind": "session",
+      "id": "agent-a508aae18d7a4ca9b",
+      "sessionId": "agent-a508aae18d7a4ca9b",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.21670929398148
+    },
+    {
+      "kind": "session",
+      "id": "agent-af589b842cc28997b",
+      "sessionId": "agent-af589b842cc28997b",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 56.21624290509259
+    },
+    {
+      "kind": "session",
+      "id": "agent-a6b2276c172218764",
+      "sessionId": "agent-a6b2276c172218764",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.57064738425926
+    },
+    {
+      "kind": "session",
+      "id": "agent-a9fd70f922f201aa1",
+      "sessionId": "agent-a9fd70f922f201aa1",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.57051596064815
+    },
+    {
+      "kind": "session",
+      "id": "agent-a062df9a3843b6e0b",
+      "sessionId": "agent-a062df9a3843b6e0b",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.57036870370371
+    },
+    {
+      "kind": "session",
+      "id": "agent-ad49349ae847341fb",
+      "sessionId": "agent-ad49349ae847341fb",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.570231435185185
+    },
+    {
+      "kind": "session",
+      "id": "agent-ad88e7be02cf68be2",
+      "sessionId": "agent-ad88e7be02cf68be2",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.55996584490741
+    },
+    {
+      "kind": "session",
+      "id": "agent-a7258b2fd199c5e33",
+      "sessionId": "agent-a7258b2fd199c5e33",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.55930862268519
+    },
+    {
+      "kind": "session",
+      "id": "agent-afd80f70133324917",
+      "sessionId": "agent-afd80f70133324917",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.55695052083333
+    },
+    {
+      "kind": "session",
+      "id": "agent-aabcdca74fceb8705",
+      "sessionId": "agent-aabcdca74fceb8705",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.55276275462963
+    },
+    {
+      "kind": "session",
+      "id": "agent-a02b9122b13083e35",
+      "sessionId": "agent-a02b9122b13083e35",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.55257913194445
+    },
+    {
+      "kind": "session",
+      "id": "agent-af423b9cd15cb15f4",
+      "sessionId": "agent-af423b9cd15cb15f4",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.55244975694445
+    },
+    {
+      "kind": "session",
+      "id": "agent-ac1f7b2d6acd343fa",
+      "sessionId": "agent-ac1f7b2d6acd343fa",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.55221082175926
+    },
+    {
+      "kind": "session",
+      "id": "agent-a455cafdff03b4893",
+      "sessionId": "agent-a455cafdff03b4893",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.550488020833335
+    },
+    {
+      "kind": "session",
+      "id": "agent-a069eec9ea61582f7",
+      "sessionId": "agent-a069eec9ea61582f7",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.54606730324074
+    },
+    {
+      "kind": "session",
+      "id": "c379a17d-1f90-4387-8729-dc3ce314f035",
+      "sessionId": "c379a17d-1f90-4387-8729-dc3ce314f035",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.54103127314815
+    },
+    {
+      "kind": "session",
+      "id": "agent-a7cffb6995c088338",
+      "sessionId": "agent-a7cffb6995c088338",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.53350789351852
+    },
+    {
+      "kind": "session",
+      "id": "agent-a918fc37f97505cc8",
+      "sessionId": "agent-a918fc37f97505cc8",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.53283484953704
+    },
+    {
+      "kind": "session",
+      "id": "agent-ac10dddad007674d7",
+      "sessionId": "agent-ac10dddad007674d7",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.53233945601852
+    },
+    {
+      "kind": "session",
+      "id": "agent-a3f16378cd4995a95",
+      "sessionId": "agent-a3f16378cd4995a95",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.5318953125
+    },
+    {
+      "kind": "session",
+      "id": "agent-af9fccf3b7fefc5dc",
+      "sessionId": "agent-af9fccf3b7fefc5dc",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.531823530092595
+    },
+    {
+      "kind": "session",
+      "id": "agent-a3b8f0156523a6370",
+      "sessionId": "agent-a3b8f0156523a6370",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.51912696759259
+    },
+    {
+      "kind": "session",
+      "id": "agent-a0db50d5dcda002e9",
+      "sessionId": "agent-a0db50d5dcda002e9",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.51719851851852
+    },
+    {
+      "kind": "session",
+      "id": "af9d4f1a-6ca8-48e5-be73-2f26e3ecf401",
+      "sessionId": "af9d4f1a-6ca8-48e5-be73-2f26e3ecf401",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.50813716435185
+    },
+    {
+      "kind": "session",
+      "id": "96b7bc4c-8991-4ce9-8d16-55381d522c25",
+      "sessionId": "96b7bc4c-8991-4ce9-8d16-55381d522c25",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.50682107638889
+    },
+    {
+      "kind": "session",
+      "id": "66ddaea6-d6be-483c-ad48-afe5a533af5f",
+      "sessionId": "66ddaea6-d6be-483c-ad48-afe5a533af5f",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.50127471064815
+    },
+    {
+      "kind": "session",
+      "id": "agent-afce8e96e039cd90d",
+      "sessionId": "agent-afce8e96e039cd90d",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.4442790162037
+    },
+    {
+      "kind": "session",
+      "id": "agent-a29bc0b23d9459603",
+      "sessionId": "agent-a29bc0b23d9459603",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.43962309027778
+    },
+    {
+      "kind": "session",
+      "id": "agent-a801dc5b90afc71be",
+      "sessionId": "agent-a801dc5b90afc71be",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.43241552083333
+    },
+    {
+      "kind": "session",
+      "id": "agent-a057907dd3227130f",
+      "sessionId": "agent-a057907dd3227130f",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.43221358796296
+    },
+    {
+      "kind": "session",
+      "id": "agent-a8eaf8c84a4615272",
+      "sessionId": "agent-a8eaf8c84a4615272",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.42583584490741
+    },
+    {
+      "kind": "session",
+      "id": "agent-aebc5efa73c191474",
+      "sessionId": "agent-aebc5efa73c191474",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.41925853009259
+    },
+    {
+      "kind": "session",
+      "id": "agent-a98b72475222dc879",
+      "sessionId": "agent-a98b72475222dc879",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.41827613425926
+    },
+    {
+      "kind": "session",
+      "id": "agent-a95bb642c7fc40d4e",
+      "sessionId": "agent-a95bb642c7fc40d4e",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.41814415509259
+    },
+    {
+      "kind": "session",
+      "id": "agent-a646731ae2c295eb4",
+      "sessionId": "agent-a646731ae2c295eb4",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.416875983796295
+    },
+    {
+      "kind": "session",
+      "id": "agent-affbc69e3b311676d",
+      "sessionId": "agent-affbc69e3b311676d",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.416107152777776
+    },
+    {
+      "kind": "session",
+      "id": "agent-ad4aedaced6f75d9c",
+      "sessionId": "agent-ad4aedaced6f75d9c",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.41505538194444
+    },
+    {
+      "kind": "session",
+      "id": "agent-a555ea0b769b9aed0",
+      "sessionId": "agent-a555ea0b769b9aed0",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.40845538194444
+    },
+    {
+      "kind": "session",
+      "id": "agent-a5268b40b6d71f452",
+      "sessionId": "agent-a5268b40b6d71f452",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.40821226851852
+    },
+    {
+      "kind": "session",
+      "id": "agent-a78c72373e15768b1",
+      "sessionId": "agent-a78c72373e15768b1",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.40729042824074
+    },
+    {
+      "kind": "session",
+      "id": "agent-aea5b8c6047551df6",
+      "sessionId": "agent-aea5b8c6047551df6",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.32842545138889
+    },
+    {
+      "kind": "session",
+      "id": "agent-a60b69317096ab43a",
+      "sessionId": "agent-a60b69317096ab43a",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.328160983796295
+    },
+    {
+      "kind": "session",
+      "id": "agent-a51251dd1fa336586",
+      "sessionId": "agent-a51251dd1fa336586",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.32804402777778
+    },
+    {
+      "kind": "session",
+      "id": "agent-ab33ff8ead37d7775",
+      "sessionId": "agent-ab33ff8ead37d7775",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.327915509259256
+    },
+    {
+      "kind": "session",
+      "id": "agent-af8576df3d0198dbf",
+      "sessionId": "agent-af8576df3d0198dbf",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.327240625
+    },
+    {
+      "kind": "session",
+      "id": "agent-a22d9b328bd4329ef",
+      "sessionId": "agent-a22d9b328bd4329ef",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.32569420138889
+    },
+    {
+      "kind": "session",
+      "id": "agent-aef7748fb8adda1ca",
+      "sessionId": "agent-aef7748fb8adda1ca",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.302808032407405
+    },
+    {
+      "kind": "session",
+      "id": "agent-a1c2e38f0bae2fd01",
+      "sessionId": "agent-a1c2e38f0bae2fd01",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.30266627314815
+    },
+    {
+      "kind": "session",
+      "id": "agent-a987df8689673988c",
+      "sessionId": "agent-a987df8689673988c",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.302041724537034
+    },
+    {
+      "kind": "session",
+      "id": "agent-aae18926740f8475e",
+      "sessionId": "agent-aae18926740f8475e",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.30151761574074
+    },
+    {
+      "kind": "session",
+      "id": "agent-a73975044cf8ef7b8",
+      "sessionId": "agent-a73975044cf8ef7b8",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.30060842592592
+    },
+    {
+      "kind": "session",
+      "id": "agent-adfc706754c6627f6",
+      "sessionId": "agent-adfc706754c6627f6",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.27746872685185
+    },
+    {
+      "kind": "session",
+      "id": "agent-a0f16ab3169564df0",
+      "sessionId": "agent-a0f16ab3169564df0",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.276045717592595
+    },
+    {
+      "kind": "session",
+      "id": "agent-a4edb3687aeed8d99",
+      "sessionId": "agent-a4edb3687aeed8d99",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.27573351851852
+    },
+    {
+      "kind": "session",
+      "id": "agent-a9a3d6debfc7cd8e1",
+      "sessionId": "agent-a9a3d6debfc7cd8e1",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.27565025462963
+    },
+    {
+      "kind": "session",
+      "id": "agent-a790ed483eb85a292",
+      "sessionId": "agent-a790ed483eb85a292",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.27548608796296
+    },
+    {
+      "kind": "session",
+      "id": "agent-a1cb80a36fbff97c8",
+      "sessionId": "agent-a1cb80a36fbff97c8",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.27464804398148
+    },
+    {
+      "kind": "session",
+      "id": "agent-ab8adad8ac63d587d",
+      "sessionId": "agent-ab8adad8ac63d587d",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.274400416666666
+    },
+    {
+      "kind": "session",
+      "id": "agent-a4a0422ffce2ef8ce",
+      "sessionId": "agent-a4a0422ffce2ef8ce",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.273835104166665
+    },
+    {
+      "kind": "session",
+      "id": "agent-ab0db2bf2d6a76fd9",
+      "sessionId": "agent-ab0db2bf2d6a76fd9",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.26387853009259
+    },
+    {
+      "kind": "session",
+      "id": "agent-a8629c494e90273e2",
+      "sessionId": "agent-a8629c494e90273e2",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.26264555555556
+    },
+    {
+      "kind": "session",
+      "id": "agent-aab7dcc2109f51d16",
+      "sessionId": "agent-aab7dcc2109f51d16",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.26126462962963
+    },
+    {
+      "kind": "session",
+      "id": "agent-af3c7c62a98d0259f",
+      "sessionId": "agent-af3c7c62a98d0259f",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.26123612268518
+    },
+    {
+      "kind": "session",
+      "id": "agent-a68c34a9a994b775d",
+      "sessionId": "agent-a68c34a9a994b775d",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.26022275462963
+    },
+    {
+      "kind": "session",
+      "id": "agent-a2cd017257dbe6f0a",
+      "sessionId": "agent-a2cd017257dbe6f0a",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.25085633101852
+    },
+    {
+      "kind": "session",
+      "id": "agent-a133d902941fc6612",
+      "sessionId": "agent-a133d902941fc6612",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.249262280092594
+    },
+    {
+      "kind": "session",
+      "id": "agent-a2c3029591ae0040a",
+      "sessionId": "agent-a2c3029591ae0040a",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.24887960648148
+    },
+    {
+      "kind": "session",
+      "id": "agent-a44f019c6223d3c6d",
+      "sessionId": "agent-a44f019c6223d3c6d",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.247678576388886
+    },
+    {
+      "kind": "session",
+      "id": "agent-a64bbc8854f6c2ea3",
+      "sessionId": "agent-a64bbc8854f6c2ea3",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.24757077546296
+    },
+    {
+      "kind": "session",
+      "id": "a81003e4-09c3-43dc-99ef-baa7943b386f",
+      "sessionId": "a81003e4-09c3-43dc-99ef-baa7943b386f",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.24121980324074
+    },
+    {
+      "kind": "session",
+      "id": "agent-a0565a329f69ef85b",
+      "sessionId": "agent-a0565a329f69ef85b",
+      "projectSlug": "workstation",
+      "disposition": "skipped_stale",
+      "reason": "au-delà de maxAgeDays (30j) et hors quota 20% de cette nuit",
+      "ageDays": 55.237249444444444
+    }
+  ],
+  "budgets": {
+    "maxTranscriptBytes": 6000000,
+    "maxCargoBytes": 50000000,
+    "cargoBytesUsed": 13833731
+  },
+  "skillDrift": [
+    {
+      "skill": "session-review",
+      "status": "match",
+      "localSha": "e31345c5e799b81528a199a2294f6bb3371b8007ea239fb2baf7fb358b9e9943",
+      "cargoSha": "e31345c5e799b81528a199a2294f6bb3371b8007ea239fb2baf7fb358b9e9943"
+    },
+    {
+      "skill": "adversarial-pr-review",
+      "status": "match",
+      "localSha": "30857125fd08a268b79d18b6b38dea95b25fe7f0e7272a7275ab514eb4bd731a",
+      "cargoSha": "30857125fd08a268b79d18b6b38dea95b25fe7f0e7272a7275ab514eb4bd731a"
+    }
+  ],
+  "counts": {
+    "local_only": 8,
+    "export": 8,
+    "deferred": 25,
+    "skipped_stale": 153
+  }
+}
