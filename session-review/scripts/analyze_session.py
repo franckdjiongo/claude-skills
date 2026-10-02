@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# ANALYZER_VERSION = "v1.39 — additive: native Codex (OpenAI) transcript support. Codex Desktop persists {timestamp, type, payload} lines (session_meta / turn_context / event_msg / response_item) that the Claude event loop cannot read: `--file <codex.jsonl>` rendered scope_tier=Micro, tool_usage_total=0 and every turn count at 0 (observed 2026-10-01 on workstation-night-cargo transcripts 019e7be7 — 88 function_call + 5 custom_tool_call + 1 tool_search_call — and 019e7c00). New is_codex_transcript() (first line type=session_meta with a payload, or a strict majority of {timestamp,type,payload} lines) routes to analyze_codex(), which emits the SAME top-level keys as the Claude report (degraded values where Codex exports nothing) plus source_format='codex', format_supported='native'|'imported', degradation_notes[], tokens (last event_msg token_count totals), tool_calls_native / tool_calls_from_markers and failure_patterns.codex_tool_failures. Tools are counted from response_item function_call / custom_tool_call / tool_search_call / local_shell_call (MCP namespaces rendered mcp__ns__name) AND from inline '[external_agent_tool_call: X' markers of imported sessions (the only source the unmerged 2026-08-24 patch read — it returned 0 tools on native logs; this version supersedes it). User turns = response_item message role=user minus explicit injected wrappers (_CODEX_INJECTED_PREFIXES); '## My request for Codex:' preambles are reduced to the request; <skill> injections feed skills_invoked. Tool failures = *_call_output whose exit code (Process exited with code N / Exit code: N / metadata.exit_code) is non-zero; unknown codes are never failures. Shared helpers are reused unchanged (classify_scope_tier, classify_user_turns, detect_retries_and_failures / detect_commit_attempts / extract_branches_created / count_git_commit_tool_calls via Claude-shaped synthetic events, compute_active_duration). render_markdown() dispatches Codex reports to render_codex_markdown(). Claude path byte-for-byte unchanged (--json and --md diffed empty on two Claude transcripts). 2026-10-01"
+# ANALYZER_VERSION = "v1.40: additive failure_patterns.masked_shell_errors counts unflagged tool results with line-start shell diagnostics and no explicit nonzero exit code. Supports Claude text blocks and native/JSON-wrapped Codex output; shown by both Markdown renderers. Existing fields are unchanged. This is a diagnostic heuristic, not proof that a command failed. 2026-10-02"
+# ANALYZER_VERSION_PREVIOUS_V1_39 = "v1.39 — additive: native Codex (OpenAI) transcript support. Codex Desktop persists {timestamp, type, payload} lines (session_meta / turn_context / event_msg / response_item) that the Claude event loop cannot read: `--file <codex.jsonl>` rendered scope_tier=Micro, tool_usage_total=0 and every turn count at 0 (observed 2026-10-01 on workstation-night-cargo transcripts 019e7be7 — 88 function_call + 5 custom_tool_call + 1 tool_search_call — and 019e7c00). New is_codex_transcript() (first line type=session_meta with a payload, or a strict majority of {timestamp,type,payload} lines) routes to analyze_codex(), which emits the SAME top-level keys as the Claude report (degraded values where Codex exports nothing) plus source_format='codex', format_supported='native'|'imported', degradation_notes[], tokens (last event_msg token_count totals), tool_calls_native / tool_calls_from_markers and failure_patterns.codex_tool_failures. Tools are counted from response_item function_call / custom_tool_call / tool_search_call / local_shell_call (MCP namespaces rendered mcp__ns__name) AND from inline '[external_agent_tool_call: X' markers of imported sessions (the only source the unmerged 2026-08-24 patch read — it returned 0 tools on native logs; this version supersedes it). User turns = response_item message role=user minus explicit injected wrappers (_CODEX_INJECTED_PREFIXES); '## My request for Codex:' preambles are reduced to the request; <skill> injections feed skills_invoked. Tool failures = *_call_output whose exit code (Process exited with code N / Exit code: N / metadata.exit_code) is non-zero; unknown codes are never failures. Shared helpers are reused unchanged (classify_scope_tier, classify_user_turns, detect_retries_and_failures / detect_commit_attempts / extract_branches_created / count_git_commit_tool_calls via Claude-shaped synthetic events, compute_active_duration). render_markdown() dispatches Codex reports to render_codex_markdown(). Claude path byte-for-byte unchanged (--json and --md diffed empty on two Claude transcripts). 2026-10-01"
 # ANALYZER_VERSION_PREVIOUS_V1_38 = "v1.38 — (a) additive: agent_message classifier category in classify_user_turns + widened harness_injected flag. When a background subagent or a sibling session hands back, the harness injects a user-role turn beginning 'Another Claude session sent a message:' followed by an <agent-message from=...> frame (subagent hand-back / inter-session message). It is NOT user input, but it matched neither the v1.9 harness_injected signature nor any specific branch, so its length after tool work (or its position after a zero-tool span) mislabeled it initial_request / new_request_mid_work / likely_intervention. Observed 2026-09-26 (banc d'essai cloud, workstation): 03390afc (8 hand-backs, 4 read as initial_request) and b5813354 (6 hand-backs, 4 initial_request) — a false 'user request' signal hand-requalified by both reviewers; ffabf5f1 carries one inter-session message counted nowhere. The flag now also covers these frames (harness_injected_turns widens — a missed-signal widening), and the new category `agent_message` is tested right before `task_notification` so a hand-back is named for what it is; every other turn keeps its exact prior classification. (b) correctness fix in agent_dispatch_pattern (v1.2): Claude Code persists ONE API assistant message as SEVERAL JSONL lines (one per content block) sharing the same message.id, so counting Agent calls per JSONL line reported every parallel dispatch as N solo messages. Counts are now aggregated per message.id (a line without message.id stays its own message, exactly as before). Observed 2026-09-26 on all 4 main transcripts of the night: 03390afc true max 4 (reported 1, parallel_messages 0), b5813354 true 7 (reported 1), ffabf5f1 true 4 with 5 parallel messages (reported 1 / 0), 200cb50b true 2 ×2 (reported 1 / 0) — the markdown then raised a false parallel-dispatch-failure hint. Keys and schema UNCHANGED; values now match the per-message semantics the v1.2 docstring always promised. (c) additive: session.agent_id — a subagent transcript (isSidechain=true) carries its PARENT's sessionId, so session.id was identical for every hunter of one review (observed 2026-09-26: agent-a5b2c4b7/agent-a570c180 both reported 12c1e9cc…, agent-a2887976/agent-a3fd477b both reported f9f3ad72…; both reviewers flagged the reports as indistinguishable). The first agentId seen on a sidechain event is now exposed; null for a main session; session.id UNCHANGED. 2026-09-26"
 # ANALYZER_VERSION_PREVIOUS_V1_37 = "v1.37 — (a) additive: new signature `hook_blocked` in _classify_tool_error (failure_patterns.tool_error_kinds), tested LAST right before the `other` fallback so every previously-classified error keeps its exact prior kind: a tool call refused by a PreToolUse/PostToolUse hook (`PreToolUse:Bash hook error: [...]: Blocked by ...`). Observed 2026-09-25 (banc d'essai cloud, workstation): 4 hook refusals across 3 of 5 exported transcripts (workstation-skill-gate ×3 in f202de62/56caa879/68fbee07, adversarial-pr-guard ×1 in 56caa879) all landed in `other`, mixed with shell exits — a governance signal the rapport had to hand-requalify. (b) correctness fix in detect_commit_attempts (failure_patterns.commit_attempts): `rejected` now requires POSITIVE rejection evidence (hook_fail signature or an is_error result mentioning commit — unchanged); a commit attempt whose result carries neither landed evidence nor rejection evidence is counted in the new key `unconfirmed` instead of `rejected` (attempts == succeeded + rejected + unconfirmed). Also, the v1.35 git-log-oneline landed signal now extracts the subject of a heredoc message (`git commit [-q] -F - <<'EOF'` → first non-empty line of the heredoc body), not only `-m \"...\"`. Observed 2026-09-24/25 across 3 transcripts (rule of recurrence): f202de62 reported rejected:2 for two real landed commits (d95150a via a chained command, e86fb4e via `-F - <<'EOF'` + `git log --oneline`); agent-a7db8e6f reported rejected:2 for `git commit -q` inside throwaway-repo simulations under set -e with no rejection signal; agent-a9485e05 (2026-09-24) same throwaway-repo pattern. A genuine hook rejection (husky/pre-commit/lint-staged/quality gate/is_error) is still counted rejected exactly as before. Schema: one new key (`unconfirmed`), every other key UNCHANGED. Markdown: the existing ⚠️ commit_attempts line (still gated on rejected > 0) now also states succeeded/unconfirmed so `N rejected of M attempts` no longer implies the rest landed. 2026-09-25"
 # ANALYZER_VERSION_PREVIOUS_V1_36 = "v1.36 — additive: two new signatures in _classify_tool_error (failure_patterns.tool_error_kinds), both tested right BEFORE the final `other` fallback so every previously-classified error keeps its exact prior kind: (a) read_token_limit — a Read tool_result rejected with `exceeds maximum allowed tokens` (the 30k-token cap on a large file). (b) tool_input_schema — a tool call rejected by the harness for a malformed or schema-violating input: `Output does not match required schema` (StructuredOutput missing a required property), `could not be parsed as JSON`, or an `InputValidationError`. Observed 2026-09-22 (banc d'essai cloud, brief-preflight lens wave of 2026-09-08 on plan provenance-session): 5 of 6 exported transcripts carried is_error results and ALL 6 errors landed in `other` — 2× Read >30k tokens (agent-a4017ba2 L23, agent-a510e2b0 L22), 2× StructuredOutput missing `mustHave` (agent-aafd1241 L92, agent-a01c9363 L176), 1× StructuredOutput unparsable JSON (agent-a510e2b0 L109) — so the breakdown discriminated nothing; the same Read >30k signature had been hand-counted in every rapport of the 2026-09-19/20/21 nights (×6 on 2026-09-21). Markdown render unchanged: tool_error_kinds is already rendered dynamically as sub-bullets (v1.12), so the new kinds appear automatically. tool_errors count, every existing kind, and every other key UNCHANGED. Purely additive. 2026-09-22"
@@ -822,6 +823,52 @@ def classify_user_turns(turns):
     return turns
 
 
+# Only recognize complete diagnostic lines, not prose/source search hits.
+_MASKED_SHELL_ERROR_RE = re.compile(
+    r"^(?:(?:zsh|\(eval\)|bash|sh)(?::\d+)?: "
+    r"(?:no matches found|command not found):[ \t]+\S[^\n]*"
+    r"|(?:bash|sh): line \d+: \S+: command not found[ \t]*)$",
+    re.MULTILINE,
+)
+_MASKED_SHELL_EXIT_RE = re.compile(
+    r"^(?:Process exited with code|Exit code:?)[ \t]+(-?\d+)\b", re.MULTILINE,
+)
+
+
+def _has_masked_shell_error(content):
+    """Heuristic: diagnostic evidence without a reported shell failure.
+
+    Keep flattening local so existing error classifications retain their input.
+    A printed/quoted diagnostic identical to a shell's output remains ambiguous.
+    """
+    if isinstance(content, list):
+        text = "\n".join(
+            b["text"] for b in content
+            if isinstance(b, dict) and isinstance(b.get("text"), str)
+        )
+    else:
+        text = str(content)
+    # Older Codex CLI stores output and exit metadata as JSON inside a string.
+    if text.lstrip().startswith("{"):
+        try:
+            wrapped = json.loads(text)
+        except (ValueError, TypeError):
+            wrapped = None
+        if isinstance(wrapped, dict) and isinstance(wrapped.get("output"), str):
+            metadata = wrapped.get("metadata")
+            codes = [wrapped.get("exit_code")]
+            if isinstance(metadata, dict):
+                codes.append(metadata.get("exit_code"))
+            # A reported failure wins over a conflicting zero. JSON booleans are
+            # not exit codes, even though Python makes bool a subclass of int.
+            if any(type(code) is int and code != 0 for code in codes):
+                return False
+            text = wrapped["output"]
+    if any(int(match.group(1)) != 0 for match in _MASKED_SHELL_EXIT_RE.finditer(text)):
+        return False
+    return bool(_MASKED_SHELL_ERROR_RE.search(text))
+
+
 def detect_retries_and_failures(events):
     """Look for patterns indicating retries or tool failures."""
     patterns = {
@@ -833,6 +880,9 @@ def detect_retries_and_failures(events):
         # apart from genuine bugs. Sub-counts sum to <= tool_errors (an error with no
         # known signature falls into "other"). Purely additive — tool_errors stays.
         "tool_error_kinds": {},
+        # v1.40 additive: shell failures (unmatched zsh glob, missing command) inside a
+        # tool_result NOT flagged is_error — masked by a pipe or `;` chain exiting 0.
+        "masked_shell_errors": 0,
     }
     for ev in events:
         if ev.get("type") != "user":
@@ -858,6 +908,8 @@ def detect_retries_and_failures(events):
                     )
                 if "Exit code 1" in text or "Exit code: 1" in text:
                     patterns["bash_exit_nonzero"] += 1
+                elif not block.get("is_error") and _has_masked_shell_error(block.get("content", "")):
+                    patterns["masked_shell_errors"] += 1
                 if "[Tool result missing]" in text or "0-byte" in text:
                     patterns["empty_output_observed"] += 1
     return patterns
@@ -2082,6 +2134,9 @@ def render_codex_markdown(report):
     ]
     for it in tf.get("items", []):
         lines.append(f"- `{it['tool']}` exit {it['exit_code']} — {it['excerpt'][:100]!r}")
+    masked = report.get("failure_patterns", {}).get("masked_shell_errors", 0)
+    if masked:
+        lines.append(f"- masked_shell_errors: **{masked}**")
     tk = report.get("tokens")
     if tk:
         lines += [

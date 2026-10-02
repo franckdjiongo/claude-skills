@@ -246,7 +246,26 @@ is the highest-risk case precisely because there's no prior round to have caught
 **Large/risky** tier (full dimensions, 3-vote verify) regardless of line count.
 
 Adapt this template to the change (drop dimensions that don't apply, add domain-specific ones —
-but never drop a category the inventory above found present):
+but never drop a category the inventory above found present).
+
+Before launching either engine, fill `NEW_FILES` with the unique paths from these two commands.
+Use the merge-base SHA of the PR base and HEAD, and quote the absolute repo path. The first command
+includes committed, staged, and unstaged additions. The second includes untracked files intended
+for the PR. Include tests and fixtures. If an untracked path will not ship, exclude it explicitly
+with a reason. If either command fails, preflight is `INCOMPLETE`. Stop and diagnose it before
+launching a hunt. Never infer an empty inventory from a failed command.
+
+```bash
+git -C '<absolute repo path>' diff --diff-filter=A --no-renames --name-only -z '<merge-base-sha>' --
+git -C '<absolute repo path>' ls-files --others --exclude-standard -z
+```
+
+Parse these NUL-delimited outputs as paths and deduplicate them before populating the array.
+Refresh the inventory after each fix round. Reviewing only committed changes is acceptable only
+when the working tree is clean. Use the same complete diff scope for the hunters, including
+untracked files listed in `NEW_FILES`. The commands above are read-only.
+
+Workflow template:
 
 ```js
 export const meta = {
@@ -257,7 +276,8 @@ export const meta = {
 
 const REPO = '<absolute repo path>'
 const CONTEXT = `Adversarially review the UNCOMMITTED+committed diff that will become a PR at ${REPO}.
-Run \`git -C ${REPO} diff <base>...HEAD\`, read the full changed files + their callers/siblings, AND
+Run \`git -C "${REPO}" diff <merge-base-sha> --\` (committed + staged + unstaged), include the
+untracked PR files inventoried below, read the full changed files + their callers/siblings, AND
 read the MOST-BOUNDED sibling of any query/handler/message you touch (so you know THIS repo's idiom).
 For any file that is WHOLLY NEW in this diff, read and audit the entire file (there is no old
 behavior to diff against); for a pre-existing file, scope to what the diff changed vs main.
@@ -282,6 +302,14 @@ ONLY pure style (naming/formatting/taste/restated guards).`
 // table into its reasoning (never into `sweeps`) is invisible to the orchestrator and the next
 // round — see "Reading sweeps and residualRisk" below. `additionalProperties:false` stays: the
 // schema grows by adding required fields, not by loosening it.
+// EVIDENCE FORM / SHARED MACHINE (hunt prompt, field 2026-09-27): across 6 fresh graded hunter sessions,
+// 4 returned sitesChecked as prose, 4 claimed a site or grep no tool call backs, one declared an
+// identity-guard target `clean` with no test run and another ran no test believing read-only
+// forbade `bun test`, and two siblings ran the full suite concurrently, left it running in the
+// background and wrote the same fixed /tmp file.
+// SHELL (field 2026-09-29): all 4 fresh graded hunters broke `grep -r --include=*.ts` on zsh's
+// unmatched-glob error (at least 9 failed calls, one grep left partial); two also called GNU `timeout` (absent on
+// macOS) and one repeated a BSD `sed -i` error it had already seen.
 // The sweep `verdict` is a STRICT tri-state (field, 2026-09-13: "finding-filed" sweeps with no
 // finding behind them, and "not-examined" sweeps whose sitesChecked listed inspected sites, both
 // mis-routed the next round): `finding-filed` must point at a findings[] title via `findingRef`;
@@ -337,10 +365,29 @@ const DIMENSIONS = [
   { key:'security-and-data', focus:'Auth, input validation, injection, PII/leak of internal fields, secrets, permissions.' },
 ]
 
+
+// WHOLLY-NEW FILES AS NAMED TARGETS (field, 2026-10-01 + 2026-10-02 — two distinct jobs): the CONTEXT
+// line "audit the entire file" was not enough. On job 33cd3e17 five of six hunters never opened the
+// wholly-new test + __fixtures__ files (one excluded them from its own `git diff` with ':!*.test.ts');
+// on job 12c1e9cc no hunter opened the new taskAlerter.test.ts, a second new test file was read only
+// to line 60, three more were run but never read — and `uncoveredTargets` stayed empty both times
+// because no dimension NAMED them. Fill NEW_FILES from
+// the two NUL-delimited inventory commands above — tests and fixtures INCLUDED,
+// nothing filtered out — and each file is assigned round-robin to a dimension as a named target, so
+// silence on any of them surfaces in `uncoveredTargets` instead of reading as a pass.
+const INVENTORY_COMPLETE = false // Set true only after both inventory commands succeed and paths are reconciled.
+const NEW_FILES = [/* unique PR paths from both inventory commands above */]
+if (!INVENTORY_COMPLETE) throw new Error('INCOMPLETE: populate and validate the new-file inventory first')
+if (NEW_FILES.length && !DIMENSIONS.length) throw new Error('New files require a hunt dimension')
+NEW_FILES.forEach((f, i) => {
+  const d = DIMENSIONS[i % DIMENSIONS.length]
+  d.targets = [...(d.targets ?? []), `wholly-new file ${f}`]
+})
+
 phase('Hunt')
 const results = await pipeline(
   DIMENSIONS,
-  (d) => agent(`${CONTEXT}\n\nDIMENSION: ${d.focus}\n\nIf a finding overlaps another dimension's territory, note the overlap in one line rather than re-developing it — a later step dedupes same-file/line reports, so a full write-up per dimension only multiplies verify cost for one defect.\n\nRESTITUTION (required, not optional): anything you investigate but do not write into \`sweeps\` or \`residualRisk\` counts as NOT DONE — a class-sweep or a doubt that stays inside your reasoning is invisible to the orchestrator and to the next round. Explicitly close every focal question this dimension raises: one \`sweeps\` entry per class/pattern you swept, listing every site you actually checked (\`sitesChecked\`) and its \`verdict\` — \`not-examined\` is a valid, honest answer when you ran out of budget, silence is not. If you notice a defect while reasoning through this dimension — even low severity, even adjacent to your named focus — file it in \`findings\` rather than dropping it because it felt minor.\n\nCOVERAGE 1:1: every target named in this DIMENSION (a consumer list, a sibling file, a symbol, a residual item) needs its own \`sweeps\` entry quoting the name verbatim in \`target\` — clean, finding-filed, or not-examined. Before you emit, re-read the DIMENSION text and tick each named target against your sweeps; a named target with no entry is a restitution defect, not an omission.\n\nTRI-STATE, strictly: \`not-examined\` means you did NOT inspect it — its \`sitesChecked\` is empty. If you opened a site and drew a conclusion, the verdict is \`clean\` or \`finding-filed\`, never \`not-examined\`. \`finding-filed\` requires a real \`findings\` entry, named in \`findingRef\` — a defect that lives only in \`residualRisk\` prose is invisible to the dedupe and fix steps. A defect you noticed yourself (even adjacent) is filed, not parked as not-examined.\n\nPROVENANCE: every \`sitesChecked\` entry is a site YOU opened or grepped in this run — a tool call in your trace backs it; a path you only read in this prompt is not a checked site. Every claim in \`residualRisk\` names the command you ran and its observed output, and that command must be CAPABLE of proving the claim (a filtered/piped command proves only what the filter can see; an aggregate test run proves nothing per file; overlapping batches do not add up). If you did not run it, write "not run".${d.targets?.length ? `\n\nNAMED TARGETS (each needs its own \`sweeps\` entry quoting the name verbatim — clean, finding-filed, or not-examined; silence is a restitution defect): ${d.targets.join(' · ')}` : ''}`, { label:`hunt:${d.key}`, phase:'Hunt', schema:FINDINGS, model:'sonnet', effort:'medium' }),
+  (d) => agent(`${CONTEXT}\n\nDIMENSION: ${d.focus}\n\nIf a finding overlaps another dimension's territory, note the overlap in one line rather than re-developing it — a later step dedupes same-file/line reports, so a full write-up per dimension only multiplies verify cost for one defect.\n\nRESTITUTION (required, not optional): anything you investigate but do not write into \`sweeps\` or \`residualRisk\` counts as NOT DONE — a class-sweep or a doubt that stays inside your reasoning is invisible to the orchestrator and to the next round. Explicitly close every focal question this dimension raises: one \`sweeps\` entry per class/pattern you swept, listing every site you actually checked (\`sitesChecked\`) and its \`verdict\` — \`not-examined\` is a valid, honest answer when you ran out of budget, silence is not. If you notice a defect while reasoning through this dimension — even low severity, even adjacent to your named focus — file it in \`findings\` rather than dropping it because it felt minor.\n\nCOVERAGE 1:1: every target named in this DIMENSION (a consumer list, a sibling file, a symbol, a residual item) needs its own \`sweeps\` entry quoting the name verbatim in \`target\` — clean, finding-filed, or not-examined. Before you emit, re-read the DIMENSION text and tick each named target against your sweeps; a named target with no entry is a restitution defect, not an omission.\n\nTRI-STATE, strictly: \`not-examined\` means you did NOT inspect it — its \`sitesChecked\` is empty. If you opened a site and drew a conclusion, the verdict is \`clean\` or \`finding-filed\`, never \`not-examined\`. \`finding-filed\` requires a real \`findings\` entry, named in \`findingRef\` — a defect that lives only in \`residualRisk\` prose is invisible to the dedupe and fix steps. A defect you noticed yourself (even adjacent) is filed, not parked as not-examined.\n\nPROVENANCE: every \`sitesChecked\` entry is a site YOU opened or grepped in this run — a tool call in your trace backs it; a path you only read in this prompt is not a checked site. Every claim in \`residualRisk\` names the command you ran and its observed output, and that command must be CAPABLE of proving the claim (a filtered/piped command proves only what the filter can see; an aggregate test run proves nothing per file; overlapping batches do not add up). If you did not run it, write "not run".\n\nEVIDENCE FORM: each \`sitesChecked\` entry is \`path:line\` (or \`path\` + the exact grep pattern) — never a prose summary, so it can be matched against your tool calls. A \`clean\` verdict on a BEHAVIORAL claim (a guard, a race, an auth/identity boundary, a state transition) needs an executed test or reproduction; if you only read the code, keep \`clean\` but write "static read only — no test run" for that target in \`residualRisk\`. A targeted test run (e.g. \`bun test <file>\`) is allowed and expected where it can prove the claim — read-only forbids edits, not tests.\n\nSHARED MACHINE: sibling hunters run in parallel. Run TARGETED tests only — never the full suite (the orchestrator owns it); never leave a background process running at hand-back, never sleep-poll one; write scratch files under \`mktemp -d\`, never a fixed /tmp name. SHELL: the host is typically macOS/zsh — quote every glob you pass to a tool (\`--include='*.ts'\`), prefer \`rg -g '*.ts'\` for searches. Hunters must not edit reviewed files. Fixers may use the Edit tool or \`sed -i ''\` on BSD/macOS (GNU sed uses a different syntax). Do not assume GNU \`timeout\` exists; after a shell error, change the command before retrying it.${d.targets?.length ? `\n\nNAMED TARGETS (each needs its own \`sweeps\` entry quoting the name verbatim — clean, finding-filed, or not-examined; silence is a restitution defect): ${d.targets.join(' · ')}` : ''}`, { label:`hunt:${d.key}`, phase:'Hunt', schema:FINDINGS, model:'sonnet', effort:'medium' }),
   (review) => parallel((review?.findings ?? []).map((f) => () =>
     agent(`${CONTEXT}\n\nADVERSARIALLY VERIFY this finding. First verify its FACTS against the real code, then set mustFix:
 - TRUE if some input makes it wrong/crash/lose data (correctness), OR it deviates from a repo idiom you can CITE in repoIdiomViolated / violates an external hard limit / is an unbounded read|scan|N+1|over-fetch — even if today's data makes it work.
@@ -394,6 +441,8 @@ const inconsistentSweeps = results.flatMap((r) => {
   return (r.sweeps ?? []).flatMap((s) => {
     if (s.verdict === 'finding-filed' && !(s.findingRef && titles.includes(s.findingRef)))
       return [{ ...s, problem: 'finding-filed with no matching findings[] title (ghost filing)' }]
+    if (s.verdict === 'clean' && !(s.sitesChecked ?? []).some((site) => typeof site === 'string' && site.trim().length > 0))
+      return [{ ...s, problem: 'clean with no checked site or recorded search' }]
     if (s.verdict === 'not-examined' && (s.sitesChecked ?? []).length > 0)
       return [{ ...s, problem: 'not-examined but sites were inspected — must be clean or finding-filed' }]
     return []
@@ -405,15 +454,18 @@ const inconsistentSweeps = results.flatMap((r) => {
 // `findings` read as a clean pass. Any dimension may cover a name; what matters is that SOME sweep
 // quoted it. An uncovered target is an open focal question, exactly like `not-examined`.
 const namedTargets = DIMENSIONS.flatMap((d) => d.targets ?? [])
-const uncoveredTargets = namedTargets.filter((t) => !sweeps.some((s) =>
-  `${s.target} ${(s.sitesChecked ?? []).join(' ')}`.toLowerCase().includes(t.toLowerCase())))
+const uncoveredTargets = namedTargets.filter((t) => !sweeps.some((s) => s.target === t))
+const incomplete = notExaminedSweeps.length || inconsistentSweeps.length || uncoveredTargets.length
 
 return {
-  verdict: confirmed.length ? 'FINDINGS' : 'PASS',
+  verdict: confirmed.length ? 'FINDINGS' : incomplete ? 'INCOMPLETE' : 'PASS',
   confirmed: confirmed.map((r) => ({ ...r.finding, verdict:r.verdict, duplicateCount:r.duplicateCount })),
   sweeps, notExaminedSweeps, inconsistentSweeps, uncoveredTargets, residualRisks,
 }
 ```
+
+When the workflow returns `INCOMPLETE`, close its coverage or restitution gaps and rerun before
+counting a clean pass. A `FINDINGS` result can also contain those gaps.
 
 When the workflow returns `FINDINGS`, **you** fix each confirmed item (once per distinct defect, not
 once per `duplicateCount`) with a **class-sweep** (core
@@ -481,7 +533,10 @@ verify agent's report must still require `checksPerformed` (the concrete checks 
 outcome) alongside `mustFix`/`class`/`reasoning`. When you (the orchestrator) read a hand-launched
 agent's final message back, hold it to the same bar as a Workflow schema result: no `sweeps` table,
 no `residualRisk` line, no `checksPerformed` list in the report means that work is NOT DONE, even if
-the agent's prose claims it happened. The same three reconciliations apply by hand: every target
+the agent's prose claims it happened. Apply the same EVIDENCE FORM, SHARED MACHINE, and SHELL
+clauses from the hunt template to each manual hunt prompt. Use the two inventory commands above
+for committed and working-tree additions. Every wholly-new PR file, tests and fixtures included,
+is named as a target in at least one hunt prompt, as `NEW_FILES` does in the Workflow. The same three reconciliations apply by hand: every target
 you named in the prompt has a sweep line (or it is `not-examined` for the next round); every
 `finding-filed` line points at a finding actually listed and every `not-examined` line has an
 empty site list; every claim names a command capable of proving it.
@@ -638,6 +693,12 @@ tokens. Pick the rule by changed-line count:
   2026-09-11, three rounds). → ✅ Coverage 1:1: every named target gets its own sweep line quoting
   the name; the orchestrator names them in `targets` and reads `uncoveredTargets` like
   `notExaminedSweeps`.
+- ❌ **Wholly-new files left to a CONTEXT sentence** — "audit the entire file" sits in the shared
+  CONTEXT, no dimension owns the new test/fixture files, every hunter assumes another one read them,
+  and nobody does: on two distinct jobs (field, 2026-10-01/02) most hunters never opened the new
+  `*.test.ts` / `__fixtures__` files, one excluded them from its diff, and `uncoveredTargets` stayed
+  empty. → ✅ Fill `NEW_FILES` from both inventory commands above (tests and fixtures included);
+  each file becomes a named target of one dimension, so silence surfaces in `uncoveredTargets`.
 - ❌ **Blurred tri-state** — a `finding-filed` sweep with no finding behind it (a ghost that dedupe
   and fix never see), or a `not-examined` whose `sitesChecked` shows the agent looked and concluded,
   or a self-spotted adjacent defect parked as `not-examined` (field, 2026-09-13, four sessions).
