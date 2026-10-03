@@ -292,7 +292,18 @@ describe('CLI (the workstation rail relies on exit codes)', () => {
   })
   test('3 (not 1) for an undeclared skill even when its SKILL.md would not parse', () => {
     expect(run(['--skill', skill({ source: '<!--runtime-slot:a-->\n' }), '--runtime', 'codex', '--check']).status).toBe(3)
-    expect(run(['--skill', tmp(), '--runtime', 'codex', '--check']).status).toBe(3)
+  })
+  test('1 (not 3) for a missing folder or a folder without SKILL.md', () => {
+    expect(run(['--skill', join(tmp(), 'typo'), '--runtime', 'codex', '--check']).status).toBe(1)
+    expect(run(['--skill', tmp(), '--runtime', 'codex', '--check']).status).toBe(1)
+  })
+  test('test files stay out of the Codex variant', () => {
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    writeFileSync(join(d, 'scripts', 'x.test.mjs'), '')
+    const out = join(tmp(), 'out')
+    buildVariant(d, 'codex', out)
+    expect(existsSync(join(out, 'scripts', 'x.test.mjs'))).toBe(false)
+    expect(existsSync(join(out, 'scripts', 'helper.mjs'))).toBe(true)
   })
   test('2 on missing arguments', () => {
     expect(run(['--runtime', 'codex']).status).toBe(2)

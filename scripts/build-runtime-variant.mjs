@@ -222,6 +222,15 @@ function readConfig(skillDir) {
 }
 
 // Returns the SKILL.md text for the runtime. Throws NotDeclaredError / VariantError.
+// Exit 3 means "a real skill that simply declares no Codex variant": a missing folder or
+// SKILL.md is a failure (exit 1), so a mistyped path never reads as "skip".
+function assertDeclared(skillDir, runtime) {
+  if (!existsSync(join(skillDir, 'SKILL.md'))) throw new VariantError(`no SKILL.md in ${skillDir}`)
+  if (runtime === 'codex' && !existsSync(join(skillDir, 'runtimes', 'codex.json'))) {
+    throw new NotDeclaredError(`${basename(skillDir)} declares no Codex variant`)
+  }
+}
+
 // Refuses Claude-only content in a Codex text. An `allow` entry exempts only its exact
 // `match` strings, never the whole vocabulary id.
 function checkCodexText(text, config, label) {
@@ -240,9 +249,7 @@ function checkCodexText(text, config, label) {
 }
 
 export function buildSkillMd(skillDir, runtime, { ignoreStamps = false } = {}) {
-  if (runtime === 'codex' && !existsSync(join(skillDir, 'runtimes', 'codex.json'))) {
-    throw new NotDeclaredError(`${basename(skillDir)} declares no Codex variant`)
-  }
+  assertDeclared(skillDir, runtime)
   const parts = parseSlots(readText(join(skillDir, 'SKILL.md')))
   const claude = join_(parts, (p) => p.text)
   if (runtime === 'claude') return claude
@@ -307,9 +314,7 @@ function otherMarkdown(dir, base = dir) {
 }
 
 export function buildVariant(skillDir, runtime, out) {
-  if (runtime === 'codex' && !existsSync(join(skillDir, 'runtimes', 'codex.json'))) {
-    throw new NotDeclaredError(`${basename(skillDir)} declares no Codex variant`)
-  }
+  assertDeclared(skillDir, runtime)
   const source = realpathSync(skillDir)
   const skillMd = buildSkillMd(source, runtime)
   const target = realOrResolved(out)
@@ -325,7 +330,9 @@ export function buildVariant(skillDir, runtime, out) {
     cpSync(source, target, {
       recursive: true,
       verbatimSymlinks: true,
-      filter: (src) => !['.git', '.DS_Store'].includes(basename(src)) && src !== join(source, 'SKILL.md') && src !== join(source, 'runtimes'),
+      // Tests stay with the source: they check the Claude text and would fail against the variant.
+      filter: (src) => !['.git', '.DS_Store'].includes(basename(src)) && src !== join(source, 'SKILL.md') && src !== join(source, 'runtimes')
+        && !(runtime === 'codex' && /\.test\.[cm]?[jt]s$/.test(src)),
     })
     writeFileSync(join(target, 'SKILL.md'), skillMd)
   } catch (err) {

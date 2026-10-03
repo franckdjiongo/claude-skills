@@ -3,7 +3,9 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
 
 <!-- slot:models -->
 - **Les 7 lentilles** tournent TOUJOURS en sous-agents `spawn_agent`
-  (`task_name: "lentille_<nom>"`, `agent_type: "default"`, `fork_turns: "none"`)
+  (`task_name` : `lentille_candide`, `lentille_fact_check`,
+  `lentille_mecanique_domaine`, `lentille_scenarios_mobile`, `lentille_process`,
+  `lentille_personas`, `lentille_futur` ; `agent_type: "default"`, `fork_turns: "none"`)
   dont le modèle et l'effort viennent du rôle `review-hunter`, résolu au moment
   de l'usage par le résolveur du skill adversarial-pr-review :
   `node ~/.agents/skills/adversarial-pr-review/scripts/resolve-codex-models.mjs --repo <repo-cible>`

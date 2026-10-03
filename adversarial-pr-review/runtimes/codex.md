@@ -46,7 +46,8 @@ follows):
 resolved at use time by `scripts/resolve-codex-models.mjs` (step 1 above); this skill never names a
 model, so a new model generation is one edit to a routing file. Effort comes from the routing
 file's role entry, else `medium` for hunters and `high` for verifiers, and never above `high` for a
-sub-agent. Pass both `model` and `reasoning_effort` on every `spawn_agent`; never let a hunt or a
+sub-agent. Pass both `model` and `reasoning_effort` on every `spawn_agent` (if the resolver found no
+model at all, its note says so: omit `model` and keep `reasoning_effort`); never let a hunt or a
 verify inherit the session's model or effort. If `spawn_agent` rejects the resolved model, retry
 once without `model` (session default) but keep `reasoning_effort`, and say so in your thread. A
 blind replay of 12 reviews on a cheaper model (2026-09-09) showed the rigor comes from the protocol
