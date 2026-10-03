@@ -38,6 +38,7 @@ en prose. Ce skill existe pour ramener ça à 2-5 rounds.
 
 ## Modèles — épinglage volontairement asymétrique
 
+<!-- runtime-slot:models -->
 - **Les 7 lentilles** tournent TOUJOURS en agents `model: 'sonnet'`,
   `effort: 'medium'` — épinglés dans les opts du Workflow (étape 1), donc
   indépendants du modèle de la session. L'alias `sonnet` suit automatiquement
@@ -46,9 +47,11 @@ en prose. Ce skill existe pour ramener ça à 2-5 rounds.
   jugement des findings et la correction du plan reviennent au modèle fort
   qui fait l'authoring. Ne pas ajouter de `model:` au frontmatter de ce
   skill : il dégraderait le triage au niveau des lentilles.
+<!-- /runtime-slot:models -->
 
 ## Étape 0 — Lint déterministe (auto-exécuté à l'invocation)
 
+<!-- runtime-slot:etape0-run -->
 Le verdict ci-dessous a été produit par préprocessing AVANT que tu lises ces
 lignes — c'est la sortie réelle du script sur le plan passé en argument :
 
@@ -60,6 +63,7 @@ args), relance à la main :
 ```bash
 node ${CLAUDE_SKILL_DIR}/scripts/preflight-lint.mjs <chemin-absolu-du-plan.html> <repo-cible> [--legacy]
 ```
+<!-- /runtime-slot:etape0-run -->
 
 Le script vérifie mécaniquement, dans cet ordre :
 
@@ -115,6 +119,7 @@ flotte** — après, la collision ne se découvre plus qu'à la fusion. Sans obj
 pour un plan solo (le script refuse d'ailleurs de tourner sur un seul plan et
 renvoie vers `preflight-lint.mjs`).
 
+<!-- runtime-slot:flotte-proof -->
 **Ce lint n'est pas laissé à la mémoire de l'orchestrateur.** Un run PASS
 enregistre sa preuve (contenu-adressée) dans `~/.claude/.flotte-lint-runs.json`,
 et le Stop hook global `~/.claude/hooks/flotte-plage-gate.mjs` empêche toute
@@ -123,6 +128,7 @@ manque ou ne correspond plus au contenu actuel des plans. Motif : une vague se
 prépare pour un run nocturne, sans personne pour se souvenir de lancer quoi que
 ce soit — c'est exactement ainsi que la règle du message de commit a été ratée
 par 2 chantiers sur 5 alors qu'elle était écrite dans le standard.
+<!-- /runtime-slot:flotte-proof -->
 
 `--legacy` rétrograde en avertissement les conventions POSTÉRIEURES au plan
 linté — la section Nice-to-have (7) et le message de commit du lot de clôture
@@ -150,6 +156,7 @@ l'ajouter au lint.
 
 ## Étape 1 — Rounds ultracode (7 lentilles, agents sonnet effort medium)
 
+<!-- runtime-slot:etape1-intro -->
 Chaque round = un Workflow qui lance EN PARALLÈLE 7 agents (modèle `sonnet`,
 effort `medium`, schéma de findings structuré : titre, sévérité
 bloquant/majeur/mineur, zone du plan, détail, fix proposé). Chaque agent lit
@@ -159,6 +166,7 @@ ignorer ce qui est déclaré hors périmètre. Avant de lancer le moindre agent,
 le script du Workflow DOIT valider ses arguments et `throw` si le chemin du
 plan ou le repo cible est `undefined`/vide — 4 workflows (~800 k tokens) ont
 déjà tourné sur « Plan à analyser : undefined » faute de cette garde.
+<!-- /runtime-slot:etape1-intro -->
 
 **Jeu de lentilles dégressif.** Rounds 1-2 : les 7 lentilles ci-dessous.
 Rounds 3+ : seulement 4 — fact-check, candide, mécanique du domaine,

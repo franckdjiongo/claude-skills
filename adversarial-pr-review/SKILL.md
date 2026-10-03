@@ -214,12 +214,14 @@ step-3 class-sweep or step-4 full-diff fan-out was too shallow — widen both be
 
 ## The adversarial review engine
 
+<!-- runtime-slot:engine-intro -->
 The engine is a **find → adversarially-verify → (you) fix** fan-out. With ultracode/workflows
 enabled (`CLAUDE_CODE_WORKFLOWS=1`), use the **Workflow tool**; otherwise fall back to parallel
 `Agent` subagents (same shape, fewer agents). **Key this decision on the environment
 (`CLAUDE_CODE_WORKFLOWS` / whether the Workflow tool is actually available), never on "the user
 didn't ask for ultracode"** — the engine choice is yours to make from capability, not from the
 phrasing of the request (a field run mis-keyed on the latter and under-scaled its fan-out).
+<!-- /runtime-slot:engine-intro -->
 
 **Shape:** dimension reviewers each attack the diff from one angle and emit findings → each finding
 gets an independent verifier that tries to *refute* it → you fix only what survives.
@@ -265,7 +267,9 @@ Refresh the inventory after each fix round. Reviewing only committed changes is 
 when the working tree is clean. Use the same complete diff scope for the hunters, including
 untracked files listed in `NEW_FILES`. The commands above are read-only.
 
+<!-- runtime-slot:template-intro -->
 Workflow template:
+<!-- /runtime-slot:template-intro -->
 
 ```js
 export const meta = {
@@ -507,6 +511,7 @@ fields, gathered by hand from each agent's report — see below) — read them t
   mandate ever mentioned — downgrade each to unverified and carry it into the next round's
   `CONTEXT`. The judge caught five of these in one night; the orchestrator should have.
 
+<!-- runtime-slot:model-policy -->
 **Model policy (Franck's decision, 2026-10-03 — no Opus subagents):** HUNTERS run
 `model:'sonnet', effort:'medium'`; the independent VERIFY step per finding runs
 `model:'sonnet', effort:'high'`. Never spawn a subagent on Opus, verifier included. A blind replay
@@ -516,13 +521,16 @@ agent opts as in the template above; never let a hunt or a verify inherit the se
 second round on the fix diff and the Verify step are NOT optional: both runs that skipped Verify
 missed boundary defects (state overwritten by a PUT body, the "item" half of a fix) that
 independent verification exists to catch.
+<!-- /runtime-slot:model-policy -->
 
+<!-- runtime-slot:workflow-prompts -->
 **Where the Workflow tool prompts, and where it does not (verified 2026-09-09):** LOCALLY, in a
 session running in auto mode, the Workflow tool launches WITHOUT any approval dialog (this skill's
 own fan-outs ran unattended in the field). In a CLOUD run (claude.ai routine), the Workflow tool
 prompts at every launch even under bypassPermissions (cost guard) and nobody can click — there,
 use the no-ultracode fallback below. Key the engine choice on the environment, not on the fear of
 a popup.
+<!-- /runtime-slot:workflow-prompts -->
 
 **No-ultracode fallback:** spawn the same dimensions as parallel `Agent` calls returning the same
 findings shape, then one verifier `Agent` per finding. Fewer agents, same discipline — and the SAME
@@ -568,6 +576,7 @@ setups, pick one per round:
 
 ### Agent deaths mid-run (rate limits)
 
+<!-- runtime-slot:agent-deaths -->
 Long verify fan-outs WILL occasionally lose agents to provider rate limits (16 verifiers died in one
 field round). Do not restart the round from scratch and do not respawn dead agents individually:
 
@@ -577,6 +586,7 @@ field round). Do not restart the round from scratch and do not respawn dead agen
 - **A fixer (spawned via `Agent`) died or stalled** → continue it with `SendMessage` using its
   agentId — its context (the finding, the files it read, its partial work) is intact. Respawning a
   fresh fixer re-pays the whole context ramp and risks double-editing the same files.
+<!-- /runtime-slot:agent-deaths -->
 
 ---
 
@@ -674,9 +684,11 @@ tokens. Pick the rule by changed-line count:
 - ❌ A parallel fixer running `git reset` / `git stash` / `git checkout --` on the shared tree. → ✅
   Worktree isolation, or the mandatory shared-tree clause in every fixer prompt — other fixers'
   uncommitted work coexists and is not noise.
+<!-- runtime-slot:anti-pattern-deaths -->
 - ❌ Restarting a round from scratch (or respawning agents one by one) after rate-limit deaths. → ✅
   Resume the SAME Workflow runId (completed agents return from cache); continue a dead fixer via
   `SendMessage` with its context intact.
+<!-- /runtime-slot:anti-pattern-deaths -->
 - ❌ Fixing a bot comment, pushing, waiting for the next comment, repeat. → ✅ Batch + one full
   adversarial pass over the whole diff before each push.
 - ❌ Declaring "compliant / no bugs" you can't back. → ✅ Re-verify the full diff; report honestly,
