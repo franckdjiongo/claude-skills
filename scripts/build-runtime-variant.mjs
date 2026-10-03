@@ -23,6 +23,10 @@
 //                              "allow":   { "<CLAUDE_ONLY id>": { "match": ["<exact string>"], "reason": "<why>" } },
 //                              "dropFrontmatter": ["allowed-tools", ...],
 //                              "slotSources": { "NAME": "<hash of the Claude text>" } }
+//   A source with `disable-model-invocation: true` (Claude only) gets, in its Codex variant,
+//   `agents/openai.yaml` with `policy.allow_implicit_invocation: false` — Codex's documented
+//   equivalent (the skill stays out of the model context, `$skill` still works) — unless the
+//   skill already ships its own agents/openai.yaml.
 //   "description" is required. Unknown keys fail the build (a typo must not
 //   silently switch a check off). On top of each skill's `forbid`, the built-in
 //   CLAUDE_ONLY vocabulary below is refused unless `allow` exempts that exact string
@@ -335,6 +339,13 @@ export function buildVariant(skillDir, runtime, out) {
         && !(runtime === 'codex' && /\.test\.[cm]?[jt]s$/.test(src)),
     })
     writeFileSync(join(target, 'SKILL.md'), skillMd)
+    if (runtime === 'codex' && /^disable-model-invocation:\s*true\s*$/m.test(skillMd.match(/^---\n([\s\S]*?)\n---\n/)?.[1] ?? '')) {
+      const yaml = join(target, 'agents', 'openai.yaml')
+      if (!existsSync(yaml)) {
+        mkdirSync(join(target, 'agents'), { recursive: true })
+        writeFileSync(yaml, 'policy:\n  allow_implicit_invocation: false\n')
+      }
+    }
   } catch (err) {
     rmSync(target, { recursive: true, force: true })
     throw err

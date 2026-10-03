@@ -297,6 +297,15 @@ describe('CLI (the workstation rail relies on exit codes)', () => {
     expect(run(['--skill', join(tmp(), 'typo'), '--runtime', 'codex', '--check']).status).toBe(1)
     expect(run(['--skill', tmp(), '--runtime', 'codex', '--check']).status).toBe(1)
   })
+  test('disable-model-invocation becomes allow_implicit_invocation: false on Codex', () => {
+    const source = SOURCE.replace('---\n\n# Demo', 'disable-model-invocation: true\n---\n\n# Demo')
+    const out = join(tmp(), 'out')
+    buildVariant(skill({ source, codexMd: MD, codexJson: JSON_OK }), 'codex', out)
+    expect(readFileSync(join(out, 'agents', 'openai.yaml'), 'utf8')).toBe('policy:\n  allow_implicit_invocation: false\n')
+    const plain = join(tmp(), 'plain')
+    buildVariant(skill({ codexMd: MD, codexJson: JSON_OK }), 'codex', plain)
+    expect(existsSync(join(plain, 'agents'))).toBe(false)
+  })
   test('test files stay out of the Codex variant', () => {
     const d = skill({ codexMd: MD, codexJson: JSON_OK })
     writeFileSync(join(d, 'scripts', 'x.test.mjs'), '')
