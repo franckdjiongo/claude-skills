@@ -26,12 +26,14 @@ Read what they already gave you and ask only for what's missing:
 ### 1. List the images
 List every image in the folder (png, jpg, jpeg, gif, webp). Tell the user the count.
 
+<!-- runtime-slot:first-pass -->
 ### 2. First-pass names with Haiku (in parallel)
 Split into batches of ~7 and spawn a Haiku subagent per batch (all in the same turn). Give each: the file paths, the domain context, and this instruction:
 
 > For each image, read it and propose a kebab-case filename, no accents/special chars, max 60 chars, capturing (1) the section/feature visible and (2) the main element/problem/state shown. Use grouping prefixes (e.g. `grille-`, `modal-`, `vide-`, `filtre-`, `footer-`). Return one line per image: `ORIGINAL.png -> new-name.png`. Also add an `OBSERVATIONS:` section with exact strings you can read (names, totals, labels, messages).
 
 Treat these names as a **draft**. Haiku reads thumbnails and will sometimes mislabel — e.g. naming a file `grille-interne-*` when it actually shows external data, or `soumission-*` for a screen that's merely "open". Do not ship these blindly.
+<!-- /runtime-slot:first-pass -->
 
 ### 3. Verify before committing (do this yourself, not via Haiku)
 For any name you're unsure about — and at minimum a spot-check across the batch — open the image and confirm the name matches what's actually on screen. When small text decides the label (a status badge, a filter state, which employee is shown), use the zoom helper to read it (see "Reading small text"). Fix names that mislead; a filename that lies is worse than a generic one because it will later be cited as evidence for the wrong thing.

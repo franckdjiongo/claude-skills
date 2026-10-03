@@ -9,7 +9,7 @@ domain and **validates the token locally**.
 > own sign-in (AuthKit React SPA + Convex `auth.config.ts`) is a DIFFERENT flow
 > with its own traps (environment-client issuer, no `aud`, no email claims,
 > verbatim snake_case claims). Field-tested reference:
-> `~/.claude/skills/workos/references/workos-authkit-jwt-custom-backend.md`.
+> `references/workos-authkit-jwt-custom-backend.md` of the `workos` skill.
 
 ## Table of contents
 - [Auth flow, step by step](#auth-flow-step-by-step)

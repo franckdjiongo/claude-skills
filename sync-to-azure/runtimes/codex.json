@@ -1,0 +1,47 @@
+{
+  "description": "Syncs the current Power Apps Code App to the Fernand Gilbert Ltée Azure DevOps repository under code-apps/<app-name>/. Use this skill whenever the user wants to push or sync a code app to the company repo, share their work with the team, or says anything like \"push to company\", \"sync to azure\", \"deploy to azure devops\", \"update the company repo\", \"push to FGL\", \"push to Fernand Gilbert\", \"envoyer dans le repo de la compagnie\", or finishes a feature and wants colleagues to have access. Also use this skill proactively when the user completes a meaningful change and mentions wanting to share or hand off the work.",
+  "replace": [
+    {
+      "from": "bash ~/.claude/skills/sync-to-azure/scripts/sync.sh",
+      "to": "bash ~/.agents/skills/sync-to-azure/scripts/sync.sh",
+      "count": 2
+    },
+    {
+      "from": "a good message needs Claude)",
+      "to": "a good message needs an agent)",
+      "count": 1
+    },
+    {
+      "from": "Both rely on `scripts/drift-status.sh`",
+      "to": "The reminders rely on `scripts/drift-status.sh`",
+      "count": 1
+    },
+    {
+      "from": "two machine-local reminders fire",
+      "to": "machine-local reminders fire (the second one below is Claude Code only)",
+      "count": 1
+    }
+  ],
+  "renameHeadings": {
+    "## How Claude Should Use This Skill": "## How to Use This Skill"
+  },
+  "forbid": [
+    "~/.claude/",
+    "CLAUDE_SKILL_DIR",
+    "AskUserQuestion",
+    "spawn_task",
+    "settings.local.json",
+    "SessionStart drift-check"
+  ],
+  "allow": {
+    "claude-home": {
+      "match": [
+        "`.claude/`"
+      ],
+      "reason": "sync.sh really excludes the .claude directory from the mirror, so the excluded-paths list must keep naming it."
+    }
+  },
+  "slotSources": {
+    "session-drift": "5d73858d51148a4c"
+  }
+}

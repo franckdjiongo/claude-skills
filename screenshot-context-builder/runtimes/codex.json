@@ -1,0 +1,36 @@
+{
+  "description": "Rename batches of generic screenshots into descriptive names, and optionally turn a bug-report or feedback prompt into a polished HTML report that embeds the real screenshots beside each issue. Use when the user wants to: rename screenshots with generic names (e.g. \"Screenshot 2026-04-08...\", \"SCR-...png\"), improve a voice-dictated or AI-rewritten prompt that references images, build a readable bug/feedback report from screenshots, attach exact image references to a prompt, or do any combination of these. Triggers on: \"rename my screenshots\", \"rename these images\", \"my prompt references screenshots\", \"I dictated this prompt\", \"turn these screenshots into a report\", \"prepare screenshots for Codex\", \"improve my prompt with the images\".",
+  "replace": [
+    {
+      "from": "python scripts/zoom_crop.py",
+      "to": "python ~/.agents/skills/screenshot-context-builder/scripts/zoom_crop.py",
+      "count": 3
+    },
+    {
+      "from": "(do this yourself, not via Haiku)",
+      "to": "(do this yourself, not via the sub-agents)",
+      "count": 1
+    },
+    {
+      "from": "(not via Haiku — you are writing the report",
+      "to": "(not via sub-agents — you are writing the report",
+      "count": 1
+    },
+    {
+      "from": "Rename with `mv` via Bash.",
+      "to": "Rename with `mv` in the shell.",
+      "count": 1
+    }
+  ],
+  "forbid": [
+    "Haiku",
+    "CLAUDE_SKILL_DIR",
+    "~/.claude/",
+    "AskUserQuestion",
+    "spawn_task",
+    "via Bash"
+  ],
+  "slotSources": {
+    "first-pass": "53bb55f1e03367d9"
+  }
+}

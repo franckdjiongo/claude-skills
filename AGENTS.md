@@ -198,7 +198,10 @@ first install, copy the same build there by hand. Never hand-edit `~/.agents/ski
 run a free-text "Claude → Codex" rewrite (it left 37 broken `.Codex/` paths in 2026).
 Codex sub-agent models are never written in a skill: they are resolved at use time from
 `.codex/model-routing.json` / `~/.codex/model-routing.json` (see
-`adversarial-pr-review/scripts/resolve-codex-models.mjs`). Tests: `bun test scripts adversarial-pr-review/scripts`.
+`adversarial-pr-review/scripts/resolve-codex-models.mjs`). Deliberately outside the generator: `brain-capture`,
+`meta-govern` and `pipeline-audit` have hand-written Codex-only rewrites kept elsewhere (no
+`runtimes/codex.json`, so the build exits 3 for them and the rail never touches them), and
+`claude-hook-creator` is intentionally not installed for Codex. Tests: `bun test scripts adversarial-pr-review/scripts`.
 
 ## Multi-Repository Skills Registry
 

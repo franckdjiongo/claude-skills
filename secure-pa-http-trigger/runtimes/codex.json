@@ -1,0 +1,10 @@
+{
+  "description": "Secures a Power Automate \"When an HTTP request is received\" flow by migrating it from the legacy \"Anyone\" setting to \"Any user in my tenant\" with Microsoft Entra ID bearer-token auth, and rewires every caller (Dataverse C# plugin, PowerApps Code App, Model-Driven app ribbon button or custom page, external service) to send the right token. Use this skill whenever the user mentions: securing / locking down / protecting a Power Automate HTTP trigger or HTTP-triggered flow, switching off \"Anyone\" / SAS-only, getting DirectApiAuthorizationRequired or MisMatchingOAuthClaims errors, calling a flow from a plugin / code app / ribbon button / external API, or the audience https://service.flow.microsoft.com/. Also triggers on phrases like \"I built a flow with HTTP trigger, how do I secure it\", \"make my flow auth-only\", \"my flow URL is exposed\", \"use Entra token to call my Power Automate flow\", \"OAuth my Power Automate flow\", or \"custom connector wrapper for a flow\". The user describes the flow they built, what they want to do with it, and how it will be called; the skill returns a concrete recommendation, the exact migration steps, and customised, ready-to-use scripts (C# plugin Pattern A or B, OpenAPI 2.0 custom-connector wrapper YAML, TypeScript / JS samples for code apps and ribbon buttons, and Azure CLI / PowerShell app-registration provisioning).",
+  "forbid": [
+    "CLAUDE_SKILL_DIR",
+    "AskUserQuestion",
+    "spawn_task",
+    "~/.claude/"
+  ],
+  "slotSources": {}
+}
