@@ -103,7 +103,45 @@ describe('codex variant', () => {
   test('an allowed Claude-only term passes when a reason is given', () => {
     const source = SOURCE.replace('exactly.', 'exactly, see ~/.claude/x.json.')
     expect(() => codex({ source, codexMd: MD, codexJson: JSON_OK })).toThrow('"claude-home"')
-    expect(codex({ source, codexMd: MD, codexJson: { ...JSON_OK, allow: { 'claude-home': 'the script writes this real path' } } })).toContain('~/.claude/x.json')
+    const allow = { 'claude-home': { match: ['~/.claude/x.json'], reason: 'the script writes this real path' } }
+    expect(codex({ source, codexMd: MD, codexJson: { ...JSON_OK, allow } })).toContain('~/.claude/x.json')
+    // the exemption covers that exact string only, not every ~/.claude/ mention
+    const more = source.replace('exactly,', 'exactly, and ~/.claude/settings.json,')
+    expect(() => codex({ source: more, codexMd: MD, codexJson: { ...JSON_OK, allow } })).toThrow('"claude-home"')
+  })
+
+  test('model aliases are refused only where they name a model', () => {
+    const prose = SOURCE.replace('exactly.', 'exactly; a magnum opus, a fable, a haiku poem, step o1.')
+    expect(() => codex({ source: prose, codexMd: MD, codexJson: JSON_OK })).not.toThrow()
+    for (const bad of ["use 'opus' here", 'run it on sonnet', 'modèle haiku', 'the sonnet alias']) {
+      expect(() => codex({ source: SOURCE.replace('exactly.', bad), codexMd: MD, codexJson: JSON_OK })).toThrow('"claude-model-alias"')
+    }
+  })
+
+  test('Claude Code tool names are refused', () => {
+    expect(() => codex({ source: SOURCE.replace('exactly.', 'then call AskUserQuestion.'), codexMd: MD, codexJson: JSON_OK })).toThrow('"claude-tools"')
+  })
+
+  test('a prose mention of runtime-slot, or a marker inside a code fence, is not a marker', () => {
+    const source = SOURCE.replace('exactly.', 'exactly; runtime-slot markers.\n```\n<!-- runtime-slot:x -->\n```')
+    expect(buildSkillMd(skill({ source }), 'claude')).toContain('<!-- runtime-slot:x -->')
+  })
+
+  test('dropFrontmatter handles unindented sequences and quoted keys', () => {
+    const source = SOURCE.replace('---\n\n# Demo', 'allowed-tools:\n- Read\n- Bash\n"argument-hint": x\n---\n\n# Demo')
+    const out = codex({ source, codexMd: MD, codexJson: { ...JSON_OK, dropFrontmatter: ['allowed-tools', 'argument-hint'] } })
+    expect(out).not.toContain('- Read')
+    expect(out).not.toContain('argument-hint')
+  })
+
+  test('heading check follows CommonMark fences (longer fences, tildes, indented code)', () => {
+    const extra = '\n````md\n```\n## inside\n```\n````\n~~~\n## also inside\n~~~\n    ```\n## real\n'
+    const source = SOURCE + extra
+    expect(() => codex({ source, codexMd: MD, codexJson: JSON_OK })).not.toThrow()
+    // a real heading after an indented ``` must still count: renaming it is a declared change
+    const out = codex({ source, codexMd: MD, codexJson: { ...JSON_OK, renameHeadings: { '## real': '## vrai' } } })
+    expect(out).toContain('\n## vrai\n')
+    expect(out).toContain('## inside')
   })
 
   test('stale slot: Claude text edited after the Codex text was written fails the build', () => {
@@ -130,11 +168,14 @@ describe('codex variant', () => {
     ['heading changed', { codexMd: '<!-- slot:engine -->\n## Extra\n<!-- /slot:engine -->\n', codexJson: JSON_OK }, 'headings differ'],
     ['heading rename that matches nothing', { codexMd: MD, codexJson: { ...JSON_OK, renameHeadings: { '## Nope': '## New' } } }, 'expected 1 heading, found 0'],
     ['heading rename onto an existing heading', { codexMd: MD, codexJson: { ...JSON_OK, renameHeadings: { '## Engine': '## Rest' } } }, 'already a heading'],
+    ['two headings renamed to one title', { codexMd: MD, codexJson: { ...JSON_OK, renameHeadings: { '## Engine': '## X', '## Rest': '## X' } } }, 'same title'],
+    ['heading rename whose source is only inside a fence', { source: SOURCE + '\n```\n## Z\n```\n', codexMd: MD, codexJson: { ...JSON_OK, renameHeadings: { '## Z': '## Q' } } }, 'expected 1 heading, found 0'],
     ['unknown config key (typo)', { codexMd: MD, codexJson: { ...JSON_OK, forbids: ['x'] } }, 'unknown key(s) forbids'],
     ['missing description', { codexMd: MD, codexJson: { forbid: ['x'] } }, '"description" is required'],
     ['empty forbid list', { codexMd: MD, codexJson: { ...JSON_OK, forbid: [] } }, '"forbid" must be a non-empty list'],
-    ['allow without a reason', { codexMd: MD, codexJson: { ...JSON_OK, allow: { ultracode: '' } } }, 'needs a reason'],
-    ['allow of unknown vocabulary', { codexMd: MD, codexJson: { ...JSON_OK, allow: { nope: 'a long enough reason' } } }, 'unknown vocabulary'],
+    ['allow without a reason', { codexMd: MD, codexJson: { ...JSON_OK, allow: { ultracode: { match: ['x'], reason: 'xxxxxxxxxx' } } } }, 'needs { "match"'],
+    ['allow without exact strings', { codexMd: MD, codexJson: { ...JSON_OK, allow: { ultracode: 'a long enough reason here' } } }, 'needs { "match"'],
+    ['allow of unknown vocabulary', { codexMd: MD, codexJson: { ...JSON_OK, allow: { nope: { match: ['x'], reason: 'a long enough reason here' } } } }, 'unknown vocabulary'],
     ['dropFrontmatter of a missing key', { codexMd: MD, codexJson: { ...JSON_OK, dropFrontmatter: ['nope'] } }, 'no "nope" key'],
   ]
   for (const [name, opts, message] of failures) {
@@ -161,6 +202,33 @@ describe('codex variant', () => {
     expect(readdirSync(out).sort()).toEqual(['SKILL.md', 'scripts'])
     expect(existsSync(join(out, 'scripts', 'helper.mjs'))).toBe(true)
     expect(readFileSync(join(out, 'SKILL.md'), 'utf8')).toContain('Use spawn_agent.')
+  })
+
+  test('a symlinked SKILL.md is never written through: the source stays byte for byte', () => {
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    const real = join(tmp(), 'real-SKILL.md')
+    writeFileSync(real, SOURCE)
+    rmSync(join(d, 'SKILL.md'))
+    symlinkSync(real, join(d, 'SKILL.md'))
+    buildVariant(d, 'codex', join(tmp(), 'out'))
+    expect(readFileSync(real, 'utf8')).toBe(SOURCE)
+  })
+
+  test('a skill folder given through a symlink builds', () => {
+    const link = join(tmp(), 'link')
+    symlinkSync(skill({ codexMd: MD, codexJson: JSON_OK }), link)
+    const out = join(tmp(), 'out')
+    buildVariant(link, 'codex', out)
+    expect(readFileSync(join(out, 'SKILL.md'), 'utf8')).toContain('Use spawn_agent.')
+  })
+
+  test('other shipped .md files get the same Codex checks', () => {
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    mkdirSync(join(d, 'references'))
+    writeFileSync(join(d, 'references', 'how.md'), 'Ask the Agent tool.\n')
+    const out = join(tmp(), 'out')
+    expect(() => buildVariant(d, 'codex', out)).toThrow('references/how.md')
+    expect(existsSync(out)).toBe(false)
   })
 
   test('buildVariant keeps relative symlinks relative', () => {
@@ -208,6 +276,10 @@ describe('CLI (the workstation rail relies on exit codes)', () => {
     expect(run(['--skill', d, '--runtime', 'codex', '--check']).status).toBe(1)
     expect(run(['--skill', d, '--stamp']).status).toBe(0)
     expect(run(['--skill', d, '--runtime', 'codex', '--check']).status).toBe(0)
+  })
+  test('--stamp refuses when other checks fail, and cannot be combined with a build', () => {
+    expect(run(['--skill', skill({ codexMd: '', codexJson: JSON_OK, stamp: false }), '--stamp']).status).toBe(1)
+    expect(run(['--skill', skill({ codexMd: MD, codexJson: JSON_OK }), '--stamp', '--runtime', 'codex', '--check']).status).toBe(2)
   })
   test('2 on missing arguments', () => {
     expect(run(['--runtime', 'codex']).status).toBe(2)

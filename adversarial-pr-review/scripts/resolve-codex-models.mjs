@@ -32,23 +32,43 @@ function readJson(path) {
 
 // Top-level `key = "..."` or `key = '...'` of a TOML file, before the first table
 // header, skipping multi-line strings and multi-line arrays.
+// Bracket balance of a TOML value fragment, ignoring brackets inside strings and comments.
+function bracketDelta(fragment) {
+  let depth = 0, quote = null
+  for (let i = 0; i < fragment.length; i++) {
+    const c = fragment[i]
+    if (quote) {
+      if (c === '\\' && quote === '"') i++
+      else if (c === quote) quote = null
+    } else if (c === '"' || c === "'") quote = c
+    else if (c === '#') break
+    else if (c === '[') depth++
+    else if (c === ']') depth--
+  }
+  return depth
+}
+
 export function topLevelTomlString(text, key) {
   let inString = null
   let arrayDepth = 0
   for (const raw of text.replace(/^﻿/, '').split(/\r?\n/)) {
     if (inString) { if (raw.includes(inString)) inString = null; continue }
     const line = raw.trim()
-    if (arrayDepth > 0) { arrayDepth += (line.match(/\[/g) ?? []).length - (line.match(/\]/g) ?? []).length; continue }
-    if (/^\[\[?[^\]"']+\]\]?\s*(#.*)?$/.test(line)) break
-    const m = line.match(/^([A-Za-z0-9_.-]+)\s*=\s*(.*)$/)
-    if (!m) continue
+    if (arrayDepth > 0) { arrayDepth += bracketDelta(line); continue }
+    if (!line || line.startsWith('#')) continue
+    const m = line.match(/^("[^"]*"|'[^']*'|[A-Za-z0-9_.-]+)\s*=\s*(.*)$/)
+    if (!m) {
+      if (line.startsWith('[')) break // a table header, quoted names included: top level ends here
+      continue
+    }
+    const name = m[1].replace(/^["']|["']$/g, '')
     const value = m[2]
     const triple = value.match(/^("""|''')/)
     if (triple && !value.slice(3).includes(triple[1])) { inString = triple[1]; continue }
-    if (value.startsWith('[')) { arrayDepth = (value.match(/\[/g) ?? []).length - (value.match(/\]/g) ?? []).length; continue }
-    if (m[1] === key) {
-      const s = value.match(/^"([^"]*)"|^'([^']*)'/)
-      if (s) return s[1] ?? s[2]
+    if (value.startsWith('[')) { arrayDepth = bracketDelta(value); continue }
+    if (name === key) {
+      const s = value.match(/^"((?:[^"\\]|\\.)*)"|^'([^']*)'/)
+      if (s) return s[2] ?? s[1].replace(/\\(.)/g, '$1')
     }
   }
   return null

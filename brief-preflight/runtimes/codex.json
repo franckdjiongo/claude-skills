@@ -55,7 +55,12 @@
     "arguments"
   ],
   "allow": {
-    "claude-home": "preflight-flotte.mjs writes its proof journal to ~/.claude/.flotte-lint-runs.json on every runtime; the Codex text must name that real path."
+    "claude-home": {
+      "match": [
+        "~/.claude/.flotte-lint-runs.json"
+      ],
+      "reason": "preflight-flotte.mjs writes its proof journal to this real path on every runtime, so the Codex text must name it."
+    }
   },
   "slotSources": {
     "models": "04b5560ea7be9e38",

@@ -91,6 +91,12 @@ describe('resolve-codex-models', () => {
     expect(resolve(setup({ config }))['review-hunter'].model).toBe('real')
   })
 
+  test('TOML: quoted table headers end the top level; brackets in strings do not open arrays', () => {
+    expect(resolve(setup({ config: '[projects."/Users/x"]\ntrust_level = "trusted"\n[profiles."a.b"]\nmodel = "wrong"\n' }))['review-hunter'].model).toBeNull()
+    expect(resolve(setup({ config: 'notes = ["a[b"]\nmodel = "right" # comment [\n' }))['review-hunter'].model).toBe('right')
+    expect(resolve(setup({ config: '"model" = "q\\"x"\n' }))['review-hunter'].model).toBe('q"x')
+  })
+
   test('unknown or upper-case efforts', () => {
     const r = resolve(setup({ user: roles({ model: 'u', reasoningEffort: 'HIGH' }, { model: 'u', reasoningEffort: 'turbo' }) }))
     expect(r['review-hunter'].effort).toBe('high')

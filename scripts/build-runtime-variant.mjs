@@ -20,13 +20,13 @@
 //                              "replace": [{ "from", "to", "count" }],   exact count required
 //                              "renameHeadings": { "<## old line>": "<## new line>" },
 //                              "forbid":  ["<string that must not survive>"],      required, non-empty
-//                              "allow":   { "<CLAUDE_ONLY id>": "<why it is right on Codex>" },
+//                              "allow":   { "<CLAUDE_ONLY id>": { "match": ["<exact string>"], "reason": "<why>" } },
 //                              "dropFrontmatter": ["allowed-tools", ...],
 //                              "slotSources": { "NAME": "<hash of the Claude text>" } }
 //   "description" is required. Unknown keys fail the build (a typo must not
 //   silently switch a check off). On top of each skill's `forbid`, the built-in
-//   CLAUDE_ONLY vocabulary below is refused case-insensitively unless `allow`
-//   names it with a reason.
+//   CLAUDE_ONLY vocabulary below is refused unless `allow` exempts that exact string
+//   with a reason. The same checks run on every other .md file the variant ships.
 //
 // `slotSources` pins the Claude text each Codex slot was written against: when a
 // nightly improvement edits a slot's Claude text, the Codex build fails until a
@@ -39,8 +39,8 @@
 // Usage: node build-runtime-variant.mjs --skill <skillDir> --runtime codex|claude --out <dir>
 //        node build-runtime-variant.mjs --skill <skillDir> --runtime codex|claude --check
 //        node build-runtime-variant.mjs --skill <skillDir> --stamp
-import { readFileSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync, cpSync } from 'node:fs'
-import { join, basename, resolve, relative, isAbsolute } from 'node:path'
+import { readFileSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync, cpSync, realpathSync } from 'node:fs'
+import { join, basename, dirname, resolve, relative, isAbsolute, extname } from 'node:path'
 import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 
@@ -50,22 +50,25 @@ export class NotDeclaredError extends Error {}
 const SLOT_OPEN = /^<!-- runtime-slot:([a-z0-9-]+) -->\s*$/
 const SLOT_CLOSE = /^<!-- \/runtime-slot:([a-z0-9-]+) -->\s*$/
 const OVERRIDE_MARKER = /<!--\s*\/?slot:/
-const BUILTIN_FORBID = ['.Codex/', 'runtime-slot']
-const DATED_MODEL = /\bgpt-?\d|\bo[1-9](-mini|-pro)?\b|\bclaude-[a-z]+-\d|\b(opus|sonnet|haiku|fable)-\d/i
+const BUILTIN_FORBID = ['.Codex/', '<!-- runtime-slot', '<!-- /runtime-slot']
+const DATED_MODEL = /\bgpt-?\d|\bo[1-9]-(mini|pro|preview)\b|\bclaude-(opus|sonnet|haiku|fable)-\d|\b(opus|sonnet|haiku|fable)-\d/i
+const ALIAS = '(sonnet|opus|haiku|fable)'
 const CONFIG_KEYS = ['description', 'replace', 'renameHeadings', 'forbid', 'allow', 'dropFrontmatter', 'slotSources']
 // Claude Code-only vocabulary that misleads a Codex agent.
 export const CLAUDE_ONLY = {
   'workflow-tool': /\bworkflow tool\b/i,
   ultracode: /ultracode/i,
-  'claude-model-alias': /\b(sonnet|opus|haiku|fable)\b/i,
+  // Aliases only where they name a model, so "magnum opus" or "a fable" stay legal prose.
+  'claude-model-alias': new RegExp(`['"\`]${ALIAS}['"\`]|\\b${ALIAS}\\s+(alias|effort|model|agents?|subagents?|tier)\\b|\\b(model|modèle)\\s*[:=]?\\s*['"\`]?${ALIAS}\\b|\\b(en|on|in)\\s+${ALIAS}\\b`, 'i'),
   'agent-tool': /`Agent`|\bAgent tool\b/,
   sendmessage: /\bSendMessage\b/,
   'resume-run': /\bresumeFromRunId\b/,
   schedulewakeup: /\bScheduleWakeup\b/,
   'spawn-task': /\bspawn_task\b/,
   'claude-env': /\bCLAUDE_(SKILL_DIR|CODE_[A-Z_]+)\b/,
-  'claude-home': /~\/\.claude\//,
+  'claude-home': /~\/\.claude(\/|\.json)|(^|[\s`'"(])\.claude\//m,
   'shell-preprocessing': /^!`/m,
+  'claude-tools': /\b(AskUserQuestion|TodoWrite|ExitPlanMode|EnterPlanMode)\b/,
 }
 
 const readText = (path) => readFileSync(path, 'utf8').replace(/\r\n/g, '\n')
@@ -76,9 +79,11 @@ export function parseSlots(text) {
   const parts = []
   let current = null
   const seen = new Set()
+  const fence = fenceTracker()
   text.split('\n').forEach((line, i) => {
-    const open = line.match(SLOT_OPEN)
-    const close = line.match(SLOT_CLOSE)
+    const inFence = fence(line)
+    const open = inFence ? null : line.match(SLOT_OPEN)
+    const close = inFence ? null : line.match(SLOT_CLOSE)
     if (open) {
       if (current) throw new VariantError(`line ${i + 1}: slot "${open[1]}" opens inside slot "${current.name}"`)
       if (seen.has(open[1])) throw new VariantError(`line ${i + 1}: slot "${open[1]}" appears twice`)
@@ -88,7 +93,7 @@ export function parseSlots(text) {
       if (!current || current.name !== close[1]) throw new VariantError(`line ${i + 1}: unexpected close of slot "${close[1]}"`)
       parts.push({ slot: current.name, text: current.lines.join('\n') })
       current = null
-    } else if (line.includes('runtime-slot')) {
+    } else if (!inFence && /^\s*<!--\s*\/?\s*runtime-slot/.test(line)) {
       throw new VariantError(`line ${i + 1}: malformed runtime-slot marker: ${line.trim()}`)
     } else if (current) {
       current.lines.push(line)
@@ -122,25 +127,45 @@ function join_(parts, pick) {
   return out.join('\n')
 }
 
+// Returns a function line -> "is this line part of a fenced code block (fence lines
+// included)?", following CommonMark: a fence opens with >= 3 backticks or tildes at
+// <= 3 spaces of indent and closes only on the same character, at least as long,
+// with nothing after it.
+function fenceTracker() {
+  let open = null
+  return (line) => {
+    const m = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/)
+    if (!open) {
+      if (m && !(m[1][0] === '`' && m[2].includes('`'))) { open = m[1]; return true }
+      return false
+    }
+    if (m && m[1][0] === open[0] && m[1].length >= open.length && !m[2].trim()) open = null
+    return true
+  }
+}
+
 // `## ` lines outside fenced code blocks.
 export function headings(text) {
-  let fenced = false
-  const out = []
-  for (const l of text.split('\n')) {
-    if (/^\s*(```|~~~)/.test(l)) fenced = !fenced
-    else if (!fenced && /^## /.test(l)) out.push(l)
-  }
-  return out
+  const fence = fenceTracker()
+  return text.split('\n').filter((l) => !fence(l) && /^## /.test(l))
+}
+
+const keyLine = (line, key) => new RegExp(`^["']?${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["']?\\s*:`).test(line)
+// End (exclusive) of a top-level YAML key's value: continuation lines are blank,
+// indented, or unindented sequence items ("- x").
+function blockEnd(lines, start) {
+  let end = start + 1
+  while (end < lines.length && (!lines[end].trim() || /^\s/.test(lines[end]) || /^- /.test(lines[end]))) end++
+  return end
 }
 
 function replaceDescription(skillMd, description) {
   const fm = skillMd.match(/^---\n([\s\S]*?)\n---\n/)
   if (!fm) throw new VariantError('SKILL.md has no frontmatter')
   const lines = fm[1].split('\n')
-  const start = lines.findIndex((l) => /^description:/.test(l))
+  const start = lines.findIndex((l) => keyLine(l, 'description'))
   if (start < 0) throw new VariantError('frontmatter has no description')
-  let end = start + 1
-  while (end < lines.length && !/^\S/.test(lines[end])) end++
+  const end = blockEnd(lines, start)
   const folded = ['description: >-']
   let row = ' '
   for (const word of description.trim().split(/\s+/)) {
@@ -157,10 +182,9 @@ function dropFrontmatterKeys(skillMd, keys) {
   const fm = skillMd.match(/^---\n([\s\S]*?)\n---\n/)
   const lines = fm[1].split('\n')
   for (const key of keys) {
-    const start = lines.findIndex((l) => l.startsWith(`${key}:`))
+    const start = lines.findIndex((l) => keyLine(l, key))
     if (start < 0) throw new VariantError(`dropFrontmatter: no "${key}" key in the frontmatter`)
-    let end = start + 1
-    while (end < lines.length && !/^\S/.test(lines[end])) end++
+    const end = blockEnd(lines, start)
     lines.splice(start, end - start)
   }
   return `---\n${lines.join('\n')}\n---\n` + skillMd.slice(fm[0].length)
@@ -177,9 +201,12 @@ function readConfig(skillDir) {
   if (!Array.isArray(config.forbid) || !config.forbid.length || !config.forbid.every((f) => typeof f === 'string' && f)) {
     throw new VariantError('runtimes/codex.json: "forbid" must be a non-empty list of strings')
   }
-  for (const [id, why] of Object.entries(config.allow ?? {})) {
+  for (const [id, entry] of Object.entries(config.allow ?? {})) {
     if (!(id in CLAUDE_ONLY)) throw new VariantError(`runtimes/codex.json: allow names unknown vocabulary "${id}"`)
-    if (typeof why !== 'string' || why.trim().length < 10) throw new VariantError(`runtimes/codex.json: allow "${id}" needs a reason`)
+    const okMatch = Array.isArray(entry?.match) && entry.match.length && entry.match.every((m) => typeof m === 'string' && m)
+    if (!okMatch || typeof entry.reason !== 'string' || entry.reason.trim().split(/\s+/).length < 4) {
+      throw new VariantError(`runtimes/codex.json: allow "${id}" needs { "match": [exact strings], "reason": "<a sentence>" }`)
+    }
   }
   for (const r of config.replace ?? []) {
     if (typeof r?.from !== 'string' || !r.from || typeof r.to !== 'string' || !Number.isInteger(r.count) || r.count < 1) {
@@ -195,7 +222,24 @@ function readConfig(skillDir) {
 }
 
 // Returns the SKILL.md text for the runtime. Throws NotDeclaredError / VariantError.
-export function buildSkillMd(skillDir, runtime) {
+// Refuses Claude-only content in a Codex text. An `allow` entry exempts only its exact
+// `match` strings, never the whole vocabulary id.
+function checkCodexText(text, config, label) {
+  for (const s of [...BUILTIN_FORBID, ...(config.forbid ?? [])]) {
+    if (text.includes(s)) throw new VariantError(`${label}: forbidden string left in Codex variant: "${s}"`)
+  }
+  if (OVERRIDE_MARKER.test(text)) throw new VariantError(`${label}: slot marker left in Codex variant`)
+  for (const [id, re] of Object.entries(CLAUDE_ONLY)) {
+    let scanned = text
+    for (const m of config.allow?.[id]?.match ?? []) scanned = scanned.split(m).join(' ')
+    const hit = scanned.match(re)
+    if (hit) throw new VariantError(`${label}: Claude-only vocabulary "${id}" left in Codex variant: "${hit[0].trim()}" (rewrite it, or allow that exact string with a reason)`)
+  }
+  const dated = text.match(DATED_MODEL)
+  if (dated) throw new VariantError(`${label}: dated model name left in Codex variant: "${dated[0]}"`)
+}
+
+export function buildSkillMd(skillDir, runtime, { ignoreStamps = false } = {}) {
   const parts = parseSlots(readText(join(skillDir, 'SKILL.md')))
   const claude = join_(parts, (p) => p.text)
   if (runtime === 'claude') return claude
@@ -210,11 +254,11 @@ export function buildSkillMd(skillDir, runtime) {
   for (const name of overrides.keys()) if (!slots.some((p) => p.slot === name)) throw new VariantError(`runtimes/codex.md defines unknown slot "${name}"`)
   const pinned = config.slotSources ?? {}
   for (const { slot, text } of slots) {
-    if (pinned[slot] !== slotHash(text)) {
-      throw new VariantError(`slot "${slot}": its Claude text changed since the Codex text was written (or was never stamped) — update runtimes/codex.md, then run --stamp`)
+    if (!ignoreStamps && pinned[slot] !== slotHash(text)) {
+      throw new VariantError(`slot "${slot}": its Claude text changed since the Codex text was written (or was never stamped). A human must review runtimes/codex.md against the new Claude text and re-stamp; automation never stamps`)
     }
   }
-  for (const name of Object.keys(pinned)) if (!slots.some((p) => p.slot === name)) throw new VariantError(`slotSources names unknown slot "${name}"`)
+  if (!ignoreStamps) for (const name of Object.keys(pinned)) if (!slots.some((p) => p.slot === name)) throw new VariantError(`slotSources names unknown slot "${name}"`)
 
   let out = join_(parts, (p) => overrides.get(p.slot))
   for (const { from, to, count } of config.replace ?? []) {
@@ -227,45 +271,66 @@ export function buildSkillMd(skillDir, runtime) {
 
   const renames = config.renameHeadings ?? {}
   const sourceHeadings = headings(claude)
+  const targets = Object.values(renames)
+  if (new Set(targets).size !== targets.length) throw new VariantError('renameHeadings: two headings renamed to the same title')
   for (const [from, to] of Object.entries(renames)) {
     if (!/^## /.test(from) || !/^## /.test(to)) throw new VariantError(`renameHeadings entries must be "## " lines: "${from}"`)
     if (to in renames || sourceHeadings.includes(to)) throw new VariantError(`renameHeadings target "${to}" is already a heading or a rename source`)
-    const lines = out.split('\n')
-    const hits = lines.filter((l) => l === from).length
+    const hits = sourceHeadings.filter((h) => h === from).length
     if (hits !== 1) throw new VariantError(`renameHeadings "${from}": expected 1 heading, found ${hits}`)
-    out = lines.map((l) => (l === from ? to : l)).join('\n')
+    const fence = fenceTracker()
+    out = out.split('\n').map((l) => (!fence(l) && l === from ? to : l)).join('\n')
   }
 
-  for (const s of [...BUILTIN_FORBID, ...(config.forbid ?? [])]) {
-    if (out.includes(s)) throw new VariantError(`forbidden string left in Codex variant: "${s}"`)
-  }
-  if (OVERRIDE_MARKER.test(out)) throw new VariantError('slot marker left in Codex variant')
-  for (const [id, re] of Object.entries(CLAUDE_ONLY)) {
-    if (config.allow?.[id]) continue
-    const hit = out.match(re)
-    if (hit) throw new VariantError(`Claude-only vocabulary "${id}" left in Codex variant: "${hit[0]}" (rewrite it, or allow it with a reason)`)
-  }
-  const dated = out.match(DATED_MODEL)
-  if (dated) throw new VariantError(`dated model name left in Codex variant: "${dated[0]}…"`)
+  checkCodexText(out, config, 'SKILL.md')
   const a = sourceHeadings.map((h) => renames[h] ?? h), b = headings(out)
   if (a.join('\n') !== b.join('\n')) throw new VariantError(`section headings differ from the Claude variant:\n  claude: ${a.join(' | ')}\n  codex:  ${b.join(' | ')}`)
   return out
 }
 
 // Writes the complete skill folder for the runtime into `out` (which must be empty or absent).
+function realOrResolved(path) {
+  if (existsSync(path)) return realpathSync(path)
+  return join(realOrResolved(dirname(resolve(path))), basename(path))
+}
+
+// Every Markdown file the variant ships besides SKILL.md (runtimes/ excluded).
+function otherMarkdown(dir, base = dir) {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+    const p = join(dir, e.name)
+    if (e.isDirectory()) return ['runtimes', '.git'].includes(e.name) && dir === base ? [] : otherMarkdown(p, base)
+    return e.isFile() && extname(e.name) === '.md' && p !== join(base, 'SKILL.md') ? [p] : []
+  })
+}
+
 export function buildVariant(skillDir, runtime, out) {
-  const skillMd = buildSkillMd(skillDir, runtime)
-  const rel = relative(resolve(skillDir), resolve(out))
+  const source = realpathSync(skillDir)
+  const skillMd = buildSkillMd(source, runtime)
+  const target = realOrResolved(out)
+  const rel = relative(source, target)
   if (!rel || (!rel.startsWith('..') && !isAbsolute(rel))) throw new VariantError(`output dir must be outside the skill folder: ${out}`)
-  if (existsSync(out) && readdirSync(out).length) throw new VariantError(`output dir is not empty: ${out}`)
-  mkdirSync(out, { recursive: true })
-  cpSync(skillDir, out, { recursive: true, verbatimSymlinks: true, filter: (src) => !['.git', '.DS_Store'].includes(basename(src)) })
-  rmSync(join(out, 'runtimes'), { recursive: true, force: true })
-  writeFileSync(join(out, 'SKILL.md'), skillMd)
+  if (existsSync(target) && readdirSync(target).length) throw new VariantError(`output dir is not empty: ${out}`)
+  if (runtime === 'codex') {
+    const config = readConfig(source)
+    for (const f of otherMarkdown(source)) checkCodexText(readText(f), config, relative(source, f))
+  }
+  try {
+    mkdirSync(target, { recursive: true })
+    cpSync(source, target, {
+      recursive: true,
+      verbatimSymlinks: true,
+      filter: (src) => !['.git', '.DS_Store'].includes(basename(src)) && src !== join(source, 'SKILL.md') && src !== join(source, 'runtimes'),
+    })
+    writeFileSync(join(target, 'SKILL.md'), skillMd)
+  } catch (err) {
+    rmSync(target, { recursive: true, force: true })
+    throw err
+  }
 }
 
 // Records the current Claude text of every slot as the one the Codex text matches.
 export function stamp(skillDir) {
+  buildSkillMd(skillDir, 'codex', { ignoreStamps: true }) // every other check must pass first
   const config = readConfig(skillDir)
   const parts = parseSlots(readText(join(skillDir, 'SKILL.md')))
   config.slotSources = Object.fromEntries(parts.filter((p) => p.slot !== undefined).map((p) => [p.slot, slotHash(p.text)]))
@@ -276,6 +341,10 @@ function main(argv) {
   const arg = (k) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : undefined }
   const skill = arg('--skill'), runtime = arg('--runtime'), out = arg('--out')
   const stampMode = argv.includes('--stamp')
+  if (stampMode && (runtime || out || argv.includes('--check'))) {
+    process.stderr.write('--stamp cannot be combined with --runtime, --out or --check\n')
+    return 2
+  }
   if (!skill || (!stampMode && (!runtime || (!out && !argv.includes('--check'))))) {
     process.stderr.write('usage: build-runtime-variant.mjs --skill <dir> (--runtime codex|claude (--out <dir> | --check) | --stamp)\n')
     return 2
