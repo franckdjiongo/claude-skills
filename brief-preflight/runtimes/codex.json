@@ -1,0 +1,16 @@
+{
+  "description": "Pré-analyse d'un plan brief-chantier AVANT exécution : lint déterministe (script à lancer en premier) puis rounds adversariaux multi-agents (7 lentilles dont personas et projection dans le futur) jusqu'à zéro zone d'ombre, avec triage must-have / nice-to-have. Ne s'applique qu'aux plans au standard brief-chantier, pas aux documents libres.",
+  "renameHeadings": {
+    "## Étape 0 — Lint déterministe (auto-exécuté à l'invocation)": "## Étape 0 — Lint déterministe (à lancer en premier)",
+    "## Étape 1 — Rounds ultracode (7 lentilles, agents sonnet effort medium)": "## Étape 1 — Rounds adversariaux (7 lentilles, sous-agents en parallèle)"
+  },
+  "replace": [
+    { "from": "${CLAUDE_SKILL_DIR}", "to": "<dossier-de-ce-skill>", "count": 4 },
+    { "from": "L'invocation de ce skill par brief-chantier ou par l'utilisateur VAUT opt-in\nultracode pour les workflows décrits ici.", "to": "L'invocation de ce skill par brief-chantier ou par l'utilisateur VAUT accord\npour le fan-out multi-agents décrit ici.", "count": 1 },
+    { "from": "jugement), puis ce qui exige du jugement (rounds ultracode adversariaux).", "to": "jugement), puis ce qui exige du jugement (rounds adversariaux multi-agents).", "count": 1 },
+    { "from": "round ultracode coûte ~600 k tokens", "to": "round adversarial complet coûte ~600 k tokens", "count": 1 },
+    { "from": "5. **Process & gates** — cohérence avec CLAUDE.md et les règles du repo :", "to": "5. **Process & gates** — cohérence avec AGENTS.md (et CLAUDE.md s'il existe) et les règles du repo :", "count": 1 },
+    { "from": "   CLAUDE.md, catalogue) ;", "to": "   AGENTS.md, CLAUDE.md, catalogue) ;", "count": 1 }
+  ],
+  "forbid": ["CLAUDE_SKILL_DIR", "'sonnet'", "`sonnet`", "Stop hook global", "Workflow", "!`node"]
+}

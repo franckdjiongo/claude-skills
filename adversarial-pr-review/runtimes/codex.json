@@ -1,0 +1,16 @@
+{
+  "description": "Run a multi-agent ADVERSARIAL review (parallel spawn_agent hunters, then one verifier per finding) over the working diff so a change is bulletproof and \"compliant\" BEFORE its pull request is opened, and so automated code-review rounds CONVERGE instead of looping. Use this skill (Mode A) whenever you are about to create or open a pull request — when the user says \"create a PR\", \"open a PR\", \"tu peux créer la PR\", \"raise/submit a PR\", \"ouvre la PR\", or asks to push a branch up for review — and (Mode B) whenever a code-review bot (Codex, CodeRabbit, Claude review, Greptile, Graphite, etc.) posts comments on a PR that need addressing. A global PreToolUse hook BLOCKS `gh pr create` until this skill has validated the current HEAD, so reach for it proactively rather than waiting to be told. Especially important for any change touching shared/exported surfaces, public APIs, auth, schemas, or anything a downstream consumer (or another tool) depends on. It judges by the same bar a strong review bot uses — not only correctness bugs, but deviations from the repo's own idioms, unbounded / over-fetching queries and missing indexes, and external platform limits (e.g. message-size caps).",
+  "replace": [
+    { "from": "const REPO = '<absolute repo path>'\n", "to": "const REPO = '<absolute repo path>'\n// Codex: fill from `node scripts/resolve-codex-models.mjs --repo <REPO>` (never a model name from memory).\nconst HUNTER = { model: '<review-hunter model>', effort: '<review-hunter effort>' }\nconst VERIFIER = { model: '<review-verifier model>', effort: '<review-verifier effort>' }\n", "count": 1 },
+    { "from": "model:'sonnet', effort:'medium' }", "to": "model:HUNTER.model, effort:HUNTER.effort }", "count": 1 },
+    { "from": "model:'sonnet', effort:'high' })", "to": "model:VERIFIER.model, effort:VERIFIER.effort })", "count": 1 },
+    { "from": "**No-ultracode fallback:** spawn the same dimensions as parallel `Agent` calls", "to": "**Hand-run fan-out (the only engine on Codex):** spawn the same dimensions as parallel `spawn_agent` calls", "count": 1 },
+    { "from": "verifier `Agent` per finding", "to": "verifier `spawn_agent` per finding", "count": 2 },
+    { "from": "fix diff as an `Agent` fan-out", "to": "fix diff as a `spawn_agent` fan-out", "count": 1 },
+    { "from": "not a lighter version because there's no Workflow tool enforcing a schema.", "to": "not a lighter version because nothing enforces a schema.", "count": 1 },
+    { "from": "**The fallback drops the Workflow tool, never a phase.**", "to": "**The hand-run fan-out drops no phase.**", "count": 1 },
+    { "from": "each fixer gets\n  `isolation: 'worktree'`; merge back at round close-out.", "to": "each fixer gets\n  its own `git worktree add <dir> -b <branch>`, named in its prompt; merge back at round close-out.", "count": 1 },
+    { "from": "(`spawn_task`)", "to": "(the workstation `chip_create` tool)", "count": 1 }
+  ],
+  "forbid": ["CLAUDE_CODE_WORKFLOWS", "'sonnet'", "SendMessage", "resumeFromRunId", "isolation: 'worktree'", "ultracode", "`Agent`", "Opus", "spawn_task"]
+}

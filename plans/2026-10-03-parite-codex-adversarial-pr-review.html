@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Parité Codex de la revue adversariale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#F3F0E8; --surface:#E8E3D8; --line:#D2CBBC;
+  --ink:#1D2330; --muted:#4D5565;
+  --claude:#8E4318; --codex:#1B5E86; --accent:#8A2F4A;
+  --code-bg:#E2DCCF;
+  --display:"Newsreader",Georgia,serif;
+  --body:"IBM Plex Sans","Helvetica Neue",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --text-body:clamp(1rem,0.4vw + 0.92rem,1.125rem);
+  --text-h1:clamp(2.5rem,4vw + 1rem,3.5rem);
+  --text-h2:clamp(1.5rem,1.6vw + 1rem,2rem);
+  --space-section:clamp(48px,8vw,96px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#161A21; --surface:#1F252E; --line:#323A46;
+    --ink:#E5E1D7; --muted:#A8AFBB;
+    --claude:#E59A6A; --codex:#6FB6E2; --accent:#E88AA6;
+    --code-bg:#252C37;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#161A21; --surface:#1F252E; --line:#323A46;
+  --ink:#E5E1D7; --muted:#A8AFBB;
+  --claude:#E59A6A; --codex:#6FB6E2; --accent:#E88AA6;
+  --code-bg:#252C37;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:var(--text-body);line-height:1.6}
+main{max-width:1040px;margin:0 auto;padding:0 16px}
+section{padding:var(--space-section) 0;border-top:1px solid var(--line)}
+section:first-of-type{border-top:0}
+.prose{max-width:68ch}
+h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.2;letter-spacing:-0.01em;margin:0 0 16px}
+h1{font-size:var(--text-h1);max-width:20ch}
+h2{font-size:var(--text-h2)}
+h3{font-size:1.25rem;margin-top:32px}
+p,ul,ol{margin:0 0 16px}
+li{margin-bottom:8px}
+.num{font-family:var(--mono);font-size:0.875rem;color:var(--muted);letter-spacing:0.08em;display:block;margin-bottom:8px}
+.lede{font-size:1.25rem;color:var(--muted);max-width:60ch}
+.meta{font-size:0.875rem;color:var(--muted);margin-top:24px}
+code,.path{font-family:var(--mono);font-size:0.875em;background:var(--code-bg);padding:0 4px;border-radius:4px;overflow-wrap:anywhere}
+.verdict{background:var(--surface);border-left:4px solid var(--codex);padding:24px;border-radius:0 8px 8px 0;margin:24px 0}
+.verdict p:last-child{margin-bottom:0}
+.tag{display:inline-block;font-family:var(--mono);font-size:0.75rem;padding:0 8px;border-radius:4px;border:1px solid currentColor;vertical-align:middle;white-space:nowrap}
+.t-cl{color:var(--claude)} .t-cx{color:var(--codex)} .t-a{color:var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:0.9375rem;margin:16px 0 24px}
+th,td{text-align:left;vertical-align:top;padding:8px 16px 8px 0;border-bottom:1px solid var(--line)}
+th{font-weight:600;color:var(--muted);font-size:0.8125rem;text-transform:uppercase;letter-spacing:0.06em}
+.scroll{overflow-x:auto}
+pre{font-family:var(--mono);font-size:0.8125rem;line-height:1.5;background:var(--code-bg);padding:16px;border-radius:8px;overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:24px}
+.card{background:var(--surface);border-radius:8px;padding:24px}
+.card h3{margin-top:0}
+.card.cl{border-top:4px solid var(--claude)} .card.cx{border-top:4px solid var(--codex)}
+.gauge{display:flex;height:16px;border-radius:4px;overflow:hidden;margin:8px 0 4px;background:var(--line)}
+.gauge span{display:block;height:100%}
+.legend{font-size:0.875rem;color:var(--muted)}
+.decide{counter-reset:d;list-style:none;padding:0}
+.decide li{counter-increment:d;position:relative;padding:16px 16px 16px 64px;background:var(--surface);border-radius:8px;margin-bottom:16px}
+.decide li::before{content:counter(d);position:absolute;left:16px;top:8px;font-family:var(--display);font-size:2rem;color:var(--accent)}
+@media print{
+  :root{--bg:#FFFDF8;--surface:#F3EFE6;--ink:#1D2330;--muted:#4D5565;--line:#D2CBBC;--claude:#8E4318;--codex:#1B5E86;--accent:#8A2F4A;--code-bg:#EEE9DE}
+  section{padding:32px 0;break-inside:avoid-page}
+}
+</style>
+</head>
+<body>
+<main>
+
+<section>
+  <span class="num">§00 · claude-skills · workstation · 3 octobre 2026</span>
+  <h1>Rendre à Codex la revue adversariale d'aujourd'hui</h1>
+  <p class="lede">La copie Codex de <code>adversarial-pr-review</code> date du 10 juillet. Le rail d'amélioration de la workstation n'installe que la copie Claude. Ce plan propose une variante Codex générée depuis la source unique, avec des modèles Codex résolus au moment de l'usage, et une seconde cible d'installation dans le rail.</p>
+  <p class="meta">Chip <code>2026-10-03-restore-codex-parity-for-adversarial-pr-review</code> · rien n'a été modifié dans <code>~/.agents/skills</code> ni dans le rail : ce document attend ta validation dans Galley.</p>
+</section>
+
+<section>
+  <span class="num">§01</span>
+  <h2>Verdict</h2>
+  <div class="verdict prose">
+    <p><strong>Ton diagnostic est juste, et le trou est plus large que ce skill.</strong> Le rail (<code>server/services/reviews/apply.ts</code>) copie le dossier du skill dans <code>~/.claude/skills</code> et nulle part ailleurs ; aucune ligne du rail ne mentionne <code>~/.agents/skills</code>. 17 des 26 skills copiés côté Codex diffèrent de leur source, et 10 portent des chemins cassés comme <code>.Codex/agents/</code> (37 lignes touchées).</p>
+    <p><strong>Je recommande l'option B :</strong> une seule source dans claude-skills, avec des blocs marqués par runtime, un générateur testé qui produit la variante Codex, et une seconde cible d'installation dans le rail. Copier la même chose aux deux endroits (option A) enverrait à Codex des consignes qu'il ne peut pas suivre (Workflow tool, <code>model:'sonnet'</code>, <code>SendMessage</code>).</p>
+    <p><strong>Pour les modèles :</strong> pas de nom daté dans le skill. Il lit un fichier de routage (projet, puis utilisateur), et à défaut prend le modèle par défaut de la session Codex. Les efforts restent épinglés, <code>medium</code> pour les chasseurs et <code>high</code> pour les vérificateurs, et jamais hérités.</p>
+  </div>
+</section>
+
+<section>
+  <span class="num">§02</span>
+  <h2>État des lieux de <code>~/.agents/skills</code></h2>
+  <div class="prose">
+    <p>Mesuré le 3 octobre en comparant chaque <code>SKILL.md</code> installé à sa source sur <code>main</code> (commit <code>9fdf679</code>).</p>
+  </div>
+  <div class="gauge" role="img" aria-label="31 entrées : 5 liens symboliques, 9 identiques, 17 divergentes">
+    <span style="width:16.1%;background:var(--codex)"></span>
+    <span style="width:29%;background:var(--muted)"></span>
+    <span style="width:54.9%;background:var(--claude)"></span>
+  </div>
+  <p class="legend"><span class="t-cx">■</span> 5 liens symboliques (toujours à jour) · <span>■</span> 9 copies identiques · <span class="t-cl">■</span> 17 copies divergentes</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Skill</th><th>Copie Codex</th><th>Source</th><th>Écart</th></tr></thead>
+    <tbody>
+      <tr><td><strong>adversarial-pr-review</strong></td><td>31 725 o · 10 juil.</td><td>61 478 o · 3 oct.</td><td>moitié du texte manquant, <code>scripts/</code> absent</td></tr>
+      <tr><td>meta-govern</td><td>6 790 o · 11 août</td><td>35 653 o · 10 sept.</td><td>×5 en taille</td></tr>
+      <tr><td>schedule-plan-execution</td><td>11 503 o · 7 mai</td><td>23 845 o · 10 sept.</td><td>×2</td></tr>
+      <tr><td>brain-capture</td><td>3 442 o · 23 août</td><td>5 221 o · 10 sept.</td><td>+50 %</td></tr>
+      <tr><td>brief-chantier</td><td>35 689 o · 28 sept.</td><td>37 027 o · 10 sept.</td><td>copiée depuis un état antérieur, plus un chemin <code>.Codex/agents/</code></td></tr>
+      <tr><td>12 autres</td><td colspan="2">écarts de 1 octet à 2,5 ko</td><td>8 d'entre eux portent le remplacement <code>.claude/</code> → <code>.Codex/</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="prose">
+    <p><strong>Trois vagues de remplissage, aucune automatique.</strong> Les copies du 7 mai viennent de <code>migrate-to-codex</code> (rapport <code>~/.codex/migrate-to-codex-report.txt</code>). Celles du 23 août et la copie du 10 juillet sont manuelles. Les 5 liens symboliques (<code>me</code>, <code>ask-questions</code>, <code>workstation</code>, <code>workstation-friction-capture</code>, <code>lexicon-capture</code>) sont les seuls à suivre leur source.</p>
+    <p><strong>Les chemins <code>.Codex/</code> :</strong> 37 lignes dans 10 skills, par exemple « <code>.Codex/agents/</code> du repo cible » dans brief-chantier, où la source dit <code>.claude/agents/</code>. Un remplacement textuel « claude → Codex » a touché des chemins qui devaient rester tels quels. Je n'ai pas trouvé l'outil responsable : le script <code>migrate-to-codex</code> ne réécrit pas le texte des skills. C'est l'argument principal pour une transformation <em>testée</em> plutôt qu'un remplacement à l'aveugle.</p>
+    <p><strong>Jumeau structurel :</strong> côté Claude, le hook global <code>adversarial-pr-guard.mjs</code> bloque <code>gh pr create</code> tant que la sentinelle n'est pas posée. <code>~/.codex/hooks.json</code> n'a aucun équivalent. La section « Sentinel » du skill est donc fausse pour Codex aujourd'hui : rien ne bloque.</p>
+  </div>
+</section>
+
+<section>
+  <span class="num">§03</span>
+  <h2>Ce que fait le rail aujourd'hui</h2>
+  <div class="prose">
+    <p>Capture (hook après <code>gh pr create</code>) → export de nuit → juge local à 5 h → branche <code>improve/&lt;skill&gt;-&lt;date&gt;</code> poussée dans claude-skills → proposition avec porte d'approbation dans le hub. L'application n'est lancée que par <code>bun run evals apply &lt;id&gt;</code>.</p>
+    <p><code>applyApproved</code> greffe le dossier du skill sur <code>main</code> dans le clone d'intégration (<code>~/Desktop/my-projets/.ws-integration/claude-skills</code>), pousse, puis <code>installSkillFromIntegrationClone</code> (<code>apply.ts:1269-1379</code>) :</p>
+    <ul>
+      <li>refuse si le dossier installé est un lien symbolique ;</li>
+      <li>refuse si le marqueur <code>.ws-install-sha.json</code> ne vaut pas le <code>beforeSha</code> de la proposition (installation divergente, ouvre un chip de rebase) ;</li>
+      <li>sinon supprime le dossier, recopie tout le dossier source, écrit le marqueur.</li>
+    </ul>
+    <p>La seule racine d'installation est <code>WORKSTATION_SKILLS_INSTALL_ROOT=~/.claude/skills</code> (<code>docs/evals/rail-application.md:54</code>). Les tests passent cette racine en paramètre sous un dossier temporaire (<code>apply.test.ts</code>), ce qui rend l'ajout d'une seconde racine facile à tester.</p>
+    <p>Il existe déjà un rédacteur Codex, <code>server/services/migration/codexWriter.ts</code>, mais il sert au moteur de migration sur des fixtures et le rail ne l'utilise pas.</p>
+  </div>
+</section>
+
+<section>
+  <span class="num">§04</span>
+  <h2>Quels modèles Codex, et comment les choisir</h2>
+  <div class="prose">
+    <p>Relevé sur cette machine (codex-cli 0.154.0) :</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Source</th><th>Ce qu'elle dit</th></tr></thead>
+    <tbody>
+      <tr><td><code>~/.codex/config.toml</code></td><td>modèle par défaut de la famille <em>sol</em>, effort par défaut <code>xhigh</code></td></tr>
+      <tr><td>Appels <code>spawn_agent</code> (sessions des 3 derniers jours)</td><td>paramètres <code>model</code> et <code>reasoning_effort</code> acceptés par appel ; 100 appels sur le modèle par défaut, 8 sur un <em>sol</em> plus ancien, 1 sur un <em>luna</em> ; efforts <code>high</code> ×75, <code>medium</code> ×31</td></tr>
+      <tr><td><code>temps-chantier-code-app/.codex/model-routing.json</code></td><td>rôles → (modèle, effort) : exploration = <em>luna</em>/low, implémentation = <em>sol</em>/medium, revue = <em>sol</em>/high ; vérifié par <code>.agents/scripts/check-codex-model-routing.mjs</code></td></tr>
+      <tr><td><code>~/.codex/models_cache.json</code></td><td>catalogue avec efforts supportés, <strong>mais il ne contient pas</strong> les trois modèles les plus utilisés dans les sessions</td></tr>
+      <tr><td><code>~/.codex/AGENTS.md:47</code></td><td>« Do not invent names for configured agents » : on passe <code>agent_type:"default"</code> et le rôle va dans le message</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="prose">
+    <p><strong>Conséquence :</strong> le cache ne peut pas fournir les noms de modèles, puisque les modèles réellement utilisés n'y figurent pas. Il sert seulement à vérifier qu'un effort est supporté quand le modèle y figure.</p>
+    <p><strong>Le risque équivalent à « pas d'Opus » :</strong> l'effort par défaut est <code>xhigh</code>. Un sous-agent lancé sans <code>reasoning_effort</code> en hérite. C'est l'incident Claude du 25 août (sous-agents hérités du modèle de session, limite de 5 h atteinte) sous une autre forme.</p>
+    <p>Côté Claude, chasseurs et vérificateurs utilisent <strong>le même modèle</strong> (Sonnet) et ne diffèrent que par l'effort. Je propose le même schéma pour Codex.</p>
+  </div>
+  <h3>Résolution proposée, au moment de l'usage</h3>
+<pre>rôle review-hunter   → effort medium
+rôle review-verifier → effort high
+
+modèle, par ordre :
+ 1. &lt;repo&gt;/.codex/model-routing.json   roles["review-hunter"|"review-verifier"].model
+                                      (à défaut : roles.review.model pour les deux)
+ 2. ~/.codex/model-routing.json        même schéma, un seul fichier à mettre à jour
+                                      quand une génération de modèles change
+ 3. ~/.codex/config.toml               clé model (le modèle par défaut de la session)
+
+effort : toujours celui du rôle, jamais hérité ; jamais xhigh, max ni ultra
+         pour un sous-agent. Si le modèle figure dans models_cache.json et
+         ne supporte pas l'effort, prendre l'effort supporté juste en dessous.
+rejet du modèle au spawn : une seule nouvelle tentative avec le niveau suivant
+         de la liste ; si tout échoue, ne pas passer model (défaut de session),
+         en gardant reasoning_effort.</pre>
+  <div class="prose">
+    <p>Le skill contient la procédure de lecture, jamais un nom de modèle. Seuls les fichiers de routage, que tu tiens, contiennent des noms. L'orchestrateur écrit dans sa trace le modèle et l'effort retenus par rôle, pour que le juge de nuit puisse les contrôler.</p>
+  </div>
+</section>
+
+<section>
+  <span class="num">§05</span>
+  <h2>La variante Codex du skill</h2>
+  <div class="prose">
+    <p>Tout ce qui fait la valeur du skill reste mot pour mot : les deux modes, le verdict à deux portes, le balayage par classe avec sa table, la couverture 1:1 du mandat, la provenance des preuves, les champs <code>findings</code>, <code>sweeps</code>, <code>residualRisk</code> et <code>checksPerformed</code>, le second tour sur le diff du correctif. Seules changent les sections qui nomment des outils propres à Claude Code.</p>
+  </div>
+  <div class="grid2">
+    <div class="card cl">
+      <h3>Claude Code (inchangé)</h3>
+      <ul>
+        <li>Workflow tool si disponible, sinon <code>Agent</code> en parallèle</li>
+        <li><code>model:'sonnet'</code>, effort medium / high</li>
+        <li>Agent mort : <code>resumeFromRunId</code> ou <code>SendMessage</code></li>
+        <li>Correcteurs isolés : <code>isolation:'worktree'</code></li>
+        <li>Sentinelle exigée par le hook global</li>
+      </ul>
+    </div>
+    <div class="card cx">
+      <h3>Codex (variante générée)</h3>
+      <ul>
+        <li>Toujours le repli sans Workflow : <code>spawn_agent</code> avec <code>agent_type:"default"</code> et <code>fork_turns:"none"</code>, puis <code>wait_agent</code> ; le prompt de chaque agent exige les mêmes champs de restitution</li>
+        <li>Modèle et effort par la résolution du §04</li>
+        <li>Agent mort : relancer le même message (pas de cache de run) ; <code>send_message</code> apparaît dans les sessions, à confirmer avant de l'écrire dans le skill</li>
+        <li>Correcteurs isolés : <code>git worktree add</code> explicite par correcteur, ou la clause d'arbre partagé</li>
+        <li>Sentinelle : même commande ; tant qu'aucun hook Codex n'existe, le skill dit qu'elle est déclarative</li>
+      </ul>
+    </div>
+  </div>
+  <div class="prose">
+    <p>Le gabarit JavaScript du Workflow (environ 120 lignes) est remplacé par un gabarit de prompts : le même <code>CONTEXT</code>, la même liste de dimensions, et le format de réponse écrit en clair dans le message. Le repli exige déjà ces champs ; la variante Codex en fait le chemin unique.</p>
+  </div>
+</section>
+
+<section>
+  <span class="num">§06</span>
+  <h2>Garder la parité ensuite : deux options</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3><span class="tag t-a">écartée</span> A · Appliquer la proposition aux deux installations</h3>
+      <p>Simple, mais copie verbatim un texte écrit pour Claude Code. C'est l'état actuel en mieux daté, avec les mêmes consignes inapplicables. Et si quelqu'un adapte la copie Codex à la main, le marqueur la déclare divergente à chaque application.</p>
+    </div>
+    <div class="card">
+      <h3><span class="tag t-cx">recommandée</span> B · Générer la variante Codex depuis la source</h3>
+      <p>La source garde un seul <code>SKILL.md</code>. Les passages propres à un runtime sont entourés de <code>&lt;!-- runtime:claude --&gt;</code> ou <code>&lt;!-- runtime:codex --&gt;</code>. Un générateur produit chaque variante ; les propositions de nuit continuent de modifier la source seule.</p>
+    </div>
+  </div>
+  <h3>Ce que B demande concrètement</h3>
+  <ul class="prose">
+    <li><strong>claude-skills :</strong> <code>scripts/build-runtime-variant.mjs &lt;skill&gt; --runtime codex|claude</code>. Sans marqueur, la sortie est la source telle quelle, sans aucun remplacement textuel (c'est ce qui évite une nouvelle vague de <code>.Codex/</code>).</li>
+    <li><strong>Test du générateur</strong>, lancé par la porte qualité de claude-skills. Il vérifie que la variante Codex :
+      <ul>
+        <li>ne contient ni <code>Workflow tool</code>, ni <code>model:'sonnet'</code>, ni <code>opus</code>, ni <code>SendMessage</code>, ni <code>resumeFromRunId</code> ;</li>
+        <li>ne contient aucun nom de modèle daté (motif <code>gpt-\d</code>) ;</li>
+        <li>ne contient aucun chemin <code>.Codex/</code> ;</li>
+        <li>garde les mêmes titres de section et les mêmes noms de champs de restitution que la variante Claude ;</li>
+        <li>a des marqueurs bien appariés.</li>
+      </ul>
+      La variante Claude doit en plus être identique octet pour octet au <code>SKILL.md</code> actuel, une fois les marqueurs retirés.</li>
+    <li><strong>workstation, rail :</strong>
+      <ul>
+        <li>une seconde racine <code>WORKSTATION_CODEX_SKILLS_INSTALL_ROOT=~/.agents/skills</code> ;</li>
+        <li><code>installSkillFromIntegrationClone</code> installe la variante générée dans cette racine, avec son propre <code>.ws-install-sha.json</code>, la même garde de divergence et le même refus des liens symboliques ;</li>
+        <li>un échec côté Codex n'annule pas l'installation Claude, mais il ouvre un chip ;</li>
+        <li><code>rail-doctor</code> signale toute copie Codex dont le marqueur est en retard ;</li>
+        <li>tests dans <code>apply.test.ts</code> avec deux racines temporaires ;</li>
+        <li>mise à jour de <code>docs/evals/rail-application.md</code>.</li>
+      </ul></li>
+  </ul>
+</section>
+
+<section>
+  <span class="num">§07</span>
+  <h2>Ordre des lots</h2>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Lot</th><th>Où</th><th>Contenu</th><th>Garde</th></tr></thead>
+    <tbody>
+      <tr><td>L1</td><td>claude-skills</td><td>générateur, test, marqueurs et blocs Codex dans <code>adversarial-pr-review</code></td><td>porte qualité verte, revue adversariale, PR</td></tr>
+      <tr><td>L2</td><td><code>~/.agents/skills</code></td><td>installation de la variante Codex d'<code>adversarial-pr-review</code> avec marqueur, en sauvegardant d'abord la copie du 10 juillet</td><td>ton accord explicite (c'est le dossier que le chip interdit de toucher sans validation)</td></tr>
+      <tr><td>L3</td><td>workstation</td><td>seconde cible d'installation dans le rail, tests, doc, <code>rail-doctor</code></td><td>porte qualité verte, PR, redéploiement</td></tr>
+      <tr><td>L4</td><td>~/.codex</td><td><code>~/.codex/model-routing.json</code> avec les rôles <code>review-hunter</code> et <code>review-verifier</code></td><td>tu choisis les modèles ; c'est ta configuration</td></tr>
+      <tr><td>L5 <span class="tag t-a">optionnel</span></td><td><code>~/.agents/skills</code></td><td>régénérer les 16 autres copies divergentes et corriger les 37 lignes en <code>.Codex/</code> <code>.Codex/</code></td><td>ton accord, skill par skill ou en bloc</td></tr>
+      <tr><td>L6 <span class="tag t-a">optionnel</span></td><td><code>~/.codex/hooks.json</code></td><td>porter <code>adversarial-pr-guard</code> en hook PreToolUse Codex</td><td>étape humaine : un agent n'écrit pas dans <code>hooks.json</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <span class="num">§08</span>
+  <h2>Ce que j'attends de toi dans Galley</h2>
+  <ol class="decide prose">
+    <li><strong>Option B</strong> (source unique, blocs marqués, générateur testé) plutôt que A ? Un oui lance L1.</li>
+    <li><strong>Modèles :</strong> même modèle pour les deux rôles, effort medium puis high, comme côté Claude ? Ou veux-tu un modèle <em>luna</em> pour les chasseurs ? Si oui, donne-moi le nom à écrire dans <code>~/.codex/model-routing.json</code> (L4).</li>
+    <li><strong>L2 :</strong> puis-je remplacer la copie Codex du 10 juillet une fois L1 fusionné ?</li>
+    <li><strong>L3 :</strong> j'ajoute la seconde cible d'installation au rail ?</li>
+    <li><strong>L5 et L6 :</strong> maintenant, plus tard (je crée un chip), ou pas du tout ?</li>
+  </ol>
+</section>
+
+</main>
+</body>
+</html>
