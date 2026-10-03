@@ -1,0 +1,28 @@
+{
+  "description": "Autonomously update this macOS machine's local developer toolchain — Python (current stable) + its doc libraries and Node (LTS), both via mise, plus your global npm CLIs, bun, Homebrew formulae & casks, and npm globals — then verify everything works and report what needs your password. Use whenever the user wants to update / upgrade / refresh / \"bring current\" / \"mettre à jour\" their dev tools, toolchain, runtimes, or environment: \"update my tools\", \"mets à jour mes outils\", \"update python and node\", \"upgrade everything\", \"refresh my dev environment\", \"update brew / npm / bun / mise\", or when they invoke it directly. Runs a resilient bundled script encoding the gotchas (mise runtimes, per-version reinstall on a version bump, npm self-update race, sudo-only .pkg casks). NOT for editing agent CLI settings or permissions, uninstalling an app (mac-uninstall), or bumping a repo's own dependencies (package.json / lockfiles / requirements.txt).",
+  "replace": [
+    {
+      "from": "~/.claude/skills/update-dev-tools/scripts/",
+      "to": "~/.agents/skills/update-dev-tools/scripts/",
+      "count": 1
+    }
+  ],
+  "forbid": [
+    "CLAUDE_SKILL_DIR",
+    "~/.claude/skills/",
+    "AskUserQuestion",
+    "spawn_task",
+    "update-config"
+  ],
+  "allow": {
+    "claude-home": {
+      "match": [
+        "~/.claude/settings.json"
+      ],
+      "reason": "The references and the script's warning legitimately name Claude Code's settings file as one remedy for users who also run Claude Code."
+    }
+  },
+  "slotSources": {
+    "path-warning": "fff45854841b19e0"
+  }
+}

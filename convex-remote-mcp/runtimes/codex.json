@@ -1,0 +1,35 @@
+{
+  "description": "Build a production-ready REMOTE MCP server (Streamable HTTP) hosted INSIDE an EXISTING Convex backend — exposing your Convex functions as authenticated tools to claude.ai / Claude Desktop / Claude Code, secured by OAuth (WorkOS AuthKit), with a mandatory anti-leak projection layer, a gated test/verification discipline, and a production rollout. Use this skill whenever the user wants to create/build/set up an MCP server or custom connector on or for a Convex project, expose Convex functions/tools to claude.ai or Claude, add a remote/distant MCP connector backed by Convex, wire the `convex-mcp-gateway` component, add WorkOS AuthKit OAuth to a Convex MCP, safely project a Convex document for an LLM tool, harden a Convex MCP tool that reads the wall clock (e.g. a getCurrentDate / overdue / isOverdue tool returning a stale date over midnight or off by a timezone offset), or roll a Convex MCP server out to production — even if they only say \"un MCP pour ce projet Convex\", \"expose mes fonctions Convex à Claude\", \"connecteur MCP distant Convex\", \"MCP gateway Convex\", or mention `convex-mcp-gateway`. Project-agnostic and parameterized. NOT for: a generic non-Convex MCP server (use mcp-builder); a local stdio MCP; ordinary Convex app development or an in-app @convex-dev/agent assistant; or app/user sign-in auth (e.g. WorkOS/AuthKit login for a web app) that does not stand up an MCP server.",
+  "replace": [
+    {
+      "from": "(the `adversarial-pr-review` skill; a PreToolUse hook blocks\n`gh pr create` until it passes)",
+      "to": "(the `adversarial-pr-review` skill; on Codex its guard hook\n`~/.codex/hooks/adversarial-pr-guard.mjs` blocks `gh pr create` until it passes, codex-cli 0.160.0 and later)",
+      "count": 1
+    },
+    {
+      "from": "(that's `mcp-builder`)",
+      "to": "(use a generic MCP-builder skill if one is installed)",
+      "count": 1
+    },
+    {
+      "from": "(that's `convex` / `convex-expert`)",
+      "to": "(use your Convex app-development skills or agents if installed)",
+      "count": 1
+    }
+  ],
+  "forbid": [
+    "CLAUDE_SKILL_DIR",
+    "AskUserQuestion",
+    "spawn_task",
+    "~/.claude/skills/"
+  ],
+  "allow": {
+    "claude-home": {
+      "match": [
+        "~/.claude/skill-drafts/convex-mcp-production-playbook.md"
+      ],
+      "reason": "The playbook is a real file under the user's Claude directory that this skill reads on every run, so the Codex text must name it."
+    }
+  },
+  "slotSources": {}
+}

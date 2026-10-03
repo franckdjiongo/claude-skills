@@ -93,12 +93,14 @@ ran). Baked in:
    already-open terminal they run `exec $SHELL`.
 4. If `Failed` is non-empty or `brew missing` flagged something, **investigate the
    log** before declaring success — don't report a clean run on a red result.
+<!-- runtime-slot:path-warning -->
 5. **Relay any `WARNINGS`** (non-fatal — they don't fail the run). The key one flags
    that mise's runtimes aren't resolvable in a non-interactive shell, so **Claude Code
    hooks / GUI apps can hit `node: command not found`** after a Node bump. Pass on the
    remedy the report prints (add the shims dir to a global PATH), but **do not edit
    `~/.claude/settings.json` yourself** unless the user asks — the script deliberately
    only warns; see `references/gotchas.md`.
+<!-- /runtime-slot:path-warning -->
 
 ## Adapting / the why
 

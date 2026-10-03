@@ -121,10 +121,12 @@ an auto-sync, by design:
   for **every local push, including VS Code's Push button** (VS Code runs git hooks). It NEVER
   blocks the push (`set +e`, always `exit 0`). Kept machine-local: listed in `.git/info/exclude`
   (untracked) and excluded from the Azure sync — it must not reach the company repo.
+<!-- runtime-slot:session-drift -->
 - **SessionStart drift-check** → wired in the project's `.claude/settings.local.json`, runs
   `scripts/session-drift-notice.sh`. When Claude Code opens in this project and the mirror is
   **behind** master, it injects a note so Claude reminds the user. Silent when in sync/unknown.
   This is the catch-all for pushes the local hook can't see (e.g. claude.ai cloud routines).
+<!-- /runtime-slot:session-drift -->
 
 Both rely on `scripts/drift-status.sh`, which compares local `master` to the last synced source
 SHA — the `Source-commit:` trailer of the most recent mirror commit carrying this app's

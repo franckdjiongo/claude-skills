@@ -226,9 +226,14 @@ Codex target is merged (workstation branch `feat/rail-cible-codex`) and
 `WORKSTATION_CODEX_SKILLS_INSTALL_ROOT=/Users/elmabi/.agents/skills` is set; until then, and for a
 first install, copy the same build there by hand. Never hand-edit `~/.agents/skills/<skill>` and never
 run a free-text "Claude → Codex" rewrite (it left 37 broken `.Codex/` paths in 2026).
+A source with `disable-model-invocation: true` (Claude only) gets `agents/openai.yaml` with
+`policy.allow_implicit_invocation: false` in its Codex build, Codex's documented equivalent.
 Codex sub-agent models are never written in a skill: they are resolved at use time from
 `.codex/model-routing.json` / `~/.codex/model-routing.json` (see
-`adversarial-pr-review/scripts/resolve-codex-models.mjs`). Tests: `bun test scripts adversarial-pr-review/scripts`.
+`adversarial-pr-review/scripts/resolve-codex-models.mjs`). Deliberately outside the generator: `brain-capture`,
+`meta-govern` and `pipeline-audit` have hand-written Codex-only rewrites kept elsewhere (no
+`runtimes/codex.json`, so the build exits 3 for them and the rail never touches them), and
+`claude-hook-creator` is intentionally not installed for Codex. Tests: `bun test scripts adversarial-pr-review/scripts`.
 
 ## Multi-Repository Skills Registry
 
