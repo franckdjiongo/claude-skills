@@ -188,8 +188,12 @@ One `SKILL.md` per skill is the only source. A skill that runs on Codex too decl
 wrapped in `<!-- runtime-slot:NAME -->` … `<!-- /runtime-slot:NAME -->` and get their Codex text in
 `runtimes/codex.md`; small inline changes are exact `replace` entries with a required match count.
 `node scripts/build-runtime-variant.mjs --skill <skill> --runtime codex --out <dir>` builds the Codex
-folder (exit 3 = not declared, 1 = validation failed). Never hand-edit `~/.agents/skills/<skill>`
-and never run a free-text "Claude → Codex" rewrite (it left 37 broken `.Codex/` paths in 2026).
+folder (exit 3 = not declared, 1 = validation failed). `runtimes/codex.json` pins the Claude text of
+each slot (`slotSources`): when a slot's Claude text changes, the Codex build fails until the Codex
+text is updated and re-stamped with `--skill <skill> --stamp` (a human step, never automatic). The
+workstation rail (`bun run evals apply`) installs the built variant into `~/.agents/skills`; a first
+install is the same build copied there by hand. Never hand-edit `~/.agents/skills/<skill>` and never
+run a free-text "Claude → Codex" rewrite (it left 37 broken `.Codex/` paths in 2026).
 Codex sub-agent models are never written in a skill: they are resolved at use time from
 `.codex/model-routing.json` / `~/.codex/model-routing.json` (see
 `adversarial-pr-review/scripts/resolve-codex-models.mjs`). Tests: `bun test scripts adversarial-pr-review/scripts`.

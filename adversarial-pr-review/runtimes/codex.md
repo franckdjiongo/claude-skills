@@ -2,8 +2,8 @@ Codex text for each runtime slot of ../SKILL.md. Built by
 scripts/build-runtime-variant.mjs (claude-skills root); see its header for the format.
 
 <!-- slot:engine-intro -->
-The engine is a **find → adversarially-verify → (you) fix** fan-out. Codex has no Workflow tool,
-so the engine is always the hand-run fan-out: parallel `spawn_agent` calls (one per dimension),
+The engine is a **find → adversarially-verify → (you) fix** fan-out. Codex cannot run the Workflow template
+below by itself, so the engine is always the hand-run fan-out: parallel `spawn_agent` calls (one per dimension),
 `wait_agent` for all of them, then one verifier `spawn_agent` per finding. The Workflow template
 below is still the exact specification of what each agent receives and returns; you execute it by
 hand. Never scale the fan-out down because the user didn't name a multi-agent review: the size of
@@ -11,8 +11,8 @@ the diff decides (see "Scaling & cost").
 <!-- /slot:engine-intro -->
 
 <!-- slot:template-intro -->
-Workflow template (written for Claude Code's Workflow tool; on Codex it is the specification you
-run by hand, as follows):
+Workflow template (a Claude Code script; on Codex it is the specification you run by hand, as
+follows):
 
 1. Resolve the two roles first and write the result in your thread:
    `node <this skill's folder>/scripts/resolve-codex-models.mjs --repo '<absolute repo path>'`.
@@ -24,12 +24,12 @@ run by hand, as follows):
 2. Fill `NEW_FILES`, `INVENTORY_COMPLETE` and each dimension's `targets` exactly as the script
    does (the round-robin of wholly-new files included).
 3. Each `agent(prompt, opts)` call in the Hunt phase is one
-   `spawn_agent({ agent_type: "default", fork_turns: "none", model: HUNTER.model,
-   reasoning_effort: HUNTER.effort, message })`, where `message` is the prompt string the script
+   `spawn_agent({ task_name: "hunt-<dimension key>", agent_type: "default", fork_turns: "none",
+   model: HUNTER.model, reasoning_effort: HUNTER.effort, message })`, where `message` is the prompt string the script
    builds, followed by: "Reply with ONLY one JSON object matching this schema:" and the `FINDINGS`
    schema. Spawn every dimension before waiting; then `wait_agent` for all of them. Do not invent
    `agent_type` names: the role lives in the message.
-4. For every finding returned, spawn one verifier the same way with `VERIFIER.model`,
+4. For every finding returned, spawn one verifier the same way (`task_name: "verify-<n>"`) with `VERIFIER.model`,
    `VERIFIER.effort`, the verify prompt of the script and the `VERDICT` schema.
 5. Parse each reply as JSON. A reply that is not valid JSON, or lacks `sweeps`, `residualRisk` or
    `checksPerformed`, is NOT DONE: ask that agent again, never fill the gap yourself.

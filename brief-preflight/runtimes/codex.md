@@ -3,11 +3,15 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
 
 <!-- slot:models -->
 - **Les 7 lentilles** tournent TOUJOURS en sous-agents `spawn_agent`
-  (`agent_type: "default"`, `fork_turns: "none"`) dont le modèle et l'effort
-  viennent du rôle `review-hunter`, résolu au moment de l'usage :
+  (`task_name: "lentille-<nom>"`, `agent_type: "default"`, `fork_turns: "none"`)
+  dont le modèle et l'effort viennent du rôle `review-hunter`, résolu au moment
+  de l'usage par le résolveur du skill adversarial-pr-review :
   `node ~/.agents/skills/adversarial-pr-review/scripts/resolve-codex-models.mjs --repo <repo-cible>`
   (fichier de routage du repo, puis `~/.codex/model-routing.json`, puis modèle
-  de la session). Passe toujours `model` ET `reasoning_effort` : un sous-agent
+  de la session). Si ce fichier n'existe pas, lis toi-même
+  `roles["review-hunter"]` dans `<repo-cible>/.codex/model-routing.json` puis
+  dans `~/.codex/model-routing.json`, sinon garde le modèle de la session, et
+  dis dans ta réponse que le résolveur manquait. Passe toujours `model` ET `reasoning_effort` : un sous-agent
   sans effort hérite de celui de la session, plus élevé. Jamais au-dessus de
   `high` pour un sous-agent, et jamais de nom de modèle écrit dans ce skill.
 - **Le triage** (étape 2) reste au modèle de la SESSION — c'est voulu : le
@@ -16,8 +20,10 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
 <!-- /slot:models -->
 
 <!-- slot:etape0-run -->
-Codex n'exécute rien au chargement d'un skill : lance le lint TOI-MÊME, avant
-toute autre étape, et lis sa sortie réelle (c'est elle qui fait foi, jamais
+Codex n'exécute rien au chargement d'un skill et ne lui passe pas
+d'arguments : le chemin du plan et le repo cible viennent de la demande (ou du
+skill brief-chantier qui t'invoque). Lance le lint TOI-MÊME, avant toute autre
+étape, et lis sa sortie réelle (c'est elle qui fait foi, jamais
 ton résumé du plan) :
 
 ```bash

@@ -70,8 +70,56 @@ describe('resolve-codex-models', () => {
     expect(r['review-hunter'].notes.join(' ')).toContain('not valid JSON')
   })
 
-  test('nothing configured: no model, effort still pinned', () => {
+  test('nothing configured: no model, effort still pinned, and a note says so', () => {
     const r = resolve(setup())
     expect(r['review-hunter']).toMatchObject({ model: null, effort: 'medium' })
+    expect(r['review-hunter'].notes.join(' ')).toContain('no model found')
+  })
+
+  test('missing files produce no "invalid JSON" note', () => {
+    const r = resolve(setup({ config: 'model = "cfg"\n' }))
+    expect(r['review-hunter'].notes).toEqual([])
+  })
+
+  test('a model only inside a TOML table is not the session model', () => {
+    const r = resolve(setup({ config: '[profiles.x]\nmodel = "other"\n' }))
+    expect(r['review-hunter'].model).toBeNull()
+  })
+
+  test('TOML: multi-line strings and arrays are skipped, single quotes accepted', () => {
+    const config = 'instructions = """\nmodel = "evil"\n"""\nnotify = [\n  ["a", "b"],\n]\nmodel = \'real\'\n'
+    expect(resolve(setup({ config }))['review-hunter'].model).toBe('real')
+  })
+
+  test('unknown or upper-case efforts', () => {
+    const r = resolve(setup({ user: roles({ model: 'u', reasoningEffort: 'HIGH' }, { model: 'u', reasoningEffort: 'turbo' }) }))
+    expect(r['review-hunter'].effort).toBe('high')
+    expect(r['review-verifier'].effort).toBe('medium')
+    expect(r['review-verifier'].notes.join(' ')).toContain('unknown effort')
+  })
+
+  test('an effort-only role entry still sets the effort; the model comes from further down', () => {
+    const r = resolve(setup({ project: roles({ reasoningEffort: 'low' }, {}), user: roles({ model: 'u' }, { model: 'u' }) }))
+    expect(r['review-hunter']).toMatchObject({ model: 'u', effort: 'low' })
+  })
+
+  test('routing that covers one role leaves the other to the next source', () => {
+    const r = resolve(setup({ user: { roles: { 'review-hunter': { model: 'u' } } }, config: 'model = "cfg"\n' }))
+    expect(r['review-hunter'].model).toBe('u')
+    expect(r['review-verifier'].model).toBe('cfg')
+  })
+
+  test('a malformed models cache is ignored with a note, never a crash', () => {
+    for (const cache of [{ models: { a: 1 } }, { models: [null] }, { models: [{ slug: 'u', supported_reasoning_levels: 'low' }] }]) {
+      const r = resolve(setup({ user: roles({ model: 'u' }, { model: 'u' }), cache }))
+      expect(r['review-verifier']).toMatchObject({ model: 'u', effort: 'high' })
+    }
+  })
+
+  test('a cache listing only higher efforts keeps the effort and says so', () => {
+    const cache = { models: [{ slug: 'big', supported_reasoning_levels: [{ effort: 'xhigh' }] }] }
+    const r = resolve(setup({ user: roles({ model: 'big' }, { model: 'big' }), cache }))
+    expect(r['review-verifier'].effort).toBe('high')
+    expect(r['review-verifier'].notes.join(' ')).toContain('lists no effort at or below')
   })
 })
