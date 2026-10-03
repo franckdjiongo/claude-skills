@@ -1,5 +1,5 @@
 {
-  "description": "Run a multi-agent ADVERSARIAL review (parallel spawn_agent hunters, then one verifier per finding) over the working diff so a change is bulletproof and \"compliant\" BEFORE its pull request is opened, and so automated code-review rounds CONVERGE instead of looping. Use this skill (Mode A) whenever you are about to create or open a pull request — when the user says \"create a PR\", \"open a PR\", \"tu peux créer la PR\", \"raise/submit a PR\", \"ouvre la PR\", or asks to push a branch up for review — and (Mode B) whenever a code-review bot (Codex, CodeRabbit, Claude review, Greptile, Graphite, etc.) posts comments on a PR that need addressing. On Codex no hook reliably blocks `gh pr create` (shell commands run through code mode skip PreToolUse hooks), so reach for this skill proactively, without waiting to be told. Especially important for any change touching shared/exported surfaces, public APIs, auth, schemas, or anything a downstream consumer (or another tool) depends on. It judges by the same bar a strong review bot uses — not only correctness bugs, but deviations from the repo's own idioms, unbounded / over-fetching queries and missing indexes, and external platform limits (e.g. message-size caps).",
+  "description": "Run a multi-agent ADVERSARIAL review (parallel spawn_agent hunters, then one verifier per finding) over the working diff so a change is bulletproof and \"compliant\" BEFORE its pull request is opened, and so automated code-review rounds CONVERGE instead of looping. Use this skill (Mode A) whenever you are about to create or open a pull request — when the user says \"create a PR\", \"open a PR\", \"tu peux créer la PR\", \"raise/submit a PR\", \"ouvre la PR\", or asks to push a branch up for review — and (Mode B) whenever a code-review bot (Codex, CodeRabbit, Claude review, Greptile, Graphite, etc.) posts comments on a PR that need addressing. A global PreToolUse hook (~/.codex/hooks/adversarial-pr-guard.mjs, effective on codex-cli 0.160.0 and later) blocks `gh pr create` until this skill has validated the current HEAD, so reach for it proactively rather than waiting to be told. Especially important for any change touching shared/exported surfaces, public APIs, auth, schemas, or anything a downstream consumer (or another tool) depends on. It judges by the same bar a strong review bot uses — not only correctness bugs, but deviations from the repo's own idioms, unbounded / over-fetching queries and missing indexes, and external platform limits (e.g. message-size caps).",
   "replace": [
     {
       "from": "const REPO = '<absolute repo path>'\n",
@@ -53,12 +53,12 @@
     },
     {
       "from": "A global hook blocks `gh pr create` until this ran.",
-      "to": "On Codex no hook reliably blocks `gh pr create`: run this before it, every time.",
+      "to": "On Codex the guard hook blocks `gh pr create` until this ran (codex-cli 0.160.0 and later).",
       "count": 1
     },
     {
       "from": "The global hook `adversarial-pr-guard.mjs` blocks `gh pr create` unless the **current HEAD** has been\nrecorded as reviewed.",
-      "to": "The hook `~/.codex/hooks/adversarial-pr-guard.mjs` blocks `gh pr create` unless the **current HEAD** has been\nrecorded as reviewed, but only for shell commands Codex runs directly: commands run through code mode\n(the `exec` tool) skip PreToolUse hooks (verified 2026-10-03, codex-cli 0.154.0). Treat the review and the\nsentinel as your own discipline every time; never read a successful `gh pr create` as proof the review ran.",
+      "to": "The hook `~/.codex/hooks/adversarial-pr-guard.mjs` blocks `gh pr create` unless the **current HEAD** has been\nrecorded as reviewed. It needs codex-cli 0.160.0 or later: on 0.154.0, commands run through code mode\n(the `exec` tool) skipped PreToolUse hooks (both verified 2026-10-03). Whatever the version, the review and\nthe sentinel are your own discipline; never read a successful `gh pr create` as proof the review ran.",
       "count": 1
     },
     {
