@@ -240,6 +240,9 @@ function checkCodexText(text, config, label) {
 }
 
 export function buildSkillMd(skillDir, runtime, { ignoreStamps = false } = {}) {
+  if (runtime === 'codex' && !existsSync(join(skillDir, 'runtimes', 'codex.json'))) {
+    throw new NotDeclaredError(`${basename(skillDir)} declares no Codex variant`)
+  }
   const parts = parseSlots(readText(join(skillDir, 'SKILL.md')))
   const claude = join_(parts, (p) => p.text)
   if (runtime === 'claude') return claude
@@ -304,6 +307,9 @@ function otherMarkdown(dir, base = dir) {
 }
 
 export function buildVariant(skillDir, runtime, out) {
+  if (runtime === 'codex' && !existsSync(join(skillDir, 'runtimes', 'codex.json'))) {
+    throw new NotDeclaredError(`${basename(skillDir)} declares no Codex variant`)
+  }
   const source = realpathSync(skillDir)
   const skillMd = buildSkillMd(source, runtime)
   const target = realOrResolved(out)
@@ -362,4 +368,6 @@ function main(argv) {
   }
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) process.exit(main(process.argv.slice(2)))
+// Compare real paths: /tmp, /var or a symlinked skill folder must not turn the CLI into a silent no-op.
+const isMain = () => { try { return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url)) } catch { return false } }
+if (isMain()) process.exit(main(process.argv.slice(2)))

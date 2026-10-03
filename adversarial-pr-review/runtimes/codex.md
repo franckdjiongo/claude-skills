@@ -24,19 +24,21 @@ follows):
 2. Fill `NEW_FILES`, `INVENTORY_COMPLETE` and each dimension's `targets` exactly as the script
    does (the round-robin of wholly-new files included).
 3. Each `agent(prompt, opts)` call in the Hunt phase is one
-   `spawn_agent({ task_name: "hunt-<dimension key>", agent_type: "default", fork_turns: "none",
+   `spawn_agent({ task_name: "hunt_<dimension key, underscores>", agent_type: "default", fork_turns: "none",
    model: HUNTER.model, reasoning_effort: HUNTER.effort, message })`, where `message` is the prompt string the script
    builds, followed by: "Reply with ONLY one JSON object matching this schema:" and the `FINDINGS`
-   schema. Spawn every dimension before waiting; then `wait_agent` for all of them. Do not invent
-   `agent_type` names: the role lives in the message.
-4. For every finding returned, spawn one verifier the same way (`task_name: "verify-<n>"`) with `VERIFIER.model`,
+   schema. Do not invent `agent_type` names: the role lives in the message. Codex limits how many
+   agents run at once: spawn in waves, and when `spawn_agent` answers "agent thread limit reached",
+   wait for a running agent to finish, then spawn the refused one again. Never drop a dimension.
+   `wait_agent` (e.g. `timeout_ms: 60000`) only says that some agent finished; keep a checklist of
+   your `task_name`s and keep waiting until every one has delivered its final JSON reply.
+4. For every finding returned, spawn one verifier the same way (`task_name: "verify_<n>"`) with `VERIFIER.model`,
    `VERIFIER.effort`, the verify prompt of the script and the `VERDICT` schema.
 5. Parse each reply as JSON. A reply that is not valid JSON, or lacks `sweeps`, `residualRisk` or
    `checksPerformed`, is NOT DONE: ask that agent again, never fill the gap yourself.
-6. Compute the return block of the script (dedupe, `notExaminedSweeps`, `inconsistentSweeps`,
-   `uncoveredTargets`, `residualRisks`, verdict) from the replies. You may paste the replies into a
-   scratch file under `mktemp -d` and run that part of the script with `node`; either way, write
-   the resulting fields in your thread.
+6. Compute the return block of the script by hand from the replies (dedupe, `notExaminedSweeps`,
+   `inconsistentSweeps`, `uncoveredTargets`, `residualRisks`, verdict) and write the resulting
+   fields in your thread.
 <!-- /slot:template-intro -->
 
 <!-- slot:model-policy -->

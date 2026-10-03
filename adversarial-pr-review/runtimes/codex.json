@@ -60,6 +60,11 @@
       "from": "The global hook `adversarial-pr-guard.mjs` blocks `gh pr create` unless the **current HEAD** has been\nrecorded as reviewed.",
       "to": "The hook `~/.codex/hooks/adversarial-pr-guard.mjs` blocks `gh pr create` unless the **current HEAD** has been\nrecorded as reviewed, once it is wired in `~/.codex/hooks.json` (check: `grep -c adversarial-pr-guard ~/.codex/hooks.json`).\nWhile it is not wired nothing blocks the PR: the review and the sentinel are then your own discipline,\nand your report says the guard is not wired.",
       "count": 1
+    },
+    {
+      "from": "Fixers may use the Edit tool or",
+      "to": "Fixers may edit with apply_patch or",
+      "count": 1
     }
   ],
   "forbid": [
@@ -74,7 +79,8 @@
     "spawn_task",
     "A global hook blocks",
     "The global hook `adversarial-pr-guard.mjs`",
-    "global PreToolUse hook BLOCKS"
+    "global PreToolUse hook BLOCKS",
+    "Edit tool"
   ],
   "slotSources": {
     "engine-intro": "749b2a1a662dd9a6",

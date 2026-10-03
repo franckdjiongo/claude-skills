@@ -3,7 +3,7 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
 
 <!-- slot:models -->
 - **Les 7 lentilles** tournent TOUJOURS en sous-agents `spawn_agent`
-  (`task_name: "lentille-<nom>"`, `agent_type: "default"`, `fork_turns: "none"`)
+  (`task_name: "lentille_<nom>"`, `agent_type: "default"`, `fork_turns: "none"`)
   dont le modèle et l'effort viennent du rôle `review-hunter`, résolu au moment
   de l'usage par le résolveur du skill adversarial-pr-review :
   `node ~/.agents/skills/adversarial-pr-review/scripts/resolve-codex-models.mjs --repo <repo-cible>`
@@ -11,7 +11,8 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
   de la session). Si ce fichier n'existe pas, lis toi-même
   `roles["review-hunter"]` dans `<repo-cible>/.codex/model-routing.json` puis
   dans `~/.codex/model-routing.json`, sinon garde le modèle de la session, et
-  dis dans ta réponse que le résolveur manquait. Passe toujours `model` ET `reasoning_effort` : un sous-agent
+  dis dans ta réponse que le résolveur manquait. Sans effort défini, prends
+  `medium` pour les lentilles. Passe toujours `model` ET `reasoning_effort` : un sous-agent
   sans effort hérite de celui de la session, plus élevé. Jamais au-dessus de
   `high` pour un sous-agent, et jamais de nom de modèle écrit dans ce skill.
 - **Le triage** (étape 2) reste au modèle de la SESSION — c'est voulu : le
@@ -45,7 +46,12 @@ chantiers sur 5 alors qu'elle était écrite dans le standard.
 
 <!-- slot:etape1-intro -->
 Chaque round = un fan-out de 7 sous-agents `spawn_agent` lancés EN PARALLÈLE
-(rôle `review-hunter`, voir « Modèles »), puis `wait_agent` sur tous. Chaque
+(rôle `review-hunter`, voir « Modèles »). Codex limite le nombre d'agents
+simultanés : lance-les par vagues, et si `spawn_agent` répond « agent thread
+limit reached », attends qu'un agent finisse puis relance celui qui a été
+refusé — une lentille n'est jamais abandonnée. `wait_agent` dit seulement
+qu'un agent a fini : tiens la liste de tes `task_name` et attends jusqu'à ce
+que chacun ait rendu sa réponse finale. Chaque
 message exige une réponse en JSON seul, au schéma de findings structuré :
 titre, sévérité bloquant/majeur/mineur, zone du plan, détail, fix proposé.
 Chaque agent lit le plan EN ENTIER + le repo cible, et a pour consigne :

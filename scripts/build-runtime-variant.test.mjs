@@ -281,6 +281,19 @@ describe('CLI (the workstation rail relies on exit codes)', () => {
     expect(run(['--skill', skill({ codexMd: '', codexJson: JSON_OK, stamp: false }), '--stamp']).status).toBe(1)
     expect(run(['--skill', skill({ codexMd: MD, codexJson: JSON_OK }), '--stamp', '--runtime', 'codex', '--check']).status).toBe(2)
   })
+  test('runs (not a silent no-op) when invoked through a symlinked path', () => {
+    const link = join(tmp(), 'gen.mjs')
+    symlinkSync(SCRIPT, link)
+    const out = join(tmp(), 'out')
+    const r = spawnSync('node', [link, '--skill', skill({ codexMd: MD, codexJson: JSON_OK }), '--runtime', 'codex', '--out', out], { encoding: 'utf8' })
+    expect(r.status).toBe(0)
+    expect(r.stdout).toContain('OK codex variant')
+    expect(existsSync(join(out, 'SKILL.md'))).toBe(true)
+  })
+  test('3 (not 1) for an undeclared skill even when its SKILL.md would not parse', () => {
+    expect(run(['--skill', skill({ source: '<!--runtime-slot:a-->\n' }), '--runtime', 'codex', '--check']).status).toBe(3)
+    expect(run(['--skill', tmp(), '--runtime', 'codex', '--check']).status).toBe(3)
+  })
   test('2 on missing arguments', () => {
     expect(run(['--runtime', 'codex']).status).toBe(2)
   })

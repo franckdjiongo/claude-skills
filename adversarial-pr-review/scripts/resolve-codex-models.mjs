@@ -16,7 +16,7 @@
 // malformed cache is ignored with a note.
 //
 // Usage: node resolve-codex-models.mjs [--repo <path>]   → prints JSON
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, realpathSync } from 'node:fs'
 import { join } from 'node:path'
 import { homedir } from 'node:os'
 import { fileURLToPath } from 'node:url'
@@ -129,7 +129,8 @@ export function resolve({ repo = process.cwd(), codexHome = process.env.CODEX_HO
   return result
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+const isMain = () => { try { return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url)) } catch { return false } }
+if (isMain()) {
   const i = process.argv.indexOf('--repo')
   process.stdout.write(JSON.stringify(resolve(i > 0 ? { repo: process.argv[i + 1] } : {}), null, 2) + '\n')
 }

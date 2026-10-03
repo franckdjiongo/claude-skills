@@ -2,6 +2,8 @@ import { describe, expect, test, afterEach } from 'bun:test'
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { symlinkSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
 import { resolve } from './resolve-codex-models.mjs'
 
 const dirs = []
@@ -95,6 +97,15 @@ describe('resolve-codex-models', () => {
     expect(resolve(setup({ config: '[projects."/Users/x"]\ntrust_level = "trusted"\n[profiles."a.b"]\nmodel = "wrong"\n' }))['review-hunter'].model).toBeNull()
     expect(resolve(setup({ config: 'notes = ["a[b"]\nmodel = "right" # comment [\n' }))['review-hunter'].model).toBe('right')
     expect(resolve(setup({ config: '"model" = "q\\"x"\n' }))['review-hunter'].model).toBe('q"x')
+  })
+
+  test('the CLI prints JSON when invoked through a symlinked path', () => {
+    const { repo, codexHome } = setup({ config: 'model = "cfg"\n' })
+    const link = join(tmp(), 'resolve.mjs')
+    symlinkSync(new URL('./resolve-codex-models.mjs', import.meta.url).pathname, link)
+    const r = spawnSync('node', [link, '--repo', repo], { encoding: 'utf8', env: { ...process.env, CODEX_HOME: codexHome } })
+    expect(r.status).toBe(0)
+    expect(JSON.parse(r.stdout)['review-hunter'].model).toBe('cfg')
   })
 
   test('unknown or upper-case efforts', () => {

@@ -191,8 +191,10 @@ wrapped in `<!-- runtime-slot:NAME -->` … `<!-- /runtime-slot:NAME -->` and ge
 folder (exit 3 = not declared, 1 = validation failed). `runtimes/codex.json` pins the Claude text of
 each slot (`slotSources`): when a slot's Claude text changes, the Codex build fails until the Codex
 text is updated and re-stamped with `--skill <skill> --stamp` (a human step, never automatic). The
-workstation rail (`bun run evals apply`) installs the built variant into `~/.agents/skills`; a first
-install is the same build copied there by hand. Never hand-edit `~/.agents/skills/<skill>` and never
+workstation rail (`bun run evals apply`) installs the built variant into `~/.agents/skills` once its
+Codex target is merged (workstation branch `feat/rail-cible-codex`) and
+`WORKSTATION_CODEX_SKILLS_INSTALL_ROOT=/Users/elmabi/.agents/skills` is set; until then, and for a
+first install, copy the same build there by hand. Never hand-edit `~/.agents/skills/<skill>` and never
 run a free-text "Claude → Codex" rewrite (it left 37 broken `.Codex/` paths in 2026).
 Codex sub-agent models are never written in a skill: they are resolved at use time from
 `.codex/model-routing.json` / `~/.codex/model-routing.json` (see
