@@ -393,7 +393,7 @@ const results = await pipeline(
 - TRUE if some input makes it wrong/crash/lose data (correctness), OR it deviates from a repo idiom you can CITE in repoIdiomViolated / violates an external hard limit / is an unbounded read|scan|N+1|over-fetch — even if today's data makes it work.
 - FALSE only if it is pure STYLE, or its facts don't hold.
 Do NOT set mustFix=false merely because the output is correct today or "not triggerable" — that is the trap that lets review bots catch you.\n\nRESTITUTION (required, not optional): any command/grep/test you run to verify or refute this finding that you do not list in \`checksPerformed\` counts as NOT DONE — a check that only happened in your reasoning is unopposable by the orchestrator. Close the focal question this finding raises explicitly, with the outcome of each check. If, while verifying, you notice a DIFFERENT defect than the one you were sent to check, file it too rather than silently letting it go because it's out of scope for this verdict.\n\nPROVENANCE: each \`checksPerformed\` entry is "command → observed output", and the command must be CAPABLE of proving what you conclude from it — "typecheck clean" needs an unfiltered tsc run (a \`| grep\` pipe proves only the absence of the grepped pattern), a per-file test count needs a run of that file, and a total across batches is only valid if the batches do not overlap. A conclusion with no command behind it is written as "not run", never as verified.\n\n${JSON.stringify(f,null,2)}`,
-      { label:`verify:${f.file}:${f.line}`, phase:'Verify', schema:VERDICT, model:'opus', effort:'high' })
+      { label:`verify:${f.file}:${f.line}`, phase:'Verify', schema:VERDICT, model:'sonnet', effort:'high' })
       .then((v) => ({ finding:f, verdict:v }))))
     // Carry the hunt-level restitution (sweeps, residualRisk) alongside this dimension's verified
     // findings — if it only lived on `review` inside this closure it would never reach the
@@ -507,13 +507,13 @@ fields, gathered by hand from each agent's report — see below) — read them t
   mandate ever mentioned — downgrade each to unverified and carry it into the next round's
   `CONTEXT`. The judge caught five of these in one night; the orchestrator should have.
 
-**Model policy (Franck's decision, 2026-09-09, after a blind replay of 12 Opus reviews in
-Sonnet on the same diffs — recall 5/8 of Opus's P1s, 4 new P1s with executed proofs, 0 Opus false
-positives):** HUNTERS run `model:'sonnet', effort:'medium'`; the independent VERIFY step per
-finding runs `model:'opus', effort:'high'` — the rigor that paid came from the protocol (second
-round on the fix diff, executed proofs, independent verify), not from the hunter's tier. Pin these
-in the agent opts as in the template above; never let a hunt inherit the session model. The second
-round on the fix diff and the Verify step are NOT optional: both Opus runs that skipped Verify
+**Model policy (Franck's decision, 2026-10-03 — no Opus subagents):** HUNTERS run
+`model:'sonnet', effort:'medium'`; the independent VERIFY step per finding runs
+`model:'sonnet', effort:'high'`. Never spawn a subagent on Opus, verifier included. A blind replay
+of 12 Opus reviews in Sonnet (2026-09-09) showed the rigor comes from the protocol (second round on
+the fix diff, executed proofs, independent verify), not from the model tier. Pin these in the
+agent opts as in the template above; never let a hunt or a verify inherit the session model. The
+second round on the fix diff and the Verify step are NOT optional: both runs that skipped Verify
 missed boundary defects (state overwritten by a PUT body, the "item" half of a fix) that
 independent verification exists to catch.
 
