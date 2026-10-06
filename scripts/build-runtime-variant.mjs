@@ -31,10 +31,13 @@
 //   "description" is required. Unknown keys fail the build (a typo must not
 //   silently switch a check off). On top of each skill's `forbid`, the built-in
 //   CLAUDE_ONLY vocabulary below is refused unless `allow` exempts that exact string
-//   with a reason. An allowed string is exempt from `forbid` too (every `allow` match is
-//   blanked before the forbid scan; the id `forbid` is for strings that only a forbid entry
-//   refuses), exact string only: a second, different occurrence still fails. The same checks run on every other .md and .html file the variant ships
-//   (`--check` included).
+//   with a reason. Built-in forbids (`.Codex/`, runtime-slot markers) are never exempt. An allow
+//   under a CLAUDE_ONLY id exempts only that id's vocabulary; the allow id `forbid` exempts exact
+//   strings from the skill's own `forbid` list only. Exact strings only: a second, different
+//   occurrence still fails. A plain forbid string that itself starts and ends with `/` is read
+//   as a regex: write a literal path as an escaped regex (e.g. `/\/usr\/local\//`).
+//   The same checks run on every other .md and .html file the variant ships (`--check`
+//   included), extension case-insensitive, symlinked files scanned through their target.
 //
 // `slotSources` pins the Claude text each Codex slot was written against: when a
 // nightly improvement edits a slot's Claude text, the Codex build fails until a
@@ -47,7 +50,7 @@
 // Usage: node build-runtime-variant.mjs --skill <skillDir> --runtime codex|claude --out <dir>
 //        node build-runtime-variant.mjs --skill <skillDir> --runtime codex|claude --check
 //        node build-runtime-variant.mjs --skill <skillDir> --stamp
-import { readFileSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync, cpSync, realpathSync } from 'node:fs'
+import { readFileSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync, cpSync, realpathSync, statSync } from 'node:fs'
 import { join, basename, dirname, resolve, relative, isAbsolute, extname } from 'node:path'
 import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
@@ -212,6 +215,7 @@ function readConfig(skillDir) {
   }
   for (const f of config.forbid) {
     const m = f.match(REGEX_FORBID)
+    if (m && !/^[imsu]*$/.test(m[2])) throw new VariantError(`runtimes/codex.json: forbid entry "${f}" has an unsupported flag (only i, m, s, u; g and y make the scan stateful)`)
     if (m) try { new RegExp(m[1], m[2]) } catch (err) { throw new VariantError(`runtimes/codex.json: forbid entry "${f}" is not a valid regular expression: ${err.message}`) }
   }
   for (const [id, entry] of Object.entries(config.allow ?? {})) {
@@ -244,14 +248,16 @@ function assertDeclared(skillDir, runtime) {
   }
 }
 
-// Refuses Claude-only content in a Codex text. An `allow` entry exempts only its exact
-// `match` strings, never the whole vocabulary id; those strings are also blanked before the
-// `forbid` scan (a second, non-allowed occurrence still fails). A `forbid` entry written
-// /pattern/flags is a RegExp, any other entry is an exact substring.
+// Refuses Claude-only content in a Codex text. Built-in forbids are scanned on the raw text and
+// are never exempt. The skill's `forbid` list is scanned with only the exact strings of
+// `allow.forbid.match` blanked. An allow under a CLAUDE_ONLY id blanks its exact strings for that
+// id's vocabulary only. In every case a second, non-allowed occurrence still fails. A `forbid`
+// entry written /pattern/flags is a RegExp, any other entry is an exact substring.
 function checkCodexText(text, config, label) {
+  for (const s of BUILTIN_FORBID) if (text.includes(s)) throw new VariantError(`${label}: forbidden string left in Codex variant: "${s}"`)
   let forbidScan = text
-  for (const entry of Object.values(config.allow ?? {})) for (const m of entry.match) forbidScan = forbidScan.split(m).join(' ')
-  for (const s of [...BUILTIN_FORBID, ...(config.forbid ?? [])]) {
+  for (const m of config.allow?.forbid?.match ?? []) forbidScan = forbidScan.split(m).join(' ')
+  for (const s of config.forbid ?? []) {
     const re = s.match(REGEX_FORBID)
     if (re) {
       const hit = forbidScan.match(new RegExp(re[1], re[2]))
@@ -330,7 +336,12 @@ function shippedText(dir, base = dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
     const p = join(dir, e.name)
     if (e.isDirectory()) return ['runtimes', '.git'].includes(e.name) && dir === base ? [] : shippedText(p, base)
-    return e.isFile() && ['.md', '.html'].includes(extname(e.name)) && p !== join(base, 'SKILL.md') ? [p] : []
+    if (e.isSymbolicLink()) {
+      let st
+      try { st = statSync(p) } catch { throw new VariantError(`${relative(base, p)}: broken symlink in a Codex variant cannot be scanned`) }
+      if (st.isDirectory()) throw new VariantError(`${relative(base, p)}: symlinked directory in a Codex variant cannot be scanned`)
+    } else if (!e.isFile()) return []
+    return ['.md', '.html'].includes(extname(e.name).toLowerCase()) && p !== join(base, 'SKILL.md') ? [p] : []
   })
 }
 

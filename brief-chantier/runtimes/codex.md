@@ -82,7 +82,11 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
    10000 ms), qui n'écrit de ligne au journal que si elle tombe aussi sur un
    tick. Le tick suivant ne relance jamais un agent relancé il y a moins de
    10 min : une relance proche de la limite des 30 min ne reçoit qu'une courte
-   attente post-relance, ce n'est pas un silence. Dès que tous les chantiers ont livré leur PR, ou si le
+   attente post-relance, ce n'est pas un silence. Ce tick journalise quand
+   même cet agent ; si son disque n'a pas bougé, tu refais la vérification de
+   l'item 3 à relance + 10 min par un `wait_agent` borné sur lui (même
+   exception hors tick, même règle de journal), puis tu re-relances ou
+   escalades. Dès que tous les chantiers ont livré leur PR, ou si le
    run est abandonné, supprime le heartbeat (`automation_update` avec
    `mode:"delete"` et `id` = l'`automationId` noté dans le fichier). Si la
    session orchestratrice a disparu sans le faire, la session de clôture

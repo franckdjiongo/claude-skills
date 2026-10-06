@@ -82,8 +82,8 @@
       "count": 2
     },
     {
-      "from": "commit des plans HTML dans\n    `docs/plans/` du main. Puis session review honnête (rounds, écarts,\n    temps par chantier)",
-      "to": "commit des plans HTML dans\n    `docs/plans/` du main, suppression du heartbeat `surveillance-<vague>`\n    (`automation_update` `mode:\"delete\"` avec son `automationId`) puis, en tout\n    dernier, du fichier `<repo-cible>/.worktrees/.surveillance-<vague>.md`.\n    Puis session review honnête (rounds, écarts, temps par chantier)",
+      "from": "commit des plans HTML dans\n    `docs/plans/` du main. Puis session review honnête (rounds, écarts,\n    temps par chantier) et capture brain/frictions.",
+      "to": "commit des plans HTML dans\n    `docs/plans/` du main, suppression du heartbeat `surveillance-<vague>`\n    (`automation_update` avec `mode:\"delete\"` et `id` = l'`automationId` noté\n    dans le fichier de surveillance). Puis session review honnête (rounds,\n    écarts, temps par chantier, lus dans le journal du fichier de surveillance)\n    et capture brain/frictions ; en tout dernier, suppression du fichier\n    `<repo-cible>/.worktrees/.surveillance-<vague>.md`.",
       "count": 1
     }
   ],
@@ -130,9 +130,11 @@
     },
     "forbid": {
       "match": [
-        "(ex. <code>preview_*</code> sous Claude Code)"
+        "(ex. <code>preview_*</code> sous Claude Code)",
+        "<code>.claude/agents/</code> / <code>.codex/agents/</code>",
+        "<code>spawn_task</code> (Claude Code) ou <code>chip_create</code> (Codex)"
       ],
-      "reason": "assets/template.html is a dual-runtime plan skeleton that names both runtimes deliberately."
+      "reason": "assets/template.html is a dual-runtime plan skeleton that names both runtimes deliberately, so these three exact strings (preview_*, the two agent directories, spawn_task next to chip_create) are the only ones the skill's forbid entries may skip."
     }
   },
   "slotSources": {

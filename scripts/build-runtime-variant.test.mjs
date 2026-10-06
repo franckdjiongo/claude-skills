@@ -118,11 +118,25 @@ describe('codex variant', () => {
     expect(() => codex({ source, codexMd: MD, codexJson: { ...JSON_OK, forbid: ['Monitor'] } })).toThrow('forbidden string')
   })
 
-  test('an allowed exact string is exempt from forbid, a second occurrence is not', () => {
-    const source = SOURCE.replace('exactly.', 'exactly. Use <code>spawn_task</code> or chip_create.')
-    const allow = { 'spawn-task': { match: ['<code>spawn_task</code> or chip_create'], reason: 'the template names both runtimes' } }
-    expect(codex({ source, codexMd: MD, codexJson: { ...JSON_OK, forbid: ['spawn_task'], allow } })).toContain('spawn_task')
-    expect(() => codex({ source: source + '\nAlso spawn_task here.\n', codexMd: MD, codexJson: { ...JSON_OK, forbid: ['spawn_task'], allow } })).toThrow('forbidden string')
+  test('an allow under a CLAUDE_ONLY id never exempts built-in forbids or forbid terms', () => {
+    const ok = { ...JSON_OK, forbid: ['Zeta'] }
+    const a = SOURCE.replace('exactly.', 'exactly. See ~/.claude/x and .Codex/y.')
+    const allowA = { 'claude-home': { match: ['~/.claude/x and .Codex/y'], reason: 'tries to hide a broken path' } }
+    expect(() => codex({ source: a, codexMd: MD, codexJson: { ...ok, allow: allowA } })).toThrow('".Codex/"')
+    const b = SOURCE.replace('exactly.', 'exactly. See ~/.claude/x and Zeta.')
+    const allowB = { 'claude-home': { match: ['~/.claude/x and Zeta'], reason: 'tries to hide a forbid term' } }
+    expect(() => codex({ source: b, codexMd: MD, codexJson: { ...ok, allow: allowB } })).toThrow('"Zeta"')
+  })
+
+  test('allow.forbid exempts an exact string from forbid only, a second occurrence still fails', () => {
+    const source = SOURCE.replace('exactly.', 'exactly. Zeta is named here on purpose.')
+    const allow = { forbid: { match: ['Zeta is named here on purpose'], reason: 'the template names both runtimes' } }
+    const cfg = { ...JSON_OK, forbid: ['Zeta'], allow }
+    expect(codex({ source, codexMd: MD, codexJson: cfg })).toContain('Zeta is named')
+    expect(() => codex({ source: source + '\nAlso Zeta here.\n', codexMd: MD, codexJson: cfg })).toThrow('forbidden string')
+    const claudeOnly = SOURCE.replace('exactly.', 'exactly. Ask the Agent tool.')
+    const allowAgent = { forbid: { match: ['Ask the Agent tool.'], reason: 'does not cover claude-only vocabulary' } }
+    expect(() => codex({ source: claudeOnly, codexMd: MD, codexJson: { ...JSON_OK, allow: allowAgent } })).toThrow('"agent-tool"')
   })
 
   test('model aliases are refused only where they name a model', () => {
@@ -188,6 +202,8 @@ describe('codex variant', () => {
     ['unknown config key (typo)', { codexMd: MD, codexJson: { ...JSON_OK, forbids: ['x'] } }, 'unknown key(s) forbids'],
     ['missing description', { codexMd: MD, codexJson: { forbid: ['x'] } }, '"description" is required'],
     ['invalid regex forbid entry', { codexMd: MD, codexJson: { ...JSON_OK, forbid: ['/(unclosed/'] } }, 'forbid entry "/(unclosed/" is not a valid regular expression'],
+    ['sticky regex flag y', { codexMd: MD, codexJson: { ...JSON_OK, forbid: ['/x/y'] } }, 'forbid entry "/x/y" has an unsupported flag'],
+    ['global regex flag g', { codexMd: MD, codexJson: { ...JSON_OK, forbid: ['/x/g'] } }, 'forbid entry "/x/g" has an unsupported flag'],
     ['empty forbid list', { codexMd: MD, codexJson: { ...JSON_OK, forbid: [] } }, '"forbid" must be a non-empty list'],
     ['allow without a reason', { codexMd: MD, codexJson: { ...JSON_OK, allow: { ultracode: { match: ['x'], reason: 'xxxxxxxxxx' } } } }, 'needs { "match"'],
     ['allow without exact strings', { codexMd: MD, codexJson: { ...JSON_OK, allow: { ultracode: 'a long enough reason here' } } }, 'needs { "match"'],
@@ -254,6 +270,30 @@ describe('codex variant', () => {
     expect(() => checkVariant(d, 'codex')).toThrow('assets/page.html')
     expect(() => buildVariant(d, 'codex', join(tmp(), 'out'))).toThrow('assets/page.html')
     expect(checkVariant(d, 'claude')).toContain('# Demo')
+  })
+
+  test('shipped text is scanned whatever the extension case', () => {
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    writeFileSync(join(d, 'HOW.MD'), 'Ask the Agent tool.\n')
+    expect(() => checkVariant(d, 'codex')).toThrow('HOW.MD')
+  })
+
+  test('a symlinked .md is scanned through its target', () => {
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    const outside = join(tmp(), 'outside.txt')
+    writeFileSync(outside, 'Ask the Agent tool.\n')
+    symlinkSync(outside, join(d, 'linked.md'))
+    expect(() => checkVariant(d, 'codex')).toThrow('linked.md')
+    expect(checkVariant(d, 'claude')).toContain('# Demo')
+  })
+
+  test('a symlinked directory or a broken symlink fails the Codex check', () => {
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    symlinkSync(tmp(), join(d, 'linkdir'))
+    expect(() => checkVariant(d, 'codex')).toThrow('linkdir: symlinked directory in a Codex variant cannot be scanned')
+    const e = skill({ codexMd: MD, codexJson: JSON_OK })
+    symlinkSync(join(tmp(), 'missing.md'), join(e, 'dead.md'))
+    expect(() => checkVariant(e, 'codex')).toThrow('dead.md: broken symlink')
   })
 
   test('buildVariant keeps relative symlinks relative', () => {
