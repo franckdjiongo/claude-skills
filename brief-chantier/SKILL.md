@@ -67,8 +67,7 @@ Trois rôles. Détermine le tien et lis la section correspondante :
 
 0. **Interroge le brain d'abord — obligatoire.** Avant d'écrire quoi que ce
    soit : les leçons et décisions du projet ET de l'utilisateur. Outils déjà
-   en prod, au choix : `memory_search` / `lessons_list_validated` du MCP
-   workstation-bus, la CLI (`bun run --cwd
+   en prod, au choix : la CLI (`bun run --cwd
    ~/Desktop/my-projets/second-brain cli/index.ts search "<sujet + projet>"`),
    ou le miroir local
    (`~/Desktop/my-projets/second-brain/data/mirror/json/memories.json`).
