@@ -22,11 +22,6 @@
       "count": 1
     },
     {
-      "from": "`.claude/worktrees/<slug>`",
-      "to": "`.worktrees/<slug>`",
-      "count": 1
-    },
-    {
       "from": "jamais `general-purpose` par défaut",
       "to": "jamais l'agent générique (`default`) par défaut",
       "count": 1
@@ -102,8 +97,7 @@
   },
   "slotSources": {
     "preflight-invoke": "616a2eb7b03bc999",
-    "wait-subagents": "d4196a60b7631677",
-    "flotte-hook": "94fffd67f0d7ed15",
+    "wait-subagents": "56de2a9734b50a47",
     "watchdog-tick": "c635a8b8cbb2f9a8",
     "watchdog-relance": "f6c9135dec290b0f"
   }

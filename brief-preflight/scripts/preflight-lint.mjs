@@ -1,59 +1,39 @@
 #!/usr/bin/env node
 /**
- * preflight-lint.mjs — couche DÉTERMINISTE du skill brief-preflight.
+ * preflight-lint.mjs — couche DÉTERMINISTE du skill brief-chantier / brief-preflight.
  *
  * Usage : node preflight-lint.mjs <plan.html> <repo-cible> [--legacy]
- *   --legacy : rétrograde en AVERTISSEMENT les conventions POSTÉRIEURES au plan
- *              — section « Nice-to-have » (id="s-nice", ≥ 5 items), message de
- *              commit du lot de clôture (check 8) et ABSENCE du paragraphe des
- *              doublures de test (check 10) — pour linter les plans écrits
- *              avant ces conventions.
+ *   --legacy : rétrograde en AVERTISSEMENT les conventions récentes (Nice-to-have,
+ *              message du lot de clôture, budget / chips / fiche / doublures,
+ *              « Dépend de »). Les clauses de revue sans fin restent bloquantes.
  *
- * Vérifie mécaniquement ce qui n'exige AUCUN jugement :
- *   1. placeholders {{…}} résiduels
- *   2. phrases interdites (deixis de session)
- *   3. chemins absolus cités → existent sur disque (sauf marqués « (nouveau) »)
- *   4. scripts `bun run <x>` → existent dans <repo-cible>/package.json
- *   5. ancres fichier.ext:ligne → fichier trouvable dans le repo, ligne dans
- *      la plage (fichier introuvable = avertissement, ligne hors plage = erreur)
- *   6. structure : sections obligatoires, chaque lot avec Agent + <pre.cmd> +
- *      bloc DONE, entrée TOC par lot
- *   7. section Nice-to-have (id="s-nice") avec ≥ 5 <li>
- *   8. lot de CLÔTURE (le dernier lot du plan) : son message de commit est écrit
- *      noir sur blanc et porte l'étiquette « lot N » — marqueur dédié
- *      class="commit-msg", ou un <code>/<pre.cmd> contenant « git commit … lot N ».
- *      Règle brief-chantier, rôle AUTEUR, étape 5bis : le run aval d'une chaîne de
- *      chantiers vérifie sa précondition par un `git log --grep` LITTÉRAL sur cette
- *      étiquette ; un lot de clôture commité « correctifs de revue » le fait
- *      compter zéro et conclure à tort que l'amont a échoué.
- *   9. flotte parallèle (OPTIONNEL — silencieux pour un plan solo) : si la section
- *      id="s-flotte" existe, elle DOIT déclarer le nom de la vague
- *      (class="flotte-nom"), les chantiers frères (<ul class="flotte-freres">,
- *      ≥ 1 <li>) et la plage d'identifiants réservée à CE chantier
- *      (class="plage-ids" : « N-M », ou « aucun compteur global »).
- *      Règle brief-chantier, rôle ORCHESTRATEUR, Phase 2, étape 4bis.
- *      Limite ASSUMÉE : le lint voit UN plan et ne peut pas détecter une collision
- *      entre plans frères — il vérifie seulement que la plage est DÉCLARÉE.
- *  10. classe pré-autorisée des doublures de test : la section des lots porte le
- *      paragraphe class="classe-doublures" du gabarit, chacune de ses clauses
- *      présente mot pour mot (lu sur le HTML brut, hors exemples échappés).
- *      --legacy rétrograde seulement son ABSENCE.
- *      Règle brief-chantier, rôle AUTEUR, étape 5ter.
- *  11. règles dures du chantier (A1-A5, G), lues sur le texte VISIBLE du plan :
- *      a. aucune clause de revue sans fin (« jusqu'à convergence », « jusqu'au
- *         critère de convergence », « y compris les mineurs ») — toujours bloquant ;
- *      b. une ligne « Budget total : » suivie d'au moins un nombre ;
- *      c. « Chips : autorisés » ou « Chips : interdits » ;
- *      d. une ligne « Fiche d'intention : » suivie d'un chemin.
- *      --legacy rétrograde b, c et d en avertissement ; a reste bloquant.
- *      Les libellés sont figés : le gabarit de brief-chantier les reprend mot pour mot.
+ * Plans FR ou EN : TOUS les contrôles textuels lisent la table `T` ci-dessous.
+ * Contrôles : placeholders et `undefined` ; phrases interdites ; chemins absolus
+ * (sous le dépôt cible, sous /Users/, ou existants) ; scripts `bun|npm run` ;
+ * ancres fichier:ligne ; structure (sections non vides, lots avec Agent + commande +
+ * DONE, étiquettes de lot uniques, TOC) ; Nice-to-have ≥ 5 ; message de commit du
+ * lot de clôture ; section flotte (plage + « Dépend de ») ; règles dures :
+ * clauses sans fin, Budget total, Chips, Fiche d'intention, Doublures de test.
  *
- * Sortie : findings groupés ERREUR / AVERTISSEMENT, code retour 1 si ≥ 1 erreur.
+ * Sortie : ERREUR / AVERTISSEMENT, code retour 1 si ≥ 1 erreur, 2 sur erreur d'usage.
  */
 
-import { readFileSync, existsSync, statSync, readdirSync } from 'node:fs';
+import { readFileSync, existsSync, statSync, readdirSync, realpathSync } from 'node:fs';
 import { join, isAbsolute, basename } from 'node:path';
 import { stripComments, textOf, readFlotte } from './flotte-shared.mjs';
+
+/* Table unique des synonymes FR/EN. */
+const T = {
+  forbidden: ['cette session', 'comme convenu', 'comme vu plus haut', 'voir plus haut', 'comme discuté', 'this session', 'as discussed', 'as agreed', 'see above'],
+  endless: ["jusqu'à convergence", "jusqu'au critère de convergence", 'y compris les mineurs', 'until convergence', 'until clean', 'including minors', 'minor ones included'],
+  isNew: /\((?:nouveau|nouveaux|new|to be created)\)|à créer|to be created/i,
+  budget: /(?:budget total|total budget)\s*:\s*\D{0,60}?\d/i,
+  chips: /chips\s*:\s*(?:autoris[ée]s|allowed|interdits|forbidden)/i,
+  intent: /(?:fiche d'intention|intent sheet)\s*:\s*(?:[^\s]*[/\\][^\s]*|[^\s]+\.[a-z0-9]{1,5}\b)/i,
+  doubles: /(?:doublures de test|test doubles)\s*:\s*(?:aucune|règle standard|none|standard rule)/i,
+  depend: /(?:d[ée]pend de|depends on)\s*:\s*\S/i,
+};
+const SECTIONS = ['s-intention', 's-contexte', 's-approbation', 's-lots', 's-verif'];
 
 const args = process.argv.slice(2).filter((a) => a !== '--legacy');
 const legacy = process.argv.includes('--legacy');
@@ -72,52 +52,58 @@ if (!existsSync(repoRoot) || !statSync(repoRoot).isDirectory()) {
   process.exit(2);
 }
 
-const raw = readFileSync(planPath, 'utf8');
-// Décodage minimal des entités rencontrées dans les <code> des plans.
-const html = raw
+const html = readFileSync(planPath, 'utf8')
   .replace(/&amp;/g, '&')
   .replace(/&lt;/g, '<')
   .replace(/&gt;/g, '>')
   .replace(/&quot;/g, '"')
   .replace(/&#39;/g, "'");
+const htmlLive = stripComments(html);
+const visible = textOf(htmlLive.replace(/<(style|script)\b[\s\S]*?<\/\1>/gi, ' ').replace(/&nbsp;/gi, ' '))
+  .normalize('NFC')
+  .replace(/[‘’]/g, "'")
+  .replace(/\s+/g, ' ');
 
 const errors = [];
 const warnings = [];
-const excerpt = (idx, len = 90) =>
-  html
-    .slice(Math.max(0, idx - 20), idx + len)
-    .replace(/\s+/g, ' ')
-    .trim();
+const soft = legacy ? warnings : errors; // conventions récentes
+const legacyNote = legacy ? '' : ' (--legacy : avertissement pour les plans antérieurs à la convention)';
+const excerpt = (idx, len = 90) => html.slice(Math.max(0, idx - 20), idx + len).replace(/\s+/g, ' ').trim();
 
-/* 1 — placeholders résiduels */
-for (const m of html.matchAll(/\{\{[^{}]{1,120}\}\}/g)) {
-  errors.push(`Placeholder non rempli : « ${m[0].slice(0, 80)} »`);
-}
+/* 1 — placeholders résiduels et `undefined` */
+for (const m of html.matchAll(/\{\{[^{}]{1,120}\}\}/g)) errors.push(`Placeholder non rempli : « ${m[0].slice(0, 80)} »`);
+if (/\bundefined\b/.test(visible)) errors.push('Le texte visible contient « undefined » : valeur non remplie à la génération du plan.');
 
-/* 2 — phrases interdites (le plan doit être autonome, zéro deixis) */
-const FORBIDDEN = ['cette session', 'comme convenu', 'comme vu plus haut', 'voir plus haut', 'comme discuté'];
+/* 2 — phrases interdites (le plan est autonome, zéro deixis) */
 const lower = html.toLowerCase();
-for (const phrase of FORBIDDEN) {
-  let i = lower.indexOf(phrase);
-  while (i !== -1) {
+for (const phrase of T.forbidden) {
+  for (let i = lower.indexOf(phrase); i !== -1; i = lower.indexOf(phrase, i + 1)) {
     errors.push(`Phrase interdite « ${phrase} » : …${excerpt(i)}…`);
-    i = lower.indexOf(phrase, i + 1);
   }
 }
 
-/* 3 — chemins absolus cités */
+/* 3 — chemins absolus : sous le dépôt cible ou /Users/, ils doivent exister
+   (sauf marqués nouveaux, ou sous .worktrees/ que le run crée) */
+const real = (p) => {
+  try {
+    return realpathSync(p);
+  } catch {
+    return p;
+  }
+};
+const roots = [...new Set([repoRoot.replace(/\/+$/, ''), real(repoRoot)])];
 const seenPaths = new Set();
-for (const m of html.matchAll(/\/Users\/[A-Za-z0-9._/-]+/g)) {
-  let p = m[0].replace(/[.,;:)\]»]+$/, '');
+for (const m of html.matchAll(/(?<![A-Za-z0-9_.~:/-])\/(?:[A-Za-z0-9._-]+\/)+[A-Za-z0-9._-]*/g)) {
+  const p = m[0].replace(/[.,;:)\]»/]+$/, '');
   if (seenPaths.has(p)) continue;
   seenPaths.add(p);
-  const around = html.slice(Math.max(0, m.index - 120), m.index + p.length + 120);
-  // Un fichier que le chantier CRÉE est légitimement absent au moment du lint.
-  if (/\(nouveau\)|\(nouveaux\)|à créer/i.test(around)) continue;
-  if (!existsSync(p)) errors.push(`Chemin absolu introuvable sur disque : ${p}`);
+  const concerned = p.startsWith('/Users/') || roots.some((r) => p === r || p.startsWith(`${r}/`));
+  if (!concerned || existsSync(p) || p.includes('/.worktrees/')) continue;
+  if (T.isNew.test(html.slice(Math.max(0, m.index - 120), m.index + p.length + 120))) continue;
+  errors.push(`Chemin absolu introuvable sur disque : ${p}`);
 }
 
-/* 4 — scripts bun run <x> contre package.json du repo cible */
+/* 4 — scripts `bun run` / `npm run` contre package.json du repo cible */
 let scripts = {};
 const pkgPath = join(repoRoot, 'package.json');
 if (existsSync(pkgPath)) {
@@ -127,17 +113,14 @@ if (existsSync(pkgPath)) {
     warnings.push(`package.json du repo cible illisible : ${pkgPath}`);
   }
 } else {
-  warnings.push(`Pas de package.json dans ${repoRoot} — vérification « bun run » sautée`);
+  warnings.push(`Pas de package.json dans ${repoRoot} — vérification des scripts sautée`);
 }
 const seenScripts = new Set();
-for (const m of html.matchAll(/bun run\s+((?:--?[\w-]+\s+)*)([A-Za-z0-9:._-]+)/g)) {
-  if (m[1] && m[1].includes('--cwd')) continue; // autre repo, hors périmètre
-  const name = m[2];
-  if (name.startsWith('-') || seenScripts.has(name)) continue;
+for (const m of html.matchAll(/\b(bun|npm) run\s+((?:--?[\w-]+\s+)*)([A-Za-z0-9:._-]+)/g)) {
+  const [, runner, flags, name] = m;
+  if (/--(?:cwd|prefix)/.test(flags) || name.startsWith('-') || seenScripts.has(name)) continue;
   seenScripts.add(name);
-  if (Object.keys(scripts).length && !(name in scripts)) {
-    errors.push(`Script « bun run ${name} » absent des scripts de ${pkgPath}`);
-  }
+  if (Object.keys(scripts).length && !(name in scripts)) errors.push(`Script « ${runner} run ${name} » absent des scripts de ${pkgPath}`);
 }
 
 /* 5 — ancres fichier.ext:ligne */
@@ -150,20 +133,19 @@ function* walk(dir, depth = 0) {
     return;
   }
   for (const e of entries) {
-    if (['node_modules', '.git', 'dist', 'data', 'data-dev', '.claude'].includes(e.name)) continue;
+    if (['node_modules', '.git', 'dist', 'data', 'data-dev', '.claude', '.worktrees'].includes(e.name)) continue;
     const p = join(dir, e.name);
     if (e.isDirectory()) yield* walk(p, depth + 1);
     else yield p;
   }
 }
-let fileIndex = null; // construit paresseusement : basename -> [chemins]
+let fileIndex = null; // basename -> [chemins], construit paresseusement
 const seenAnchors = new Set();
 for (const m of html.matchAll(/([A-Za-z0-9_./-]+\.(?:tsx|ts|mjs|cjs|js|json|css|html|md)):(\d+)(?:-\d+)?/g)) {
   const [full, file, lineStr] = m;
   if (seenAnchors.has(full)) continue;
   seenAnchors.add(full);
   if (/^https?:/.test(file) || file.includes('localhost')) continue;
-  const line = Number(lineStr);
   let candidates = [];
   if (isAbsolute(file)) {
     if (existsSync(file)) candidates = [file];
@@ -171,17 +153,17 @@ for (const m of html.matchAll(/([A-Za-z0-9_./-]+\.(?:tsx|ts|mjs|cjs|js|json|css|
     if (!fileIndex) {
       fileIndex = new Map();
       for (const p of walk(repoRoot)) {
-        const b = basename(p);
-        if (!fileIndex.has(b)) fileIndex.set(b, []);
-        fileIndex.get(b).push(p);
+        if (!fileIndex.has(basename(p))) fileIndex.set(basename(p), []);
+        fileIndex.get(basename(p)).push(p);
       }
     }
     candidates = (fileIndex.get(basename(file)) ?? []).filter((p) => p.endsWith(file) || basename(file) === file);
   }
   if (candidates.length === 0) {
-    warnings.push(`Ancre ${full} : fichier introuvable dans ${repoRoot} (citation à vérifier à la main)`);
+    warnings.push(`Ancre ${full} : fichier introuvable dans ${repoRoot} (à vérifier à la main)`);
     continue;
   }
+  const line = Number(lineStr);
   const ok = candidates.some((p) => {
     try {
       return readFileSync(p, 'utf8').split('\n').length >= line;
@@ -192,242 +174,94 @@ for (const m of html.matchAll(/([A-Za-z0-9_./-]+\.(?:tsx|ts|mjs|cjs|js|json|css|
   if (!ok) errors.push(`Ancre ${full} : la ligne ${line} dépasse la longueur de ${candidates[0]}`);
 }
 
-/* 6 — structure du plan */
-for (const id of ['s-intention', 's-contexte', 's-approbation', 's-lots', 's-verif', 's-convex']) {
-  if (!html.includes(`id="${id}"`)) errors.push(`Section obligatoire absente : id="${id}"`);
+/* 6 — structure : sections non vides, lots complets, étiquettes uniques, TOC */
+for (const id of SECTIONS) {
+  const idx = htmlLive.indexOf(`id="${id}"`);
+  if (idx === -1) {
+    errors.push(`Section obligatoire absente : id="${id}"`);
+    continue;
+  }
+  const end = htmlLive.indexOf('</section>', idx);
+  if (textOf(htmlLive.slice(htmlLive.indexOf('>', idx) + 1, end === -1 ? undefined : end).replace(/<h2\b[\s\S]*?<\/h2>/i, '')).length < 1) {
+    errors.push(`Section vide : id="${id}" (écris « aucun » si elle est sans objet)`);
+  }
 }
-const lotIds = [...html.matchAll(/id="(lot-\d+)"/g)].map((m) => m[1]);
+const lotIds = [...htmlLive.matchAll(/id="(lot-\d+)"/g)].map((m) => m[1]);
 if (lotIds.length === 0) errors.push('Aucun lot (id="lot-N") trouvé dans le plan');
-const lotBlocks = html.split(/(?=<div class="lot" )/).slice(1);
+const lotBlocks = htmlLive.split(/(?=<div class="lot" )/).slice(1);
+const labels = new Map();
 lotBlocks.forEach((block, i) => {
   const n = i + 1;
-  const end = block.indexOf('</div>\n  </div>'); // fin approximative du lot ; les checks restent locaux au bloc
+  const end = block.indexOf('</div>\n  </div>');
   const b = end === -1 ? block : block.slice(0, end + 20);
   if (!/<strong>Agent<\/strong>/.test(b)) errors.push(`Lot ${n} : champ « Agent » absent`);
   if (!/<pre class="cmd">/.test(b)) errors.push(`Lot ${n} : aucune commande de vérification (<pre class="cmd">)`);
   if (!/class="done"/.test(b)) errors.push(`Lot ${n} : critère DONE absent (bloc class="done")`);
+  const label = (b.match(/class="ln"[^>]*>([^<]+)</)?.[1] ?? b.match(/id="(lot-\d+)"/)?.[1] ?? '').toLowerCase().replace(/[\s-]+/g, ' ').trim();
+  if (label) labels.set(label, [...(labels.get(label) ?? []), n]);
 });
-for (const id of lotIds) {
-  if (!html.includes(`href="#${id}"`)) errors.push(`TOC : entrée manquante pour ${id}`);
+for (const [label, ns] of labels) {
+  if (ns.length > 1) errors.push(`Étiquette « ${label} » portée par ${ns.length} lots (${ns.join(', ')}) : chaque lot a un numéro unique`);
 }
+for (const id of lotIds) if (!htmlLive.includes(`href="#${id}"`)) errors.push(`TOC : entrée manquante pour ${id}`);
 
-/* 7 — section Nice-to-have proposés (convention ≥ 5 items) */
+/* 7 — Nice-to-have proposés (≥ 5 items) */
 const niceIdx = html.indexOf('id="s-nice"');
 if (niceIdx === -1) {
-  (legacy ? warnings : errors).push(
-    'Section « Nice-to-have proposés » absente (id="s-nice", ≥ 5 items) — convention brief-chantier ; --legacy pour les anciens plans',
-  );
+  soft.push('Section « Nice-to-have proposés » absente (id="s-nice", ≥ 5 items)' + legacyNote);
 } else {
-  const sec = html.slice(niceIdx, html.indexOf('</section>', niceIdx));
-  const count = (sec.match(/<li/g) ?? []).length;
+  const count = (html.slice(niceIdx, html.indexOf('</section>', niceIdx)).match(/<li/g) ?? []).length;
   if (count < 5) errors.push(`Section Nice-to-have : ${count} item(s), minimum 5`);
 }
 
-/* --- Vue « live » du plan, réservée aux checks 8 et 9 (le check 10 lit le HTML brut) ---
-   Le gabarit brief-chantier livre la section flotte (§02b) en COMMENTAIRE HTML :
-   un plan solo la laisse commentée, un plan de vague la décommente. Les checks
-   ci-dessous ne doivent donc pas réagir à ce qui dort dans un commentaire.
-   Les checks 1 à 7 continuent de lire `html` — contrat inchangé. */
-const htmlLive = stripComments(html);
-
-/* 8 — lot de clôture : message de commit explicite portant « lot N »
-   (règle brief-chantier, rôle AUTEUR, étape 5bis) */
+/* 8 — lot de CLÔTURE : message de commit portant « lot N » (le run aval fait un
+   `git log --grep` littéral sur cette étiquette) */
 const lastLotStart = htmlLive.lastIndexOf('<div class="lot" ');
 if (lastLotStart !== -1) {
-  // Le dernier lot court jusqu'à la fin de la section des lots.
   let lastLot = htmlLive.slice(lastLotStart);
   const secEnd = lastLot.indexOf('</section>');
   if (secEnd !== -1) lastLot = lastLot.slice(0, secEnd);
-  const idM = lastLot.match(/id="lot-(\d+)"/);
-  const lastN = idM ? idM[1] : null;
+  const lastN = lastLot.match(/id="lot-(\d+)"/)?.[1] ?? null;
   const lotTag = new RegExp(`\\blot\\s*${lastN ?? '\\d+'}\\b`, 'i');
-
-  const marked = [...lastLot.matchAll(/<([a-z]+)\b[^>]*class="[^"]*\bcommit-msg\b[^"]*"[^>]*>([\s\S]*?)<\/\1>/gi)].map(
-    (m) => textOf(m[2]),
-  );
+  const marked = [...lastLot.matchAll(/<([a-z]+)\b[^>]*class="[^"]*\bcommit-msg\b[^"]*"[^>]*>([\s\S]*?)<\/\1>/gi)].map((m) => textOf(m[2]));
   const codes = [...lastLot.matchAll(/<(code|pre)\b[^>]*>([\s\S]*?)<\/\1>/gi)].map((m) => textOf(m[2]));
-
-  // Deux formes acceptées : le marqueur dédié, ou une commande git commit explicite.
-  const ok =
-    marked.some((t) => lotTag.test(t)) || codes.some((t) => /git\s+commit/i.test(t) && lotTag.test(t));
-
-  if (!ok) {
-    // Message libre éventuellement prescrit à la place — le citer rend le finding actionnable.
-    const freeform = codes.filter(
-      (t) => t.length <= 140 && /^[\w.@/-]+(\([^)]*\))?\s*:\s*\S/.test(t) && !lotTag.test(t),
-    );
-    const quoted = freeform.find((t) => /chantier\s*\(/i.test(t)) ?? freeform[0] ?? null;
-    const n = lastN ?? 'N';
-    (legacy ? warnings : errors).push(
-      `Lot de clôture (lot ${n}) : son message de commit n'est écrit nulle part dans le lot.` +
-        (quoted ? `\n      Message libre trouvé à la place : « ${quoted.slice(0, 120)} » — il ne porte pas l'étiquette « lot ${n} ».` : '') +
-        `\n      À AJOUTER dans ce lot : <code class="commit-msg">&lt;convention-du-projet&gt;: lot ${n} — &lt;titre du lot&gt;</code>` +
-        `\n      (ou un <pre class="cmd"> contenant « git commit -m "…: lot ${n} — …" »), avec la mention explicite que le` +
-        `\n      travail de clôture ne doit PAS être commité sous un message libre du genre « correctifs de revue ».` +
-        `\n      Raison : dans une chaîne de chantiers, le run aval vérifie sa précondition par un « git log --grep »` +
-        `\n      LITTÉRAL sur cette étiquette ; sans elle il compte zéro et conclut à tort que l'amont a échoué.` +
-        (legacy ? '' : `\n      (--legacy rétrograde ce finding en avertissement pour les plans antérieurs à la convention.)`),
+  if (!(marked.some((t) => lotTag.test(t)) || codes.some((t) => /git\s+commit/i.test(t) && lotTag.test(t)))) {
+    soft.push(
+      `Lot de clôture (lot ${lastN ?? 'N'}) : message de commit absent ou sans l'étiquette « lot ${lastN ?? 'N'} ».` +
+        `\n      À AJOUTER : <code class="commit-msg">&lt;convention&gt;: lot ${lastN ?? 'N'} — &lt;titre&gt;</code> (jamais « correctifs de revue »).` +
+        legacyNote,
     );
   }
 }
 
-/* 9 — flotte parallèle : plage d'identifiants déclarée
-   (règle brief-chantier, rôle ORCHESTRATEUR, Phase 2, étape 4bis).
-   Section OPTIONNELLE : absente = plan solo = check totalement silencieux. */
+/* 9 — flotte parallèle (section optionnelle ; absente ou commentée = plan solo) */
 const flotte = readFlotte(html);
 if (flotte.present) {
   const { nom, freres, plage, plageParsed } = flotte;
-  if (!nom) {
-    errors.push(
-      'Section flotte (id="s-flotte") : nom de la vague absent.' +
-        '\n      À AJOUTER : <span class="flotte-nom">&lt;nom de la vague&gt;</span> — sans lui, impossible de savoir quels plans partagent l\'allocateur.',
-    );
-  }
-
-  if (freres <= 0) {
-    errors.push(
-      `Section flotte (id="s-flotte") : liste des chantiers frères ${freres === 0 ? 'vide' : 'absente'}.` +
-        '\n      À AJOUTER : <ul class="list flotte-freres"> avec un <li> par chantier frère de la vague (slug, branche, plage attribuée).',
-    );
-  }
-
+  if (!nom) errors.push('Section flotte : nom de la vague absent (<span class="flotte-nom">).');
+  if (freres <= 0) errors.push(`Section flotte : liste des chantiers frères ${freres === 0 ? 'vide' : 'absente'} (<ul class="list flotte-freres">, un <li> par frère).`);
   if (!plage) {
-    errors.push(
-      'Section flotte (id="s-flotte") : plage d\'identifiants réservée NON déclarée — c\'est la faille que cette section existe pour fermer.' +
-        '\n      À AJOUTER : <code class="plage-ids">&lt;compteur&gt; N-M</code> (ex. « DEFERRED 121-130 »), ou <code class="plage-ids">aucun compteur global</code>' +
-        '\n      si ce chantier n\'alloue aucun identifiant par script.' +
-        '\n      Raison : tout compteur global alloué par script est aveugle aux branches sœurs non fusionnées — N chantiers partis du même' +
-        '\n      socle reçoivent tous LE MÊME numéro, et la collision n\'apparaît qu\'à la fusion (observé le 15/08/2026 sur 3 chantiers).',
-    );
+    errors.push('Section flotte : plage d\'identifiants NON déclarée. À AJOUTER : <code class="plage-ids">&lt;compteur&gt; N-M</code>, ou « aucun compteur global ».');
   } else if (!plageParsed) {
-    errors.push(
-      `Section flotte (id="s-flotte") : plage d'identifiants illisible — « ${plage.slice(0, 100)} ».` +
-        '\n      Attendu : une plage bornée « N-M » (ex. « DEFERRED 121-130 »), ou la mention « aucun compteur global ».',
-    );
+    errors.push(`Section flotte : plage illisible — « ${plage.slice(0, 100)} » (attendu « N-M » ou « aucun compteur global »).`);
   } else if (!plageParsed.optout && plageParsed.from > plageParsed.to) {
-    errors.push(
-      `Section flotte (id="s-flotte") : plage inversée — « ${plage.slice(0, 100)} » (borne basse ${plageParsed.from} > borne haute ${plageParsed.to}).`,
-    );
+    errors.push(`Section flotte : plage inversée — « ${plage.slice(0, 100)} ».`);
   }
-
-  if (!htmlLive.includes('href="#s-flotte"')) {
-    warnings.push('TOC : entrée manquante pour la section flotte (href="#s-flotte")');
-  }
-
-  warnings.push(
-    'Plan membre d\'une vague : ce lint ne voit QU\'UN plan et ne peut pas détecter une collision de plages.' +
-      '\n      Lance le lint de VAGUE sur les N plans frères avant de dispatcher la flotte :' +
-      '\n      node ' +
-      new URL('preflight-flotte.mjs', import.meta.url).pathname +
-      ' <plan1.html> <plan2.html> …',
-  );
+  if (!T.depend.test(textOf(flotte.sec))) soft.push('Section flotte : ligne « Dépend de : <slug>|aucun » (Depends on) absente.' + legacyNote);
+  if (!htmlLive.includes('href="#s-flotte"')) warnings.push('TOC : entrée manquante pour la section flotte (href="#s-flotte")');
+  warnings.push(`Plan de vague : lance le lint de VAGUE sur les N plans avant de dispatcher : node ${new URL('preflight-flotte.mjs', import.meta.url).pathname} <plan1.html> <plan2.html> …`);
 }
 
-/* 10 — classe pré-autorisée des doublures de test
-   (règle brief-chantier, rôle AUTEUR, étape 5ter).
-   Lu sur le HTML BRUT (commentaires retirés), pas sur `html` décodé : un exemple
-   échappé (&lt;p class=&quot;classe-doublures&quot;&gt;) dans un <pre>/<code> ne
-   doit pas compter comme le paragraphe. Chaque clause du gabarit est exigée mot
-   pour mot (espaces et apostrophes normalisés) : on peut ajouter des
-   restrictions, pas retirer une clause. */
-{
-  const rawLive = stripComments(raw);
-  const lotsIdx = rawLive.indexOf('id="s-lots"');
-  if (lotsIdx === -1) {
-    (legacy ? warnings : errors).push(
-      'Classe pré-autorisée des doublures de test : section des lots (id="s-lots") introuvable, check 10 impossible.',
-    );
-  } else {
-    // Fin = la prochaine section de PREMIER niveau (id="s-…" du gabarit) : une
-    // <section> imbriquée ne coupe pas la recherche.
-    const nextM = /<section\b[^>]*?\sid="s-/i.exec(rawLive.slice(lotsIdx + 1));
-    const lotsSec = rawLive.slice(lotsIdx, nextM ? lotsIdx + 1 + nextM.index : undefined);
-    const m = lotsSec.match(/<p\b[^>]*class="[^"]*\bclasse-doublures\b[^"]*"[^>]*>([\s\S]*?)<\/p>/i);
-    if (!m) {
-      (legacy ? warnings : errors).push(
-        'Classe pré-autorisée des doublures de test absente de la section des lots.' +
-          '\n      À AJOUTER dans la section des lots (§03) : le paragraphe <p class="classe-doublures"> du gabarit brief-chantier, tel quel.' +
-          "\n      Raison : sans lui, un run de nuit s'arrête pour compléter des doublures de test cassées par son propre changement" +
-          "\n      de contrat (observé le 2026-10-06 : une nuit d'attente pour une retouche sans risque)." +
-          (legacy ? '' : '\n      (--legacy rétrograde ce finding en avertissement pour les plans antérieurs à la convention.)'),
-      );
-    } else {
-      const NAMED = { nbsp: ' ', amp: '&', quot: '"', lt: '<', gt: '>', rsquo: "'", lsquo: "'",
-        eacute: 'é', egrave: 'è', ecirc: 'ê', agrave: 'à', acirc: 'â', ccedil: 'ç', ocirc: 'ô',
-        icirc: 'î', ucirc: 'û', ugrave: 'ù', laquo: '«', raquo: '»', mdash: '—' };
-      const norm = (x) =>
-        textOf(x)
-          .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
-          .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-          .replace(/&([a-z]+);/gi, (e, n) => NAMED[n.toLowerCase()] ?? e)
-          .normalize('NFC')
-          .replace(/[‘’]/g, "'")
-          .replace(/\s+/g, ' ')
-          .toLowerCase();
-      const t = norm(m[1]);
-      const missing = [
-        'seulement parce que leurs doublures, fixtures ou mocks ne fournissent pas le nouveau membre',
-        'uniquement par ajout du nouveau membre',
-        'aucune valeur existante modifiée, aucun snapshot régénéré',
-        'aucune assertion ajoutée, retirée ou modifiée',
-        'aucun test sauté ni marqué en échec attendu',
-        'aucun fichier de production touché hors liste',
-        'avec son nombre de lignes ajoutées, dans le message de commit du lot et dans le rapport final',
-        'le relecteur du lot vérifie ces fichiers',
-        'en une seule passe par lot',
-        "si elle reste rouge, quelle qu'en soit la cause, c'est un arrêt immédiat",
-        'reste un arrêt et une question au hub',
-        'peut être restreint, jamais élargi',
-        'son absence signifie : aucune pré-autorisation',
-      ].filter((clause) => !t.includes(clause));
-      if (missing.length) {
-        errors.push(
-          `Classe pré-autorisée des doublures de test : clause(s) du gabarit absente(s) — « ${missing.join(' » ; « ')} ».` +
-            '\n      Le paragraphe peut être restreint, jamais élargi : recopie-le depuis le gabarit brief-chantier (§03).',
-        );
-      }
-    }
+/* 10 — règles dures, sur le texte VISIBLE */
+for (const phrase of T.endless) {
+  if (new RegExp(`${phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(visible)) {
+    errors.push(`Clause de revue sans fin : « ${phrase} » — revue plafonnée à 2 rounds (A3). À RETIRER du plan.`);
   }
 }
-
-/* 11 — règles dures du chantier (A1-A5, G) : texte VISIBLE du plan.
-   Commentaires, <style> et <script> retirés ; apostrophes typographiques et
-   espaces insécables normalisés. a = toujours bloquant ; b, c, d = --legacy les
-   rétrograde en avertissement. Libellés figés (le gabarit brief-chantier les reprend). */
-{
-  const visible = textOf(
-    stripComments(html)
-      .replace(/<(style|script)\b[\s\S]*?<\/\1>/gi, ' ')
-      .replace(/&nbsp;/gi, ' '),
-  )
-    .normalize('NFC')
-    .replace(/[‘’]/g, "'")
-    .replace(/\s+/g, ' ');
-  const low = visible.toLowerCase();
-
-  for (const phrase of ["jusqu'à convergence", "jusqu'au critère de convergence", 'y compris les mineurs']) {
-    if (low.includes(phrase)) {
-      errors.push(
-        `Clause de revue sans fin : « ${phrase} » — la revue est plafonnée à 2 rounds (règle A3), non contournable par un plan.` +
-          "\n      À RETIRER du plan : après 2 rounds le chantier termine (commit, push, PR avec les remarques ouvertes listées).",
-      );
-    }
-  }
-
-  const hard = legacy ? warnings : errors;
-  const legacyNote = legacy ? '' : '\n      (--legacy rétrograde ce finding en avertissement pour les plans antérieurs à la convention.)';
-  if (!/budget total\s*:\s*\D{0,60}?\d/i.test(visible)) {
-    hard.push(
-      'Budget total absent : le plan doit porter une ligne « Budget total : <nombre> lignes » (code + tests + scripts, règle A1).' + legacyNote,
-    );
-  }
-  if (!/chips\s*:\s*(autoris[ée]s|interdits)/i.test(visible)) {
-    hard.push('Déclaration des chips absente : le plan doit porter « Chips : autorisés » ou « Chips : interdits » (règle A2).' + legacyNote);
-  }
-  if (!/fiche d'intention\s*:\s*(?:[^\s]*[\/\\][^\s]*|[^\s]+\.[a-z0-9]{1,5}\b)/i.test(visible)) {
-    hard.push("Fiche d'intention absente : le plan doit porter « Fiche d'intention : <chemin> » (règle G)." + legacyNote);
-  }
-}
+if (!T.budget.test(visible)) soft.push('Budget total absent : « Budget total : <cible> / <plafond> » (Total budget), code + tests + scripts (A1).' + legacyNote);
+if (!T.chips.test(visible)) soft.push('Chips absent : « Chips : autorisés|interdits » (Chips: allowed|forbidden) (A2).' + legacyNote);
+if (!T.intent.test(visible)) soft.push("Fiche d'intention absente : « Fiche d'intention : <chemin> » (Intent sheet) (G)." + legacyNote);
+if (!T.doubles.test(visible)) soft.push('Doublures de test absent : « Doublures de test : aucune|règle standard » (Test doubles: none|standard rule).' + legacyNote);
 
 /* Rapport */
 const say = (label, list) => {

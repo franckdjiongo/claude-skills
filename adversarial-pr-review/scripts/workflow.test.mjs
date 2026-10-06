@@ -117,8 +117,8 @@ describe('documented adversarial Workflow', () => {
   })
 
   test('verified findings and their checks reach the orchestrator', async () => {
-    const finding = { title: 'Missing boundary guard', file: 'a.ts', line: '2', class: 'correctness', severity: 'P2', scenario: 'invalid input', suggestedFix: 'validate input' }
-    const verification = { mustFix: true, class: 'correctness', checksPerformed: ['bun test a.test.ts → 1 pass'], reasoning: 'Reproduced' }
+    const finding = { title: 'Missing boundary guard', file: 'a.ts', line: '2', class: 'correctness', severity: 'P2', trigger: 'existing caller passes empty input', origin: 'introduced', scenario: 'invalid input', suggestedFix: 'validate input' }
+    const verification = { mustFix: true, class: 'correctness', origin: 'introduced', checksPerformed: ['bun test a.test.ts → 1 pass'], reasoning: 'Reproduced' }
     const { result, calls } = await runWorkflow({ files: ['a.ts'], verdict: verification, review: (_, opts) => ({
       ...emptyReview(), findings: opts.label === 'hunt:correctness' ? [finding] : [],
       sweeps: opts.label === 'hunt:correctness'

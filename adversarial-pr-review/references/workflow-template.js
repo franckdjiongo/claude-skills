@@ -22,27 +22,22 @@ read the MOST-BOUNDED sibling of any query/handler/message you touch (so you kno
 For any file that is WHOLLY NEW in this diff, read and audit the entire file (there is no old
 behavior to diff against); for a pre-existing file, scope to what the diff changed vs main.`
   : `ROUND 2: review ONLY the delta since round 1 (\`git -C "${REPO}" diff ${ROUND1_SHA} --\`) plus its direct
-interactions (callers, siblings and tests of the changed lines). No new findings on code this delta did
-not touch. The NEW_FILES below are the files added since round 1.`
+interactions (callers, siblings and tests of the changed lines). A finding on lines this delta did not touch
+is INVALID. The NEW_FILES below are the files added since round 1.`
 const CONTEXT = `Adversarially review the UNCOMMITTED+committed diff that will become a PR at ${REPO}.
 ${SCOPE}
-A finding is reportable if it fails ANY gate:
-  • CORRECTNESS: some input makes it wrong / crash / lose data (triggerable), OR
-  • CONVENTION/SCALABILITY/PLATFORM-LIMIT: it deviates from an idiom that ALREADY exists in this repo
-    (cite the sibling file:line that does it right), violates an external hard limit (e.g. Telegram
-    4096-char sendMessage), or is an unbounded read / full-table scan / N+1 / over-fetch — EVEN IF
-    today's data makes it work. Scale, or the limit, IS the trigger.
-  • WIRING: new enforcement/tooling code (a hook, lint check, CI step, validator) that does not
-    actually fire against this repo's real paths/shapes/event-payloads, or is not registered/called
-    from every place the same invariant should be enforced (e.g. validate AND pre-commit AND CI) —
-    trace it against an ACTUAL file/event in this repo, don't just read the pattern.
-  • STATE-SAFETY: a gate/tracker that can be satisfied without the protected work happening, or that
-    can block forever (no escape hatch / re-entrancy guard).
+A finding is reportable only if it names BOTH:
+  • TRIGGER: the REAL input that fires it today (existing data, call or consumer), not a hypothetical one.
+    No real input: severity P3.
+  • ORIGIN, proven by running or reading base AND HEAD: introduced | aggravated | pre-existing.
+Classes: correctness (the trigger makes it wrong / crash / lose data); convention (cite the sibling file:line
+that does it right); scalability / platform-limit (unbounded read, N+1, over-fetch, external hard limit),
+judged on the data and callers that exist today; wiring (new enforcement/tooling code that does not fire on
+this repo's real paths/event payloads, or is not called from every place the invariant is enforced: trace it
+against an ACTUAL file or event); state-safety (a gate satisfiable without the protected work, or that can
+block forever).
 SEVERITY: P1 = harms users, data or security, or breaks a hard limit; P2 = a real defect or repo-idiom/scale
-violation with a bounded blast radius; P3 = cosmetic, hardening against hypothetical input, or taste.
-"Returns correct output today / not triggerable" is NOT grounds to drop a convention/scalability/
-platform-limit/wiring/state-safety finding — those are precisely what a review bot flags. Refute
-ONLY pure style (naming/formatting/taste/restated guards).`
+violation with a bounded blast radius; P3 = cosmetic, hypothetical input, or taste.`
 
 // `sweeps` + `residualRisk` are REQUIRED alongside `findings`: they are the restitution channel for
 // class-sweep enumeration and unresolved doubt. A sub-agent that swept a class but only wrote the
@@ -65,10 +60,13 @@ ONLY pure style (naming/formatting/taste/restated guards).`
 const FINDINGS = { type:'object', additionalProperties:false, required:['findings','sweeps','residualRisk'], properties:{
   findings:{ type:'array', items:{
     type:'object', additionalProperties:false,
-    required:['title','file','line','class','severity','scenario','suggestedFix'],
+    required:['title','file','line','class','severity','trigger','origin','scenario','suggestedFix'],
     properties:{ title:{type:'string'}, file:{type:'string'}, line:{type:'string'},
       class:{type:'string', enum:['correctness','convention','scalability','platform-limit','wiring','state-safety']},
-      severity:{type:'string', enum:['P1','P2','P3']}, scenario:{type:'string'}, suggestedFix:{type:'string'} } } },
+      severity:{type:'string', enum:['P1','P2','P3']},
+      trigger:{type:'string', description:'the real existing input (data, call or consumer) that fires it today; "none" makes it P3'},
+      origin:{type:'string', enum:['introduced','aggravated','pre-existing'], description:'proven against base and HEAD'},
+      scenario:{type:'string'}, suggestedFix:{type:'string'} } } },
   sweeps:{ type:'array', description:'One entry per class/pattern this dimension swept — the enumeration table, restituted, not left in reasoning. Every target NAMED in the mandate (DIMENSION focus, NAMED TARGETS, residual items from the prior round) gets its own entry quoting that name verbatim in `target`.', items:{
     type:'object', additionalProperties:false,
     required:['target','sitesChecked','verdict'],
@@ -83,8 +81,9 @@ const FINDINGS = { type:'object', additionalProperties:false, required:['finding
 // `checksPerformed` is REQUIRED restitution: the concrete commands/greps/tests actually executed
 // and their outcome — not a description of what verification "would" show.
 const VERDICT = { type:'object', additionalProperties:false,
-  required:['mustFix','class','checksPerformed','reasoning'],
+  required:['mustFix','class','origin','checksPerformed','reasoning'],
   properties:{ mustFix:{type:'boolean'},
+    origin:{type:'string', enum:['introduced','aggravated','pre-existing'], description:'your own base-vs-HEAD proof of where the defect comes from; pre-existing is never a FIX unless P1'},
     class:{type:'string', enum:['correctness','convention','scalability','platform-limit','wiring','state-safety','style']},
     repoIdiomViolated:{type:'string', description:'sibling file:line that does it right, or the external hard limit — REQUIRED to justify a non-correctness must-fix'},
     checksPerformed:{type:'array', items:{type:'string'}, description:'the concrete commands/greps/tests you ran to verify or refute this finding, each as "command → observed output". The check must be CAPABLE of proving what you conclude from it: a piped/filtered command proves only what the filter can see, an aggregate run proves nothing per file, and a claim with no command behind it is written as "not run"'},
@@ -137,9 +136,9 @@ const results = await pipeline(
   (d) => agent(`${CONTEXT}\n\nDIMENSION: ${d.focus}\n\nIf a finding overlaps another dimension's territory, note the overlap in one line rather than re-developing it — a later step dedupes same-file/line reports, so a full write-up per dimension only multiplies verify cost for one defect.\n\nRESTITUTION (required, not optional): anything you investigate but do not write into \`sweeps\` or \`residualRisk\` counts as NOT DONE — a class-sweep or a doubt that stays inside your reasoning is invisible to the orchestrator and to the next round. Explicitly close every focal question this dimension raises: one \`sweeps\` entry per class/pattern you swept, listing every site you actually checked (\`sitesChecked\`) and its \`verdict\` — \`not-examined\` is a valid, honest answer when you ran out of budget, silence is not. If you notice a defect while reasoning through this dimension — even low severity, even adjacent to your named focus — file it in \`findings\` rather than dropping it because it felt minor.\n\nCOVERAGE 1:1: every target named in this DIMENSION (a consumer list, a sibling file, a symbol, a residual item) needs its own \`sweeps\` entry quoting the name verbatim in \`target\` — clean, finding-filed, or not-examined. Before you emit, re-read the DIMENSION text and tick each named target against your sweeps; a named target with no entry is a restitution defect, not an omission.\n\nTRI-STATE, strictly: \`not-examined\` means you did NOT inspect it — its \`sitesChecked\` is empty. If you opened a site and drew a conclusion, the verdict is \`clean\` or \`finding-filed\`, never \`not-examined\`. \`finding-filed\` requires a real \`findings\` entry, named in \`findingRef\` — a defect that lives only in \`residualRisk\` prose is invisible to the dedupe and fix steps. A defect you noticed yourself (even adjacent) is filed, not parked as not-examined.\n\nPROVENANCE: every \`sitesChecked\` entry is a site YOU opened or grepped in this run — a tool call in your trace backs it; a path you only read in this prompt is not a checked site. Every claim in \`residualRisk\` names the command you ran and its observed output, and that command must be CAPABLE of proving the claim (a filtered/piped command proves only what the filter can see; an aggregate test run proves nothing per file; overlapping batches do not add up). If you did not run it, write "not run".\n\nEVIDENCE FORM: each \`sitesChecked\` entry is \`path:line\` (or \`path\` + the exact grep pattern) — never a prose summary, so it can be matched against your tool calls. A \`clean\` verdict on a BEHAVIORAL claim (a guard, a race, an auth/identity boundary, a state transition) needs an executed test or reproduction; if you only read the code, keep \`clean\` but write "static read only — no test run" for that target in \`residualRisk\`. A targeted test run (e.g. \`bun test <file>\`) is allowed and expected where it can prove the claim — read-only forbids edits, not tests.\n\nSHARED MACHINE: sibling hunters run in parallel. Run TARGETED tests only — never the full suite (the orchestrator owns it); never leave a background process running at hand-back, never sleep-poll one; write scratch files under \`mktemp -d\`, never a fixed /tmp name. SHELL: the host is typically macOS/zsh — quote every glob you pass to a tool (\`--include='*.ts'\`), prefer \`rg -g '*.ts'\` for searches. Hunters must not edit reviewed files. On BSD/macOS, \`sed -i\` takes an empty suffix argument (\`sed -i ''\`); GNU sed does not. Do not assume GNU \`timeout\` exists; after a shell error, change the command before retrying it.${d.targets?.length ? `\n\nNAMED TARGETS (each needs its own \`sweeps\` entry quoting the name verbatim — clean, finding-filed, or not-examined; silence is a restitution defect): ${d.targets.join(' · ')}` : ''}`, { label:`hunt:${d.key}`, phase:'Hunt', schema:FINDINGS, model:HUNTER.model, effort:HUNTER.effort }),
   (review) => parallel((review?.findings ?? []).map((f) => () =>
     agent(`${CONTEXT}\n\nADVERSARIALLY VERIFY this finding. First verify its FACTS against the real code, then set mustFix:
-- TRUE if some input makes it wrong/crash/lose data (correctness), OR it deviates from a repo idiom you can CITE in repoIdiomViolated / violates an external hard limit / is an unbounded read|scan|N+1|over-fetch — even if today's data makes it work.
-- FALSE only if it is pure STYLE, or its facts don't hold.
-Do NOT set mustFix=false merely because the output is correct today or "not triggerable" — that is the trap that lets review bots catch you.\n\nRESTITUTION (required, not optional): any command/grep/test you run to verify or refute this finding that you do not list in \`checksPerformed\` counts as NOT DONE — a check that only happened in your reasoning is unopposable by the orchestrator. Close the focal question this finding raises explicitly, with the outcome of each check. If, while verifying, you notice a DIFFERENT defect than the one you were sent to check, file it too rather than silently letting it go because it's out of scope for this verdict.\n\nPROVENANCE: each \`checksPerformed\` entry is "command → observed output", and the command must be CAPABLE of proving what you conclude from it — "typecheck clean" needs an unfiltered tsc run (a \`| grep\` pipe proves only the absence of the grepped pattern), a per-file test count needs a run of that file, and a total across batches is only valid if the batches do not overlap. A conclusion with no command behind it is written as "not run", never as verified.\n\n${JSON.stringify(f,null,2)}`,
+- Check the TRIGGER (does the named real input exist today?) and the ORIGIN (run or read base AND HEAD: introduced, aggravated or pre-existing).
+- TRUE if the trigger exists and it makes something wrong/crash/lose data, OR it deviates from a repo idiom you can CITE in repoIdiomViolated / violates an external hard limit / is an unbounded read|scan|N+1|over-fetch on data or callers that exist today.
+- FALSE if it is pure STYLE, its facts don't hold, or no real input triggers it.\n\nRESTITUTION (required, not optional): any command/grep/test you run to verify or refute this finding that you do not list in \`checksPerformed\` counts as NOT DONE — a check that only happened in your reasoning is unopposable by the orchestrator. Close the focal question this finding raises explicitly, with the outcome of each check. If, while verifying, you notice a DIFFERENT defect than the one you were sent to check, file it too rather than silently letting it go because it's out of scope for this verdict.\n\nPROVENANCE: each \`checksPerformed\` entry is "command → observed output", and the command must be CAPABLE of proving what you conclude from it — "typecheck clean" needs an unfiltered tsc run (a \`| grep\` pipe proves only the absence of the grepped pattern), a per-file test count needs a run of that file, and a total across batches is only valid if the batches do not overlap. A conclusion with no command behind it is written as "not run", never as verified.\n\n${JSON.stringify(f,null,2)}`,
       { label:`verify:${f.file}:${f.line}`, phase:'Verify', schema:VERDICT, model:VERIFIER.model, effort:VERIFIER.effort })
       .then((v) => ({ finding:f, verdict:v }))))
     // Carry the hunt-level restitution (sweeps, residualRisk) alongside this dimension's verified

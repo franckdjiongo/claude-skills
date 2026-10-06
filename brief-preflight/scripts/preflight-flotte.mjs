@@ -13,7 +13,10 @@
  * deux trous qui restaient :
  *   a. un plan de la vague qui n'a pas décommenté sa section flotte (le check 9
  *      est silencieux sur un plan « solo » — l'omission passait donc inaperçue) ;
- *   b. deux plans dont les plages attribuées se recouvrent.
+ *   b. deux plans dont les plages attribuées se recouvrent ;
+ *   c. deux plans qui listent le même fichier dans leurs « Fichiers touchés »
+ *      (ligne de la section flotte, à défaut les lignes des lots), sauf si l'un
+ *      déclare « Dépend de » l'autre (ordre imposé, pas de conflit).
  *
  * Règle couverte : brief-chantier, rôle ORCHESTRATEUR, Phase 2, étape 4bis.
  * Mode d'échec d'origine (15/08/2026) : trois chantiers parallèles partis du même
@@ -30,7 +33,7 @@ import { readFileSync, writeFileSync, existsSync, statSync, readdirSync, realpat
 import { join, basename } from 'node:path';
 import { homedir } from 'node:os';
 import { createHash } from 'node:crypto';
-import { readFlotte, chevauchent } from './flotte-shared.mjs';
+import { readFlotte, chevauchent, fichiersDe } from './flotte-shared.mjs';
 
 /** Journal des runs PASS, lu par le Stop-hook `flotte-plage-gate.mjs` pour
  *  savoir si les plans écrits dans une session ont VRAIMENT été vérifiés
@@ -182,6 +185,36 @@ for (let i = 0; i < comparables.length; i++) {
         '\n      Réattribue des plages disjointes AVANT de dispatcher la flotte : une fois les runs partis, la collision' +
         '\n      ne se découvre qu\'à la fusion, quand les deux identifiants sont déjà écrits dans deux backlogs.',
     );
+  }
+}
+
+/* 4bis — disjonction des FICHIERS : le vrai risque d'une vague (conflit de fusion).
+   Fichiers = ligne « Fichiers touchés » de la section flotte, à défaut celles des lots. */
+const fichiersPlan = (p) => {
+  if (p.fichiers) return p.fichiers;
+  const lots = p.html.split(/(?=<div class="lot" )/).slice(1).map((b) => fichiersDe(b));
+  return lots.every((x) => x === null) ? null : [...new Set(lots.flat().filter(Boolean))];
+};
+const slugsDe = (p) => [p.fichier.replace(/\.html$/, ''), ...[...p.html.matchAll(/chantier\(([^)]+)\)/g)].map((m) => m[1])];
+const dependDe = (a, b) => (a.depend ?? []).some((d) => slugsDe(b).some((s) => s === d || s.endsWith(`-${d}`) || d.endsWith(`-${s}`)));
+for (const p of membres) {
+  p.liste = fichiersPlan(p);
+  if (!p.liste) warnings.push(`${p.fichier} : aucune ligne « Fichiers touchés » — disjonction des fichiers non vérifiable.`);
+  for (const d of p.depend ?? []) {
+    if (!membres.some((q) => q !== p && dependDe(p, q))) warnings.push(`${p.fichier} : « Dépend de ${d} » ne désigne aucun plan de cette vague.`);
+  }
+}
+for (let i = 0; i < membres.length; i++) {
+  for (let j = i + 1; j < membres.length; j++) {
+    const [a, b] = [membres[i], membres[j]];
+    if (!a.liste || !b.liste || dependDe(a, b) || dependDe(b, a)) continue;
+    const communs = a.liste.filter((f) => b.liste.includes(f));
+    if (communs.length) {
+      errors.push(
+        `FICHIERS communs à ${a.fichier} et ${b.fichier} : ${communs.slice(0, 5).join(', ')}${communs.length > 5 ? ` (+${communs.length - 5})` : ''}.` +
+          '\n      Retire-les d\'un des deux plans (propriétaire unique), ou déclare « Dépend de » pour imposer l\'ordre.',
+      );
+    }
   }
 }
 

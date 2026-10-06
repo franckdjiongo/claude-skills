@@ -20,19 +20,6 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
    pas le subagent committer :
 <!-- /slot:wait-subagents -->
 
-<!-- slot:flotte-hook -->
-   **Ce n'est pas facultatif, et aucun hook ne l'impose à ta place :** il n'existe
-   pas de hook d'arrêt Codex qui vérifie la preuve du lint de vague. Avant de
-   terminer une session qui a écrit ≥ 2 plans partageant un `flotte-nom`, relance
-   `preflight-flotte.mjs` sur la vague et confirme son PASS dans ta réponse, avec
-   la sortie réelle. Un run PASS ne couvre que le contenu des plans au moment où
-   il a tourné : rééditer un plan après coup le périme, donc relance-le après la
-   dernière édition. Si le contrôle ne s'applique vraiment pas (plans d'exemple,
-   vague déjà dispatchée), dis-le dans ta réponse avec la raison. Toute la
-   logique vit dans le lint ; il n'y a aucun smoke test de hook à rejouer côté
-   Codex.
-<!-- /slot:flotte-hook -->
-
 <!-- slot:watchdog-tick -->
 1. **Tick périodique (30 min)** — la minuterie est le heartbeat de la session :
    `automation_update` avec `mode:"create"`, `kind:"heartbeat"`,
