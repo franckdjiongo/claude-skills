@@ -67,8 +67,7 @@ Trois rôles. Détermine le tien et lis la section correspondante :
 
 0. **Interroge le brain d'abord — obligatoire.** Avant d'écrire quoi que ce
    soit : les leçons et décisions du projet ET de l'utilisateur. Outils déjà
-   en prod, au choix : `memory_search` / `lessons_list_validated` du MCP
-   workstation-bus, la CLI (`bun run --cwd
+   en prod, au choix : la CLI (`bun run --cwd
    ~/Desktop/my-projets/second-brain cli/index.ts search "<sujet + projet>"`),
    ou le miroir local
    (`~/Desktop/my-projets/second-brain/data/mirror/json/memories.json`).
@@ -164,6 +163,26 @@ Trois rôles. Détermine le tien et lis la section correspondante :
    `<pre class="cmd">` contenant `git commit -m "…: lot N — …"`. Un message
    dépourvu de l'étiquette `lot N` fait échouer le préflight, en citant le
    message libre trouvé à sa place.
+5ter. **Borne le périmètre, mais pré-autorise les doublures de test.** Chaque
+   lot liste ses fichiers ; tout besoin hors liste est un arrêt et une
+   question au hub. Une seule exception est autorisée d'avance : quand un
+   changement du chantier (signature, contrat d'un hook, nouveau membre
+   obligatoire) casse d'anciens tests SEULEMENT parce que leurs doublures,
+   fixtures ou mocks ne fournissent pas le nouveau membre, l'exécutant les
+   complète sans s'arrêter. Ses conditions exactes font foi dans le
+   paragraphe `<p class="classe-doublures">` du gabarit (§03), que tu
+   recopies tel quel : ajout du seul nouveau membre (aucune valeur existante
+   modifiée, aucun snapshot régénéré, aucune assertion touchée, aucun test
+   sauté), aucun fichier de production hors liste, fichiers nommés avec leurs
+   lignes ajoutées dans le commit du lot et le rapport, vérification par le
+   relecteur, une seule passe de réparation par lot. Tu peux le restreindre,
+   jamais l'élargir. Observé le 2026-10-06
+   (R4, temps-chantier) : 76 tests cassés par un nouvel accesseur, réparés
+   par simple ajout aux doublures, mais trois fichiers hors liste — le run a
+   attendu toute la nuit une approbation pour une retouche sans risque.
+   **Contrôlé par le lint du préflight, check 10, sévérité ERREUR** (présence
+   du paragraphe et de ses clauses de bornage ; `--legacy` rétrograde
+   seulement son absence).
 6. **Assigne un agent par lot — jamais general-purpose par défaut.** Vérifie
    les subagents disponibles pour ce projet (liste d'agents de la session, ou
    `.claude/agents/` du repo cible). Si le projet en a déjà (implementer,
@@ -202,7 +221,8 @@ Trois rôles. Détermine le tien et lis la section correspondante :
     déclenche le lint automatique en préprocessing) : lint déterministe
     (placeholders, chemins, scripts, ancres, structure, section
     nice-to-have, message de commit du lot de clôture, plage d'identifiants
-    de la section flotte si elle existe), puis rounds ultracode adversariaux (7 lentilles, dont
+    de la section flotte si elle existe, classe pré-autorisée des
+    doublures), puis rounds ultracode adversariaux (7 lentilles, dont
     personas et projection à 6 mois/1 an/3 ans) jusqu'à ce qu'un round
     complet ne remonte plus rien qui change la substance du plan. Un plan
     jamais préflighté n'est pas livrable — c'est là que meurent les zones
@@ -255,7 +275,17 @@ Trois rôles. Détermine le tien et lis la section correspondante :
    `chantier(<slug-du-plan>): lot N — <titre du lot>` (jamais de ligne
    Co-Authored-By). Le git log EST le suivi d'avancement : ne modifie pas le
    plan HTML pour cocher des cases (il peut être annoté dans Galley au même
-   moment). **Lot sous gate humain explicite** (validation User avant
+   moment). **Fichier hors liste, ou vérification rouge à cause de
+   doublures de test** : avant de t'arrêter, vérifie si le besoin entre dans
+   la classe pré-autorisée du paragraphe `classe-doublures` du §03 du plan
+   (rôle AUTEUR, étape 5ter). Si oui, complète les doublures par simple ajout
+   du nouveau membre, en une seule passe, relance la vérification (rouge
+   encore = protocole arrêt-et-chip), et nomme chaque fichier avec
+   ses lignes ajoutées dans le commit du lot et le rapport ; le relecteur du
+   lot les vérifie. Si le besoin touche une assertion, une valeur existante,
+   un fichier de production ou une règle, ou si le plan n'a pas ce
+   paragraphe, c'est un arrêt et une question au hub.
+   **Lot sous gate humain explicite** (validation User avant
    commit) : en run LOCAL, laisse le lot staged et signale-le ; en run CLOUD
    ÉPHÉMÈRE (routine claude.ai), le staged meurt avec la session — commite
    avec le préfixe `[GATE-HELD]` devant le message normal
@@ -288,7 +318,12 @@ l'arrêt immédiat ci-dessous ; un échec d'INFRA pré-existant (accès refusé,
 auth expirée, prompt interactif impossible — reproductible à l'identique SANS
 les modifications du chantier) ouvre le chip mais laisse le run terminer les
 vérifications restantes et livrer son rapport, en y nommant l'échec verbatim.
-Dans le doute, traite-le comme un échec de code. Concrètement :
+Dans le doute, traite-le comme un échec de code. Exception : un échec causé
+SEULEMENT par des doublures de test qui ne fournissent pas un nouveau membre
+relève de la classe pré-autorisée (étape 5ter, paragraphe `classe-doublures`
+du plan) — répare-les sous ses conditions, en UNE seule passe par lot, et
+relance la vérification. Si elle reste rouge, quelle qu'en soit la cause :
+arrêt immédiat ci-dessous, diff laissé en l'état. Concrètement :
 
 1. **Arrête le run** au lot en échec. Ne commit PAS le lot raté ; laisse les
    modifications non commitées en l'état (le diff est le diagnostic — le
@@ -522,7 +557,10 @@ détruit).
 
 7. **Revue avant merge.** Établis une baseline verte sur main (typecheck +
    build + test) AVANT le premier merge. Lis les rapports hub des N sessions
-   ET le rapport final / la description de chaque PR (vérifie le sentinel de
+   ET le rapport final / la description de chaque PR (recoupe aussi les
+   fichiers de doublures que chaque rapport déclare au titre de l'étape 5ter :
+   hors listes, ils échappent au contrôle de disjonction ; un fichier cité par
+   deux chantiers impose un ordre de fusion explicite) (vérifie le sentinel de
    revue adversariale avant de merger — pas de merge sur une PR qui ne l'a
    pas) ; vérifie PRs/branches/worktrees ; spot-checke par lecture directe les
    invariants les plus porteurs de chaque plan dans le code livré.

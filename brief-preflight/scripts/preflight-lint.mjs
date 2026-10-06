@@ -4,8 +4,9 @@
  *
  * Usage : node preflight-lint.mjs <plan.html> <repo-cible> [--legacy]
  *   --legacy : rétrograde en AVERTISSEMENT les conventions POSTÉRIEURES au plan
- *              — section « Nice-to-have » (id="s-nice", ≥ 5 items) et message de
- *              commit du lot de clôture (check 8) — pour linter les plans écrits
+ *              — section « Nice-to-have » (id="s-nice", ≥ 5 items), message de
+ *              commit du lot de clôture (check 8) et ABSENCE du paragraphe des
+ *              doublures de test (check 10) — pour linter les plans écrits
  *              avant ces conventions.
  *
  * Vérifie mécaniquement ce qui n'exige AUCUN jugement :
@@ -33,6 +34,11 @@
  *      Règle brief-chantier, rôle ORCHESTRATEUR, Phase 2, étape 4bis.
  *      Limite ASSUMÉE : le lint voit UN plan et ne peut pas détecter une collision
  *      entre plans frères — il vérifie seulement que la plage est DÉCLARÉE.
+ *  10. classe pré-autorisée des doublures de test : la section des lots porte le
+ *      paragraphe class="classe-doublures" du gabarit, chacune de ses clauses
+ *      présente mot pour mot (lu sur le HTML brut, hors exemples échappés).
+ *      --legacy rétrograde seulement son ABSENCE.
+ *      Règle brief-chantier, rôle AUTEUR, étape 5ter.
  *
  * Sortie : findings groupés ERREUR / AVERTISSEMENT, code retour 1 si ≥ 1 erreur.
  */
@@ -209,7 +215,7 @@ if (niceIdx === -1) {
   if (count < 5) errors.push(`Section Nice-to-have : ${count} item(s), minimum 5`);
 }
 
-/* --- Vue « live » du plan, réservée aux checks 8 et 9 ---------------------
+/* --- Vue « live » du plan, réservée aux checks 8 et 9 (le check 10 lit le HTML brut) ---
    Le gabarit brief-chantier livre la section flotte (§02b) en COMMENTAIRE HTML :
    un plan solo la laisse commentée, un plan de vague la décommente. Les checks
    ci-dessous ne doivent donc pas réagir à ce qui dort dans un commentaire.
@@ -307,6 +313,73 @@ if (flotte.present) {
       new URL('preflight-flotte.mjs', import.meta.url).pathname +
       ' <plan1.html> <plan2.html> …',
   );
+}
+
+/* 10 — classe pré-autorisée des doublures de test
+   (règle brief-chantier, rôle AUTEUR, étape 5ter).
+   Lu sur le HTML BRUT (commentaires retirés), pas sur `html` décodé : un exemple
+   échappé (&lt;p class=&quot;classe-doublures&quot;&gt;) dans un <pre>/<code> ne
+   doit pas compter comme le paragraphe. Chaque clause du gabarit est exigée mot
+   pour mot (espaces et apostrophes normalisés) : on peut ajouter des
+   restrictions, pas retirer une clause. */
+{
+  const rawLive = stripComments(raw);
+  const lotsIdx = rawLive.indexOf('id="s-lots"');
+  if (lotsIdx === -1) {
+    (legacy ? warnings : errors).push(
+      'Classe pré-autorisée des doublures de test : section des lots (id="s-lots") introuvable, check 10 impossible.',
+    );
+  } else {
+    // Fin = la prochaine section de PREMIER niveau (id="s-…" du gabarit) : une
+    // <section> imbriquée ne coupe pas la recherche.
+    const nextM = /<section\b[^>]*?\sid="s-/i.exec(rawLive.slice(lotsIdx + 1));
+    const lotsSec = rawLive.slice(lotsIdx, nextM ? lotsIdx + 1 + nextM.index : undefined);
+    const m = lotsSec.match(/<p\b[^>]*class="[^"]*\bclasse-doublures\b[^"]*"[^>]*>([\s\S]*?)<\/p>/i);
+    if (!m) {
+      (legacy ? warnings : errors).push(
+        'Classe pré-autorisée des doublures de test absente de la section des lots.' +
+          '\n      À AJOUTER dans la section des lots (§03) : le paragraphe <p class="classe-doublures"> du gabarit brief-chantier, tel quel.' +
+          "\n      Raison : sans lui, un run de nuit s'arrête pour compléter des doublures de test cassées par son propre changement" +
+          "\n      de contrat (observé le 2026-10-06 : une nuit d'attente pour une retouche sans risque)." +
+          (legacy ? '' : '\n      (--legacy rétrograde ce finding en avertissement pour les plans antérieurs à la convention.)'),
+      );
+    } else {
+      const NAMED = { nbsp: ' ', amp: '&', quot: '"', lt: '<', gt: '>', rsquo: "'", lsquo: "'",
+        eacute: 'é', egrave: 'è', ecirc: 'ê', agrave: 'à', acirc: 'â', ccedil: 'ç', ocirc: 'ô',
+        icirc: 'î', ucirc: 'û', ugrave: 'ù', laquo: '«', raquo: '»', mdash: '—' };
+      const norm = (x) =>
+        textOf(x)
+          .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+          .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+          .replace(/&([a-z]+);/gi, (e, n) => NAMED[n.toLowerCase()] ?? e)
+          .normalize('NFC')
+          .replace(/[‘’]/g, "'")
+          .replace(/\s+/g, ' ')
+          .toLowerCase();
+      const t = norm(m[1]);
+      const missing = [
+        'seulement parce que leurs doublures, fixtures ou mocks ne fournissent pas le nouveau membre',
+        'uniquement par ajout du nouveau membre',
+        'aucune valeur existante modifiée, aucun snapshot régénéré',
+        'aucune assertion ajoutée, retirée ou modifiée',
+        'aucun test sauté ni marqué en échec attendu',
+        'aucun fichier de production touché hors liste',
+        'avec son nombre de lignes ajoutées, dans le message de commit du lot et dans le rapport final',
+        'le relecteur du lot vérifie ces fichiers',
+        'en une seule passe par lot',
+        "si elle reste rouge, quelle qu'en soit la cause, c'est un arrêt immédiat",
+        'reste un arrêt et une question au hub',
+        'peut être restreint, jamais élargi',
+        'son absence signifie : aucune pré-autorisation',
+      ].filter((clause) => !t.includes(clause));
+      if (missing.length) {
+        errors.push(
+          `Classe pré-autorisée des doublures de test : clause(s) du gabarit absente(s) — « ${missing.join(' » ; « ')} ».` +
+            '\n      Le paragraphe peut être restreint, jamais élargi : recopie-le depuis le gabarit brief-chantier (§03).',
+        );
+      }
+    }
+  }
 }
 
 /* Rapport */
