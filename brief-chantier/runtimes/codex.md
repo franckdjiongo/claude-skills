@@ -71,11 +71,18 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
    prochain retour tombe au plus tard 30 min après elle ; un retour compte
    comme tick si ces 30 min sont écoulées, sinon ce n'est pas un tick et tu ne
    refais pas la vérification disque (ce serait du polling). Un réveil du
-   heartbeat est toujours un tick, et avant de terminer un tour tu fais un tick
-   si la dernière ligne du journal a 30 min ou plus. Seule exception hors tick : la vérification
+   heartbeat est toujours un tick, sauf s'il tombe juste après un tick de
+   `wait_agent` (heartbeat différé pendant le tour) : un tick est sauté, sans
+   vérification complète, si la dernière ligne du journal a moins d'1 min. Avant
+   de terminer un tour tu fais un tick si la dernière ligne du journal a 30 min
+   ou plus. Seule exception hors tick : la vérification
    post-relance de l'item 3 (`wait_agent` sur l'agent relancé, `timeout_ms` =
-   le plus petit de 600000 et du délai restant avant le prochain tick), qui
-   n'écrit de ligne au journal que si elle tombe aussi sur un tick. Dès que tous les chantiers ont livré leur PR, ou si le
+   le plus petit de 600000 et du délai restant avant le prochain tick, soit
+   (heure de la dernière ligne du journal + 30 min) − maintenant, plancher
+   10000 ms), qui n'écrit de ligne au journal que si elle tombe aussi sur un
+   tick. Le tick suivant ne relance jamais un agent relancé il y a moins de
+   10 min : une relance proche de la limite des 30 min ne reçoit qu'une courte
+   attente post-relance, ce n'est pas un silence. Dès que tous les chantiers ont livré leur PR, ou si le
    run est abandonné, supprime le heartbeat (`automation_update` avec
    `mode:"delete"` et `id` = l'`automationId` noté dans le fichier). Si la
    session orchestratrice a disparu sans le faire, la session de clôture

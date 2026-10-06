@@ -19,8 +19,9 @@
 //   runtimes/codex.json      { "description": "<frontmatter description>",
 //                              "replace": [{ "from", "to", "count" }],   exact count required
 //                              "renameHeadings": { "<## old line>": "<## new line>" },
-//                              "forbid":  ["<string that must not survive>"],      required, non-empty
-//                              "allow":   { "<CLAUDE_ONLY id>": { "match": ["<exact string>"], "reason": "<why>" } },
+//                              "forbid":  ["<string that must not survive>", "/regex/flags"],  required, non-empty;
+//                                         a plain string matches as a substring, an entry written /.../flags is a RegExp
+//                              "allow":   { "<CLAUDE_ONLY id | forbid>": { "match": ["<exact string>"], "reason": "<why>" } },
 //                              "dropFrontmatter": ["allowed-tools", ...],
 //                              "slotSources": { "NAME": "<hash of the Claude text>" } }
 //   A source with `disable-model-invocation: true` (Claude only) gets, in its Codex variant,
@@ -30,7 +31,10 @@
 //   "description" is required. Unknown keys fail the build (a typo must not
 //   silently switch a check off). On top of each skill's `forbid`, the built-in
 //   CLAUDE_ONLY vocabulary below is refused unless `allow` exempts that exact string
-//   with a reason. The same checks run on every other .md file the variant ships.
+//   with a reason. An allowed string is exempt from `forbid` too (every `allow` match is
+//   blanked before the forbid scan; the id `forbid` is for strings that only a forbid entry
+//   refuses), exact string only: a second, different occurrence still fails. The same checks run on every other .md and .html file the variant ships
+//   (`--check` included).
 //
 // `slotSources` pins the Claude text each Codex slot was written against: when a
 // nightly improvement edits a slot's Claude text, the Codex build fails until a
@@ -54,6 +58,7 @@ export class NotDeclaredError extends Error {}
 const SLOT_OPEN = /^<!-- runtime-slot:([a-z0-9-]+) -->\s*$/
 const SLOT_CLOSE = /^<!-- \/runtime-slot:([a-z0-9-]+) -->\s*$/
 const OVERRIDE_MARKER = /<!--\s*\/?slot:/
+const REGEX_FORBID = /^\/(.+)\/([a-z]*)$/
 const BUILTIN_FORBID = ['.Codex/', '<!-- runtime-slot', '<!-- /runtime-slot']
 const DATED_MODEL = /\bgpt-?\d|\bo[1-9]-(mini|pro|preview)\b|\bclaude-(opus|sonnet|haiku|fable)-\d|\b(opus|sonnet|haiku|fable)-\d/i
 const ALIAS = '(sonnet|opus|haiku|fable)'
@@ -205,8 +210,12 @@ function readConfig(skillDir) {
   if (!Array.isArray(config.forbid) || !config.forbid.length || !config.forbid.every((f) => typeof f === 'string' && f)) {
     throw new VariantError('runtimes/codex.json: "forbid" must be a non-empty list of strings')
   }
+  for (const f of config.forbid) {
+    const m = f.match(REGEX_FORBID)
+    if (m) try { new RegExp(m[1], m[2]) } catch (err) { throw new VariantError(`runtimes/codex.json: forbid entry "${f}" is not a valid regular expression: ${err.message}`) }
+  }
   for (const [id, entry] of Object.entries(config.allow ?? {})) {
-    if (!(id in CLAUDE_ONLY)) throw new VariantError(`runtimes/codex.json: allow names unknown vocabulary "${id}"`)
+    if (!(id in CLAUDE_ONLY) && id !== 'forbid') throw new VariantError(`runtimes/codex.json: allow names unknown vocabulary "${id}"`)
     const okMatch = Array.isArray(entry?.match) && entry.match.length && entry.match.every((m) => typeof m === 'string' && m)
     if (!okMatch || typeof entry.reason !== 'string' || entry.reason.trim().split(/\s+/).length < 4) {
       throw new VariantError(`runtimes/codex.json: allow "${id}" needs { "match": [exact strings], "reason": "<a sentence>" }`)
@@ -236,10 +245,18 @@ function assertDeclared(skillDir, runtime) {
 }
 
 // Refuses Claude-only content in a Codex text. An `allow` entry exempts only its exact
-// `match` strings, never the whole vocabulary id.
+// `match` strings, never the whole vocabulary id; those strings are also blanked before the
+// `forbid` scan (a second, non-allowed occurrence still fails). A `forbid` entry written
+// /pattern/flags is a RegExp, any other entry is an exact substring.
 function checkCodexText(text, config, label) {
+  let forbidScan = text
+  for (const entry of Object.values(config.allow ?? {})) for (const m of entry.match) forbidScan = forbidScan.split(m).join(' ')
   for (const s of [...BUILTIN_FORBID, ...(config.forbid ?? [])]) {
-    if (text.includes(s)) throw new VariantError(`${label}: forbidden string left in Codex variant: "${s}"`)
+    const re = s.match(REGEX_FORBID)
+    if (re) {
+      const hit = forbidScan.match(new RegExp(re[1], re[2]))
+      if (hit) throw new VariantError(`${label}: forbidden pattern left in Codex variant: ${s} matched "${hit[0]}"`)
+    } else if (forbidScan.includes(s)) throw new VariantError(`${label}: forbidden string left in Codex variant: "${s}"`)
   }
   if (OVERRIDE_MARKER.test(text)) throw new VariantError(`${label}: slot marker left in Codex variant`)
   for (const [id, re] of Object.entries(CLAUDE_ONLY)) {
@@ -308,27 +325,35 @@ function realOrResolved(path) {
   return join(realOrResolved(dirname(resolve(path))), basename(path))
 }
 
-// Every Markdown file the variant ships besides SKILL.md (runtimes/ excluded).
-function otherMarkdown(dir, base = dir) {
+// Every shipped text file (.md, .html) besides SKILL.md (top-level runtimes/ and .git excluded).
+function shippedText(dir, base = dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
     const p = join(dir, e.name)
-    if (e.isDirectory()) return ['runtimes', '.git'].includes(e.name) && dir === base ? [] : otherMarkdown(p, base)
-    return e.isFile() && extname(e.name) === '.md' && p !== join(base, 'SKILL.md') ? [p] : []
+    if (e.isDirectory()) return ['runtimes', '.git'].includes(e.name) && dir === base ? [] : shippedText(p, base)
+    return e.isFile() && ['.md', '.html'].includes(extname(e.name)) && p !== join(base, 'SKILL.md') ? [p] : []
   })
+}
+
+// The full check of a variant: the SKILL.md build plus, for Codex, every other shipped text file.
+export function checkVariant(skillDir, runtime) {
+  assertDeclared(skillDir, runtime)
+  const source = realpathSync(skillDir)
+  const skillMd = buildSkillMd(source, runtime)
+  if (runtime === 'codex') {
+    const config = readConfig(source)
+    for (const f of shippedText(source)) checkCodexText(readText(f), config, relative(source, f))
+  }
+  return skillMd
 }
 
 export function buildVariant(skillDir, runtime, out) {
   assertDeclared(skillDir, runtime)
   const source = realpathSync(skillDir)
-  const skillMd = buildSkillMd(source, runtime)
+  const skillMd = checkVariant(source, runtime)
   const target = realOrResolved(out)
   const rel = relative(source, target)
   if (!rel || (!rel.startsWith('..') && !isAbsolute(rel))) throw new VariantError(`output dir must be outside the skill folder: ${out}`)
   if (existsSync(target) && readdirSync(target).length) throw new VariantError(`output dir is not empty: ${out}`)
-  if (runtime === 'codex') {
-    const config = readConfig(source)
-    for (const f of otherMarkdown(source)) checkCodexText(readText(f), config, relative(source, f))
-  }
   try {
     mkdirSync(target, { recursive: true })
     cpSync(source, target, {
@@ -376,7 +401,7 @@ function main(argv) {
   try {
     if (stampMode) { stamp(skill); process.stdout.write(`STAMPED ${basename(skill)}\n`); return 0 }
     if (out) buildVariant(skill, runtime, out)
-    else buildSkillMd(skill, runtime)
+    else checkVariant(skill, runtime)
     process.stdout.write(`OK ${runtime} variant of ${basename(skill)}${out ? ` -> ${out}` : ' (check only)'}\n`)
     return 0
   } catch (err) {

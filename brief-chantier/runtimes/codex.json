@@ -80,6 +80,11 @@
       "from": "`general-purpose`",
       "to": "`default`",
       "count": 2
+    },
+    {
+      "from": "commit des plans HTML dans\n    `docs/plans/` du main. Puis session review honnête (rounds, écarts,\n    temps par chantier)",
+      "to": "commit des plans HTML dans\n    `docs/plans/` du main, suppression du heartbeat `surveillance-<vague>`\n    (`automation_update` `mode:\"delete\"` avec son `automationId`) puis, en tout\n    dernier, du fichier `<repo-cible>/.worktrees/.surveillance-<vague>.md`.\n    Puis session review honnête (rounds, écarts, temps par chantier)",
+      "count": 1
     }
   ],
   "forbid": [
@@ -96,13 +101,13 @@
     "spawn_task",
     "preview_",
     "ultracode",
-    "Workflow",
+    "/\\bWorkflow\\b/",
     "Opus",
     "Sonnet",
     "'sonnet'",
     "claude.ai",
     "schedule-wakeup-guard",
-    "Monitor",
+    "/\\bMonitor\\b/",
     "bypassPermissions",
     "$HOME/.claude",
     "TaskCreate",
@@ -112,9 +117,22 @@
   "allow": {
     "claude-home": {
       "match": [
-        "~/.claude/scripts/night-run-lock.sh"
+        "~/.claude/scripts/night-run-lock.sh",
+        "<code>.claude/agents/</code> / <code>.codex/agents/</code>"
       ],
-      "reason": "night-run-lock.sh is one shared machine script that lives at this real path and serves every runtime, so the Codex text must name it."
+      "reason": "night-run-lock.sh is one shared machine script that lives at this real path and serves every runtime, so the Codex text must name it. The plan template also names both agent directories on purpose, as a dual-runtime skeleton."
+    },
+    "spawn-task": {
+      "match": [
+        "<code>spawn_task</code> (Claude Code) ou <code>chip_create</code> (Codex)"
+      ],
+      "reason": "assets/template.html is a dual-runtime plan skeleton that names both runtimes deliberately."
+    },
+    "forbid": {
+      "match": [
+        "(ex. <code>preview_*</code> sous Claude Code)"
+      ],
+      "reason": "assets/template.html is a dual-runtime plan skeleton that names both runtimes deliberately."
     }
   },
   "slotSources": {
