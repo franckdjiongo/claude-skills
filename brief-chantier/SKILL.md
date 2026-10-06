@@ -27,8 +27,8 @@ un modèle moindre doit pouvoir l'exécuter sans personne pour répondre. Déter
 ## Règles dures (les trois rôles ; aucun plan ne les assouplit)
 
 - **A1 Budget total.** Par chantier : code + tests + scripts. Cible ≤ 500 lignes ajoutées, plafond 1 000 ;
-  au-delà, découper. Suppressions et fichiers générés ne comptent pas. Ratio tests/code > 2 : justifier ;
-  > 4 : découper ou accord humain.
+  au-delà, découper. Suppressions et fichiers générés ne comptent pas. Ratio tests/code (dès 50 lignes de code) > 2 :
+  justifier ; > 4 : découper ou accord humain.
 - **A2 Chips et décisions.** Chaque plan déclare `Chips : autorisés` ou `Chips : interdits`. Chaque remarque
   de revue reçoit UNE décision : CORRIGER (P1, et P2 qui servent l'intention), CHIP (si autorisés),
   NE PAS CORRIGER (une ligne de raison), INVALIDE. Jamais « tout corriger, y compris les mineurs ».
@@ -64,8 +64,8 @@ blanc. Détails de chaque étape : `references/auteur-details.md`.
    Recense les points de contrôle humains et place-les en début de run.
 3. **Copie `assets/template.html`** vers `<repo>/docs/plans/<AAAA-MM-JJ>-<sujet>.html`, remplis TOUS les
    `{{…}}`, garde le TOC fixe. Renseigne les quatre lignes de règles (budget total, chips, fiche, revue).
-   `s-nice` finit avec ≥ 5 idées adjacentes NON incluses ; un must-have va dans les lots. `s-flotte` reste
-   commentée pour un plan solo.
+   `s-nice` finit avec ≥ 5 idées adjacentes NON incluses ; un must-have va dans les lots. Plan solo : supprime
+   `s-flotte` et sa ligne de TOC.
 4. **Bloc Intention** : le pourquoi en 3-5 phrases, discriminant (pas une paraphrase du titre).
 5. **Découpe en lots**, les plus sûrs d'abord, chacun avec estimation en heures, fichiers, agent, vérification,
    DONE, ligne « Commit du lot ». Un mécanisme central non trivial se spécifie en invariants testables.

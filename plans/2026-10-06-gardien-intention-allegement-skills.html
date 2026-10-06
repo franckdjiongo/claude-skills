@@ -77,7 +77,7 @@
     <h3>Les règles dures à porter dans les skills</h3>
     <table>
       <tr><th>Code</th><th>Règle</th></tr>
-      <tr><td>A1</td><td>Budget total par chantier : code + tests + scripts. Cible ≤ 500 lignes ajoutées, plafond 1 000 ; au-delà, découper. Les suppressions et fichiers générés ne comptent pas. Ratio tests/code &gt; 2 : justification ; &gt; 4 : découpage ou accord humain.</td></tr>
+      <tr><td>A1</td><td>Budget total par chantier : code + tests + scripts. Cible ≤ 500 lignes ajoutées, plafond 1 000 ; au-delà, découper. Les suppressions et fichiers générés ne comptent pas. Ratio tests/code (dès 50 lignes de code) &gt; 2 : justification ; &gt; 4 : découpage ou accord humain.</td></tr>
       <tr><td>A2</td><td>Chaque plan déclare <code>Chips : autorisés</code> ou <code>Chips : interdits</code>. Chaque remarque de revue reçoit une décision : CORRIGER (P1, P2 qui servent l'intention), CHIP (si autorisés), NE PAS CORRIGER (avec une ligne de raison), INVALIDE. Jamais « tout corriger, y compris les mineurs ».</td></tr>
       <tr><td>A3</td><td>2 rounds de revue au plus, non contournable par un plan. Round 2 = relecture du delta seulement. Après, le chantier TERMINE : commit, push, PR si la revue a convergé ; sinon corps de PR (remarques ouvertes) dans le rapport, l'humain ouvre la PR (le hook bloque une PR sans sentinelle, même brouillon). Le run ne s'arrête jamais pour attendre.</td></tr>
       <tr><td>A4</td><td>Tester ce que l'utilisateur voit, pas les internes. Preuve par exécution réelle quand elle est possible (dry-run, sandbox, test de l'app en local comme le ferait l'humain) avant d'ajouter des tests simulés.</td></tr>

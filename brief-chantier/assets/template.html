@@ -108,7 +108,7 @@
     <p>{{INTENTION_3_A_5_PHRASES_LE_POURQUOI_PROFOND}}</p>
   </div>
   <div class="callout"><div class="co-title">Contrat d'intention — exécutant, lis ceci d'abord</div>
-    <p>Avant toute action : restitue l'intention ci-dessus en 1-2 phrases à toi. Si ta restitution contredit ce bloc, ARRÊTE et pose la question au hub workstation (<code>cd ~/Desktop/my-projets/workstation && bun run convo create {{SLUG_PROJET}} -</code>) au lieu d'exécuter de travers. Un run qui a mal compris le pourquoi produit du travail à défaire.</p>
+    <p>Avant toute action : restitue l'intention ci-dessus en 1-2 phrases à toi. Si ta restitution contredit ce bloc, ARRÊTE et pose la question au hub workstation (<code>bun run --cwd ~/Desktop/my-projets/workstation convo create {{SLUG_PROJET}} -</code>) au lieu d'exécuter de travers. Un run qui a mal compris le pourquoi produit du travail à défaire.</p>
   </div>
 </section>
 
@@ -222,7 +222,7 @@
   <div class="sec-head"><span class="sec-num">04</span><h2>Vérification de fin de run</h2></div>
   <pre class="cmd">{{COMMANDES_GLOBALES_FIN_DE_RUN}}</pre>
   <ul class="list">
-    <li>{{VERIF_UI_CLAIR_SOMBRE_SI_APPLICABLE}} — lance le dev server du repo CIBLE en Bash (<code>bun run dev</code> dans le repo du plan) ; n'utilise pas les outils de prévisualisation du harnais de l'agent (ex. <code>preview_*</code> sous Claude Code), ils sont liés à la racine de la session et démarreraient le mauvais serveur.</li>
+    <li>{{VERIF_UI_CLAIR_SOMBRE_SI_APPLICABLE}} — si le chantier touche une UI, lance le dev server du repo CIBLE en Bash (son script de dev, dans le repo du plan) ; n'utilise pas les outils de prévisualisation du harnais de l'agent (ex. <code>preview_*</code> sous Claude Code), ils sont liés à la racine de la session et démarreraient le mauvais serveur.</li>
     <li><strong>Hygiène machine</strong> : arrête tout serveur dev lancé pendant le run ; aucun worker orphelin (vitest/esbuild/vite) ne survit au run.</li>
     <li><strong>Rapport honnête</strong> : lots faits avec leurs commits, verdict exact des commandes (un test rouge se montre, il ne se résume pas en « quelques soucis »).</li>
   </ul>
@@ -237,7 +237,7 @@
   <p class="muted">Distinction unique avant d'arrêter : un échec de CODE (causé par les modifications du chantier) = arrêt immédiat ci-dessous ; un échec d'INFRA pré-existant (accès refusé, auth expirée, prompt interactif impossible — reproductible à l'identique sans les modifications du chantier) = chip + terminer les vérifications restantes + rapport honnête qui nomme l'échec verbatim. Dans le doute : échec de code. Exception : un échec causé SEULEMENT par des doublures de test qui ne fournissent pas un nouveau membre relève de la classe pré-autorisée du §03 — une seule passe de réparation, puis la vérification est relancée ; si elle reste rouge, quelle qu'en soit la cause : arrêt immédiat ci-dessous, diff laissé en l'état.</p>
   <ol class="list">
     <li>Arrête le run au lot en échec. Ne commit pas le lot raté ; laisse les modifications non commitées (le diff est le diagnostic).</li>
-    <li>Ouvre un chip : <code>spawn_task</code> (Claude Code) ou <code>chip_create</code> (Codex) si disponible, sinon <code>cd ~/Desktop/my-projets/workstation && echo '&lt;JSON&gt;' | bun run chips add -</code> avec <code>{"title","prompt","tldr","cwd"}</code> — le prompt contient : chemin du plan, lot en échec, commande, extrait d'erreur, état laissé, comment reprendre. Si les chips sont interdits : consigne l'échec dans le rapport à la place.</li>
+    <li>Ouvre un chip : <code>spawn_task</code> (Claude Code) ou <code>chip_create</code> (Codex) si disponible, sinon <code>echo '&lt;JSON&gt;' | bun run --cwd ~/Desktop/my-projets/workstation chips add -</code> avec <code>{"title","prompt","tldr","cwd"}</code> — le prompt contient : chemin du plan, lot en échec, commande, extrait d'erreur, état laissé, comment reprendre. Si les chips sont interdits : consigne l'échec dans le rapport à la place.</li>
     <li>Note l'échec dans la conversation hub du plan si elle existe, puis termine proprement (serveurs arrêtés, rapport honnête).</li>
   </ol>
 </section>
