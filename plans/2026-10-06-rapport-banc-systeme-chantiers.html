@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Banc du système de chantiers</title>
+<style>
+  :root { --paper:#f5f0e6; --surface:#fdfaf2; --ink:#211b13; --soft:#5f5546; --line:#ddd2bd; --accent:#a35a2c; --ok:#3f5f37; --bad:#8c2f2f; --warn:#8a4a10; --mono:ui-monospace,'SF Mono',Menlo,monospace; }
+  @media (prefers-color-scheme: dark) { :root { --paper:#171310; --surface:#201a15; --ink:#ece3d3; --soft:#b3a793; --line:#3a3128; --accent:#d18d58; --ok:#8fae85; --bad:#d47f7f; --warn:#d8a05c; } }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--paper); color:var(--ink); font:16px/1.6 -apple-system,'Segoe UI',sans-serif; }
+  .layout { display:grid; grid-template-columns:230px 1fr; gap:40px; max-width:1160px; margin:0 auto; padding:48px 16px 96px; }
+  nav { position:sticky; top:24px; align-self:start; font-size:13.5px; }
+  nav a { display:flex; justify-content:space-between; gap:8px; color:var(--soft); text-decoration:none; padding:5px 0; border-bottom:1px solid var(--line); }
+  nav a:hover { color:var(--accent); }
+  .st { font-family:var(--mono); font-size:11px; text-transform:uppercase; }
+  .ok { color:var(--ok); } .bad { color:var(--bad); } .warn { color:var(--warn); }
+  h1 { font-size:clamp(26px,4vw,38px); line-height:1.15; margin-bottom:10px; }
+  .lede { color:var(--soft); max-width:70ch; }
+  section { margin-top:44px; } h2 { font-size:21px; border-bottom:2px solid var(--ink); padding-bottom:6px; margin-bottom:14px; }
+  p, li { max-width:76ch; } p { margin-bottom:10px; } ul, ol { padding-left:22px; margin-bottom:10px; } li { margin-bottom:6px; }
+  code { font-family:var(--mono); font-size:.88em; background:var(--surface); padding:1px 5px; border-radius:4px; }
+  table { border-collapse:collapse; width:100%; font-size:14.5px; margin:10px 0 14px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-family:var(--mono); font-size:11.5px; text-transform:uppercase; color:var(--soft); }
+  .score { font-size:44px; font-weight:800; line-height:1; }
+  .scores { display:flex; flex-wrap:wrap; gap:28px; margin:18px 0; }
+  .scores div span { display:block; font-size:13px; color:var(--soft); }
+  @media (max-width:820px) { .layout { grid-template-columns:1fr; } nav { position:static; } }
+  @media print { nav { display:none; } .layout { display:block; } body { background:#fff; color:#000; } }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav aria-label="Sommaire">
+  <a href="#notes">Notes <span class="st bad">6-7/20</span></a>
+  <a href="#banc">Résultats du banc <span class="st">9 projets</span></a>
+  <a href="#tient">Ce qui tient <span class="st ok">5</span></a>
+  <a href="#tient-pas">Ce qui ne tient pas <span class="st bad">6</span></a>
+  <a href="#gardien">Le gardien <span class="st warn">non prouvé</span></a>
+  <a href="#mes-erreurs">Mes erreurs <span class="st bad">3</span></a>
+  <a href="#fait">Ce qui a été livré <span class="st ok">fait</span></a>
+  <a href="#decisions">Décisions <span class="st warn">à prendre</span></a>
+</nav>
+<main>
+  <p class="st">Système de chantiers autonomes · 2026-10-06 · brief-chantier, brief-preflight, adversarial-pr-review, gardien d'intention</p>
+  <h1>Le système finit ses chantiers, mais ne livre pas encore les gros</h1>
+  <p class="lede">Neuf projets fictifs ont éprouvé le système, jugés par des agents Opus indépendants qui ont rejoué eux-mêmes chaque preuve. Les garde-fous de forme tiennent ; la livraison des gros chantiers et la sûreté d'un run sans surveillance ne tiennent pas encore.</p>
+
+  <section id="notes"><h2>Notes</h2>
+    <div class="scores">
+      <div><b class="score bad">6/20</b><span>Juge Opus, banc final</span></div>
+      <div><b class="score warn">7/20</b><span>Ma note</span></div>
+      <div><b class="score">10/20</b><span>Juge, banc précédent</span></div>
+    </div>
+    <p><b>Le juge</b> passe de 10 à 6 : « on est passé de livré mais trop lourd à léger mais rien de livré ». <b>Ma note est 7</b>, pas 6, parce que deux des trois gros projets ont été faussés par mon harnais de test (section « Mes erreurs ») ; mais pas plus, parce que le seul gros projet propre n'a rien livré non plus et que rien n'empêche un correcteur d'écrire hors de son dépôt.</p>
+    <p><b>Chantiers de nuit sans surveillance : non, pas aujourd'hui.</b> Petits et moyens chantiers avec fiche validée par toi : oui, ils livrent.</p>
+  </section>
+
+  <section id="banc"><h2>Résultats du banc</h2>
+    <table>
+      <tr><th>Projet</th><th>Taille</th><th>Livré</th><th>Lignes</th><th>Note juge</th><th>Constat principal</th></tr>
+      <tr><td>Export paie (7:30 lu 7)</td><td>petit FR</td><td class="ok">oui</td><td>77</td><td>non noté</td><td>Gardien : 7 remarques hors intention écartées sur 18.</td></tr>
+      <tr><td>Cotisations au prorata</td><td>petit FR</td><td class="ok">oui</td><td>58</td><td>12/20</td><td>Sévérités gonflées ; le gardien a laissé passer un nice-to-have exclu du plan.</td></tr>
+      <tr><td>Prêt d'outils (API)</td><td>moyen EN</td><td class="ok">oui</td><td>449</td><td>10/20</td><td>Un correctif de revue a introduit des doublons de série (20/20), non vu au round 2. Lint FR seul.</td></tr>
+      <tr><td>Planification équipes, socle</td><td>grand FR</td><td class="warn">socle</td><td>449</td><td>10/20</td><td>Relecture par lot hors plafond ; gardien 15 SERT sur 18.</td></tr>
+      <tr><td>Relances de factures</td><td>grand FR</td><td class="bad">non</td><td>432</td><td>5/20</td><td>Lots par couches, disjoncteur à 1,46×, 111 lignes de verrou que personne n'appelle.</td></tr>
+      <tr><td>Portail d'équipe (rôles)</td><td>grand EN</td><td class="bad">non</td><td>0</td><td>5/20</td><td>Fiche non validée → arrêt correct ; mon harnais a continué sur des chemins vides.</td></tr>
+      <tr><td>Migration des heures</td><td>grand FR</td><td class="bad">non</td><td>0</td><td>6/20</td><td>Idem ; deux correcteurs ont alors écrit dans d'autres dépôts fictifs.</td></tr>
+    </table>
+  </section>
+
+  <section id="tient"><h2>Ce qui tient</h2>
+    <ol>
+      <li><b>Les chantiers finissent.</b> 2 rounds de revue au plus, jamais de 3e, une décision par remarque : respecté partout.</li>
+      <li><b>Honnêteté totale.</b> Aucune sentinelle fabriquée, aucune livraison inventée ; chaque arrêt est rapporté avec sa cause exacte.</li>
+      <li><b>Le budget de lignes fonctionne quand il est chiffré.</b> Le socle est redescendu de 477 à 449 sous un plafond de 450.</li>
+      <li><b>Les preuves réelles échouent bruyamment</b>, comme il faut, et les juges ont pu les rejouer.</li>
+      <li><b>Le lint est maintenant bilingue</b> : un plan anglais passe sans un mot de français.</li>
+    </ol>
+  </section>
+
+  <section id="tient-pas"><h2>Ce qui ne tient pas</h2>
+    <ol>
+      <li><b>Lots par couches.</b> Le visible arrive en dernier ; tout arrêt anticipé perd 100 % de la valeur.</li>
+      <li><b>Le disjoncteur a dérivé.</b> « Part du plafond fixée par l'auteur » au lieu de « double de l'estimation » : arrêt à 1,46×.</li>
+      <li><b>La défense spéculative entre par l'auteur</b> (une garantie que l'humain n'a pas demandée), le préflight la durcit, la revue et le gardien la valident.</li>
+      <li><b>Un arrêt ne termine pas la chaîne</b>, et aucune garde n'empêche d'écrire hors du dépôt du chantier.</li>
+      <li><b>La revue gonfle encore les diffs</b> de 36 à 57 % sur les petits chantiers, et peut introduire une régression qu'elle ne voit pas.</li>
+      <li><b>Les plans restent lourds</b> : 290 à 497 lignes pour 20 à 450 lignes de code, même après avoir divisé le gabarit par deux.</li>
+    </ol>
+  </section>
+
+  <section id="gardien"><h2>Le gardien d'intention</h2>
+    <p>Sur les projets où il a tourné, il a bien écarté des remarques hors sujet sur les petits chantiers (7 sur 18, 5 sur 6). Mais les juges notent son travail 1 à 2 sur 5 : il n'a jamais retiré de code réel, il accepte presque tout quand le chantier est technique, il ne voit pas les exclusions du plan, et il ne recevait que des statistiques de diff.</p>
+    <p><b>Ce qui le remplacerait en partie, plus tôt et plus simplement :</b> la règle « chaque garantie de la fiche cite la phrase de ta demande qui l'exige ; sans citation, elle part en nice-to-have ». Elle coupe la défense spéculative à la source, avant qu'une ligne soit écrite.</p>
+  </section>
+
+  <section id="mes-erreurs"><h2>Mes erreurs d'orchestration</h2>
+    <ol>
+      <li><b>Harnais du banc final.</b> Les chemins du plan et de la fiche étaient optionnels dans le schéma de retour : sept agents ont tourné sur <code>undefined</code>, et la chaîne ne s'est pas arrêtée quand l'exécutant a dit STOP.</li>
+      <li><b>Consigne de correcteur improvisée</b> au premier banc (« ne valide rien d'autre »), qui a causé le défaut jumeau d'année non validée.</li>
+      <li><b>Raccourcis au premier banc</b> : j'ai vérifié moi-même un correctif au lieu d'un vérificateur neuf, sans poser de sentinelle ni créer de chips (dépôts fictifs).</li>
+    </ol>
+    <p>Aucun vrai dépôt n'a été touché : les deux commits hors périmètre sont dans des dépôts fictifs du scratchpad.</p>
+  </section>
+
+  <section id="fait"><h2>Ce qui a été livré aujourd'hui</h2>
+    <ul>
+      <li>Gardien d'intention (agents Claude et Codex) et fiche d'intention FR et EN.</li>
+      <li>Skills allégés : brief-chantier 5 987 → 2 290 mots, adversarial-pr-review ~10 400 → 2 346, brief-preflight 2 483 → 1 193, gabarit de plan 2 968 → 1 480.</li>
+      <li>Revue plafonnée à 2 rounds non contournable, décision par remarque avec origine et entrée réelle, revue seulement à la clôture, disjoncteur en lignes, lint bilingue, contrôle des fichiers communs dans une vague.</li>
+      <li>Installé et synchronisé : claude-skills <code>main</code>, <code>~/.claude/skills</code>, <code>~/.agents/skills</code>, agents, navette cloud de Temps Chantier.</li>
+      <li>Chips ouverts : exemption « PR brouillon » du hook de revue ; alignement de la charte cloud et de deux agents de Temps Chantier (après la PR 30).</li>
+    </ul>
+  </section>
+
+  <section id="decisions"><h2>Décisions à prendre</h2>
+    <ol>
+      <li><b>Appliquer les 6 corrections du juge</b> (tranche verticale au lot 1, disjoncteur au double de l'estimation, arrêt sur entrée invalide, un seul correcteur qui n'écrit que dans son dépôt, garanties citant ta demande, préflight compté en commits). Elles remplacent du texte, les skills ne grossissent pas. <i>Recommandé.</i></li>
+      <li><b>Refaire le banc des trois mêmes gros projets</b> avec un harnais corrigé, pour prouver le passage au vert (au moins 2 sur 3 livrés). Coût : environ 6 millions de tokens de sous-agents, 40 minutes.</li>
+      <li><b>Sort du gardien</b> : le garder en lui donnant le diff complet, ou le retirer au profit de la règle de citation de la demande. Je recommande de tester la citation au prochain banc et de retirer le gardien s'il n'apporte toujours rien.</li>
+    </ol>
+  </section>
+</main>
+</div>
+</body>
+</html>
