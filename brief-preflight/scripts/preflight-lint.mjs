@@ -330,9 +330,9 @@ if (flotte.present) {
       'Classe pré-autorisée des doublures de test : section des lots (id="s-lots") introuvable, check 10 impossible.',
     );
   } else {
-    // Fin = la prochaine section de PREMIER niveau (elles portent un id) : une
-    // <section> imbriquée sans id ne coupe pas la recherche.
-    const nextM = /<section\b[^>]*\bid=/i.exec(rawLive.slice(lotsIdx + 1));
+    // Fin = la prochaine section de PREMIER niveau (id="s-…" du gabarit) : une
+    // <section> imbriquée ne coupe pas la recherche.
+    const nextM = /<section\b[^>]*?\sid="s-/i.exec(rawLive.slice(lotsIdx + 1));
     const lotsSec = rawLive.slice(lotsIdx, nextM ? lotsIdx + 1 + nextM.index : undefined);
     const m = lotsSec.match(/<p\b[^>]*class="[^"]*\bclasse-doublures\b[^"]*"[^>]*>([\s\S]*?)<\/p>/i);
     if (!m) {
