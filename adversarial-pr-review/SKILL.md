@@ -620,8 +620,8 @@ Never record it for a review that did not converge.
 reviewer outside this engine) counts as a round only when all of these hold:
 
 - it reviewed the whole diff against the PR base, and you cite its output file and the HEAD sha it
-  ran at; the HEAD you record is that sha, or descends from it only by fix commits covered by the
-  cap exception below;
+  ran at; the HEAD you record is that sha, or descends from it only by commits covered by the cap
+  exception below;
 - you read its full output, not a summary of it;
 - every finding it raised got a disposition: fixed with its own verifier, refuted by a fresh
   verifier agent with its `checksPerformed` (your own check refutes only a P3), or a P3 converted
@@ -654,8 +654,10 @@ re-record without a new full round only when `git diff <last-reviewed-sha>..HEAD
 but (a) fixes of confirmed findings from that round, or of findings raised after it (a bot's, in
 Mode B), each passing its own fresh verifier, (b) quality gate repairs that change no reviewed
 behavior, and (c) a merge of the base that needed no conflict edits (`git show --remerge-diff
-<merge>` prints no hunk). One more fresh verifier classifies every hunk of that range into exactly
-one of (a), (b) or (c), with `checksPerformed`, and lists the lines each (b) repair touches. Any
+<merge>` prints no hunk); the base-side hunks such a merge brings in count as (c). One more fresh
+verifier runs `git show --remerge-diff` on each merge of the range and quotes its output,
+classifies every hunk of that range into exactly one of (a), (b) or (c), with `checksPerformed`,
+and lists the lines each (b) repair touches. Any
 hunk it cannot classify (a new feature hunk, a conflict resolution, a "repair" that changes
 reviewed behavior) is not covered: the review has not converged for it, so report it. Do **not**
 write the sentinel to bypass the review, and NEVER write it into a `.git` that is not the reviewed
