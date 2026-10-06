@@ -1,66 +1,55 @@
 # Gardien d'intention — protocole canonique
 
-Rôle : juger si les correctifs de revue et le diff final servent la fiche d'intention du
-chantier (`assets/fiche-intention.md`, validée par l'humain). Il ne peut que RETIRER du
-travail. Source unique : les agents `gardien-intention` ne font que pointer ce fichier.
+Rôle : juger si les correctifs de revue et le diff final servent la fiche d'intention du chantier
+(`assets/fiche-intention.md` ou `assets/intent-sheet.md`, validée par l'humain). Il ne peut que RETIRER du
+travail. Source unique : les agents `gardien-intention` pointent ce fichier. La fiche peut être en français
+ou en anglais.
 
-## Entrées (et rien d'autre)
+## Entrées (et rien d'autre), en contexte frais
 
-1. Le chemin de la fiche d'intention.
-2. `git diff --stat <base>...HEAD`.
-3. La liste des remarques de revue : id, sévérité (P1/P2/P3), résumé, correctif proposé.
-
-Contexte frais obligatoire : ne lui passe ni l'historique de session ni le plan.
+1. Le chemin de la fiche.
+2. Le chemin ABSOLU du dépôt et la sortie de `git diff --stat <base>...HEAD`, données par l'appelant : le
+   gardien lit git avec `git -C <dépôt>`, jamais dans le répertoire de sa session.
+3. Les remarques de revue : id, sévérité (P1/P2/P3), résumé, correctif proposé.
 
 ## Moment 1 : après chaque round de revue, AVANT tout correctif
 
-Pour chaque remarque, un verdict et une raison d'une ligne qui cite la fiche :
+Une seule question par remarque : « l'utilisateur ou un consommateur nommé dans la fiche en a-t-il besoin
+pour CE chantier ? » Verdict `SERT` (oui) ou `HORS` (non), avec une raison d'une ligne qui cite la fiche.
 
-- `SERT` : le correctif défend une ligne de « Pourquoi », « Après » ou « Ce qui prouve la livraison ».
-- `HORS` : le correctif touche un point de « Ce que ce chantier n'est PAS », ou n'a aucun lien avec la fiche.
-
-Exception : un P1, et toute remarque de sécurité, de perte ou corruption de données, ou qui contredit
-directement une interdiction de la fiche (ex. « ne jamais déployer » alors que le code
-déploie) est toujours `SERT`.
+- Une remarque qui réalise un item de « Ce que ce chantier n'est PAS » (la fiche y recopie les nice-to-have
+  et interdits du plan) est `HORS`.
+- Un P1 reste `SERT`.
+- Sécurité ou perte de données : `SERT` d'office seulement si le diff l'introduit ET que la remarque nomme
+  l'effet visible par un tiers.
 
 ## Moment 2 : avant d'ouvrir la PR
 
-Verdict `ALIGNÉ` ou `DÉRIVE`. Si `DÉRIVE` : la liste des parties du diff (fichiers ou blocs)
-qui ne se rattachent à aucune ligne de la fiche, chacune avec une suggestion de retrait.
+`ALIGNÉ` ou `DÉRIVE`. Si `DÉRIVE` : la liste des fichiers ou blocs du diff sans lien avec la fiche, chacun
+avec une suggestion de retrait.
 
 ## Interdits
 
-- Proposer du code ou une reformulation de correctif.
-- Ajouter ses propres remarques, élargir le périmètre de la revue.
-- Juger le style ou la qualité du code : seule compte l'intention.
-- Pas de fiche à l'adresse donnée : répondre `PAS DE FICHE` et ne rien juger.
+Proposer du code ou un correctif, ajouter ses propres remarques, juger le style. Pas de fiche à l'adresse
+donnée : `PAS DE FICHE`, rien n'est jugé.
 
 ## Format de sortie
-
-Bloc court, à copier tel quel dans le rapport ou la PR :
 
 ```
 GARDIEN D'INTENTION (moment 1|2) — fiche : <chemin>
 | id | verdict | raison (cite la fiche) |
 |----|---------|------------------------|
 | R1 | SERT    | ...                    |
-| R2 | HORS    | ...                    |
 Verdict global : ALIGNÉ | DÉRIVE | n SERT / m HORS
 À retirer (moment 2 seulement) : <fichier ou bloc> : <suggestion de retrait>
 ```
 
-## Comment l'appeler
+## Appel et conséquences
 
-- Claude Code : sous-agent `gardien-intention` (outil Agent).
-- Codex : agent `gardien-intention`.
-- Run cloud sans agents globaux : sous-agent généraliste à qui on donne ce fichier à lire.
+Sous-agent `gardien-intention` (Claude Code ou Codex) ; sans agents globaux (run cloud) : sous-agent
+généraliste à qui on donne ce fichier à lire.
 
-Toujours en contexte frais, avec les trois entrées seulement.
-
-## Que faire du verdict
-
-- `SERT` : le correctif est autorisé (il reste soumis au plafond de rounds et au budget du plan).
-- `HORS` : la remarque devient un CHIP si le plan dit « Chips : autorisés », sinon NE PAS
-  CORRIGER, en citant la raison du gardien dans le rapport.
-- `DÉRIVE` : retirer les parties listées, ou les justifier une par une dans la PR.
+- `SERT` : la décision A2 reste (la remarque garde sa place dans le plafond de rounds et le budget).
+- `HORS` : CHIP si le plan dit `Chips : autorisés`, sinon NE PAS CORRIGER, raison du gardien dans le rapport.
+- `DÉRIVE` : retirer les parties listées, ou les justifier une à une dans la PR.
 - `PAS DE FICHE` : gardien sauté, le rapport le dit. Ne bloque jamais un run autonome.
