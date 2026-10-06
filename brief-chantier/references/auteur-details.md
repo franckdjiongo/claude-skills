@@ -34,7 +34,7 @@ Complète les étapes 0 à 10 de `SKILL.md` § Écrire un plan. Rien ici n'assou
   la langue d'une voix dans une app bilingue) va dans les LOTS, jamais dans `s-nice`. L'exécutant
   n'implémente rien de `s-nice` : l'utilisateur arbitre à l'approbation (lots ou chips).
 - Les lignes de règles du gabarit sont lues par le lint (check 11) : `Budget total`, `Chips`,
-  `Fiche d'intention`, `Revue`. Aucune formule du type « jusqu'à convergence » ni « y compris les mineurs ».
+  `Fiche d'intention` (la ligne `Revue` est informative). Aucune formule du type « jusqu'à convergence » ni « y compris les mineurs ».
 
 ## Étape 5 — Lots
 

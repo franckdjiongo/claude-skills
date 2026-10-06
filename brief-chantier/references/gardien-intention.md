@@ -19,7 +19,7 @@ Pour chaque remarque, un verdict et une raison d'une ligne qui cite la fiche :
 - `SERT` : le correctif défend une ligne de « Pourquoi », « Après » ou « Ce qui prouve la livraison ».
 - `HORS` : le correctif touche un point de « Ce que ce chantier n'est PAS », ou n'a aucun lien avec la fiche.
 
-Exception : une remarque de sécurité, de perte ou corruption de données, ou qui contredit
+Exception : un P1, et toute remarque de sécurité, de perte ou corruption de données, ou qui contredit
 directement une interdiction de la fiche (ex. « ne jamais déployer » alors que le code
 déploie) est toujours `SERT`.
 
@@ -63,4 +63,4 @@ Toujours en contexte frais, avec les trois entrées seulement.
 - `HORS` : la remarque devient un CHIP si le plan dit « Chips : autorisés », sinon NE PAS
   CORRIGER, en citant la raison du gardien dans le rapport.
 - `DÉRIVE` : retirer les parties listées, ou les justifier une par une dans la PR.
-- `PAS DE FICHE` : écrire la fiche avant de continuer le chantier.
+- `PAS DE FICHE` : gardien sauté, le rapport le dit. Ne bloque jamais un run autonome.

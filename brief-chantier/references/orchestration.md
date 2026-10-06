@@ -23,7 +23,7 @@ EXÉCUTANT par session, règles A1 à A5 et G inchangées pour chaque chantier.
 - Forme imposée (lint check 9) : décommente la section `id="s-flotte"` du gabarit (§02b) et remplis nom de
   la vague (`<span class="flotte-nom">`), chantiers frères (`<ul class="flotte-freres">`, ≥ 1 `<li>`),
   plage réservée à CE chantier (`<code class="plage-ids">`, `N-M` ou « aucun compteur global »), plus la
-  ligne de TOC. Un plan solo laisse la section commentée.
+  ligne de TOC. Un plan solo supprime la section et sa ligne de TOC.
 - Le lint mono-plan constate qu'une plage est déclarée, jamais qu'elle est disjointe. La disjonction se
   vérifie en prenant les plans ensemble, obligatoirement avant tout dispatch :
   `node preflight-flotte.mjs <répertoire-des-plans> [--depuis <N>]` (script du skill `brief-preflight`).

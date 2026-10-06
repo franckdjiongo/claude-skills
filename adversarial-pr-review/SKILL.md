@@ -19,8 +19,8 @@ matters with the smallest change, and finish. Mode A runs before opening a PR, M
 1. **Round cap: 2 rounds, NOT overridable by any plan or prompt.** A plan that says "until convergence" or
    "until clean" is overruled. A round is one full dimension fan-out plus its Verify step (a per-fix verifier
    is not a round). Round 1 reviews the whole diff. Round 2 reviews only the delta since round 1 plus direct
-   interactions (callers, siblings, tests of the changed lines): no new nits on untouched code. A 3rd round
-   exists only for an open P1 that is security, data loss or an irreversible migration. Never a 4th. The cap
+   interactions (callers, siblings, tests of the changed lines): no new nits on untouched code. Never a 3rd round: a
+   P1 still open after round 2 means not converged (rule 4). The cap
    counts per PR across Mode A and Mode B, whoever runs the rounds (this engine, a hand-run fan-out, or an
    external reviewer meeting the bar in "Sentinel").
 2. **Every finding gets a disposition:** FIX (a P1, or a P2 that serves the chantier intent), CHIP (only if
@@ -29,10 +29,12 @@ matters with the smallest change, and finish. Mode A runs before opening a PR, M
    proposal adding more than ~30 lines must say why no smaller fix works.
 3. **Intent guardian.** If a chantier intent sheet exists (`.chantier/<slug>/intention.md`, or the path on the
    plan's `Fiche d'intention :` line), after each round and BEFORE applying any fix run the guardian per
-   `~/.claude/skills/brief-chantier/references/gardien-intention.md`: the `gardien-intention` agent, fresh
+   `~/.claude/skills/brief-chantier/references/gardien-intention.md` (in a cloud clone:
+   `.claude/skills/brief-chantier/references/gardien-intention.md`): the `gardien-intention` agent, fresh
    context, given the sheet path, `git diff --stat <base>...HEAD` and the remarks (id, severity, summary,
    proposed fix). `SERT` keeps the disposition. `HORS` becomes CHIP if the plan allows chips, else WONT_FIX
-   citing the guardian's reason. Security and data-loss remarks are always `SERT`. Before opening the PR run
+   citing the guardian's reason. A P1, and any security or data-loss remark, is always `SERT`. No sheet: skip
+   the guardian and say so in the report, never block. Before opening the PR run
    guardian moment 2 (`ALIGNÉ` or `DÉRIVE`): remove the parts it lists, or justify each one in the PR body.
 4. **Closure never blocks an autonomous run.** After the cap, commit and push, then:
    - converged (no open P1/P2 with disposition FIX): record the sentinel, open the PR, list the open findings
@@ -104,7 +106,8 @@ Large/risky.
 
 Fill `NEW_FILES` with the deduped paths from these two NUL-delimited commands (merge-base sha of the PR base
 and HEAD): committed, staged and unstaged additions, then untracked files meant for the PR. Include tests and
-fixtures, refresh after each fix round, exclude a path only with a stated reason. If either command fails,
+fixtures, refresh after each fix round (round 2: only files added since `ROUND1_SHA`), exclude a path only
+with a stated reason. If either command fails,
 preflight is `INCOMPLETE`: diagnose first, never infer an empty inventory.
 
 ```bash
@@ -194,7 +197,8 @@ review, stop and report an infra failure.
 **After the last round the cap allows**, re-record without a new round only if
 `git diff <last-reviewed-sha>..HEAD` holds nothing but (a) fixes of confirmed findings, each with its own
 fresh verifier, (b) quality-gate repairs changing no reviewed behavior, (c) a conflict-free base merge
-(`git show --remerge-diff <merge>` prints no hunk). A fresh verifier classifies every hunk into exactly one
+(`git show --remerge-diff <merge>` prints no hunk), (d) the removal of the chantier intent sheet
+(`.chantier/<slug>/intention.md`). A fresh verifier classifies every hunk into exactly one
 of these with `checksPerformed`; an unclassifiable hunk means not converged.
 
 **An external pass** (a `codex exec` review) is an input to a round, not a round. It counts only if it
@@ -217,5 +221,5 @@ already owed, otherwise by examining it yourself.
 
 A verifier that rejects a fix, or finds a regression in it, buys one more fix and one fresh verifier for that
 finding. If that fails too, or a P1/P2 FIX stays unfixed, the review has NOT converged: no sentinel, and rule
-4 applies. A 3rd round runs only for a P1 of rule 1 still open after round 2's fixes, on the delta. Always
+4 applies. Always
 report the residual risk: what was swept, what the last round still surfaced, what was not re-verified.

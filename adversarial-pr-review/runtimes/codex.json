@@ -7,8 +7,8 @@
       "count": 1
     },
     {
-      "from": "~/.claude/skills/brief-chantier/references/gardien-intention.md",
-      "to": "~/.agents/skills/brief-chantier/references/gardien-intention.md",
+      "from": "`~/.claude/skills/brief-chantier/references/gardien-intention.md` (in a cloud clone:\n   `.claude/skills/brief-chantier/references/gardien-intention.md`)",
+      "to": "`~/.agents/skills/brief-chantier/references/gardien-intention.md`",
       "count": 1
     },
     {

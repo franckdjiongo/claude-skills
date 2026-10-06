@@ -123,8 +123,9 @@ Chaque étape est un gate.
    1. Vérifications globales du plan. UI : navigateur clair + sombre, serveur dev du repo CIBLE lancé en
       Bash (les outils `preview_*` du harnais sont liés à la racine de la session, pas au repo cible).
    2. Revue : skill `adversarial-pr-review` (Mode A), 2 rounds au plus, round 2 sur le delta. Après chaque
-      round, appelle le gardien (moment 1) AVANT tout correctif, puis applique A2 : `SERT` = CORRIGER ;
-      `HORS` = CHIP si autorisés, sinon NE PAS CORRIGER avec la raison du gardien.
+      round, si le plan référence une fiche, appelle le gardien (moment 1) AVANT tout correctif : `SERT`
+      = la décision A2 reste ; `HORS` = CHIP si autorisés, sinon NE PAS CORRIGER avec la raison du gardien.
+      Un P1 est toujours `SERT`. Sans fiche (plan ancien) : gardien sauté, le rapport le dit.
    3. Avant la PR : gardien moment 2 ; `DÉRIVE` = retire les parties listées ou justifie-les une à une.
    4. Dernier lot : `git rm` la fiche d'intention, commit `chantier(<slug>): lot N — Clôture…`. La sentinelle
       de revue se pose sur ce HEAD final, par le flow légitime du skill de revue, jamais à la main.
