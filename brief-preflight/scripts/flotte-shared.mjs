@@ -31,12 +31,12 @@ export const pickByClass = (scope, cls) => {
  * Formes acceptées :
  *   « DEFERRED 121-130 » → { optout:false, label:'DEFERRED', from:121, to:130 }
  *   « 121-130 »          → label '' (compteur non nommé)
- *   « aucun compteur global » → { optout:true }
+ *   « aucun compteur global » / « no global counter » → { optout:true }
  * Retourne null si la chaîne n'est ni une plage bornée ni l'opt-out.
  */
 export function parsePlage(raw) {
   if (!raw) return null;
-  if (/aucun compteur global/i.test(raw)) return { optout: true, raw };
+  if (/aucun compteur global|no global counter/i.test(raw)) return { optout: true, raw };
   const m = raw.match(/(\d+)\s*(?:-|–|—|\.\.|à|to)\s*(\d+)/);
   if (!m) return null;
   const label = raw
