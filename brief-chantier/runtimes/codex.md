@@ -43,7 +43,9 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
 <!-- slot:watchdog-tick -->
 1. **Tick périodique (30 min)** — la minuterie est le heartbeat de la session :
    `automation_update` avec `mode:"create"`, `kind:"heartbeat"`,
-   `destination:"thread"`, `rrule:"FREQ=MINUTELY;INTERVAL=30"`, armé tant qu'au
+   `name:"surveillance-<vague>"`, `status:"ACTIVE"`, `destination:"thread"`,
+   `rrule:"FREQ=MINUTELY;INTERVAL=30"` (à ne pas confondre avec le « Heartbeat »
+   de statut que chaque chantier envoie, Phase 3), armé tant qu'au
    moins un chantier n'a pas livré sa PR. Son `prompt` est un pointeur, pas une
    copie : « Relis `<repo-cible>/.worktrees/.surveillance-<vague>.md` et exécute
    le tick de surveillance ». Ce fichier est la seule source de la consigne
@@ -59,16 +61,23 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
    polling). À chaque tick, pour CHAQUE chantier : vérité disque du worktree
    (`git -C <worktree> log --oneline -1` + mtime des fichiers récents)
    comparée au dernier point connu, et état de l'agent (`list_agents`) s'il a
-   été lancé par toi. Un retour de `wait_agent` n'est pas un tick : hors tick,
-   ne refais la vérification disque que pour la vérification post-relance de
-   l'item 3 (≤ 10 min après une relance : `wait_agent` sur l'agent relancé avec
-   `timeout_ms: 600000`). Dès que tous les chantiers ont livré leur PR, ou à la
-   clôture du run, supprime le heartbeat (`automation_update` avec
-   `mode:"delete"` et son `id`) puis le fichier de surveillance.
+   été lancé par toi. Le heartbeat n'arrive que lorsque ton tour est terminé :
+   tant que tu attends tes propres agents dans une boucle `wait_agent`, c'est
+   elle qui porte le tick — `timeout_ms: 1800000` au plus, et un retour compte
+   comme tick si 30 min au moins se sont écoulées depuis la dernière ligne du
+   journal ; sinon ce n'est pas un tick, ne refais pas la vérification disque
+   (ce serait du polling), sauf la vérification post-relance de l'item 3
+   (≤ 10 min après une relance : `wait_agent` sur l'agent relancé avec
+   `timeout_ms: 600000`). Dès que tous les chantiers ont livré leur PR, la
+   session qui a créé le heartbeat le supprime (`automation_update` avec
+   `mode:"delete"` et `id` = l'`automationId` rendu à la création). Le fichier
+   de surveillance, lui, ne se supprime qu'au nettoyage de la Phase 4, APRÈS la
+   session review qui lit son journal.
 <!-- /slot:watchdog-tick -->
 <!-- slot:watchdog-relance -->
 2. **Lis l'état de l'agent avant de conclure** (`list_agents`, champ
-   `agent_status`) : `running` ou `pending_init` = vivant, même silencieux
+   `agent_status` ; `completed` et `errored` arrivent comme objets portant la
+   réponse ou l'erreur) : `running` ou `pending_init` = vivant, même silencieux
    (long `validate`, longue réflexion) — relance-le par `followup_task` (ou
    `send_message`) vers son `task_name` avec l'état exact vérifié sur disque ;
    `completed` = lis d'abord sa réponse finale, puis `followup_task` si le
