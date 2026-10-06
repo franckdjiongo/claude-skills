@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Banc trois projets</title>
+<style>
+  :root { --paper:#f5f0e6; --surface:#fdfaf2; --ink:#211b13; --soft:#5f5546; --line:#ddd2bd; --accent:#a35a2c; --ok:#3f5f37; --todo:#6b6255; --mono:ui-monospace,'SF Mono',Menlo,monospace; }
+  @media (prefers-color-scheme: dark) { :root { --paper:#171310; --surface:#201a15; --ink:#ece3d3; --soft:#b3a793; --line:#3a3128; --accent:#d18d58; --ok:#8fae85; --todo:#a99d8a; } }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--paper); color:var(--ink); font:16px/1.6 -apple-system,'Segoe UI',sans-serif; }
+  .layout { display:grid; grid-template-columns:220px 1fr; gap:40px; max-width:1120px; margin:0 auto; padding:48px 16px 96px; }
+  nav { position:sticky; top:24px; align-self:start; font-size:13.5px; }
+  nav a { display:flex; justify-content:space-between; gap:8px; color:var(--soft); text-decoration:none; padding:5px 0; border-bottom:1px solid var(--line); }
+  .st { font-family:var(--mono); font-size:11px; text-transform:uppercase; }
+  .st.todo { color:var(--todo); } .st.done { color:var(--ok); }
+  h1 { font-size:clamp(26px,4vw,36px); line-height:1.15; margin-bottom:10px; }
+  section { margin-top:40px; } h2 { font-size:20px; border-bottom:2px solid var(--ink); padding-bottom:6px; margin-bottom:14px; display:flex; justify-content:space-between; }
+  p, li { max-width:74ch; } p { margin-bottom:10px; } ul { padding-left:22px; } li { margin-bottom:6px; }
+  code { font-family:var(--mono); font-size:.88em; background:var(--surface); padding:1px 5px; border-radius:4px; }
+  table { border-collapse:collapse; width:100%; font-size:14px; margin:10px 0; } th, td { text-align:left; padding:7px 9px; border-bottom:1px solid var(--line); vertical-align:top; }
+  @media (max-width:820px) { .layout { grid-template-columns:1fr; } nav { position:static; } }
+  @media print { nav { display:none; } .layout { display:block; } body { background:#fff; color:#000; } }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav aria-label="Sommaire">
+  <a href="#s0">00 · Intention <span class="st done">ok</span></a>
+  <a href="#b1">B1 · Dépôts fictifs <span class="st todo">à faire</span></a>
+  <a href="#b2">B2 · Petit (FR) <span class="st todo">à faire</span></a>
+  <a href="#b3">B3 · Moyen (EN) <span class="st todo">à faire</span></a>
+  <a href="#b4">B4 · Grand (FR) <span class="st todo">à faire</span></a>
+  <a href="#b5">B5 · Correctifs skills <span class="st todo">à faire</span></a>
+  <a href="#b6">B6 · Synchronisation <span class="st todo">à faire</span></a>
+  <a href="#j">Journal <span class="st todo">vivant</span></a>
+</nav>
+<main>
+  <p class="st">claude-skills · feat/banc-trois-projets · 2026-10-06</p>
+  <h1>Banc d'essai : trois projets fictifs, petit, moyen et grand</h1>
+  <p>Plan de suivi de l'orchestrateur (reprise après compaction : relire <code>.chantier/intention.md</code>, ce plan, son journal). Uniquement des agents Sonnet. Dépôts fictifs dans le scratchpad de la session, sous <code>banc/</code>.</p>
+
+  <section id="s0"><h2>00 · Intention <span class="st done">ok</span></h2>
+    <p>Éprouver brief-chantier, brief-preflight, adversarial-pr-review et le gardien sur trois tailles de chantier, dont un en anglais, corriger ce que le banc révèle (dont le bilinguisme des contrôles déterministes), puis resynchroniser Claude Code, Codex, la navette cloud et la charte cloud de Temps Chantier.</p>
+  </section>
+
+  <section id="b1"><h2>B1 · Dépôts fictifs <span class="st todo">à faire</span></h2>
+    <table>
+      <tr><th>Taille</th><th>Langue</th><th>Projet</th><th>Demande</th></tr>
+      <tr><td>Petit</td><td>FR</td><td><code>cotisations</code> : CLI des cotisations annuelles d'une association</td><td>Un membre inscrit en cours d'année paie l'année entière : calculer au prorata des mois.</td></tr>
+      <tr><td>Moyen</td><td>EN</td><td><code>tool-crib</code> : petite API HTTP Node d'inventaire d'outils de chantier</td><td>Sortie et retour d'un outil avec qui le détient, liste des outils en retard.</td></tr>
+      <tr><td>Grand</td><td>FR</td><td><code>planif-equipes</code> : app web de planification des équipes sur les chantiers</td><td>Planning hebdomadaire avec détection des conflits (une personne sur deux chantiers), export CSV pour la paie, vue mobile. Doit dépasser le plafond A1 et être découpé.</td></tr>
+    </table>
+  </section>
+  <section id="b2"><h2>B2 · Petit (FR) <span class="st todo">à faire</span></h2><p>Auteur, lint, exécutant, revue 2 rounds avec gardien, clôture.</p></section>
+  <section id="b3"><h2>B3 · Moyen (EN) <span class="st todo">à faire</span></h2><p>Même chaîne, plan et fiche rédigés en anglais.</p></section>
+  <section id="b4"><h2>B4 · Grand (FR) <span class="st todo">à faire</span></h2><p>Auteur en rôle ORCHESTRATEUR : découpage en vague, lint de vague, exécution du premier chantier seulement.</p></section>
+  <section id="b5"><h2>B5 · Correctifs des skills <span class="st todo">à faire</span></h2><p>Corriger ce que B2 à B4 révèlent, bilinguisme des contrôles déterministes compris. Tests, <code>--check</code> Codex.</p></section>
+  <section id="b6"><h2>B6 · Synchronisation <span class="st todo">à faire</span></h2><p>Fusion dans <code>main</code>, push, installation <code>~/.claude/skills</code>, <code>~/.agents/skills</code>, agents, navette <code>cloud/generated-snapshot</code>, charte cloud de Temps Chantier ; diff vide contre le build.</p></section>
+  <section id="j"><h2>Journal <span class="st todo">vivant</span></h2>
+    <ul><li>2026-10-06 — navette cloud republiée (<code>b9d814c5</code>) avec les skills de la PR précédente ; fiche et plan écrits.</li></ul>
+  </section>
+</main>
+</div>
+</body>
+</html>
