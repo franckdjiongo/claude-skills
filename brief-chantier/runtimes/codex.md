@@ -71,11 +71,28 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
    prochain retour tombe au plus tard 30 min après elle ; un retour compte
    comme tick si ces 30 min sont écoulées, sinon ce n'est pas un tick et tu ne
    refais pas la vérification disque (ce serait du polling). Un réveil du
-   heartbeat est toujours un tick, et avant de terminer un tour tu fais un tick
-   si la dernière ligne du journal a 30 min ou plus. Seule exception hors tick : la vérification
-   post-relance de l'item 3 (`wait_agent` sur l'agent relancé, `timeout_ms` =
-   le plus petit de 600000 et du délai restant avant le prochain tick), qui
-   n'écrit de ligne au journal que si elle tombe aussi sur un tick. Dès que tous les chantiers ont livré leur PR, ou si le
+   heartbeat est toujours un tick, sauf s'il tombe juste après un tick de
+   `wait_agent` (heartbeat différé pendant le tour) : un tick est sauté, sans
+   vérification complète, si la dernière ligne du journal a moins d'1 min. Avant
+   de terminer un tour tu fais un tick si la dernière ligne du journal a 30 min
+   ou plus. Seules exceptions hors tick, les deux `wait_agent` de l'item 3 :
+   (a) la vérification post-relance (`wait_agent` sur l'agent relancé, `timeout_ms` =
+   le plus petit de 600000 et du délai restant avant le prochain tick, soit
+   (heure de la dernière ligne du journal + 30 min) − maintenant, plancher
+   10000 ms) ; (b) la re-vérification à relance + 10 min décrite ci-dessous.
+   Ni l'une ni l'autre n'écrit de ligne au journal, sauf si elle tombe aussi sur
+   un tick. Toute relance est notée avec son heure dans la ligne de journal du
+   tick qui l'a faite ; une relance faite hors tick (retour de `wait_agent` qui
+   n'est pas un tick, heartbeat sauté) s'ajoute aussitôt au journal en ligne
+   « relance <chantier> <heure> » ; partout ailleurs, « la dernière ligne du
+   journal » désigne la dernière ligne de tick (l'armement compte comme tick),
+   jamais une ligne « relance ». Le tick suivant ne relance jamais un agent
+   relancé il y a moins de 10 min : une relance proche de la limite des 30 min ne reçoit
+   qu'une courte attente post-relance, ce n'est pas un silence. Ce tick
+   journalise quand même cet agent ; si son disque n'a pas bougé, fais la
+   re-vérification (b) : `wait_agent` sur lui, `timeout_ms` = (heure de la
+   relance + 10 min) − maintenant, plancher 10000 ms, puis re-relance ou
+   escalade. Dès que tous les chantiers ont livré leur PR, ou si le
    run est abandonné, supprime le heartbeat (`automation_update` avec
    `mode:"delete"` et `id` = l'`automationId` noté dans le fichier). Si la
    session orchestratrice a disparu sans le faire, la session de clôture
