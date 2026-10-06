@@ -39,6 +39,14 @@
  *      présente mot pour mot (lu sur le HTML brut, hors exemples échappés).
  *      --legacy rétrograde seulement son ABSENCE.
  *      Règle brief-chantier, rôle AUTEUR, étape 5ter.
+ *  11. règles dures du chantier (A1-A5, G), lues sur le texte VISIBLE du plan :
+ *      a. aucune clause de revue sans fin (« jusqu'à convergence », « jusqu'au
+ *         critère de convergence », « y compris les mineurs ») — toujours bloquant ;
+ *      b. une ligne « Budget total : » suivie d'au moins un nombre ;
+ *      c. « Chips : autorisés » ou « Chips : interdits » ;
+ *      d. une ligne « Fiche d'intention : » suivie d'un chemin.
+ *      --legacy rétrograde b, c et d en avertissement ; a reste bloquant.
+ *      Les libellés sont figés : le gabarit de brief-chantier les reprend mot pour mot.
  *
  * Sortie : findings groupés ERREUR / AVERTISSEMENT, code retour 1 si ≥ 1 erreur.
  */
@@ -379,6 +387,45 @@ if (flotte.present) {
         );
       }
     }
+  }
+}
+
+/* 11 — règles dures du chantier (A1-A5, G) : texte VISIBLE du plan.
+   Commentaires, <style> et <script> retirés ; apostrophes typographiques et
+   espaces insécables normalisés. a = toujours bloquant ; b, c, d = --legacy les
+   rétrograde en avertissement. Libellés figés (le gabarit brief-chantier les reprend). */
+{
+  const visible = textOf(
+    stripComments(html)
+      .replace(/<(style|script)\b[\s\S]*?<\/\1>/gi, ' ')
+      .replace(/&nbsp;/gi, ' '),
+  )
+    .normalize('NFC')
+    .replace(/[‘’]/g, "'")
+    .replace(/\s+/g, ' ');
+  const low = visible.toLowerCase();
+
+  for (const phrase of ["jusqu'à convergence", "jusqu'au critère de convergence", 'y compris les mineurs']) {
+    if (low.includes(phrase)) {
+      errors.push(
+        `Clause de revue sans fin : « ${phrase} » — la revue est plafonnée à 2 rounds (règle A3), non contournable par un plan.` +
+          "\n      À RETIRER du plan : après 2 rounds le chantier termine (commit, push, PR avec les remarques ouvertes listées).",
+      );
+    }
+  }
+
+  const hard = legacy ? warnings : errors;
+  const legacyNote = legacy ? '' : '\n      (--legacy rétrograde ce finding en avertissement pour les plans antérieurs à la convention.)';
+  if (!/budget total\s*:\s*\D{0,60}?\d/i.test(visible)) {
+    hard.push(
+      'Budget total absent : le plan doit porter une ligne « Budget total : <nombre> lignes » (code + tests + scripts, règle A1).' + legacyNote,
+    );
+  }
+  if (!/chips\s*:\s*(autoris[ée]s|interdits)/i.test(visible)) {
+    hard.push('Déclaration des chips absente : le plan doit porter « Chips : autorisés » ou « Chips : interdits » (règle A2).' + legacyNote);
+  }
+  if (!/fiche d'intention\s*:\s*(?:[^\s]*[\/\\][^\s]*|[^\s]+\.[a-z0-9]{1,5}\b)/i.test(visible)) {
+    hard.push("Fiche d'intention absente : le plan doit porter « Fiche d'intention : <chemin> » (règle G)." + legacyNote);
   }
 }
 

@@ -1,8 +1,7 @@
 {
-  "description": "Pré-analyse d'un plan brief-chantier AVANT exécution : lint déterministe (script à lancer en premier) puis rounds adversariaux multi-agents (7 lentilles dont personas et projection dans le futur) jusqu'à zéro zone d'ombre, avec triage must-have / nice-to-have. Ne s'applique qu'aux plans au standard brief-chantier, pas aux documents libres.",
+  "description": "Pré-analyse d'un plan brief-chantier AVANT exécution : lint déterministe (script à lancer en premier, dont les règles dures budget total, chips, fiche d'intention et revue bornée) puis au plus 2 rounds de revue adversariale multi-agents, avec triage must-have / nice-to-have. Ne s'applique qu'aux plans au standard brief-chantier, pas aux documents libres.",
   "renameHeadings": {
-    "## Étape 0 — Lint déterministe (auto-exécuté à l'invocation)": "## Étape 0 — Lint déterministe (à lancer en premier)",
-    "## Étape 1 — Rounds ultracode (7 lentilles, agents sonnet effort medium)": "## Étape 1 — Rounds adversariaux (7 lentilles, sous-agents en parallèle)"
+    "## Étape 0 — Lint déterministe (auto-exécuté à l'invocation)": "## Étape 0 — Lint déterministe (à lancer en premier)"
   },
   "replace": [
     {
@@ -11,28 +10,13 @@
       "count": 4
     },
     {
-      "from": "L'invocation de ce skill par brief-chantier ou par l'utilisateur VAUT opt-in\nultracode pour les workflows décrits ici.",
-      "to": "L'invocation de ce skill par brief-chantier ou par l'utilisateur VAUT accord\npour le fan-out multi-agents décrit ici.",
+      "from": "VAUT opt-in ultracode pour les workflows décrits ici.",
+      "to": "VAUT accord pour le fan-out multi-agents décrit ici.",
       "count": 1
     },
     {
-      "from": "jugement), puis ce qui exige du jugement (rounds ultracode adversariaux).",
-      "to": "jugement), puis ce qui exige du jugement (rounds adversariaux multi-agents).",
-      "count": 1
-    },
-    {
-      "from": "round ultracode coûte ~600 k tokens",
-      "to": "round adversarial complet coûte ~600 k tokens",
-      "count": 1
-    },
-    {
-      "from": "5. **Process & gates** — cohérence avec CLAUDE.md et les règles du repo :",
-      "to": "5. **Process & gates** — cohérence avec AGENTS.md (et CLAUDE.md s'il existe) et les règles du repo :",
-      "count": 1
-    },
-    {
-      "from": "   CLAUDE.md, catalogue) ;",
-      "to": "   AGENTS.md, CLAUDE.md, catalogue) ;",
+      "from": "cohérence avec CLAUDE.md :",
+      "to": "cohérence avec AGENTS.md (et CLAUDE.md s'il existe) :",
       "count": 1
     },
     {
@@ -63,9 +47,9 @@
     }
   },
   "slotSources": {
-    "models": "04b5560ea7be9e38",
-    "etape0-run": "cd7568b2ce3004e3",
-    "flotte-proof": "e40da79ade1663c4",
-    "etape1-intro": "82ebc3ae881ca10b"
+    "etape0-run": "8144d3681742d847",
+    "flotte-proof": "7d464a069eb24630",
+    "models": "615ffe3da259973b",
+    "etape1-intro": "8d2e788d91a21034"
   }
 }
