@@ -287,6 +287,14 @@ describe('codex variant', () => {
     expect(checkVariant(d, 'claude')).toContain('# Demo')
   })
 
+  test('a symlink to a .md is scanned whatever its own name', () => {
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    const outside = join(tmp(), 'bad.md')
+    writeFileSync(outside, 'Ask the Agent tool.\n')
+    symlinkSync(outside, join(d, 'alias.txt'))
+    expect(() => checkVariant(d, 'codex')).toThrow('alias.txt')
+  })
+
   test('a symlinked directory or a broken symlink fails the Codex check', () => {
     const d = skill({ codexMd: MD, codexJson: JSON_OK })
     symlinkSync(tmp(), join(d, 'linkdir'))

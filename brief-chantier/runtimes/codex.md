@@ -75,18 +75,20 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
    `wait_agent` (heartbeat différé pendant le tour) : un tick est sauté, sans
    vérification complète, si la dernière ligne du journal a moins d'1 min. Avant
    de terminer un tour tu fais un tick si la dernière ligne du journal a 30 min
-   ou plus. Seule exception hors tick : la vérification
-   post-relance de l'item 3 (`wait_agent` sur l'agent relancé, `timeout_ms` =
+   ou plus. Seules exceptions hors tick, les deux `wait_agent` de l'item 3 :
+   (a) la vérification post-relance (`wait_agent` sur l'agent relancé, `timeout_ms` =
    le plus petit de 600000 et du délai restant avant le prochain tick, soit
    (heure de la dernière ligne du journal + 30 min) − maintenant, plancher
-   10000 ms), qui n'écrit de ligne au journal que si elle tombe aussi sur un
-   tick. Le tick suivant ne relance jamais un agent relancé il y a moins de
-   10 min : une relance proche de la limite des 30 min ne reçoit qu'une courte
-   attente post-relance, ce n'est pas un silence. Ce tick journalise quand
-   même cet agent ; si son disque n'a pas bougé, tu refais la vérification de
-   l'item 3 à relance + 10 min par un `wait_agent` borné sur lui (même
-   exception hors tick, même règle de journal), puis tu re-relances ou
-   escalades. Dès que tous les chantiers ont livré leur PR, ou si le
+   10000 ms) ; (b) la re-vérification à relance + 10 min décrite ci-dessous.
+   Ni l'une ni l'autre n'écrit de ligne au journal, sauf si elle tombe aussi sur
+   un tick. Toute relance est notée avec son heure dans la ligne de journal du
+   tick qui l'a faite. Le tick suivant ne relance jamais un agent relancé il y a
+   moins de 10 min : une relance proche de la limite des 30 min ne reçoit
+   qu'une courte attente post-relance, ce n'est pas un silence. Ce tick
+   journalise quand même cet agent ; si son disque n'a pas bougé, fais la
+   re-vérification (b) : `wait_agent` sur lui, `timeout_ms` = (heure de la
+   relance + 10 min) − maintenant, plancher 10000 ms, puis re-relance ou
+   escalade. Dès que tous les chantiers ont livré leur PR, ou si le
    run est abandonné, supprime le heartbeat (`automation_update` avec
    `mode:"delete"` et `id` = l'`automationId` noté dans le fichier). Si la
    session orchestratrice a disparu sans le faire, la session de clôture

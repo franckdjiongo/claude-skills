@@ -37,7 +37,8 @@
 //   occurrence still fails. A plain forbid string that itself starts and ends with `/` is read
 //   as a regex: write a literal path as an escaped regex (e.g. `/\/usr\/local\//`).
 //   The same checks run on every other .md and .html file the variant ships (`--check`
-//   included), extension case-insensitive, symlinked files scanned through their target.
+//   included), extension case-insensitive; a symlink is scanned through its target when its
+//   own name or its target is .md/.html.
 //
 // `slotSources` pins the Claude text each Codex slot was written against: when a
 // nightly improvement edits a slot's Claude text, the Codex build fails until a
@@ -336,12 +337,17 @@ function shippedText(dir, base = dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
     const p = join(dir, e.name)
     if (e.isDirectory()) return ['runtimes', '.git'].includes(e.name) && dir === base ? [] : shippedText(p, base)
+    const scanned = (name) => ['.md', '.html'].includes(extname(name).toLowerCase())
+    if (p === join(base, 'SKILL.md')) return []
     if (e.isSymbolicLink()) {
       let st
       try { st = statSync(p) } catch { throw new VariantError(`${relative(base, p)}: broken symlink in a Codex variant cannot be scanned`) }
       if (st.isDirectory()) throw new VariantError(`${relative(base, p)}: symlinked directory in a Codex variant cannot be scanned`)
-    } else if (!e.isFile()) return []
-    return ['.md', '.html'].includes(extname(e.name).toLowerCase()) && p !== join(base, 'SKILL.md') ? [p] : []
+      // A link ships its target's text whatever its own name: match on either name.
+      return scanned(e.name) || scanned(realpathSync(p)) ? [p] : []
+    }
+    if (!e.isFile()) return []
+    return scanned(e.name) ? [p] : []
   })
 }
 

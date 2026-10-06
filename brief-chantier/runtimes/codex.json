@@ -83,7 +83,7 @@
     },
     {
       "from": "commit des plans HTML dans\n    `docs/plans/` du main. Puis session review honnête (rounds, écarts,\n    temps par chantier) et capture brain/frictions.",
-      "to": "commit des plans HTML dans\n    `docs/plans/` du main, suppression du heartbeat `surveillance-<vague>`\n    (`automation_update` avec `mode:\"delete\"` et `id` = l'`automationId` noté\n    dans le fichier de surveillance). Puis session review honnête (rounds,\n    écarts, temps par chantier, lus dans le journal du fichier de surveillance)\n    et capture brain/frictions ; en tout dernier, suppression du fichier\n    `<repo-cible>/.worktrees/.surveillance-<vague>.md`.",
+      "to": "commit des plans HTML dans\n    `docs/plans/` du main, suppression du heartbeat `surveillance-<vague>` s'il\n    existe encore (`automation_update` avec `mode:\"delete\"` et `id` =\n    l'`automationId` noté dans le fichier de surveillance ; déjà supprimé = rien\n    à faire ; refus de l'outil = signale-le à l'utilisateur). Puis session\n    review honnête (rounds, écarts, temps par chantier, lus dans le journal du\n    fichier de surveillance) et capture brain/frictions ; en tout dernier,\n    suppression du fichier `<repo-cible>/.worktrees/.surveillance-<vague>.md`.",
       "count": 1
     }
   ],
