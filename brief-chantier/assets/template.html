@@ -126,10 +126,10 @@
     <li><strong>Gestionnaire</strong> : {{BUN_OU_AUTRE}} — n'utilise jamais un autre.</li>
     <li><strong>Conventions dures du repo</strong> : {{CONVENTIONS_INVARIANTS_DU_PROJET}}</li>
   </ul>
-  <h3>Agents du projet — à utiliser plutôt que general-purpose</h3>
-  <p class="muted">Si ce projet a déjà des subagents dédiés (visibles dans la liste d'agents de la session, ou <code>.claude/agents/</code> du repo cible), chaque lot du §03 précise lequel dispatcher dans son champ Agent. <code>general-purpose</code> est réservé aux projets qui n'ont PAS encore d'agents dédiés (ex. meta-govern pas encore passé dessus) — ne jamais l'utiliser par défaut si un agent du projet couvre déjà la tâche.</p>
+  <h3>Agents du projet — à utiliser plutôt que l'agent générique</h3>
+  <p class="muted">Si ce projet a déjà des subagents dédiés (visibles dans la liste d'agents de la session, ou <code>.claude/agents/</code> / <code>.codex/agents/</code> du repo cible), chaque lot du §03 précise lequel dispatcher dans son champ Agent. L'agent générique (<code>general-purpose</code> sous Claude Code, <code>default</code> sous Codex) est réservé aux projets qui n'ont PAS encore d'agents dédiés (ex. meta-govern pas encore passé dessus) — ne jamais l'utiliser par défaut si un agent du projet couvre déjà la tâche.</p>
   <ul class="list">
-    {{AGENTS_PROJET_LI — un <li> par agent pertinent pour ce chantier (nom exact du subagent_type, modèle/effort, quand l'utiliser), ou un unique <li>Aucun agent dédié dans ce projet au moment de l'écriture — general-purpose pour tous les lots.</li>}}
+    {{AGENTS_PROJET_LI — un <li> par agent pertinent pour ce chantier (nom exact de l'agent, modèle/effort, quand l'utiliser), ou un unique <li>Aucun agent dédié dans ce projet au moment de l'écriture — agent générique pour tous les lots.</li>}}
   </ul>
   <h3>Commandes de vérification du projet</h3>
   <pre class="cmd">{{COMMANDES_VERIFICATION_EXACTES}}</pre>
@@ -196,7 +196,7 @@
     <div class="lot-head"><span class="ln">LOT 1</span><span class="lt">{{TITRE_LOT}}</span><span class="lh">{{ESTIMATION}} h</span></div>
     <div class="lot-body">
       <p><strong>Objectif</strong> : {{OBJECTIF_UNE_PHRASE}}</p>
-      <p><strong>Agent</strong> : {{AGENT_LOT — subagent_type exact du projet (ex. implementer, ui-implementer) si ce projet en a un adapté ; general-purpose SEULEMENT si aucun agent du projet ne couvre cette tâche ; "aucun — reste chez l'orchestrateur" si le lot ne doit pas être délégué (ex. clôture, PR, merge)}}</p>
+      <p><strong>Agent</strong> : {{AGENT_LOT — nom exact de l'agent du projet (ex. implementer, ui-implementer) si ce projet en a un adapté ; l'agent générique SEULEMENT si aucun agent du projet ne couvre cette tâche ; "aucun — reste chez l'orchestrateur" si le lot ne doit pas être délégué (ex. clôture, PR, merge)}}</p>
       <p><strong>Fichiers touchés</strong> : {{FICHIERS_CHEMINS_ABSOLUS}}</p>
       <p><strong>Commit du lot</strong> : <code class="commit-msg">chantier({{SLUG_PLAN}}): lot 1 — {{TITRE_LOT}}</code> — l'étiquette <code>lot 1</code> est OBLIGATOIRE dans le message, y compris sur un lot de PROCESSUS (clôture, revue, PR/rapport) : jamais un message libre du genre « correctifs de revue ». Le run aval d'une chaîne de chantiers vérifie sa précondition par un <code>git log --grep</code> LITTÉRAL sur cette étiquette ; sans elle il compte zéro et conclut à tort que ce chantier a échoué.</p>
       <ol class="list">
@@ -229,7 +229,7 @@
   <p class="muted">Distinction unique avant d'arrêter : un échec de CODE (causé par les modifications du chantier) = arrêt immédiat ci-dessous ; un échec d'INFRA pré-existant (accès refusé, auth expirée, prompt interactif impossible — reproductible à l'identique sans les modifications du chantier) = chip + terminer les vérifications restantes + rapport honnête qui nomme l'échec verbatim. Dans le doute : échec de code. Exception : un échec causé SEULEMENT par des doublures de test qui ne fournissent pas un nouveau membre relève de la classe pré-autorisée du §03 — une seule passe de réparation, puis la vérification est relancée ; si elle reste rouge, quelle qu'en soit la cause : arrêt immédiat ci-dessous, diff laissé en l'état.</p>
   <ol class="list">
     <li>Arrête le run au lot en échec. Ne commit pas le lot raté ; laisse les modifications non commitées (le diff est le diagnostic).</li>
-    <li>Ouvre un chip : <code>spawn_task</code> si disponible, sinon <code>cd ~/Desktop/my-projets/workstation && echo '&lt;JSON&gt;' | bun run chips add -</code> avec <code>{"title","prompt","tldr","cwd"}</code> — le prompt contient : chemin du plan, lot en échec, commande, extrait d'erreur, état laissé, comment reprendre.</li>
+    <li>Ouvre un chip : <code>spawn_task</code> (Claude Code) ou <code>chip_create</code> (Codex) si disponible, sinon <code>cd ~/Desktop/my-projets/workstation && echo '&lt;JSON&gt;' | bun run chips add -</code> avec <code>{"title","prompt","tldr","cwd"}</code> — le prompt contient : chemin du plan, lot en échec, commande, extrait d'erreur, état laissé, comment reprendre.</li>
     <li>Note l'échec dans la conversation hub du plan si elle existe, puis termine proprement (serveurs arrêtés, rapport honnête).</li>
   </ol>
 </section>

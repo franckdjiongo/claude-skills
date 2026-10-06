@@ -216,9 +216,11 @@ Trois rôles. Détermine le tien et lis la section correspondante :
    local dans un seul lot crée les contradictions que le round suivant
    remontera (leçon persistance-ui : ~20 % des findings étaient des
    régressions introduites par les correctifs eux-mêmes).
+<!-- runtime-slot:preflight-invoke -->
 10. **Préflight obligatoire.** Invoque le skill `brief-preflight` EN PASSANT
     les arguments `<chemin-absolu-du-plan.html> <repo-cible>` (c'est ce qui
     déclenche le lint automatique en préprocessing) : lint déterministe
+<!-- /runtime-slot:preflight-invoke -->
     (placeholders, chemins, scripts, ancres, structure, section
     nice-to-have, message de commit du lot de clôture, plage d'identifiants
     de la section flotte si elle existe, classe pré-autorisée des
@@ -246,6 +248,7 @@ Trois rôles. Détermine le tien et lis la section correspondante :
 5. **Exécute lot par lot, dans l'ordre.** Dispatche le travail du lot au
    subagent précisé dans son champ Agent — jamais `general-purpose` si le lot
    nomme un agent du projet, et jamais délégué du tout si le lot dit « reste
+<!-- runtime-slot:wait-subagents -->
    chez l'orchestrateur ». Quand tu attends un sous-agent/workflow :
    préfère le **foreground** (`run_in_background: false`) quand rien d'autre
    ne peut avancer pendant l'attente — le résultat revient dans le même tour,
@@ -262,6 +265,7 @@ Trois rôles. Détermine le tien et lis la section correspondante :
    notification peut ne jamais venir (incident : 2 h 46 gelées, débloquées
    par un humain). La règle tient en une ligne : un réveil armé, puis fin de
    tour. Ne laisse pas le subagent committer :
+<!-- /runtime-slot:wait-subagents -->
    relis son diff et le verdict de la commande de vérification toi-même — et
    applique la même méfiance à ton PROPRE code (correctifs de rounds de
    revue, optimisations de ton cru) : il subit la même revue que celui des
@@ -457,6 +461,7 @@ existe parce que son absence a un mode d'échec observé.
    identifiants sont déjà écrits dans deux backlogs. Le lot de renumérotation du
    run d'intégration reste le filet de dernier recours, pas le contrôle
    principal.
+<!-- runtime-slot:flotte-hook -->
    **Ce n'est pas facultatif : un Stop hook global l'impose** (`~/.claude/hooks/
    flotte-plage-gate.mjs`). Dès qu'une session a écrit ≥ 2 plans partageant un
    `flotte-nom`, elle ne peut pas s'arrêter tant qu'un run PASS de
@@ -467,6 +472,7 @@ existe parce que son absence a un mode d'échec observé.
    « FLOTTE-EXEMPT: &lt;raison&gt; » dans la réponse. Smoke test rejouable :
    `sh ~/.claude/hooks/tests/flotte-plage-gate.smoke.sh` (11 scénarios, doit finir
    `SMOKE OK`). Hook Claude Code uniquement — pas de miroir Codex à ce jour.
+<!-- /runtime-slot:flotte-hook -->
 5. Chaque plan contient en plus, obligatoirement : la branche
    (`chantier/<slug>`), le worktree (`.claude/worktrees/<slug>`, gitignoré),
    la dérogation documentée au verrou night-run (les runs parallèles sont
@@ -498,6 +504,7 @@ existe parce que son absence a un mode d'échec observé.
    implémenteur Sonnet medium ; sécurité/concurrence sensible : Opus high),
    création du worktree + branche, exécution du plan au rôle EXÉCUTANT, revue
    adversariale post-implémentation (skill `adversarial-pr-review`) jusqu'à un
+<!-- runtime-slot:goal-review-engine -->
    round vide, **menée par des SOUS-AGENTS parallèles et non par l'outil
    `Workflow`/ultracode dès que le run est NON SUPERVISÉ** (l'outil de
    workflow redemande une confirmation humaine explicite à chaque lancement,
@@ -505,6 +512,7 @@ existe parce que son absence a un mode d'échec observé.
    chantier sur trois s'est bloqué là où les deux autres, en sous-agents
    parallèles, ont mené la même revue sans une seule interruption — même
    instruction, trois lectures, parce que l'outil n'était pas nommé), PR
+<!-- /runtime-slot:goal-review-engine -->
    (jamais de merge par l'exécutant), rapport dans la
    conversation hub du plan, chips clos/créés, hygiène machine. Chaque goal
    prompt contient aussi, verbatim, ces deux clauses de sécurité :
@@ -531,6 +539,7 @@ session, 529) sans réémettre de notification (incident T89, 14/08/2026 :
 295 min de silence total, détecté par l'HUMAIN, bénéfice du parallélisme
 détruit).
 
+<!-- runtime-slot:watchdog-tick -->
 1. **Tick périodique (30-45 min)** — ScheduleWakeup ou Monitor armé en
    permanence tant qu'au moins un chantier n'a pas livré sa PR. À chaque
    tick, pour CHAQUE chantier : vérité disque du worktree (`git -C <worktree>
@@ -540,9 +549,12 @@ détruit).
    `prompt` du ScheduleWakeup lui-même — ce texte est réinjecté à chaque
    réveil et SURVIT à la compaction, contrairement au présent skill (une
    session-orchestrateur nocturne compacte : celle du 14/08 l'a fait 2 fois).
+<!-- /runtime-slot:watchdog-tick -->
+<!-- runtime-slot:watchdog-relance -->
 2. **Disque immobile + absent de ListAgents = mort.** Relance par SendMessage
    avec l'état exact vérifié sur disque (commits présents, travail non
    commité, verdicts de revue déjà reçus) — jamais « reprends » à vide.
+<!-- /runtime-slot:watchdog-relance -->
 3. **Vérification post-relance (≤ 10 min).** Une réponse « resumed » n'est pas
    une preuve : re-vérifier que le disque bouge (nouveau mtime/commit) dans
    les 10 min qui suivent toute relance ; sinon re-relancer ou escalader à

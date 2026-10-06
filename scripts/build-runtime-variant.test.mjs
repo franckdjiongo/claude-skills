@@ -324,8 +324,8 @@ describe('every skill of this repo that declares a Codex variant', () => {
     .filter((e) => e.isDirectory() && existsSync(join(REPO_ROOT, e.name, 'runtimes', 'codex.json')))
     .map((e) => e.name)
 
-  test('includes the two skills ported so far', () => {
-    expect(declared).toEqual(expect.arrayContaining(['adversarial-pr-review', 'brief-preflight']))
+  test('includes the skills ported so far', () => {
+    expect(declared).toEqual(expect.arrayContaining(['adversarial-pr-review', 'brief-chantier', 'brief-preflight']))
   })
 
   for (const name of declared) {
