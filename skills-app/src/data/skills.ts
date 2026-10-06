@@ -1279,7 +1279,7 @@ export const skills: Skill[] = [
   {
     id: 'adversarial-pr-review',
     name: "Adversarial Pr Review",
-    description: "Run an ultracode multi-agent ADVERSARIAL review over the working diff so a change is bulletproof and \"compliant\" BEFORE its pull request is opened,…",
+    description: "Run an ultracode multi-agent ADVERSARIAL review of the working diff BEFORE its pull request is opened (Mode A), and resolve code-review bot comments in one bounded pass (Mode B), 2 rounds max…",
     repository: 'claude-skills',
     category: 'claude-code',
     categoryName: "Claude Code & AI Extensibility",
@@ -1389,7 +1389,7 @@ export const skills: Skill[] = [
   {
     id: 'brief-preflight',
     name: "Brief Preflight",
-    description: "Pré-analyse d'un plan brief-chantier AVANT exécution : lint déterministe (script auto-exécuté à l'invocation) puis rounds ultracode adversariaux (7…",
+    description: "Pré-analyse d'un plan brief-chantier AVANT exécution : lint déterministe (dont budget total, chips, fiche d'intention, revue bornée) puis au plus 2 rounds de revue adversariale…",
     repository: 'claude-skills',
     category: 'specialized',
     categoryName: "Specialized Workflows",
