@@ -5,7 +5,7 @@
  * Usage : node preflight-lint.mjs <plan.html> <repo-cible> [--legacy]
  *   --legacy : rétrograde en AVERTISSEMENT les conventions POSTÉRIEURES au plan
  *              — section « Nice-to-have » (id="s-nice", ≥ 5 items), message de
- *              commit du lot de clôture (check 8) et classe pré-autorisée des
+ *              commit du lot de clôture (check 8) et ABSENCE du paragraphe des
  *              doublures de test (check 10) — pour linter les plans écrits
  *              avant ces conventions.
  *
@@ -35,9 +35,9 @@
  *      Limite ASSUMÉE : le lint voit UN plan et ne peut pas détecter une collision
  *      entre plans frères — il vérifie seulement que la plage est DÉCLARÉE.
  *  10. classe pré-autorisée des doublures de test : la section des lots porte le
- *      paragraphe class="classe-doublures" du gabarit, avec ses quatre conditions
- *      (aucune assertion touchée, aucun fichier de production hors liste,
- *      fichiers nommés dans le commit et le rapport, vérifiés par le relecteur).
+ *      paragraphe class="classe-doublures" du gabarit, chacune de ses clauses
+ *      présente mot pour mot (lu sur le HTML brut, hors exemples échappés).
+ *      --legacy rétrograde seulement son ABSENCE.
  *      Règle brief-chantier, rôle AUTEUR, étape 5ter.
  *
  * Sortie : findings groupés ERREUR / AVERTISSEMENT, code retour 1 si ≥ 1 erreur.
@@ -316,34 +316,58 @@ if (flotte.present) {
 }
 
 /* 10 — classe pré-autorisée des doublures de test
-   (règle brief-chantier, rôle AUTEUR, étape 5ter) */
+   (règle brief-chantier, rôle AUTEUR, étape 5ter).
+   Lu sur le HTML BRUT (commentaires retirés), pas sur `html` décodé : un exemple
+   échappé (&lt;p class=&quot;classe-doublures&quot;&gt;) dans un <pre>/<code> ne
+   doit pas compter comme le paragraphe. Chaque clause du gabarit est exigée mot
+   pour mot (espaces et apostrophes normalisés) : on peut ajouter des
+   restrictions, pas retirer une clause. */
 {
-  const lotsIdx = htmlLive.indexOf('id="s-lots"');
-  const lotsSec = lotsIdx === -1 ? '' : htmlLive.slice(lotsIdx, htmlLive.indexOf('</section>', lotsIdx));
-  const m = lotsSec.match(/<p\b[^>]*class="[^"]*\bclasse-doublures\b[^"]*"[^>]*>([\s\S]*?)<\/p>/i);
-  const fix =
-    '\n      À AJOUTER dans la section des lots (§03) : le paragraphe <p class="classe-doublures"> du gabarit brief-chantier, tel quel.' +
-    '\n      Raison : sans lui, un run de nuit s\'arrête pour compléter des doublures de test cassées par son propre changement' +
-    '\n      de contrat (observé le 2026-10-06 : une nuit d\'attente pour une retouche sans risque).';
-  if (!m) {
+  const rawLive = stripComments(raw);
+  const lotsIdx = rawLive.indexOf('id="s-lots"');
+  if (lotsIdx === -1) {
     (legacy ? warnings : errors).push(
-      'Classe pré-autorisée des doublures de test absente de la section des lots.' +
-        fix +
-        (legacy ? '' : '\n      (--legacy rétrograde ce finding en avertissement pour les plans antérieurs à la convention.)'),
+      'Classe pré-autorisée des doublures de test : section des lots (id="s-lots") introuvable, check 10 impossible.',
     );
   } else {
-    const t = textOf(m[1]).toLowerCase();
-    const missing = [
-      ['assertion', 'aucune assertion touchée'],
-      ['production', 'aucun fichier de production hors liste'],
-      ['commit', 'fichiers nommés dans le commit du lot'],
-      ['relecteur', 'vérification par le relecteur du lot'],
-    ].filter(([k]) => !t.includes(k)).map(([, label]) => label);
-    if (missing.length) {
-      errors.push(
-        `Classe pré-autorisée des doublures de test : condition(s) manquante(s) — ${missing.join(' ; ')}.` +
-          '\n      Le paragraphe peut être restreint, jamais élargi : rétablis les quatre conditions du gabarit.',
+    const next = rawLive.indexOf('<section', lotsIdx);
+    const lotsSec = rawLive.slice(lotsIdx, next === -1 ? undefined : next);
+    const m = lotsSec.match(/<p\b[^>]*class="[^"]*\bclasse-doublures\b[^"]*"[^>]*>([\s\S]*?)<\/p>/i);
+    if (!m) {
+      (legacy ? warnings : errors).push(
+        'Classe pré-autorisée des doublures de test absente de la section des lots.' +
+          '\n      À AJOUTER dans la section des lots (§03) : le paragraphe <p class="classe-doublures"> du gabarit brief-chantier, tel quel.' +
+          "\n      Raison : sans lui, un run de nuit s'arrête pour compléter des doublures de test cassées par son propre changement" +
+          "\n      de contrat (observé le 2026-10-06 : une nuit d'attente pour une retouche sans risque)." +
+          (legacy ? '' : '\n      (--legacy rétrograde ce finding en avertissement pour les plans antérieurs à la convention.)'),
       );
+    } else {
+      const norm = (x) =>
+        textOf(
+          x
+            .replace(/&nbsp;|&#160;/g, ' ')
+            .replace(/&#39;|&rsquo;|[‘’]/g, "'")
+            .replace(/&amp;/g, '&'),
+        )
+          .replace(/\s+/g, ' ')
+          .toLowerCase();
+      const t = norm(m[1]);
+      const missing = [
+        'uniquement par ajout du nouveau membre',
+        'aucune valeur existante modifiée, aucun snapshot régénéré',
+        'aucune assertion ajoutée, retirée ou modifiée',
+        'aucun test sauté ni marqué en échec attendu',
+        'aucun fichier de production touché hors liste',
+        'dans le message de commit du lot et dans le rapport final',
+        'le relecteur du lot vérifie ces fichiers',
+        'reste un arrêt et une question au hub',
+      ].filter((clause) => !t.includes(clause));
+      if (missing.length) {
+        errors.push(
+          `Classe pré-autorisée des doublures de test : clause(s) du gabarit absente(s) — « ${missing.join(' » ; « ')} ».` +
+            '\n      Le paragraphe peut être restreint, jamais élargi : recopie-le depuis le gabarit brief-chantier (§03).',
+        );
+      }
     }
   }
 }

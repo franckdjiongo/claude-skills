@@ -94,12 +94,16 @@ Le script vérifie mécaniquement, dans cet ordre :
    lint de vague ci-dessous, que ce check rappelle en avertissement dès qu'un
    plan se déclare membre d'une vague ;
 10. **classe pré-autorisée des doublures de test.** La section des lots porte le
-   paragraphe `<p class="classe-doublures">` du gabarit, avec ses quatre
-   conditions (aucune assertion touchée, aucun fichier de production hors liste,
-   fichiers nommés dans le commit du lot, vérification par le relecteur). Rend
-   le contrôle déterministe de l'étape 5ter du rôle AUTEUR de `brief-chantier`.
-   Mode d'échec couvert : un run de nuit arrêté pour compléter des doublures de
-   test cassées par son propre changement de contrat (observé le 2026-10-06).
+   paragraphe `<p class="classe-doublures">` du gabarit, chacune de ses clauses
+   présente mot pour mot (ajout du seul nouveau membre, aucune valeur existante
+   ni snapshot modifié, aucune assertion touchée, aucun test sauté, aucun
+   fichier de production hors liste, fichiers nommés dans le commit et le
+   rapport, vérification par le relecteur, tout le reste = arrêt au hub). Le
+   check lit le HTML brut : un exemple échappé dans un `<pre>` ne compte pas.
+   Rend le contrôle déterministe de l'étape 5ter du rôle AUTEUR de
+   `brief-chantier`. Mode d'échec couvert : un run de nuit arrêté pour
+   compléter des doublures de test cassées par son propre changement de
+   contrat (observé le 2026-10-06).
 
 ## Étape 0bis — Lint de VAGUE (chantiers parallèles uniquement)
 
@@ -139,8 +143,9 @@ par 2 chantiers sur 5 alors qu'elle était écrite dans le standard.
 
 `--legacy` rétrograde en avertissement les conventions POSTÉRIEURES au plan
 linté — la section Nice-to-have (7), le message de commit du lot de clôture
-(8) et la classe pré-autorisée des doublures de test (10) — pour les plans
-écrits avant ces conventions. Le check 9 n'est jamais
+(8) et l'ABSENCE du paragraphe des doublures de test (10 ; un paragraphe
+présent mais amputé d'une clause reste une erreur) — pour les plans écrits
+avant ces conventions. Le check 9 n'est jamais
 rétrogradé : la section flotte est opt-in, un plan qui la porte l'a écrite après
 la convention.
 
