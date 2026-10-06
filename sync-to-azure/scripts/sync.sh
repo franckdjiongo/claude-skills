@@ -2,7 +2,7 @@
 # sync.sh — Syncs the current Power Apps Code App to the Fernand Gilbert Ltée
 # Azure DevOps repository under code-apps/<app-name>/.
 #
-# Usage: bash ~/.claude/skills/sync-to-azure/scripts/sync.sh
+# Usage: bash <skill-folder>/scripts/sync.sh
 
 set -euo pipefail
 

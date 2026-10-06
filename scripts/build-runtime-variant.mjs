@@ -36,9 +36,12 @@
 //   strings from the skill's own `forbid` list only. Exact strings only: a second, different
 //   occurrence still fails. A plain forbid string that itself starts and ends with `/` is read
 //   as a regex: write a literal path as an escaped regex (e.g. `/\/usr\/local\//`).
-//   The same checks run on every other .md and .html file the variant ships (`--check`
-//   included), extension case-insensitive; a symlink is scanned through its target when its
-//   own name or its target is .md/.html.
+//   The same checks run on every other file the variant ships whose extension is in
+//   SCANNED_EXTENSIONS (`--check` included), case-insensitive, `.git` skipped at any depth. A symlink
+//   is scanned through its target when its own name or its target has a scanned extension. A symlink
+//   to the root SKILL.md is skipped (already checked). The variant must be self-contained: a symlink
+//   into runtimes/, outside the skill folder, or to a file the variant does not ship (inside a `.git`
+//   dir, `.DS_Store`, a Codex test file) fails the build.
 //
 // `slotSources` pins the Claude text each Codex slot was written against: when a
 // nightly improvement edits a slot's Claude text, the Codex build fails until a
@@ -51,8 +54,8 @@
 // Usage: node build-runtime-variant.mjs --skill <skillDir> --runtime codex|claude --out <dir>
 //        node build-runtime-variant.mjs --skill <skillDir> --runtime codex|claude --check
 //        node build-runtime-variant.mjs --skill <skillDir> --stamp
-import { readFileSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync, cpSync, realpathSync, statSync } from 'node:fs'
-import { join, basename, dirname, resolve, relative, isAbsolute, extname } from 'node:path'
+import { readFileSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync, cpSync, realpathSync, statSync, readlinkSync } from 'node:fs'
+import { join, basename, dirname, resolve, relative, isAbsolute, extname, sep } from 'node:path'
 import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 
@@ -332,22 +335,58 @@ function realOrResolved(path) {
   return join(realOrResolved(dirname(resolve(path))), basename(path))
 }
 
-// Every shipped text file (.md, .html) besides SKILL.md (top-level runtimes/ and .git excluded).
+// Extensions of the shipped files scanned like SKILL.md (case-insensitive). The skill-root SKILL.md is
+// checked by buildSkillMd instead.
+export const SCANNED_EXTENSIONS = ['.md', '.markdown', '.mdx', '.html', '.htm', '.xhtml', '.txt', '.sh', '.json', '.yaml', '.yml']
+const scanned = (name) => SCANNED_EXTENSIONS.includes(extname(name).toLowerCase())
+
+// Single source of truth for "does buildVariant copy this path?", used by the cpSync filter and by
+// shippedText. `path` is a source path (inside `source`, the realpath of the skill folder). Not shipped:
+// any path with a `.git` segment, any `.DS_Store`, the root SKILL.md (rewritten by the build), the
+// top-level runtimes/ folder and everything under it, and for Codex the test files.
+export function isShipped(source, path, runtime) {
+  const rel = relative(source, path)
+  if (!rel) return true
+  const segments = rel.split(sep)
+  if (segments.some((s) => s === '.git' || s === '.DS_Store')) return false
+  if (rel === 'SKILL.md' || segments[0] === 'runtimes') return false
+  return !(runtime === 'codex' && /\.test\.[cm]?[jt]s$/.test(path))
+}
+
+// Every shipped file with a scanned extension besides the root SKILL.md. `base` is the realpath of the
+// skill folder.
 function shippedText(dir, base = dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
     const p = join(dir, e.name)
-    if (e.isDirectory()) return ['runtimes', '.git'].includes(e.name) && dir === base ? [] : shippedText(p, base)
-    const scanned = (name) => ['.md', '.html'].includes(extname(name).toLowerCase())
+    if (e.isDirectory()) return isShipped(base, p, 'codex') ? shippedText(p, base) : []
     if (p === join(base, 'SKILL.md')) return []
     if (e.isSymbolicLink()) {
+      const rel = relative(base, p)
       let st
-      try { st = statSync(p) } catch { throw new VariantError(`${relative(base, p)}: broken symlink in a Codex variant cannot be scanned`) }
-      if (st.isDirectory()) throw new VariantError(`${relative(base, p)}: symlinked directory in a Codex variant cannot be scanned`)
+      try { st = statSync(p) } catch { throw new VariantError(`${rel}: broken symlink in a Codex variant cannot be scanned`) }
+      if (st.isDirectory()) throw new VariantError(`${rel}: symlinked directory in a Codex variant cannot be scanned`)
+      // verbatimSymlinks copies the link text as is: an absolute one would point back at the source folder.
+      const linkText = readlinkSync(p)
+      if (isAbsolute(linkText)) throw new VariantError(`${rel}: absolute symlink would point back at the source folder`)
+      // The DIRECT target is what the variant keeps: it must be shipped itself, not only the final file.
+      const direct = resolve(dirname(p), linkText)
+      if (direct !== join(base, 'SKILL.md')) {
+        const d = relative(base, direct)
+        if (d === '..' || d.startsWith('..' + sep) || isAbsolute(d)) throw new VariantError(`${rel}: symlink pointing outside the skill folder`)
+        if (d.split(sep)[0] === 'runtimes') throw new VariantError(`${rel}: symlink into runtimes/ would dangle in the variant`)
+        if (!isShipped(base, direct, 'codex')) throw new VariantError(`${rel}: symlink to a file the variant does not ship`)
+      }
+      const real = realpathSync(p)
+      // The shipped link resolves to the Codex SKILL.md, already checked by buildSkillMd.
+      if (real === join(base, 'SKILL.md')) return []
+      const inside = relative(base, real)
+      if (inside.split(sep)[0] === 'runtimes') throw new VariantError(`${rel}: symlink into runtimes/ would dangle in the variant`)
+      if (inside === '..' || inside.startsWith('..' + sep) || isAbsolute(inside)) throw new VariantError(`${rel}: symlink pointing outside the skill folder`)
+      if (!isShipped(base, real, 'codex')) throw new VariantError(`${rel}: symlink to a file the variant does not ship`)
       // A link ships its target's text whatever its own name: match on either name.
-      return scanned(e.name) || scanned(realpathSync(p)) ? [p] : []
+      return scanned(e.name) || scanned(real) ? [p] : []
     }
-    if (!e.isFile()) return []
-    return scanned(e.name) ? [p] : []
+    return e.isFile() && isShipped(base, p, 'codex') && scanned(e.name) ? [p] : []
   })
 }
 
@@ -377,8 +416,7 @@ export function buildVariant(skillDir, runtime, out) {
       recursive: true,
       verbatimSymlinks: true,
       // Tests stay with the source: they check the Claude text and would fail against the variant.
-      filter: (src) => !['.git', '.DS_Store'].includes(basename(src)) && src !== join(source, 'SKILL.md') && src !== join(source, 'runtimes')
-        && !(runtime === 'codex' && /\.test\.[cm]?[jt]s$/.test(src)),
+      filter: (src) => isShipped(source, src, runtime),
     })
     writeFileSync(join(target, 'SKILL.md'), skillMd)
     if (runtime === 'codex' && /^disable-model-invocation:\s*true\s*$/m.test(skillMd.match(/^---\n([\s\S]*?)\n---\n/)?.[1] ?? '')) {
