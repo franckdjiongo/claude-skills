@@ -1,805 +1,225 @@
 ---
 name: adversarial-pr-review
 description: >-
-  Run an ultracode multi-agent ADVERSARIAL review over the working diff so a change is
-  bulletproof and "compliant" BEFORE its pull request is opened, and so automated code-review
-  rounds CONVERGE instead of looping. Use this skill (Mode A) whenever you are about to create or
-  open a pull request — when the user says "create a PR", "open a PR", "tu peux créer la PR",
-  "raise/submit a PR", "ouvre la PR", or asks to push a branch up for review — and (Mode B)
-  whenever a code-review bot (Codex, CodeRabbit, Claude review, Greptile, Graphite, etc.) posts
-  comments on a PR that need addressing. A global PreToolUse hook BLOCKS `gh pr create` until this
-  skill has validated the current HEAD, so reach for it proactively rather than waiting to be told.
-  Especially important for any change touching shared/exported surfaces, public APIs, auth, schemas,
-  or anything a downstream consumer (or another tool) depends on. It judges by the same bar a strong
-  review bot uses — not only correctness bugs, but deviations from the repo's own idioms, unbounded /
-  over-fetching queries and missing indexes, and external platform limits (e.g. message-size caps).
+  Run an ultracode multi-agent ADVERSARIAL review of the working diff BEFORE its pull request is
+  opened (Mode A), and resolve code-review bot comments (Codex, CodeRabbit, Greptile...) in one
+  bounded pass (Mode B). Use it whenever you are about to create or open a PR ("create a PR", "open a
+  PR", "tu peux créer la PR", "ouvre la PR", push a branch for review) or when a bot comments on a PR.
+  A global PreToolUse hook BLOCKS `gh pr create` until this skill has validated the current HEAD, so
+  reach for it proactively. Two rounds at most, one disposition per finding, then it finishes.
 ---
 
 # Adversarial PR Review
 
-A pull request is a promise: "this change is correct and won't surprise anyone." This skill makes
-you keep that promise **before** the PR is public — by attacking your own diff the way a good
-reviewer (human or bot like Codex) would, finding the bugs first, and fixing them in a way that
-**converges** rather than spawning new ones.
+Attack your own diff before the PR is public, as a strong reviewer or review bot would, fix only what
+matters with the smallest change, and finish. Mode A runs before opening a PR, Mode B on bot comments.
 
-## Why this exists (the lesson it encodes)
+## Hard rules
 
-The expensive failure mode is **reactive patching**: a bot finds a bug, you fix that one line, the
-bot finds the next bug, you fix that one line — and **your own fixes keep creating the next finding**
-(a rename leaks a field elsewhere, a guard you add breaks a sibling tool, a validator you tighten
-rejects a real input). That ping-pong can run a dozen rounds, burn enormous tokens, and frustrate
-everyone — while the change quietly accretes regressions.
-
-Three disciplines kill that failure:
-
-1. **Get AHEAD of the bot.** Run the adversarial review on the *whole* diff **before** opening the
-   PR. The PR then arrives already-compliant; the bot finds little or nothing.
-2. **CONVERGE, don't loop.** Whenever you fix anything, sweep the **whole class** of that
-   anti-pattern and re-verify the **entire** changeset adversarially **before** pushing — so the next
-   round finds nothing *new that you introduced* and no *twin* of what you just fixed.
-3. **Match the bot's BAR, not just "does it crash."** A strong review bot flags code that *works
-   today* but breaks the repo's idioms (unbounded queries, missing indexes, over-fetch), exceeds an
-   external platform limit (message size), or relies on the wall clock without a ticking state. If
-   your verdict only asks "is this a triggerable bug?", you will pass **exactly** what the bot
-   catches. See the two-gate verdict below — it is the single most important part of this skill.
-
-You are smart enough to do this well; the point of the skill is to make it the **default**, not a
-reaction after someone complains.
-
----
-
-## Two modes
-
-| Mode | Trigger | Goal |
-| --- | --- | --- |
-| **A — Preflight** | About to create/open a PR (`gh pr create`, "tu peux créer la PR", push-for-review). A global hook blocks `gh pr create` until this ran. | Ship a PR that's already bulletproof. |
-| **B — Bot comments** | A review bot posted comments on an open PR. | Resolve *all* of them in one convergent pass — no per-comment ping-pong. |
-
-Both modes run the **same engine** (below) and the **same core discipline**. The difference is only
-*when* they fire and what you do at the end (open the PR vs. reply+resolve threads).
-
----
-
-## Core discipline (applies to both modes)
-
-1. **Review the whole changeset, never one line in isolation.** The unit is `git diff <base>...HEAD`
-   (plus uncommitted work that will be in the PR), not the single hunk a comment points at. For a
-   file that is **wholly new** in this diff, there is no "old behavior" to diff against — audit the
-   **entire file** for self-contained bugs (a brand-new hook/script can be wrong on line 80 even
-   though lines 1-79 are fine). For a **pre-existing** file, scope to the behavior the diff *changed*
-   vs the base.
-2. **Two-gate verdict — a finding is MUST-FIX if it fails EITHER gate.** This is the crux, and the
-   single most common reason a bot keeps finding things you already "reviewed": a pure-correctness
-   bar lets through exactly what a strong review bot (Codex et al.) flags.
-   - **Gate A — Correctness:** some input makes it produce wrong output, crash, or lose data (a
-     *triggerable* defect).
-   - **Gate B — Convention / scalability / platform-limit:** it deviates from an idiom that ALREADY
-     exists elsewhere in THIS repo (you can cite the sibling that does it right), violates a known
-     external hard limit (e.g. Telegram's 4096-char message), or is an unbounded read / full-table
-     scan / N+1 / over-fetch — **even if today's small data makes it "work."** At scale, or at the
-     limit, IS the trigger. The bot enforces this superset; so must you.
-
-   **Refute-on-doubt applies to PURE STYLE only** (naming, formatting, subjective taste, restated
-   guards). It KILLS false positives there. **NEVER** use "it returns correct output / not
-   triggerable today" to dismiss a Gate-B finding — that exact move is what let the bot catch you.
-3. **Fix by CLASS, not by instance — and a "class" is not only repeated TEXT.** There are two kinds
-   of twin, sweep for BOTH:
-   - **Literal twins** (grep-able): the same anti-pattern *signature* repeated verbatim elsewhere
-     (e.g. `withIndex('by_status'` + `.collect()`, every `sendMessage(` payload, every clock-derived
-     window, every `instanceof SomeClass` that replaced a duck-type). Grep the repo and fix or
-     explicitly clear ALL siblings in the same pass.
-   - **Structural twins** (NOT grep-able by text — ask explicitly): (a) *the same invariant enforced
-     at more than one integration point* — fixing "guard X isn't wired into `validate`" but missing
-     that it's ALSO not wired into the pre-commit hook or CI is the identical mistake at a different
-     site; (b) *the same function with more than one code path* — fixing how a tracker handles an
-     **edit** but not how the identical code handles a **delete**, or the success path but not the
-     failure path. Before declaring a sweep done, ask out loud: "where ELSE is this exact invariant
-     supposed to hold?" and "what OTHER branches does this function have that I didn't touch?"
-   - **Scope: a class is the resource pattern across the ENTIRE diff — never the module the finding
-     sits in.** "Unguarded FK ownership" means *every mutation × that FK anywhere in the diff*;
-     "uncapped client array" means *every array arg × that cap*, repo-wide. The deliverable of a
-     sweep is an **enumeration table** (each candidate site: swept / has-guard / missing) — a sweep
-     without the table is an assertion, not a sweep. **The table is emitted by YOU (the orchestrator,
-     in the main thread) at fix time, BEFORE declaring the sweep done** — an enumeration that exists
-     only inside a subagent's report is raw material, not the deliverable; and every grep hit the
-     sweep surfaced must appear in the table with a disposition (swept / has-guard / not-in-class,
-     with one line of why). In the field (2026-07-28, two independent runs): a duration-guard sweep
-     that traced delegations but emitted no table missed `recordTimerHistory` in the SAME file —
-     same class, re-found one round later; and a repo-wide grep left 4 hits undispositioned, which a
-     round-2 agent had to back-fill. Correct outcome, wrong owner, one round late — both times.
-     A sweep scoped to the finding's module is
-     itself a review defect: in the field, one module-scoped FK-ownership sweep let the same class
-     recur in two later rounds, costing ~2 extra rounds (~7M tokens) to re-find what the first
-     sweep should have enumerated.
-   - **Mandate coverage is 1:1, and the table's verdicts must reconcile.** Before accepting a
-     round, check the deliverable against the targets the mandate NAMED (files to read, consumer
-     classes, a question to answer numerically): every named target has a disposition — `clean`
-     with sites, `finding-filed` naming its finding, or an explicit `not-examined` with no sites —
-     and a target that is simply absent is NOT DONE, never implicitly clean (field, 2026-09-10/11:
-     two mandated consumer classes never appeared in any sweep, two mandated sibling files were
-     never opened after an empty grep passed without comment). A `finding-filed` row with no
-     finding behind it, or a `not-examined` row that lists inspected sites, is the same defect
-     from the other side (field, 2026-09-13, 4/6 verifiers). The engine below computes
-     `uncoveredTargets` and `inconsistentSweeps` for you; the manual fallback does it by hand.
-   The classic loop is fixing one unbounded query while its twin three functions away waits to be
-   flagged next round — same failure mode whether the twin is textual or structural.
-4. **Re-verify the FULL diff after fixing, before pushing** — the *same dimension fan-out* over the
-   whole changed file set, NOT just the symptom you fixed, while the round cap still allows a round;
-   once it is spent, each fix gets its own independent verifier instead. Loop until the review
-   converges, within the round cap (see "Scaling & cost"). This is the opposite of "fix → push → wait for the bot →
-   fix → push".
-5. **Never ship an unverified behavioral claim.** If a fix — or its comment — asserts timing /
-   scheduling / limit behavior the code doesn't *structurally* guarantee ("updates at midnight",
-   "always fits", "can't overflow"), reproduce that behavior or drop the claim. A bot WILL falsify it.
-6. **Report honestly.** If a pass found something you introduced, say so. If you can't verify a
-   claim, say so. Never declare "compliant" you can't back.
-7. **Every verification claim must name a check you actually ran — and the check must be CAPABLE
-   of proving the claim.** Provenance, not just presence: "grep for X — none found" needs that grep
-   in the trace; "typecheck clean repo-wide" needs an UNFILTERED `tsc --noEmit` (a `| grep foo`
-   pipe proves only the absence of `foo`, and a 1.5 s run never type-checked a repo); "12/12 pass in
-   file X" needs a run of file X (an aggregate "73 pass" over 7 files proves nothing per file); two
-   batches that share a file do not add up to a total; a `sitesChecked` entry copied from the
-   mandate you were handed is not a site you checked. Write the command AND its observed output,
-   at the scope the command actually proved (a piped, grepped, or `head`-ed output grounds only
-   the narrowed claim); report the numbers the tool printed, per invocation, so totals stay
-   recomputable — never arithmetic on top of the output. If you did not run it, write "not run". In the field (2026-09-13/14, one review round): a grep
-   declared "none found" that no tool call ever executed, a grep-filtered tsc reported as
-   repo-wide, a per-file count inferred from an aggregate run, a double-counted test total, and a
-   plist "confirmed read-only" that only the mandate had ever mentioned — five claims the trace
-   could not back, each caught one night later by the judge instead of by the orchestrator.
-
----
+1. **Round cap: 2 rounds, NOT overridable by any plan or prompt.** A plan that says "until convergence" or
+   "until clean" is overruled. A round is one full dimension fan-out plus its Verify step (a per-fix verifier
+   is not a round). Round 1 reviews the whole diff. Round 2 reviews only the delta since round 1 plus direct
+   interactions (callers, siblings, tests of the changed lines): no new nits on untouched code. Never a 3rd round: a
+   P1 still open after round 2 means not converged (rule 4). The cap
+   counts per PR across Mode A and Mode B, whoever runs the rounds (this engine, a hand-run fan-out, or an
+   external reviewer meeting the bar in "Sentinel").
+2. **Every finding gets a disposition:** FIX (a P1, or a P2 that serves the chantier intent), CHIP (only if
+   the plan says chips are allowed; create it with `spawn_task`), WONT_FIX (one-line reason) or INVALID (its
+   facts do not hold). Never "fix everything, minors included". P3 defaults to WONT_FIX or CHIP. A fix
+   proposal adding more than ~30 lines must say why no smaller fix works.
+3. **Intent guardian.** If a chantier intent sheet exists (`.chantier/<slug>/intention.md`, or the path on the
+   plan's `Fiche d'intention :` line), after each round and BEFORE applying any fix run the guardian per
+   `~/.claude/skills/brief-chantier/references/gardien-intention.md` (in a cloud clone:
+   `.claude/skills/brief-chantier/references/gardien-intention.md`): the `gardien-intention` agent, fresh
+   context, given the sheet path, `git diff --stat <base>...HEAD` and the remarks (id, severity, summary,
+   proposed fix). `SERT` keeps the disposition. `HORS` becomes CHIP if the plan allows chips, else WONT_FIX
+   citing the guardian's reason. A P1, and any security or data-loss remark, is always `SERT`. No sheet: skip
+   the guardian and say so in the report, never block. Before opening the PR run
+   guardian moment 2 (`ALIGNÉ` or `DÉRIVE`): remove the parts it lists, or justify each one in the PR body.
+4. **Closure never blocks an autonomous run.** After the cap, commit and push, then:
+   - converged (no open P1/P2 with disposition FIX): record the sentinel, open the PR, list the open findings
+     with their dispositions in its body;
+   - not converged: no sentinel, no PR (the guard hook blocks `gh pr create`, even `--draft`). Save the PR
+     body, open findings included, to a file and put it in the final report: the human opens the PR.
+   Never wait for a human, never run past the cap, never forge the sentinel.
+5. **Prefer real execution evidence to more mocked tests.** Prove a finding and a fix by running the real
+   thing (dry-run, sandbox, the actual command or app) before adding a simulated test.
+6. **Every verification claim names a check actually run, and the check must be capable of proving the
+   claim.** "grep found none" needs that grep in the trace, "typecheck clean" an unfiltered run (a
+   `| grep` pipe proves only the absence of the grepped text), "12/12 pass in file X" a run of file X.
+   Write the command and its observed output, or "not run". Never ship a behavioral claim the code does
+   not structurally guarantee ("updates at midnight"). Report regressions you caused.
 
 ## Mode A — Preflight (before opening a PR)
 
-Run this the moment a PR is imminent. Steps:
+1. Scope the diff (base, `git diff --stat <base>...HEAD`, uncommitted work that will ship), then run the
+   local quality gate (tests, lint, typecheck). Fix red before spending agents.
+2. **Round 1** on the whole diff. Disposition every finding, run the guardian (rule 3), apply the FIX items
+   with minimal fixes, re-run the gate.
+3. **Round 2** on the delta, only if round 1 produced a FIX. Same dispositions and guardian, then fixes, each
+   verified by a fresh verifier on the fix diff.
+4. Guardian moment 2, commit the reviewed state, record the sentinel if converged ("Sentinel"), push, open the
+   PR. The body states what the review covered, the gate result, the guardian block, and the open findings
+   with dispositions.
+5. **Read the bot's first pass before any merge** (yours, `ship-pr`'s, or a handover as "ready"): `gh pr view
+   <n> --json comments,reviews` and `gh api repos/<owner>/<repo>/pulls/<n>/comments`. Read the author and body
+   of every comment on THIS PR (a preview bot is not a review, but only reading tells you). Review findings go
+   to Mode B. Never merge over an unread comment.
 
-1. **Scope the diff.** Determine the base branch and the full change:
-   `git fetch` if needed, then `git diff --stat <base>...HEAD` and read the actual diff. Include
-   uncommitted changes that will be part of the PR.
-2. **Run the local quality gate first** (cheap signal): the project's tests + lint/typecheck/format
-   (e.g. `bun run validate`, `npm test`, `make check`). Fix anything red before the expensive pass —
-   no point fanning out agents over a diff that doesn't compile.
-3. **Run the adversarial review engine** (next section) scaled to the diff size.
-4. **Fix every confirmed finding — BOTH gates** (correctness AND convention/scalability/platform-limit,
-   discipline #2), each with a **class-sweep** (discipline #3) whose enumeration table you emit in the
-   main thread before moving on. Don't park a "works today" unbounded query as P3; the bot won't.
-5. **Re-run the engine** on the new diff. Repeat until the review converges, within the round cap
-   (two rounds; a third only if round 2 confirmed a P1 or at least five P2 — see "Scaling & cost").
-6. **Re-run the quality gate** to confirm fixes didn't break the build.
-7. **Commit** the reviewed state (if not already committed).
-8. **If the review converged, record the sentinel** so the hook lets the PR through (see
-   "Sentinel"). If it did not converge, skip steps 8 and 9 and follow the non-converged action in
-   "Round cap".
-9. **Now create the PR.**
-10. **Read the bot's first pass before any merge.** Once the PR is open and before it is merged
-    (by you, by `ship-pr`, or handed to the user as "ready"), collect every comment and review —
-    `gh pr view <n> --json comments,reviews` and `gh api repos/<owner>/<repo>/pulls/<n>/comments` —
-    and read the **author and body** of each one on THIS PR. A deployment/preview bot (e.g.
-    `vercel[bot]`) is not a review, but you only know that once you have read it; never infer it from
-    another PR's comment. Anything that is a review finding goes to Mode B. Merging over an unread
-    comment is the recorded failure (field, 2026-09-25 and 2026-09-26: two consecutive graded jobs
-    merged with the post-preflight comment never read — `ship-pr` checked only mergeable + checks).
+## Mode B — Bot review comments (one pass, not ping-pong)
 
-> The PR body should briefly note what the adversarial review covered and that the gate is green —
-> it signals to human + bot reviewers that the change was self-audited.
+1. Collect ALL open comments at once and read every one before touching code.
+2. Triage each with the two gates (engine section), verify its facts (bots have false positives), give it a
+   disposition (rule 2), run the guardian when a sheet exists.
+3. Fix the FIX batch together, minimal, with the class sweep of engine step 5.
+4. This counts against the same cap: if a round remains, review the delta (round 2 rules), otherwise each fix
+   gets a fresh verifier on its fix diff, never another full fan-out. Re-run the gate.
+5. Commit, record the sentinel if converged, push once, reply on each addressed thread in one line and
+   resolve it. A bot 👍 or silence ends it. Twins of what you fixed mean your class sweep was too shallow.
 
----
+## The review engine
 
-## Mode B — Addressing bot review comments (converge, don't loop)
+**What a hunter may report.** Gate A, correctness: some input makes it wrong, crash or lose data. Gate B,
+convention, scalability or platform limit: it deviates from an idiom already in this repo (cite the sibling
+`file:line`), violates an external hard limit, or is an unbounded read, scan, N+1 or over-fetch. "It works
+today" is no ground to drop a Gate B finding; refute-on-doubt is for pure style only. Enforcement code adds
+wiring (never fires on the repo's real paths, or not called at every integration point) and state-safety
+(satisfiable without the protected work, or can block forever). Severity drives the disposition: P1 harms
+users, data or security, or breaks a hard limit; P2 is a real defect or idiom/scale violation with a bounded
+blast radius; P3 is cosmetic, hardening against hypothetical input, or taste.
 
-When a bot (Codex et al.) posts comments, do **not** fix them one-by-one-and-push. Instead:
-
-1. **Collect ALL open comments at once** (`gh pr view <n> --json comments,reviews` and/or
-   `gh api .../pulls/<n>/comments`). Read every one before touching code.
-2. **Triage with the two-gate verdict (#2).** For each comment, decide: correctness, convention/
-   scalability/platform-limit, or pure style. Verify the facts against the code; don't blindly trust
-   the bot (it has false positives) — but do NOT downgrade a convention/scalability/limit comment to
-   "works today, won't fix." If the bot cites an idiom or limit, it's must-fix.
-3. **Fix the confirmed batch together with a CLASS-SWEEP (#3).** When a comment flags an unbounded
-   query / oversized payload / clock-derived window, grep for EVERY sibling with that signature and
-   fix them all now — not just the one line the bot pointed at. The bot found one instance; you fix
-   the class, so the *next* round can't re-flag its twin.
-4. **Re-run the engine on the WHOLE new diff with the FULL dimension fan-out** while the round cap
-   still allows a round and the review has not yet converged (otherwise: a fix plus its own
-   independent verifier) — *before* pushing,
-   NOT scoped to the symptoms the comments named. The unbounded read sitting next to your fix must be
-   assessed too. This is the step that breaks the loop. Also re-run the quality gate.
-5. **Commit the batch; if the review converged, record the sentinel on that new HEAD** (see
-   "Sentinel"), then **push once.** If it did not converge, follow the non-converged action in
-   "Round cap" instead. Then reply on each addressed thread (one line: what changed, or why you didn't), and
-   resolve it. Skip replies for comments you didn't act on, unless asked otherwise.
-6. **If the bot reacts 👍 / posts no new comments → done.** If it posts genuinely new findings
-   (not re-raises of what you already addressed), repeat — but each iteration must include step 4,
-   so rounds shrink fast instead of oscillating.
-
-**Convergence check:** the round cap (see "Scaling & cost") counts step-4 rounds per PR, across
-Mode A and Mode B together: a bot batch does not reset it. Once the cap is spent or the review has
-converged, a new bot finding
-gets a fix plus its own independent verifier on the fix diff, never another full fan-out. If the bot
-keeps finding things, stop and ask *"are these new, or the same anti-pattern class / a consequence
-of my own fix?"* If the latter, your step-3 class-sweep or step-4 full-diff fan-out was too shallow;
-if a P1 stays open, the review has not converged (see "Round cap").
-
----
-
-## The adversarial review engine
+### 1. Inventory
 
 <!-- runtime-slot:engine-intro -->
-The engine is a **find → adversarially-verify → (you) fix** fan-out. With ultracode/workflows
-enabled (`CLAUDE_CODE_WORKFLOWS=1`), use the **Workflow tool**; otherwise fall back to parallel
-`Agent` subagents (same shape, fewer agents). **Key this decision on the environment
-(`CLAUDE_CODE_WORKFLOWS` / whether the Workflow tool is actually available), never on "the user
-didn't ask for ultracode"** — the engine choice is yours to make from capability, not from the
-phrasing of the request (a field run mis-keyed on the latter and under-scaled its fan-out).
+With ultracode/workflows enabled (`CLAUDE_CODE_WORKFLOWS=1`) use the **Workflow tool**, otherwise parallel
+`Agent` subagents (same shape, fewer agents). Key the choice on the environment, never on the user's wording.
+Locally, in auto mode, the Workflow tool launches without a dialog. A cloud routine prompts at every launch
+and nobody can click: use the hand-launched fan-out there.
 <!-- /runtime-slot:engine-intro -->
 
-**Shape:** dimension reviewers each attack the diff from one angle and emit findings → each finding
-gets an independent verifier that tries to *refute* it → you fix only what survives.
+Group the paths of `git diff --stat <base>...HEAD` by what they ARE and give each category present at least
+one dimension: application code (`correctness`, `scalability`, `platform-limits`), enforcement or tooling code
+(`tooling-effectiveness`: hooks, lint, CI, validators are self-referential, a silent bug disables protection),
+docs and agent instructions (`wiring-and-contract`), schema or contract surfaces (`contracts`,
+`blast-radius`). The PR headline never picks the dimensions. A new enforcement category makes the diff
+Large/risky.
 
-**Before picking dimensions: inventory the diff's artifact categories — don't dimension by the PR's
-headline, dimension by what's actually in `git diff --stat`.** A PR's title/intent describes the
-*foreground* change; large or heterogeneous diffs almost always also carry a *background* change
-(new lint/CI/hook scripts that ship alongside a refactor, a docs rewrite that rides along with a
-schema change) that a reviewer primed by the title will simply forget to look at — because nothing
-forces a check of "what KINDS of files are actually in this diff." Concretely: run
-`git diff --stat <base>...HEAD`, group the changed paths by what they ARE, and require at least one
-dimension per category that's actually present, e.g.:
-  - **Application/runtime code** — the thing users execute. → `correctness`, plus any domain
-    dimension below that applies (`scalability`, `platform-limits`, ...).
-  - **New or modified ENFORCEMENT/TOOLING code** — hooks, lint/guard scripts, CI config, validators,
-    anything whose JOB is to catch a defect in something else. This code is self-referential: if
-    it's silently wrong, it stops protecting and NOTHING downstream tells you. → `tooling-effectiveness`.
-  - **Docs / agent-instructions / config-as-prose** — anything that makes a factual claim about a
-    command, a script, a behavior, or a file that exists. → `wiring-and-contract`.
-  - **Schema/contract surfaces** — exported types, public APIs, anything a caller depends on. →
-    `contracts` / `blast-radius`.
-A diff that introduces a NEW enforcement/tooling category you've never reviewed before in this repo
-is the highest-risk case precisely because there's no prior round to have caught it — treat it as
-**Large/risky** tier (full dimensions, 3-vote verify) regardless of line count.
-
-Adapt this template to the change (drop dimensions that don't apply, add domain-specific ones —
-but never drop a category the inventory above found present).
-
-Before launching either engine, fill `NEW_FILES` with the unique paths from these two commands.
-Use the merge-base SHA of the PR base and HEAD, and quote the absolute repo path. The first command
-includes committed, staged, and unstaged additions. The second includes untracked files intended
-for the PR. Include tests and fixtures. If an untracked path will not ship, exclude it explicitly
-with a reason. If either command fails, preflight is `INCOMPLETE`. Stop and diagnose it before
-launching a hunt. Never infer an empty inventory from a failed command.
+Fill `NEW_FILES` with the deduped paths from these two NUL-delimited commands (merge-base sha of the PR base
+and HEAD): committed, staged and unstaged additions, then untracked files meant for the PR. Include tests and
+fixtures, refresh after each fix round (round 2: only files added since `ROUND1_SHA`), exclude a path only
+with a stated reason. If either command fails,
+preflight is `INCOMPLETE`: diagnose first, never infer an empty inventory.
 
 ```bash
 git -C '<absolute repo path>' diff --diff-filter=A --no-renames --name-only -z '<merge-base-sha>' --
 git -C '<absolute repo path>' ls-files --others --exclude-standard -z
 ```
 
-Parse these NUL-delimited outputs as paths and deduplicate them before populating the array.
-Refresh the inventory after each fix round. Reviewing only committed changes is acceptable only
-when the working tree is clean. Use the same complete diff scope for the hunters, including
-untracked files listed in `NEW_FILES`. The commands above are read-only.
+### 2. Hunt
 
 <!-- runtime-slot:template-intro -->
-Workflow template:
+The Workflow template is `references/workflow-template.js`. Fill `REPO`, `NEW_FILES`, `INVENTORY_COMPLETE`,
+`ROUND` (and `ROUND1_SHA` for round 2) and trim `DIMENSIONS` to the inventory.
 <!-- /runtime-slot:template-intro -->
 
-```js
-export const meta = {
-  name: 'pr-adversarial-review',
-  description: 'Adversarially review the working diff before PR / before pushing fixes',
-  phases: [{ title: 'Hunt' }, { title: 'Verify' }],
-}
-
-const REPO = '<absolute repo path>'
-const CONTEXT = `Adversarially review the UNCOMMITTED+committed diff that will become a PR at ${REPO}.
-Run \`git -C "${REPO}" diff <merge-base-sha> --\` (committed + staged + unstaged), include the
-untracked PR files inventoried below, read the full changed files + their callers/siblings, AND
-read the MOST-BOUNDED sibling of any query/handler/message you touch (so you know THIS repo's idiom).
-For any file that is WHOLLY NEW in this diff, read and audit the entire file (there is no old
-behavior to diff against); for a pre-existing file, scope to what the diff changed vs main.
-A finding is reportable if it fails ANY gate:
-  • CORRECTNESS: some input makes it wrong / crash / lose data (triggerable), OR
-  • CONVENTION/SCALABILITY/PLATFORM-LIMIT: it deviates from an idiom that ALREADY exists in this repo
-    (cite the sibling file:line that does it right), violates an external hard limit (e.g. Telegram
-    4096-char sendMessage), or is an unbounded read / full-table scan / N+1 / over-fetch — EVEN IF
-    today's data makes it work. Scale, or the limit, IS the trigger.
-  • WIRING: new enforcement/tooling code (a hook, lint check, CI step, validator) that does not
-    actually fire against this repo's real paths/shapes/event-payloads, or is not registered/called
-    from every place the same invariant should be enforced (e.g. validate AND pre-commit AND CI) —
-    trace it against an ACTUAL file/event in this repo, don't just read the pattern.
-  • STATE-SAFETY: a gate/tracker that can be satisfied without the protected work happening, or that
-    can block forever (no escape hatch / re-entrancy guard).
-"Returns correct output today / not triggerable" is NOT grounds to drop a convention/scalability/
-platform-limit/wiring/state-safety finding — those are precisely what a review bot flags. Refute
-ONLY pure style (naming/formatting/taste/restated guards).`
-
-// `sweeps` + `residualRisk` are REQUIRED alongside `findings`: they are the restitution channel for
-// class-sweep enumeration and unresolved doubt. A sub-agent that swept a class but only wrote the
-// table into its reasoning (never into `sweeps`) is invisible to the orchestrator and the next
-// round — see "Reading sweeps and residualRisk" below. `additionalProperties:false` stays: the
-// schema grows by adding required fields, not by loosening it.
-// EVIDENCE FORM / SHARED MACHINE (hunt prompt, field 2026-09-27): across 6 fresh graded hunter sessions,
-// 4 returned sitesChecked as prose, 4 claimed a site or grep no tool call backs, one declared an
-// identity-guard target `clean` with no test run and another ran no test believing read-only
-// forbade `bun test`, and two siblings ran the full suite concurrently, left it running in the
-// background and wrote the same fixed /tmp file.
-// SHELL (field 2026-09-29): all 4 fresh graded hunters broke `grep -r --include=*.ts` on zsh's
-// unmatched-glob error (at least 9 failed calls, one grep left partial); two also called GNU `timeout` (absent on
-// macOS) and one repeated a BSD `sed -i` error it had already seen.
-// The sweep `verdict` is a STRICT tri-state (field, 2026-09-13: "finding-filed" sweeps with no
-// finding behind them, and "not-examined" sweeps whose sitesChecked listed inspected sites, both
-// mis-routed the next round): `finding-filed` must point at a findings[] title via `findingRef`;
-// `not-examined` means NOTHING was inspected, so its sitesChecked is empty. The reconciliation
-// below turns any other combination into `inconsistentSweeps`.
-const FINDINGS = { type:'object', additionalProperties:false, required:['findings','sweeps','residualRisk'], properties:{
-  findings:{ type:'array', items:{
-    type:'object', additionalProperties:false,
-    required:['title','file','line','class','severity','scenario','suggestedFix'],
-    properties:{ title:{type:'string'}, file:{type:'string'}, line:{type:'string'},
-      class:{type:'string', enum:['correctness','convention','scalability','platform-limit','wiring','state-safety']},
-      severity:{type:'string', enum:['P1','P2','P3']}, scenario:{type:'string'}, suggestedFix:{type:'string'} } } },
-  sweeps:{ type:'array', description:'One entry per class/pattern this dimension swept — the enumeration table, restituted, not left in reasoning. Every target NAMED in the mandate (DIMENSION focus, NAMED TARGETS, residual items from the prior round) gets its own entry quoting that name verbatim in `target`.', items:{
-    type:'object', additionalProperties:false,
-    required:['target','sitesChecked','verdict'],
-    properties:{ target:{type:'string', description:'the class/pattern swept, e.g. "every route with the same validation" — a mandate-named target is quoted verbatim'},
-      sitesChecked:{type:'array', items:{type:'string'}, description:'file:line entries you actually opened or grepped IN THIS RUN — a tool call in your trace backs each one; never copied from the mandate or the CONTEXT'},
-      verdict:{type:'string', enum:['clean','finding-filed','not-examined'], description:'STRICT tri-state: clean = every listed site inspected, nothing to file; finding-filed = at least one findings[] entry exists for it (named in findingRef); not-examined = you did NOT inspect it, so sitesChecked MUST be empty — if you opened a site and drew a conclusion, the verdict is clean or finding-filed, never not-examined'},
-      findingRef:{type:'string', description:'REQUIRED when verdict is finding-filed: the exact `title` of the findings[] entry this sweep filed'} } } },
-  residualRisk:{type:'string', description:'Unconfirmed doubts and verifications that failed or could not be run — each as "command → observed output" or "not run". "none" is allowed if there truly are none.'} } }
-
-// mustFix replaces isReal: it is true for a correctness defect OR a convention/scalability/platform
-// deviation backed by a cited repo idiom or external limit. Pure style => mustFix:false.
-// `checksPerformed` is REQUIRED restitution: the concrete commands/greps/tests actually executed
-// and their outcome — not a description of what verification "would" show.
-const VERDICT = { type:'object', additionalProperties:false,
-  required:['mustFix','class','checksPerformed','reasoning'],
-  properties:{ mustFix:{type:'boolean'},
-    class:{type:'string', enum:['correctness','convention','scalability','platform-limit','wiring','state-safety','style']},
-    repoIdiomViolated:{type:'string', description:'sibling file:line that does it right, or the external hard limit — REQUIRED to justify a non-correctness must-fix'},
-    checksPerformed:{type:'array', items:{type:'string'}, description:'the concrete commands/greps/tests you ran to verify or refute this finding, each as "command → observed output". The check must be CAPABLE of proving what you conclude from it: a piped/filtered command proves only what the filter can see, an aggregate run proves nothing per file, and a claim with no command behind it is written as "not run"'},
-    confidence:{type:'string',enum:['high','medium','low']}, reasoning:{type:'string'} } }
-
-// Always include `scalability` + `platform-limits` for any backend / data / messaging diff, and
-// `tooling-effectiveness` + `wiring-and-contract` for any diff that ships/edits enforcement code
-// (hooks, lint/CI scripts, validators) or docs/agent-instructions — see the artifact-inventory step
-// above. Add domain dimensions; drop only the ones with zero surface in this diff.
-// Optional per dimension: `targets:[...]` — every consumer list, sibling file, symbol, or residual
-// item from the prior round that you want explicitly CLOSED by this dimension (e.g.
-// targets:['html-review-changed consumers','server/services/treeWatcher.ts','residual (b)']).
-// Each name is injected into the hunt prompt as a NAMED TARGET and checked 1:1 against `sweeps`
-// at the end of the round (`uncoveredTargets`). Field, 2026-09-11: three rounds in a row, targets
-// named in a dimension's focus came back with no sweep at all — not `not-examined`, just silence —
-// and the orchestrator read the empty `findings` as a clean pass.
-const DIMENSIONS = [
-  { key:'correctness',     focus:'Logic bugs, off-by-one, null/undefined, error paths, edge cases — a triggerable wrong output.' },
-  { key:'scalability',     focus:'Read-cost & scale. EVERY query reachable from changed code: bounded by an index range, or does it .collect()/scan an unbounded set? over-fetch (collect-all then discard)? N+1? Compare to the MOST-bounded sibling query in the repo and CITE it. Flag even if today\'s data is small — scale is the trigger.' },
-  { key:'platform-limits', focus:'External hard limits & encoding. Every outbound message/API payload: can it exceed a hard limit (e.g. Telegram 4096-char sendMessage)? break entities/encoding (mid-entity HTML, split emoji surrogate)? fail at boundaries (empty/max)? any clock-derived value that needs a ticking state to update at a rollover?' },
-  { key:'tooling-effectiveness', focus:'For EVERY new/changed hook, lint check, CI step, regex-based scanner, or validator: does it actually FIRE against this repo\'s real paths/shapes/event-payloads, or could a path/regex/field-name/scope mismatch make it silently no-op? Don\'t just read the pattern — trace it against an ACTUAL file or event from this repo (run the regex, check the real directory tree, check the real hook-event payload shape) and state what you traced it against. A gate that can be satisfied without the protected work happening, or that can block forever, is reportable here.' },
-  { key:'wiring-and-contract', focus:'Is every new script/hook/check actually REGISTERED/CALLED from EVERY place that\'s supposed to call it (not just the most obvious one — e.g. a validate script AND a pre-commit hook AND CI can each be a separate, independently-wireable integration point for the same invariant)? Does any doc/skill/rule/agent-instruction/README assert a command, script, or behavior that the actual code does not satisfy (stale or aspirational documentation)? Any dead link / orphan reference to a path that does not exist?' },
-  { key:'blast-radius',    focus:'What ELSE depends on changed symbols/shapes/exports, AND every SIBLING with the same anti-pattern signature (same unbounded query, same unbounded payload, same clock-derived window) — twins three functions away.' },
-  { key:'contracts',       focus:'Behavior/parity vs. the code it replaces; API/schema/validator changes; backward compat; silent data loss; and any unverified behavioral CLAIM (a comment asserting "updates at midnight"/"always fits" the code does not structurally guarantee).' },
-  { key:'security-and-data', focus:'Auth, input validation, injection, PII/leak of internal fields, secrets, permissions.' },
-]
-
-
-// WHOLLY-NEW FILES AS NAMED TARGETS (field, 2026-10-01 + 2026-10-02 — two distinct jobs): the CONTEXT
-// line "audit the entire file" was not enough. On job 33cd3e17 five of six hunters never opened the
-// wholly-new test + __fixtures__ files (one excluded them from its own `git diff` with ':!*.test.ts');
-// on job 12c1e9cc no hunter opened the new taskAlerter.test.ts, a second new test file was read only
-// to line 60, three more were run but never read — and `uncoveredTargets` stayed empty both times
-// because no dimension NAMED them. Fill NEW_FILES from
-// the two NUL-delimited inventory commands above — tests and fixtures INCLUDED,
-// nothing filtered out — and each file is assigned round-robin to a dimension as a named target, so
-// silence on any of them surfaces in `uncoveredTargets` instead of reading as a pass.
-const INVENTORY_COMPLETE = false // Set true only after both inventory commands succeed and paths are reconciled.
-const NEW_FILES = [/* unique PR paths from both inventory commands above */]
-if (!INVENTORY_COMPLETE) throw new Error('INCOMPLETE: populate and validate the new-file inventory first')
-if (NEW_FILES.length && !DIMENSIONS.length) throw new Error('New files require a hunt dimension')
-NEW_FILES.forEach((f, i) => {
-  const d = DIMENSIONS[i % DIMENSIONS.length]
-  d.targets = [...(d.targets ?? []), `wholly-new file ${f}`]
-})
-
-phase('Hunt')
-const results = await pipeline(
-  DIMENSIONS,
-  (d) => agent(`${CONTEXT}\n\nDIMENSION: ${d.focus}\n\nIf a finding overlaps another dimension's territory, note the overlap in one line rather than re-developing it — a later step dedupes same-file/line reports, so a full write-up per dimension only multiplies verify cost for one defect.\n\nRESTITUTION (required, not optional): anything you investigate but do not write into \`sweeps\` or \`residualRisk\` counts as NOT DONE — a class-sweep or a doubt that stays inside your reasoning is invisible to the orchestrator and to the next round. Explicitly close every focal question this dimension raises: one \`sweeps\` entry per class/pattern you swept, listing every site you actually checked (\`sitesChecked\`) and its \`verdict\` — \`not-examined\` is a valid, honest answer when you ran out of budget, silence is not. If you notice a defect while reasoning through this dimension — even low severity, even adjacent to your named focus — file it in \`findings\` rather than dropping it because it felt minor.\n\nCOVERAGE 1:1: every target named in this DIMENSION (a consumer list, a sibling file, a symbol, a residual item) needs its own \`sweeps\` entry quoting the name verbatim in \`target\` — clean, finding-filed, or not-examined. Before you emit, re-read the DIMENSION text and tick each named target against your sweeps; a named target with no entry is a restitution defect, not an omission.\n\nTRI-STATE, strictly: \`not-examined\` means you did NOT inspect it — its \`sitesChecked\` is empty. If you opened a site and drew a conclusion, the verdict is \`clean\` or \`finding-filed\`, never \`not-examined\`. \`finding-filed\` requires a real \`findings\` entry, named in \`findingRef\` — a defect that lives only in \`residualRisk\` prose is invisible to the dedupe and fix steps. A defect you noticed yourself (even adjacent) is filed, not parked as not-examined.\n\nPROVENANCE: every \`sitesChecked\` entry is a site YOU opened or grepped in this run — a tool call in your trace backs it; a path you only read in this prompt is not a checked site. Every claim in \`residualRisk\` names the command you ran and its observed output, and that command must be CAPABLE of proving the claim (a filtered/piped command proves only what the filter can see; an aggregate test run proves nothing per file; overlapping batches do not add up). If you did not run it, write "not run".\n\nEVIDENCE FORM: each \`sitesChecked\` entry is \`path:line\` (or \`path\` + the exact grep pattern) — never a prose summary, so it can be matched against your tool calls. A \`clean\` verdict on a BEHAVIORAL claim (a guard, a race, an auth/identity boundary, a state transition) needs an executed test or reproduction; if you only read the code, keep \`clean\` but write "static read only — no test run" for that target in \`residualRisk\`. A targeted test run (e.g. \`bun test <file>\`) is allowed and expected where it can prove the claim — read-only forbids edits, not tests.\n\nSHARED MACHINE: sibling hunters run in parallel. Run TARGETED tests only — never the full suite (the orchestrator owns it); never leave a background process running at hand-back, never sleep-poll one; write scratch files under \`mktemp -d\`, never a fixed /tmp name. SHELL: the host is typically macOS/zsh — quote every glob you pass to a tool (\`--include='*.ts'\`), prefer \`rg -g '*.ts'\` for searches. Hunters must not edit reviewed files. Fixers may use the Edit tool or \`sed -i ''\` on BSD/macOS (GNU sed uses a different syntax). Do not assume GNU \`timeout\` exists; after a shell error, change the command before retrying it.${d.targets?.length ? `\n\nNAMED TARGETS (each needs its own \`sweeps\` entry quoting the name verbatim — clean, finding-filed, or not-examined; silence is a restitution defect): ${d.targets.join(' · ')}` : ''}`, { label:`hunt:${d.key}`, phase:'Hunt', schema:FINDINGS, model:'sonnet', effort:'medium' }),
-  (review) => parallel((review?.findings ?? []).map((f) => () =>
-    agent(`${CONTEXT}\n\nADVERSARIALLY VERIFY this finding. First verify its FACTS against the real code, then set mustFix:
-- TRUE if some input makes it wrong/crash/lose data (correctness), OR it deviates from a repo idiom you can CITE in repoIdiomViolated / violates an external hard limit / is an unbounded read|scan|N+1|over-fetch — even if today's data makes it work.
-- FALSE only if it is pure STYLE, or its facts don't hold.
-Do NOT set mustFix=false merely because the output is correct today or "not triggerable" — that is the trap that lets review bots catch you.\n\nRESTITUTION (required, not optional): any command/grep/test you run to verify or refute this finding that you do not list in \`checksPerformed\` counts as NOT DONE — a check that only happened in your reasoning is unopposable by the orchestrator. Close the focal question this finding raises explicitly, with the outcome of each check. If, while verifying, you notice a DIFFERENT defect than the one you were sent to check, file it too rather than silently letting it go because it's out of scope for this verdict.\n\nPROVENANCE: each \`checksPerformed\` entry is "command → observed output", and the command must be CAPABLE of proving what you conclude from it — "typecheck clean" needs an unfiltered tsc run (a \`| grep\` pipe proves only the absence of the grepped pattern), a per-file test count needs a run of that file, and a total across batches is only valid if the batches do not overlap. A conclusion with no command behind it is written as "not run", never as verified.\n\n${JSON.stringify(f,null,2)}`,
-      { label:`verify:${f.file}:${f.line}`, phase:'Verify', schema:VERDICT, model:'sonnet', effort:'high' })
-      .then((v) => ({ finding:f, verdict:v }))))
-    // Carry the hunt-level restitution (sweeps, residualRisk) alongside this dimension's verified
-    // findings — if it only lived on `review` inside this closure it would never reach the
-    // orchestrator's return value below, which is exactly the "trapped in reasoning" failure mode
-    // this schema change exists to close.
-    .then((verified) => ({ verified, sweeps: review?.sweeps ?? [], residualRisk: review?.residualRisk ?? 'none',
-      huntFindings: review?.findings ?? [] }))
-)
-// results: one entry per dimension — { verified: [{finding,verdict}], sweeps, residualRisk, huntFindings }.
-
-// Different dimensions independently rediscover the SAME bug constantly (e.g. 7 dimensions all
-// flagging the same dead TOC anchor). Merge same-file/overlapping-line findings BEFORE you act on
-// the list, or you'll pay verify + fix cost N times for one defect and the round-count looks far
-// worse than it is.
-function dedupeFindings(items) {
-  const merged = []
-  for (const item of items) {
-    const f = item.finding
-    const lineNum = String(f.line).match(/\d+/)?.[0]
-    const twin = merged.find((m) => m.finding.file === f.file &&
-      (lineNum ? String(m.finding.line).includes(lineNum) : m.finding.line === f.line))
-    if (twin) twin.duplicateCount = (twin.duplicateCount ?? 1) + 1
-    else merged.push({ ...item, duplicateCount: 1 })
-  }
-  return merged
-}
-
-const allVerified = results.flatMap((r) => r.verified ?? [])
-const confirmed = dedupeFindings(allVerified.filter(Boolean).filter((r) => r?.verdict?.mustFix))
-
-// Restitution rollup: `sweeps` and `residualRisk` are orchestrator-facing, not buried in a
-// subagent's report — surface them in the return so a `not-examined` sweep or an outstanding doubt
-// is visible even when `findings` alone looks clean (see "Reading sweeps and residualRisk" below).
-const sweeps = results.flatMap((r) => r.sweeps ?? [])
-const notExaminedSweeps = sweeps.filter((s) => s.verdict === 'not-examined')
-const residualRisks = results.map((r) => r.residualRisk).filter((r) => r && r !== 'none')
-
-// Tri-state reconciliation (field, 2026-09-13): a `finding-filed` sweep with no findings[] entry
-// behind it is a GHOST filing — the defect exists only in prose, invisible to dedupe and to the fix
-// step; a `not-examined` sweep whose sitesChecked lists inspected sites is a dodged verdict. Both
-// are unresolved, not clean — surfaced separately so you re-ask that dimension or examine it
-// yourself before declaring convergence.
-const inconsistentSweeps = results.flatMap((r) => {
-  const titles = (r.huntFindings ?? []).map((f) => f.title)
-  return (r.sweeps ?? []).flatMap((s) => {
-    if (s.verdict === 'finding-filed' && !(s.findingRef && titles.includes(s.findingRef)))
-      return [{ ...s, problem: 'finding-filed with no matching findings[] title (ghost filing)' }]
-    if (s.verdict === 'clean' && !(s.sitesChecked ?? []).some((site) => typeof site === 'string' && site.trim().length > 0))
-      return [{ ...s, problem: 'clean with no checked site or recorded search' }]
-    if (s.verdict === 'not-examined' && (s.sitesChecked ?? []).length > 0)
-      return [{ ...s, problem: 'not-examined but sites were inspected — must be clean or finding-filed' }]
-    return []
-  })
-})
-
-// Mandate coverage 1:1 (field, 2026-09-11): targets the orchestrator NAMED in a dimension came back
-// with no sweeps entry at all — neither clean nor not-examined, just silence — and the empty
-// `findings` read as a clean pass. Any dimension may cover a name; what matters is that SOME sweep
-// quoted it. An uncovered target is an open focal question, exactly like `not-examined`.
-const namedTargets = DIMENSIONS.flatMap((d) => d.targets ?? [])
-const uncoveredTargets = namedTargets.filter((t) => !sweeps.some((s) => s.target === t))
-const incomplete = notExaminedSweeps.length || inconsistentSweeps.length || uncoveredTargets.length
-
-return {
-  verdict: confirmed.length ? 'FINDINGS' : incomplete ? 'INCOMPLETE' : 'PASS',
-  confirmed: confirmed.map((r) => ({ ...r.finding, verdict:r.verdict, duplicateCount:r.duplicateCount })),
-  sweeps, notExaminedSweeps, inconsistentSweeps, uncoveredTargets, residualRisks,
-}
-```
-
-When the workflow returns `INCOMPLETE`, close its coverage or restitution gaps and rerun before
-counting a clean pass, while the round cap still allows a round (resuming dead agents of the same
-run is not a new round); once it is spent, close them by examining them yourself, as "Converged"
-in "Scaling & cost" says. A `FINDINGS` result can also contain those gaps.
-
-When the workflow returns `FINDINGS`, **you** fix each confirmed item (once per distinct defect, not
-once per `duplicateCount`) with a **class-sweep** (core
-discipline #3 — fix every sibling of the same anti-pattern in the same pass, repo-wide, with the
-enumeration table), then re-run the workflow on the **whole** new diff. Proceed once the review
-converges, within the round cap (see "Scaling & cost").
-
-**Reading `sweeps` and `residualRisk` is part of reading the results, not optional extra credit.**
-The workflow's return carries `sweeps`, `notExaminedSweeps`, `inconsistentSweeps`,
-`uncoveredTargets`, and `residualRisks` alongside `verdict`/`confirmed` (manual fallback: the same
-fields, gathered by hand from each agent's report — see below) — read them the same way you read
-`findings`, every round:
-- Anything in `notExaminedSweeps` is an open focal question, not a clean pass — fold it into the next
-  round's scope (assign it to a dimension, or examine it yourself before declaring convergence).
-  Never silently treat `not-examined` as `clean`, and never declare `PASS`/convergence while
-  `notExaminedSweeps` is non-empty.
-- Anything in `uncoveredTargets` is a target you NAMED that no sweep quoted — silence, which is
-  worse than `not-examined` because nothing flags it. Treat it exactly like `notExaminedSweeps`.
-  Before the round, name the targets you care about in `targets` (consumer lists, sibling files,
-  residual items from the prior round) so the reconciliation can catch the silence for you; after
-  the round, if you named nothing, do the tick-list by hand: every symbol/file/class the dimension
-  focus mentions gets a line in some sweep, or it goes into the next round.
-- Anything in `inconsistentSweeps` is a sweep whose verdict contradicts its own content: a
-  `finding-filed` with no `findings[]` entry behind it (the defect only exists in prose — it never
-  reaches dedupe or the fix step) or a `not-examined` whose `sitesChecked` shows the agent DID look.
-  Re-ask that dimension for a real verdict (file the finding, or decide clean), or examine the
-  sites yourself. Never count a ghost filing as "found and handled".
-- Anything in `residualRisks` is a doubt an agent could not resolve — carry it forward into the next
-  round's `CONTEXT`, or into the honest residual-risk report at convergence (see "Scaling & cost").
-  Do not let it fall out of the loop just because the round it surfaced in returned `PASS` on
-  `findings` alone.
-- Same discipline for `checksPerformed` on each VERDICT: if a must-fix verdict's `checksPerformed` is
-  thin or missing relative to what the reasoning claims, that verdict is under-restituted — treat it
-  as unresolved, not as a pass.
-- **Claims vs checks (discipline #7):** for every verification claim in `residualRisk` or
-  `checksPerformed`, ask "which command, and could THAT command prove THIS?". A "repo-wide clean"
-  backed by a `| grep` pipe, a per-file "N/N pass" backed by an aggregate run, a "none found" with
-  no grep named, a total that re-adds an overlapping batch, a `sitesChecked` path that only the
-  mandate ever mentioned — downgrade each to unverified and carry it into the next round's
-  `CONTEXT`. The judge caught five of these in one night; the orchestrator should have.
+Each wholly-new file is a named target of one dimension. Hunters return `findings`, `sweeps` (per class or
+named target: sites actually checked, verdict `clean`, `finding-filed` + `findingRef`, or `not-examined` with
+no sites) and `residualRisk`. Anything investigated but not written there counts as not done.
 
 <!-- runtime-slot:model-policy -->
-**Model policy (Franck's decision, 2026-10-03 — no Opus subagents):** HUNTERS run
-`model:'sonnet', effort:'medium'`; the independent VERIFY step per finding runs
-`model:'sonnet', effort:'high'`. Never spawn a subagent on Opus, verifier included. A blind replay
-of 12 Opus reviews in Sonnet (2026-09-09) showed the rigor comes from the protocol (second round on
-the fix diff, executed proofs, independent verify), not from the model tier. Pin these in the
-agent opts as in the template above; never let a hunt or a verify inherit the session model. The
-second round on the fix diff and the Verify step are NOT optional: both runs that skipped Verify
-missed boundary defects (state overwritten by a PUT body, the "item" half of a fix) that
-independent verification exists to catch.
+**Model policy: no Opus subagents.** Hunters run `model:'sonnet', effort:'medium'`, verifiers `model:'sonnet',
+effort:'high'`, pinned in the agent options: a hunt or verify never inherits the session model. The rigor
+comes from the protocol (second round on the delta, executed proofs, independent verify), not from the model
+tier. The Verify step is not optional.
 <!-- /runtime-slot:model-policy -->
 
-<!-- runtime-slot:workflow-prompts -->
-**Where the Workflow tool prompts, and where it does not (verified 2026-09-09):** LOCALLY, in a
-session running in auto mode, the Workflow tool launches WITHOUT any approval dialog (this skill's
-own fan-outs ran unattended in the field). In a CLOUD run (claude.ai routine), the Workflow tool
-prompts at every launch even under bypassPermissions (cost guard) and nobody can click — there,
-use the no-ultracode fallback below. Key the engine choice on the environment, not on the fear of
-a popup.
-<!-- /runtime-slot:workflow-prompts -->
+### 3. Verify adversarially
 
-**No-ultracode fallback:** spawn the same dimensions as parallel `Agent` calls returning the same
-findings shape, then one verifier `Agent` per finding. Fewer agents, same discipline — and the SAME
-restitution fields, not a lighter version because there's no Workflow tool enforcing a schema. Each
-hunt agent's prompt/expected report must still require `findings`, `sweeps` (per class/pattern
-swept: target, sites checked, verdict), and `residualRisk` (unconfirmed doubts, or "none"); each
-verify agent's report must still require `checksPerformed` (the concrete checks it ran, with
-outcome) alongside `mustFix`/`class`/`reasoning`. When you (the orchestrator) read a hand-launched
-agent's final message back, hold it to the same bar as a Workflow schema result: no `sweeps` table,
-no `residualRisk` line, no `checksPerformed` list in the report means that work is NOT DONE, even if
-the agent's prose claims it happened. Apply the same EVIDENCE FORM, SHARED MACHINE, and SHELL
-clauses from the hunt template to each manual hunt prompt. Use the two inventory commands above
-for committed and working-tree additions. Every wholly-new PR file, tests and fixtures included,
-is named as a target in at least one hunt prompt, as `NEW_FILES` does in the Workflow. The same three reconciliations apply by hand: every target
-you named in the prompt has a sweep line (or it is `not-examined` for the next round); every
-`finding-filed` line points at a finding actually listed and every `not-examined` line has an
-empty site list; every claim names a command capable of proving it.
+One independent verifier per finding tries to refute it: it checks the facts, sets `mustFix`, cites the repo
+idiom or limit for a non-correctness finding and lists `checksPerformed` as "command → observed output".
+Dedupe confirmed findings by file and overlapping line: one defect is fixed once.
 
-**The fallback drops the Workflow tool, never a phase.** Whatever the tier, the fallback still runs
-(a) at least one verifier `Agent` per finding — the orchestrator re-reading the finding and agreeing
-with it ("valid finding, I'd seen it myself") is not a verify step — and (b) the second round on the
-fix diff as an `Agent` fan-out, not as the orchestrator's own re-read. If you verify something
-yourself anyway, it counts only when you emit its `checksPerformed` list ("command → observed
-output") in the visible thread; verification that lives in your reasoning is NOT DONE. Field,
-2026-09-25 and 2026-09-26: both graded jobs ran the fallback, replaced every verifier with
-self-verification and ran round 2 alone ("self-verification … sufficient for this tier") — the
-same shortcut the model-policy paragraph above records as missing boundary defects.
+**The hand-launched fan-out drops the Workflow tool, never a phase.** Hunter and verifier agents return the
+same `findings`, `sweeps`, `residualRisk` and `checksPerformed`; a report without them is not done. Apply the
+EVIDENCE FORM, SHARED MACHINE and SHELL clauses of the template's hunt prompt, use the two inventory commands
+above (tests and fixtures included), name every wholly-new file as a target, run one verifier agent per
+finding and round 2 as an agent fan-out. Your own re-read counts only with its `checksPerformed` printed in
+the thread. Reconcile by hand as the template does.
 
-### Parallel fixers on a shared tree
+### 4. Read the results
 
-Fan-out FINDING agents are read-only; fan-out FIXER agents write, and several fixers share one
-working tree. One fixer running `git reset` / `git stash` / `git checkout -- .` wipes every OTHER
-fixer's uncommitted work — this nearly destroyed a parallel round in the field. Two acceptable
-setups, pick one per round:
+Read `notExaminedSweeps`, `uncoveredTargets` (a named target no sweep quoted: silence, not a pass),
+`inconsistentSweeps` (a `finding-filed` with no finding, a `not-examined` that lists sites) and
+`residualRisks` every round. Each is an open question: re-ask that agent or examine it yourself with
+`checksPerformed` in the thread, and carry unresolved doubts into the residual-risk report. No PASS while open.
 
-- **Worktree isolation** (preferred when fixers touch overlapping areas): each fixer gets
-  `isolation: 'worktree'`; merge back at round close-out.
-- **Shared tree with a mandatory clause**: every fixer prompt carries, verbatim: *"The working tree
-  is SHARED with other fixers running now. Never run `git reset`, `git stash`, `git checkout --`,
-  `git clean`, or any command that reverts files you did not edit — uncommitted work of other fixers
-  coexists with yours and is not noise. Edit only your assigned files."* A fixer prompt without this
-  clause on a shared tree is a dispatch defect.
+### 5. Disposition and minimal fix
 
-### Agent deaths mid-run (rate limits)
+Disposition every confirmed finding (rule 2), run the guardian (rule 3), fix only the FIX items. For each FIX
+sweep its class across the ENTIRE diff, never only its module: literal twins (same anti-pattern signature,
+grep it) and structural twins (the same invariant enforced at another integration point, the same function's
+other code paths such as delete after edit). Emit the enumeration table yourself in the main thread, every
+grep hit with a disposition (swept, has-guard, not-in-class and why). A twin gets a disposition too.
+
+**Parallel fixers on a shared tree.** Use worktree isolation (each fixer gets `isolation: 'worktree'`, merged
+back at round close-out), or put this clause verbatim in every fixer prompt: *"The working tree is SHARED with
+other fixers running now. Never run `git reset`, `git stash`, `git checkout --`, `git clean`, or any command
+that reverts files you did not edit. Uncommitted work of other fixers coexists with yours and is not noise.
+Edit only your assigned files."*
 
 <!-- runtime-slot:agent-deaths -->
-Long verify fan-outs WILL occasionally lose agents to provider rate limits (16 verifiers died in one
-field round). Do not restart the round from scratch and do not respawn dead agents individually:
-
-- **Workflow agents died** → relaunch the SAME script with `resumeFromRunId: <runId>`: every
-  completed agent's result returns instantly from cache; only the dead ones re-run. One field round
-  recovered all 16 dead verifiers this way at near-zero cost.
-- **A fixer (spawned via `Agent`) died or stalled** → continue it with `SendMessage` using its
-  agentId — its context (the finding, the files it read, its partial work) is intact. Respawning a
-  fresh fixer re-pays the whole context ramp and risks double-editing the same files.
+**Agents dying mid-run (rate limits).** Do not restart the round or respawn agents one by one. Relaunch the
+SAME Workflow script with `resumeFromRunId: <runId>`: finished agents return from cache, only the dead ones
+re-run. A dead fixer is continued with `SendMessage` using its agentId, context intact.
 <!-- /runtime-slot:agent-deaths -->
 
----
+## Sentinel
 
-## Sentinel (this is what unblocks `gh pr create`)
+The global hook `adversarial-pr-guard.mjs` blocks `gh pr create`, `gh pr ready` and MCP pull-request creation tools unless the **current HEAD** (with `--head <branch>`: that branch's tip) is recorded as reviewed.
 
-The global hook `adversarial-pr-guard.mjs` blocks `gh pr create` unless the **current HEAD** has been
-recorded as reviewed.
-
-**Recording the sentinel is the last step of EVERY converged review** (see "Round cap" in
-"Scaling & cost"), not only of Mode A: Mode A, Mode B, the Trivial tier, and rounds run by other
-reviewers outside this engine (a `codex exec` review pass, a second opinion the user asked for). The
-reviewer changes nothing: once the review converges and the reviewed state is committed, you record
-it. Field, PR 26 (2026-10-04): three of its four review rounds ran through `codex exec`, outside
-this skill, and none wrote the sentinel; the merge was blocked until it was written after the fact.
-Never record it for a review that did not converge.
-
-**An external pass is an input to a round, not a round by itself.** A `codex exec` review (or any
-reviewer outside this engine) counts as a round only when all of these hold:
-
-- it reviewed the whole diff against the PR base, and you cite its output file and the HEAD sha it
-  ran at; the HEAD you record is that sha, or descends from it only by commits covered by the cap
-  exception below;
-- you read its full output, not a summary of it;
-- every finding it raised got a disposition: fixed with its own verifier, refuted by a fresh
-  verifier agent with its `checksPerformed` (your own check refutes only a P3), or a P3 converted
-  to a chip;
-- you emitted, in your own thread, a class-sweep table and `checksPerformed` entries built from
-  greps and reads YOU ran on the code, each as "command → observed output" (discipline #7), never a
-  copy of the reviewer's claims.
-
-A pass that fails this bar, such as one answering "looks fine" with no such evidence, is not a round
-and does not count toward the cap: run the engine before recording.
-
-Record it **always with an explicit `cd` into the reviewed repo/worktree root in the SAME command**,
-as a standalone Bash command (never chained with `gh pr create` or a push):
+Contract: the file `<git-dir>/.adversarial-review-passed`, `<git-dir>` being the output of
+`git rev-parse --absolute-git-dir` in the reviewed checkout (for a worktree `.git/worktrees/<name>/`, never
+the shared `.git`), whose first token is the reviewed commit sha. Record it at the end of EVERY converged
+review (Mode A, Mode B, the Trivial tier, a review run outside this engine), never for one that did not
+converge. Use a standalone Bash command with an explicit `cd` into the reviewed repo or worktree root, never
+chained with the PR command or a push:
 
 ```bash
-cd <racine-absolue-du-repo-ou-worktree-revu> && git rev-parse HEAD > "$(git rev-parse --absolute-git-dir)/.adversarial-review-passed"
+cd <absolute-root-of-the-reviewed-repo-or-worktree> && git rev-parse HEAD > "$(git rev-parse --absolute-git-dir)/.adversarial-review-passed"
 ```
 
-This writes the reviewed commit sha into the repo's own git dir (never committed, repo-local; for a
-worktree that is `.git/worktrees/<name>/`, NOT the shared `.git`). The explicit `cd` is not optional:
-running the bare command from the wrong cwd writes the wrong sha into the wrong git dir — observed
-2026-08-14 (temps-chantier T77): the bare form ran from the main repo root and dropped master's sha
-into the SHARED `.git`, forging a pass for a diff that hook never validated and potentially
-contaminating the sibling worktrees. After writing, confirm the printed sha equals the HEAD you just
-reviewed; in Mode A, cite that sha in the PR description. The hook allows `gh pr create` only while
-that sha equals `HEAD` (and, for `--head <branch>`, the tip of that branch). If you commit more after
-reviewing, the sentinel goes stale and the hook re-blocks — **re-run the review** on the new diff,
-then re-record. The one exception is the cap. After the last round the cap allows, you may
-re-record without a new full round only when `git diff <last-reviewed-sha>..HEAD` contains nothing
-but (a) fixes of confirmed findings from that round, or of findings raised after it (a bot's, in
-Mode B), each passing its own fresh verifier, (b) quality gate repairs that change no reviewed
-behavior, and (c) a merge of the base that needed no conflict edits (`git show --remerge-diff
-<merge>` prints no hunk); the base-side hunks such a merge brings in count as (c). One more fresh
-verifier runs `git show --remerge-diff` on each merge of the range and quotes its output,
-classifies every hunk of that range into exactly one of (a), (b) or (c), with `checksPerformed`,
-and lists the lines each (b) repair touches. Any
-hunk it cannot classify (a new feature hunk, a conflict resolution, a "repair" that changes
-reviewed behavior) is not covered: the review has not converged for it, so report it. Do **not**
-write the sentinel to bypass the review, and NEVER write it into a `.git` that is not the reviewed
-checkout's own git dir; that defeats the entire point and counts as a security incident. If the hook
-blocks despite a genuine completed review, that is an infra failure: stop and report it (chip /
-orchestrator), don't route around it.
+The `cd` is not optional: from the wrong cwd the command forges a pass for a diff nobody validated. Confirm
+the sha equals the HEAD you reviewed and, in Mode A, cite it in the PR body. A later commit makes the
+sentinel stale and the hook re-blocks. Never write it into a `.git` that is not the reviewed checkout's own,
+never write it to skip the review (a security incident). If the hook blocks despite a genuine completed
+review, stop and report an infra failure.
 
----
+**After the last round the cap allows**, re-record without a new round only if
+`git diff <last-reviewed-sha>..HEAD` holds nothing but (a) fixes of confirmed findings, each with its own
+fresh verifier, (b) quality-gate repairs changing no reviewed behavior, (c) a conflict-free base merge
+(`git show --remerge-diff <merge>` prints no hunk), (d) the removal of the chantier intent sheet
+(`.chantier/<slug>/intention.md`). A fresh verifier classifies every hunk into exactly one
+of these with `checksPerformed`; an unclassifiable hunk means not converged.
 
-## Scaling & cost (don't 30-agent a typo)
+**An external pass** (a `codex exec` review) is an input to a round, not a round. It counts only if it
+reviewed the whole diff against the PR base (cite its output file and HEAD sha), you read its full output,
+each finding got a disposition with its own fresh verifier (your own check refutes only a P3), and you emitted
+your own class-sweep table and `checksPerformed` from greps and reads you ran.
 
-Match the fan-out to the change. Over-reviewing is its own waste.
+## Scaling & cost
 
-| Change size | Engine |
-| --- | --- |
-| Trivial (typo, comment, 1-line, config) | Skip the fan-out. Read the diff + run the quality gate. Record sentinel. |
-| Small (a few files, no shared surface) | 2–3 dimensions, single-vote verify. |
-| Medium (feature, multiple files) | 4–5 dimensions, adversarial verify each finding. |
-| Large / risky (auth, schema, public API, shared dispatch, migration) | Full dimensions + 3-vote adversarial verify; widen blast-radius coverage. |
+Trivial (typo, comment, one line, config): no fan-out, read the diff, run the gate, record the sentinel.
+Small (a few files, no shared surface): 2-3 dimensions, single-vote verify. Medium (feature, several files):
+4-5 dimensions, verify each finding. Large/risky (auth, schema, public API, shared dispatch, migration): all
+dimensions, 3-vote verify, wider blast radius.
 
-**Round cap — two rounds, a third only for a P1 or at least five P2 (Franck's decision,
-2026-10-05).** A round is one full dimension fan-out with its Verify step (a per-fix verifier is not
-a round). The cap counts rounds per PR, across Mode A and Mode B, whoever runs them: this engine,
-the hand-run fan-out, or an external reviewer that meets the bar in "Sentinel".
+**Converged** means: round 1 confirmed no FIX (no round 2), or round 2 confirmed nothing FIX, or the last
+round the cap allows confirmed FIX items and each is fixed, passed its own fresh verifier on the fix diff, and
+the gate is green (the same for a bot's later P1/P2 FIX), or the Trivial tier read the diff in full with a
+green gate. No `notExaminedSweeps`, `inconsistentSweeps` or `uncoveredTargets` stays open: close it in a round
+already owed, otherwise by examining it yourself.
 
-1. **Round 1** runs on the whole diff. If it confirms no P1/P2, the review has converged (any P3
-   becomes a chip): no round 2.
-2. **Round 2** runs on the whole diff after the round-1 fixes. Wherever this skill calls the second
-   round on the fix diff "not optional", it means this round, owed whenever round 1 confirmed a
-   P1/P2.
-3. **Round 3** runs when, and only when, round 2 confirmed at least one P1 or at least five P2. The
-   threshold is read on round 2 only, and counts distinct confirmed defects after dedupe and Verify.
-   There is never a fourth round.
-
-Field, PR 26 (2026-10-04): four rounds on an autosave module, and each batch of fixes brought a new
-regression that the next round found; the rounds stopped converging, they kept the diff moving.
-
-**Converged** means one of the cases below, and in every case no `notExaminedSweeps`,
-`inconsistentSweeps` or `uncoveredTargets` stays open. An open item is closed by the next round
-while the cap allows one and that round is owed anyway (never a round 2 run only for it, after a
-round 1 with no P1/P2), otherwise by examining it yourself with `checksPerformed` in the thread;
-an item that still cannot be closed means the review has not converged.
-
-- round 1 confirmed no P1/P2;
-- round 2 or 3 confirmed nothing;
-- the last round the cap allows confirmed findings, and every P1/P2 among them is fixed, each fix
-  passed its own independent verifier on the fix diff (not a new full fan-out), and the quality gate
-  is green;
-- after the cap is spent, or after a round 1 that converged, every later P1/P2 (a bot's, in Mode
-  B) is fixed the same way, never by a new full round;
-- Trivial tier (no fan-out): the diff was read in full and the quality gate is green.
-
-In every case, remaining **P3 / low-severity findings convert to follow-up chips** (`spawn_task`)
-instead of another round, and you report the **residual risk** honestly: what classes were swept,
-what the last round still surfaced, what was not re-verified.
-
-A P1/P2 confirmed in the last allowed round counts as closed once its fix passes its verifier, a
-fresh agent that did not write the fix. If a verifier rejects a fix, or finds a regression in it,
-you get one more fix plus a fresh verifier for that finding (a regression counts against the same
-finding); if that one fails too, or a P1/P2 is left unfixed, the review has NOT converged: the
-changeset is too entangled. Do not record the sentinel. Surface the open findings to the user
-instead of grinding silently. In an unattended run, stop and report the open findings: in Mode A,
-push the branch and open no PR; in Mode B, do not push the unconverged batch. On a large diff (≳5k changed lines, migration-scale) the same
-cap holds: drain to the cap, fix, and lead the report with the residual risk rather than a hollow
-"clean pass" claim (a field migration review ran 16→7→10→8→2→2 findings over six rounds without
-ever reaching zero).
-
----
-
-## Anti-patterns (the loop this skill exists to prevent)
-
-- ❌ **Dismissing an unbounded query / missing index / over-fetch / oversized payload as "correct
-  today, just an optimization."** This is the #1 way a bot catches you. → ✅ Gate B: a deviation from
-  a repo idiom (cite the sibling) or an external limit is **must-fix even if not triggerable today**.
-- ❌ Fixing the one instance the comment points at. → ✅ **Class-sweep**: grep every sibling with the
-  same signature and fix them all in the same pass.
-- ❌ **Leaving the sweep's enumeration inside a subagent report (or emitting no table at all).** The
-  orchestrator declares "swept" on an assertion; undispositioned grep hits and same-file twins leak
-  into the next round (field: `recordTimerHistory`, re-found round 2). → ✅ The orchestrator emits
-  the table itself at fix time; every grep hit gets a disposition line.
-- ❌ **Scoping a class-sweep to the module the finding sits in.** The class recurs in every module the
-  sweep skipped, one round at a time (~7M tokens of re-finding, in the field). → ✅ The class is the
-  resource pattern across the ENTIRE diff (every mutation × that FK, every array × that cap); the
-  sweep's deliverable is an enumeration table of every candidate site.
-- ❌ Re-verifying only the symptom the comment named. → ✅ Re-run the **full dimension fan-out over the
-  whole diff** while the round cap allows it — the twin anti-pattern next to your fix must be
-  assessed.
-- ❌ Shipping a comment/claim the code doesn't structurally guarantee ("updates at midnight"). → ✅
-  Reproduce the claimed behavior or drop the claim.
-- ❌ Using "refute on doubt" to downgrade a cited convention/scalability/limit finding. → ✅
-  Refute-on-doubt is for **pure style only**; never for Gate B.
-- ❌ **Letting the PR's headline pick the dimensions** ("it's a quality cleanup PR" → only review the
-  cleanup) while a *background* change rides along unreviewed (new hooks/guards/CI scripts shipped
-  in the same diff). → ✅ Inventory the diff's actual file categories (`git diff --stat`) and assign
-  a dimension to EVERY one present, especially new enforcement/tooling code — it's self-referential,
-  so a bug in it disables protection silently and nothing downstream will catch it for you.
-- ❌ Treating "fix every sibling with the same anti-pattern TEXT" as the whole class-sweep. → ✅ Also
-  sweep **structurally**: the same invariant enforced at a second integration point (pre-commit as
-  well as `validate`), and the same function's other code paths (delete as well as edit, failure as
-  well as success) — these twins don't grep.
-- ❌ Reporting (and separately fixing) the same defect 3-7 times because different dimension agents
-  independently rediscovered it. → ✅ Dedupe confirmed findings by file + overlapping line before you
-  act; a round that "found 19 things" may be 4 distinct defects reported many times — fix the
-  defect once, not once per duplicate report.
-- ❌ A parallel fixer running `git reset` / `git stash` / `git checkout --` on the shared tree. → ✅
-  Worktree isolation, or the mandatory shared-tree clause in every fixer prompt — other fixers'
-  uncommitted work coexists and is not noise.
-<!-- runtime-slot:anti-pattern-deaths -->
-- ❌ Restarting a round from scratch (or respawning agents one by one) after rate-limit deaths. → ✅
-  Resume the SAME Workflow runId (completed agents return from cache); continue a dead fixer via
-  `SendMessage` with its context intact.
-<!-- /runtime-slot:anti-pattern-deaths -->
-- ❌ Fixing a bot comment, pushing, waiting for the next comment, repeat. → ✅ Batch + one full
-  adversarial pass over the whole diff before each push, within the round cap.
-- ❌ Declaring "compliant / no bugs" you can't back. → ✅ Re-verify the full diff; report honestly,
-  including regressions you caused.
-- ❌ Writing the sentinel to skip the review. → ✅ The sentinel attests a real pass; earn it.
-- ❌ **Investigates but does not restitute** — real greps/tests actually run, a class genuinely swept,
-  a doubt actually weighed, but none of it lands in `sweeps` / `checksPerformed` / `residualRisk`, so
-  it stays trapped in the agent's reasoning and unopposable by the orchestrator. → ✅ Anything not
-  written into those fields is treated as NOT DONE; every focal question gets explicitly closed, and
-  a defect noticed mid-reasoning gets filed as a finding — even low severity — instead of dropped.
-- ❌ **A named target answered by silence** — the dimension focus names "html-review-changed
-  consumers" or a sibling file to read, and the report has no sweep for it: not `clean`, not
-  `not-examined`, nothing — and the orchestrator reads the empty `findings` as a pass (field,
-  2026-09-11, three rounds). → ✅ Coverage 1:1: every named target gets its own sweep line quoting
-  the name; the orchestrator names them in `targets` and reads `uncoveredTargets` like
-  `notExaminedSweeps`.
-- ❌ **Wholly-new files left to a CONTEXT sentence** — "audit the entire file" sits in the shared
-  CONTEXT, no dimension owns the new test/fixture files, every hunter assumes another one read them,
-  and nobody does: on two distinct jobs (field, 2026-10-01/02) most hunters never opened the new
-  `*.test.ts` / `__fixtures__` files, one excluded them from its diff, and `uncoveredTargets` stayed
-  empty. → ✅ Fill `NEW_FILES` from both inventory commands above (tests and fixtures included);
-  each file becomes a named target of one dimension, so silence surfaces in `uncoveredTargets`.
-- ❌ **Blurred tri-state** — a `finding-filed` sweep with no finding behind it (a ghost that dedupe
-  and fix never see), or a `not-examined` whose `sitesChecked` shows the agent looked and concluded,
-  or a self-spotted adjacent defect parked as `not-examined` (field, 2026-09-13, four sessions).
-  → ✅ `finding-filed` names its finding in `findingRef`; `not-examined` has an empty site list; a
-  site you opened gets a real verdict; `inconsistentSweeps` is unresolved, never clean.
-- ❌ **Claims that outrun their checks** — "grep — none found" with no grep in the trace, "tsc clean
-  repo-wide" from a grep-filtered pipe, "12/12 pass" per file inferred from an aggregate run, a
-  test total that double-counts an overlapping batch, a `sitesChecked` path copied from the mandate
-  (field, 2026-09-13/14, five claims in one round). → ✅ Discipline #7: every claim names the
-  command you ran and its observed output, and that command must be CAPABLE of proving the claim;
-  otherwise it is written as "not run" and carried forward as unverified.
+A verifier that rejects a fix, or finds a regression in it, buys one more fix and one fresh verifier for that
+finding. If that fails too, or a P1/P2 FIX stays unfixed, the review has NOT converged: no sentinel, and rule
+4 applies. Always
+report the residual risk: what was swept, what the last round still surfaced, what was not re-verified.

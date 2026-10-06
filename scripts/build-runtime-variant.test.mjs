@@ -551,10 +551,12 @@ describe('every skill of this repo that declares a Codex variant', () => {
 
 describe('adversarial-pr-review (real skill)', () => {
   test('Codex template runs with resolved roles pinned on every agent', async () => {
-    let template = buildSkillMd(REAL_SKILL, 'codex').match(/```js\n([\s\S]*?)\n```/)[1]
+    // The template ships verbatim to Codex as references/workflow-template.js; Codex overwrites the
+    // HUNTER/VERIFIER defaults with the roles resolved by resolve-codex-models.mjs.
+    let template = readFileSync(join(REAL_SKILL, 'references/workflow-template.js'), 'utf8')
     template = template.replace('export const meta', 'const meta')
-      .replace("const HUNTER = { model: '<review-hunter model>', effort: '<review-hunter effort>' }", "const HUNTER = { model: 'm-hunt', effort: 'medium' }")
-      .replace("const VERIFIER = { model: '<review-verifier model>', effort: '<review-verifier effort>' }", "const VERIFIER = { model: 'm-verify', effort: 'high' }")
+      .replace("const HUNTER = { model: 'sonnet', effort: 'medium' }", "const HUNTER = { model: 'm-hunt', effort: 'medium' }")
+      .replace("const VERIFIER = { model: 'sonnet', effort: 'high' }", "const VERIFIER = { model: 'm-verify', effort: 'high' }")
       .replace('const INVENTORY_COMPLETE = false', 'const INVENTORY_COMPLETE = true')
     const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
     const calls = []

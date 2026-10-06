@@ -1,69 +1,29 @@
 {
-  "description": "Run a multi-agent ADVERSARIAL review (parallel spawn_agent hunters, then one verifier per finding) over the working diff so a change is bulletproof and \"compliant\" BEFORE its pull request is opened, and so automated code-review rounds CONVERGE instead of looping. Use this skill (Mode A) whenever you are about to create or open a pull request — when the user says \"create a PR\", \"open a PR\", \"tu peux créer la PR\", \"raise/submit a PR\", \"ouvre la PR\", or asks to push a branch up for review — and (Mode B) whenever a code-review bot (Codex, CodeRabbit, Claude review, Greptile, Graphite, etc.) posts comments on a PR that need addressing. A global PreToolUse hook (~/.codex/hooks/adversarial-pr-guard.mjs, effective on codex-cli 0.160.0 and later) blocks `gh pr create` until this skill has validated the current HEAD, so reach for it proactively rather than waiting to be told. Especially important for any change touching shared/exported surfaces, public APIs, auth, schemas, or anything a downstream consumer (or another tool) depends on. It judges by the same bar a strong review bot uses — not only correctness bugs, but deviations from the repo's own idioms, unbounded / over-fetching queries and missing indexes, and external platform limits (e.g. message-size caps).",
+  "description": "Run a multi-agent ADVERSARIAL review (parallel spawn_agent hunters, then one verifier per finding) of the working diff BEFORE its pull request is opened (Mode A), and resolve code-review bot comments (Codex, CodeRabbit, Greptile...) in one bounded pass (Mode B). Use it whenever you are about to create or open a PR (\"create a PR\", \"open a PR\", \"tu peux créer la PR\", \"ouvre la PR\", push a branch for review) or when a bot comments on a PR. On Codex the guard hook (~/.codex/hooks/adversarial-pr-guard.mjs, effective on codex-cli 0.160.0 and later) blocks `gh pr create` until this skill has validated the current HEAD, so reach for it proactively. Two rounds at most, one disposition per finding, then it finishes.",
   "replace": [
     {
-      "from": "const REPO = '<absolute repo path>'\n",
-      "to": "const REPO = '<absolute repo path>'\n// Codex: fill from `node <this skill's folder>/scripts/resolve-codex-models.mjs --repo <REPO>` (never a model name from memory).\nconst HUNTER = { model: '<review-hunter model>', effort: '<review-hunter effort>' }\nconst VERIFIER = { model: '<review-verifier model>', effort: '<review-verifier effort>' }\n",
+      "from": "create it with `spawn_task`)",
+      "to": "create it with the workstation `chip_create` tool)",
       "count": 1
     },
     {
-      "from": "model:'sonnet', effort:'medium' }",
-      "to": "model:HUNTER.model, effort:HUNTER.effort }",
+      "from": "`~/.claude/skills/brief-chantier/references/gardien-intention.md` (in a cloud clone:\n   `.claude/skills/brief-chantier/references/gardien-intention.md`)",
+      "to": "`~/.agents/skills/brief-chantier/references/gardien-intention.md`",
       "count": 1
     },
     {
-      "from": "model:'sonnet', effort:'high' })",
-      "to": "model:VERIFIER.model, effort:VERIFIER.effort })",
+      "from": "`isolation: 'worktree'`",
+      "to": "its own `git worktree add <dir> -b <branch>`, named in its prompt",
       "count": 1
     },
     {
-      "from": "**No-ultracode fallback:** spawn the same dimensions as parallel `Agent` calls",
-      "to": "**Hand-run fan-out (the only engine on Codex):** spawn the same dimensions as parallel `spawn_agent` calls",
-      "count": 1
-    },
-    {
-      "from": "verifier `Agent` per finding",
-      "to": "verifier `spawn_agent` per finding",
-      "count": 2
-    },
-    {
-      "from": "fix diff as an `Agent` fan-out",
-      "to": "fix diff as a `spawn_agent` fan-out",
-      "count": 1
-    },
-    {
-      "from": "not a lighter version because there's no Workflow tool enforcing a schema.",
-      "to": "not a lighter version because nothing enforces a schema.",
-      "count": 1
-    },
-    {
-      "from": "**The fallback drops the Workflow tool, never a phase.**",
+      "from": "**The hand-launched fan-out drops the Workflow tool, never a phase.**",
       "to": "**The hand-run fan-out drops no phase.**",
       "count": 1
     },
     {
-      "from": "each fixer gets\n  `isolation: 'worktree'`; merge back at round close-out.",
-      "to": "each fixer gets\n  its own `git worktree add <dir> -b <branch>`, named in its prompt; merge back at round close-out.",
-      "count": 1
-    },
-    {
-      "from": "(`spawn_task`)",
-      "to": "(the workstation `chip_create` tool)",
-      "count": 1
-    },
-    {
-      "from": "A global hook blocks `gh pr create` until this ran.",
-      "to": "On Codex the guard hook blocks `gh pr create` until this ran (codex-cli 0.160.0 and later).",
-      "count": 1
-    },
-    {
-      "from": "The global hook `adversarial-pr-guard.mjs` blocks `gh pr create` unless the **current HEAD** has been\nrecorded as reviewed.",
-      "to": "The hook `~/.codex/hooks/adversarial-pr-guard.mjs` blocks `gh pr create` unless the **current HEAD** has been\nrecorded as reviewed. It needs codex-cli 0.160.0 or later: on 0.154.0, commands run through code mode\n(the `exec` tool) skipped PreToolUse hooks (both verified 2026-10-03). Whatever the version, the review and\nthe sentinel are your own discipline; never read a successful `gh pr create` as proof the review ran.",
-      "count": 1
-    },
-    {
-      "from": "Fixers may use the Edit tool or",
-      "to": "Fixers may edit with apply_patch or",
+      "from": "The global hook `adversarial-pr-guard.mjs` blocks `gh pr create`, `gh pr ready` and MCP pull-request creation tools unless the **current HEAD** (with `--head <branch>`: that branch's tip) is recorded as reviewed.",
+      "to": "The hook `~/.codex/hooks/adversarial-pr-guard.mjs` blocks `gh pr create`, `gh pr ready` and MCP pull-request creation tools unless the **current HEAD** (with `--head <branch>`: that branch's tip) is recorded as reviewed. It needs codex-cli 0.160.0 or later: on 0.154.0, commands run through code mode (the `exec` tool) skipped PreToolUse hooks. Whatever the version, the review and the sentinel are your own discipline; never read a successful PR creation as proof the review ran.",
       "count": 1
     }
   ],
@@ -83,11 +43,9 @@
     "Edit tool"
   ],
   "slotSources": {
-    "engine-intro": "749b2a1a662dd9a6",
-    "template-intro": "aed21e7a5be77c13",
-    "model-policy": "0ef79893d47b94e2",
-    "workflow-prompts": "30dc058f1dc72964",
-    "agent-deaths": "866a084f98632037",
-    "anti-pattern-deaths": "81fe7951bf72c408"
+    "engine-intro": "645734a2021f18a8",
+    "template-intro": "6ff6e9e26a13a6c8",
+    "model-policy": "053d406593c5fd9d",
+    "agent-deaths": "0ec920b145c1f89b"
   }
 }

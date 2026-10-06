@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 const skill = readFileSync(new URL('../SKILL.md', import.meta.url), 'utf8')
-const template = skill.match(/```js\n([\s\S]*?)\n```/)[1]
+const template = readFileSync(new URL('../references/workflow-template.js', import.meta.url), 'utf8')
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
 const emptyReview = () => ({ findings: [], sweeps: [], residualRisk: 'none' })
 const newTarget = (file) => `wholly-new file ${file}`
@@ -63,6 +63,16 @@ describe('documented adversarial Workflow', () => {
       expect(hunts.filter((c) => c.prompt.includes(newTarget(file)))).toHaveLength(1)
     })
     expect(hunts[0].prompt).toContain('existing target')
+  })
+
+  test('round 2 reviews only the delta since round 1', async () => {
+    const source = template.replace('const ROUND = 1', 'const ROUND = 2').replace("const ROUND1_SHA = ''", "const ROUND1_SHA = 'abc1234'")
+    const { calls } = await runWorkflow({ source })
+    for (const { prompt } of calls.filter((c) => c.options.phase === 'Hunt')) {
+      expect(prompt).toContain('diff abc1234 --')
+      expect(prompt).toContain('ONLY the delta since round 1')
+      expect(prompt).not.toContain('<merge-base-sha> --')
+    }
   })
 
   test('silent new-file coverage returns INCOMPLETE, never PASS', async () => {
@@ -132,8 +142,8 @@ describe('documented adversarial Workflow', () => {
       expect(prompt).toContain('mktemp -d')
       expect(prompt).toContain('Do not assume GNU `timeout` exists')
     }
-    const fallback = skill.split('**No-ultracode fallback:**')[1].split('### Parallel fixers')[0]
-    expect(fallback).toContain('Apply the same EVIDENCE FORM, SHARED MACHINE, and SHELL')
+    const fallback = skill.split('**The hand-launched fan-out drops the Workflow tool, never a phase.**')[1].split('### 4.')[0].replace(/\s+/g, ' ')
+    expect(fallback).toContain('Apply the EVIDENCE FORM, SHARED MACHINE and SHELL')
     expect(fallback).toContain('two inventory commands above')
     expect(fallback).toContain('tests and fixtures included')
   })

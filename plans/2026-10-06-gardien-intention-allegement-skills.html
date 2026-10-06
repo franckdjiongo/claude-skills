@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gardien d'intention</title>
+<style>
+  :root {
+    --paper: #f5f0e6; --surface: #fdfaf2; --surface-deep: #efe8d8;
+    --ink: #211b13; --ink-soft: #5f5546; --line: #ddd2bd;
+    --accent: #a35a2c; --ok: #3f5f37; --warn: #8a4a10; --todo: #6b6255;
+    --mono: ui-monospace, 'SF Mono', Menlo, monospace;
+    --body: -apple-system, 'Segoe UI', 'IBM Plex Sans', sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #171310; --surface: #201a15; --surface-deep: #14100c;
+      --ink: #ece3d3; --ink-soft: #b3a793; --line: #3a3128;
+      --accent: #d18d58; --ok: #8fae85; --warn: #d8a05c; --todo: #a99d8a; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--paper); color: var(--ink); font: 16px/1.6 var(--body); }
+  .layout { display: grid; grid-template-columns: 230px 1fr; gap: 40px; max-width: 1180px; margin: 0 auto; padding: 48px 16px 96px; }
+  nav.toc { position: sticky; top: 24px; align-self: start; font-size: 13.5px; }
+  nav.toc a { display: flex; justify-content: space-between; gap: 8px; color: var(--ink-soft); text-decoration: none; padding: 5px 0; border-bottom: 1px solid var(--line); }
+  nav.toc a:hover { color: var(--accent); }
+  .st { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+  .st.todo { color: var(--todo); } .st.wip { color: var(--warn); } .st.done { color: var(--ok); }
+  h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; margin-bottom: 12px; }
+  .lede { color: var(--ink-soft); max-width: 68ch; }
+  section { margin-top: 48px; }
+  h2 { font-size: 22px; border-bottom: 2px solid var(--ink); padding-bottom: 6px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  h3 { font-size: 17px; margin: 20px 0 8px; }
+  p, li { max-width: 74ch; }
+  p { margin-bottom: 12px; }
+  ul, ol { padding-left: 22px; margin-bottom: 12px; } li { margin-bottom: 6px; }
+  code { font-family: var(--mono); font-size: .88em; background: var(--surface-deep); padding: 1px 5px; border-radius: 4px; }
+  .box { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 14px 18px; margin: 16px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; margin: 12px 0; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: var(--mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); }
+  @media (max-width: 820px) { .layout { grid-template-columns: 1fr; } nav.toc { position: static; } }
+  @media print { body { background: #fff; color: #000; } nav.toc { display: none; } .layout { display: block; } }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc" aria-label="Sommaire">
+  <a href="#s0">00 · Intention <span class="st done">ok</span></a>
+  <a href="#s1">01 · Règles <span class="st done">ok</span></a>
+  <a href="#l1">L1 · Gardien <span class="st done">fait</span></a>
+  <a href="#l2">L2 · brief-chantier <span class="st done">fait</span></a>
+  <a href="#l3">L3 · adversarial-pr-review <span class="st done">fait</span></a>
+  <a href="#l4">L4 · brief-preflight + lint <span class="st done">fait</span></a>
+  <a href="#l5">L5 · Build et installation <span class="st done">fait</span></a>
+  <a href="#l6">L6 · Test sur dépôt bidon <span class="st done">fait</span></a>
+  <a href="#l7">L7 · Vérification et clôture <span class="st done">fait</span></a>
+  <a href="#s9">Journal <span class="st done">clos</span></a>
+</nav>
+<main>
+  <p class="st">claude-skills · branche feat/gardien-intention-allegement · 2026-10-06</p>
+  <h1>Gardien d'intention et allègement des skills de chantier</h1>
+  <p class="lede">Plan de suivi de l'orchestrateur. La fiche d'intention complète est dans <code>.chantier/intention.md</code> (jetable). Ce plan sert à reprendre le travail après une compaction : relire la fiche, ce plan et le journal, puis continuer au premier lot non fait.</p>
+
+  <section id="s0"><h2>00 · Intention <span class="st done">ok</span></h2>
+    <p>Rendre les chantiers autonomes capables de finir : budget total de lignes, revue bornée à 2 rounds, une décision par remarque, et un gardien qui écarte tout correctif hors de l'intention. Alléger <code>brief-chantier</code>, <code>adversarial-pr-review</code> et <code>brief-preflight</code> pour que leurs règles dures soient lues et appliquées, côté Claude Code et Codex.</p>
+    <p>Origine : analyse de la vague socle Temps Chantier (R1 à R5) et recherche approfondie sur le gonflement du code et des tests par les agents. Décisions de Franck : A1 à A5 acceptées, A2 avec chips autorisés ou non selon le chantier, A3 sans jamais bloquer un run autonome, gardien en agent simple appelé comme <code>me</code>.</p>
+  </section>
+
+  <section id="s1"><h2>01 · Règles du chantier <span class="st done">ok</span></h2>
+    <ul>
+      <li>Source unique : le dépôt <code>~/Desktop/my-projets/claude-skills</code>. Les copies <code>~/.claude/skills</code> et <code>~/.agents/skills</code> sont des installations, jamais éditées à la main. Variante Codex construite par <code>scripts/build-runtime-variant.mjs</code>.</li>
+      <li>Budget : ajouts ≤ 1 200 lignes, solde net négatif. Chips autorisés. Revue : 2 rounds au plus.</li>
+      <li>Les sous-agents Sonnet écrivent, ne commitent pas. L'orchestrateur relit chaque diff, commite par lot. Opus vérifie une seule fois, au lot 7.</li>
+      <li>À garder intact : protocole de sentinelle <code>.adversarial-review-passed</code> (hook <code>adversarial-pr-guard</code>), <code>preflight-flotte.mjs</code> et la section <code>s-flotte</code> (hook <code>flotte-plage-gate</code>), le contrat chips (<code>spawn_task</code>), les rôles AUTEUR / EXÉCUTANT / ORCHESTRATEUR, les modes A et B.</li>
+      <li>Pas de PR : fusion locale dans <code>main</code> après lot 7, push, installation, nettoyage du worktree.</li>
+    </ul>
+    <h3>Les règles dures à porter dans les skills</h3>
+    <table>
+      <tr><th>Code</th><th>Règle</th></tr>
+      <tr><td>A1</td><td>Budget total par chantier : code + tests + scripts. Cible ≤ 500 lignes ajoutées, plafond 1 000 ; au-delà, découper. Les suppressions et fichiers générés ne comptent pas. Ratio tests/code (dès 50 lignes de code) &gt; 2 : justification ; &gt; 4 : découpage ou accord humain.</td></tr>
+      <tr><td>A2</td><td>Chaque plan déclare <code>Chips : autorisés</code> ou <code>Chips : interdits</code>. Chaque remarque de revue reçoit une décision : CORRIGER (P1, P2 qui servent l'intention), CHIP (si autorisés), NE PAS CORRIGER (avec une ligne de raison), INVALIDE. Jamais « tout corriger, y compris les mineurs ».</td></tr>
+      <tr><td>A3</td><td>2 rounds de revue au plus, non contournable par un plan. Round 2 = relecture du delta seulement. Après, le chantier TERMINE : commit, push, PR si la revue a convergé ; sinon corps de PR (remarques ouvertes) dans le rapport, l'humain ouvre la PR (le hook bloque une PR sans sentinelle, même brouillon). Le run ne s'arrête jamais pour attendre.</td></tr>
+      <tr><td>A4</td><td>Tester ce que l'utilisateur voit, pas les internes. Preuve par exécution réelle quand elle est possible (dry-run, sandbox, test de l'app en local comme le ferait l'humain) avant d'ajouter des tests simulés.</td></tr>
+      <tr><td>A5</td><td>Disjoncteur : un lot qui dépasse le double de son estimation s'arrête, commite un état propre, rapporte, et le chantier passe à la clôture.</td></tr>
+      <tr><td>G</td><td>Fiche d'intention (1 page, jetable) + gardien d'intention appelé après chaque round de revue et avant la PR. Le gardien ne peut que retirer du travail.</td></tr>
+    </table>
+  </section>
+
+  <section id="l1"><h2>L1 · Gardien d'intention <span class="st done">fait</span></h2>
+    <ul>
+      <li><code>brief-chantier/assets/fiche-intention.md</code> : gabarit d'une page (pourquoi, journée avant/après, ce que ce n'est pas, preuve réelle, règles du chantier).</li>
+      <li><code>brief-chantier/references/gardien-intention.md</code> : protocole canonique du gardien (entrées, deux moments, format de sortie, interdits). Source unique ; les agents ne font que le pointer.</li>
+      <li><code>brief-chantier/agents/gardien-intention.md</code> (Claude) et <code>gardien-intention.toml</code> (Codex) : enveloppes minces, lecture seule, installées au lot 5 dans <code>~/.claude/agents</code> et <code>~/.codex/agents</code>.</li>
+    </ul>
+    <div class="box"><p><strong>Interface figée</strong> (les lots 2 et 3 s'y réfèrent) — Entrées : chemin de la fiche, <code>git diff --stat</code> de la base, liste des remarques (id, sévérité, résumé, correctif proposé). Moment 1, après chaque round : verdict par remarque <code>SERT</code> ou <code>HORS</code> + raison d'une ligne. Moment 2, avant la PR : verdict <code>ALIGNÉ</code> ou <code>DÉRIVE</code> + liste des parties du diff non rattachables à la fiche. Exception : une remarque sécurité ou perte de données est toujours <code>SERT</code>. Le gardien ne propose jamais de code.</p></div>
+  </section>
+
+  <section id="l2"><h2>L2 · brief-chantier <span class="st done">fait</span></h2>
+    <p>SKILL.md réécrit, cible ≤ 200 lignes : règles dures A1 à A5 et G en tête, puis les trois rôles. Les détails rarement utiles vont dans <code>references/</code> (chargés à la demande), les récits datés sont supprimés. <code>assets/template.html</code> gagne les champs Budget total, Chips, Fiche d'intention, Revue. <code>runtimes/codex.json</code> et <code>codex.md</code> réalignés.</p>
+  </section>
+
+  <section id="l3"><h2>L3 · adversarial-pr-review <span class="st done">fait</span></h2>
+    <p>SKILL.md réécrit, cible ≤ 220 lignes : décision par remarque (A2), plafond dur de 2 rounds et delta seul au round 2 (A3), appel au gardien après chaque round quand une fiche existe, clôture qui ne bloque jamais. Le gabarit de workflow quitte le SKILL.md pour <code>references/workflow-template.js</code> ; <code>scripts/workflow.test.mjs</code> lit ce fichier. Sentinelle et mode B inchangés sur le fond.</p>
+  </section>
+
+  <section id="l4"><h2>L4 · brief-preflight et lint <span class="st done">fait</span></h2>
+    <p>SKILL.md cible ≤ 150 lignes, revue de jugement plafonnée à 2 rounds. <code>preflight-lint.mjs</code> refuse un plan sans budget total, sans déclaration de chips, sans fiche d'intention, ou qui contient « jusqu'à convergence », « jusqu'au critère de convergence » ou « y compris les mineurs ». Nouveau <code>scripts/preflight-lint.test.mjs</code>. Option <code>--legacy</code> conservée pour les anciens plans.</p>
+  </section>
+
+  <section id="l5"><h2>L5 · Build et installation <span class="st done">fait</span></h2>
+    <p>Tous les tests des trois skills, <code>build-runtime-variant --check</code> pour Codex, installation dans <code>~/.claude/skills</code>, <code>~/.agents/skills</code>, <code>~/.claude/agents</code>, <code>~/.codex/agents</code>, sauvegarde préalable des copies installées. Registre <code>skills-registry.yaml</code> si une description change.</p>
+  </section>
+
+  <section id="l6"><h2>L6 · Test sur dépôt bidon <span class="st done">fait</span></h2>
+    <p>Dépôt jetable dans le scratchpad : petite app avec un défaut visible par l'utilisateur. Un sous-agent Sonnet joue l'AUTEUR (fiche + plan), le lint tourne, un second joue l'EXÉCUTANT, la revue tourne avec le gardien. Mesures : rounds ≤ 2, budget respecté, au moins une remarque écartée par le gardien avec sa raison, PR simulée (diff final + description).</p>
+  </section>
+
+  <section id="l7"><h2>L7 · Vérification et clôture <span class="st done">fait</span></h2>
+    <p>Une vérification Opus du diff complet contre la fiche (2 rounds au plus). Correctifs, suppression de <code>.chantier/</code>, fusion dans <code>main</code>, push, réinstallation, retrait du worktree et de la branche, rapport final à Franck.</p>
+  </section>
+
+  <section id="s9"><h2>Journal <span class="st done">clos</span></h2>
+    <ul>
+      <li>2026-10-06 — fiche et plan écrits ; inventaire des couplages (hooks, test du workflow, builder Codex) fait.</li>
+      <li>L1 <code>feb385f</code> gardien (fiche, protocole, agents Claude et Codex). L4 <code>f82f712</code> brief-preflight 2 483 → 1 416 mots, lint des règles dures + 10 tests. L2 <code>daedc19</code> brief-chantier 5 987 → 2 438 mots. L3 <code>2ca72e4</code> adversarial-pr-review ~10 400 → ~2 475 mots, gabarit de workflow sorti du SKILL.md.</li>
+      <li>Écart : le hook bloque toute PR sans sentinelle, même brouillon. Clôture non convergée = branche poussée + corps de PR dans le rapport. Chip ouvert pour une exception brouillon.</li>
+      <li>L6 test sur dépôt bidon (export paie, 7:30 lu comme 7) : plan PASS au lint, lot 1 en 27 lignes, round 1 = 18 remarques, gardien 11 SERT / 7 HORS, 4 correctifs, round 2 = 2 P3, revue convergée en 2 rounds, gardien moment 2 ALIGNÉ, 77 lignes ajoutées (plafond 120). Correctifs du skill issus du test : <code>f83398f</code>.</li>
+      <li>L7 vérification Opus : round 1 = 0 P1, 5 P2 (3e round résiduel, P1 jugeable HORS, « SERT = CORRIGER », retrait de la fiche hors sentinelle, plan sans fiche bloquant), corrigés <code>399164a</code> ; round 2 = 1 P3 corrigé. Budget : 1 216 lignes ajoutées (plafond 1 200 dépassé de 16, dont 211 lignes de gabarit déplacées), 1 791 supprimées, solde −575.</li>
+    </ul>
+  </section>
+</main>
+</div>
+</body>
+</html>

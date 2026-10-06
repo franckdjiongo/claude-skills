@@ -108,7 +108,7 @@
     <p>{{INTENTION_3_A_5_PHRASES_LE_POURQUOI_PROFOND}}</p>
   </div>
   <div class="callout"><div class="co-title">Contrat d'intention — exécutant, lis ceci d'abord</div>
-    <p>Avant toute action : restitue l'intention ci-dessus en 1-2 phrases à toi. Si ta restitution contredit ce bloc, ARRÊTE et pose la question au hub workstation (<code>cd ~/Desktop/my-projets/workstation && bun run convo create {{SLUG_PROJET}} -</code>) au lieu d'exécuter de travers. Un run qui a mal compris le pourquoi produit du travail à défaire.</p>
+    <p>Avant toute action : restitue l'intention ci-dessus en 1-2 phrases à toi. Si ta restitution contredit ce bloc, ARRÊTE et pose la question au hub workstation (<code>bun run --cwd ~/Desktop/my-projets/workstation convo create {{SLUG_PROJET}} -</code>) au lieu d'exécuter de travers. Un run qui a mal compris le pourquoi produit du travail à défaire.</p>
   </div>
 </section>
 
@@ -159,14 +159,22 @@
     <li><strong>Rapport de fin de run</strong> : {{OU_RAPPORTER}}</li>
     <li><strong>Interdits de ce chantier</strong> : {{INTERDITS_EXPLICITES}}</li>
   </ul>
+  <h3>Règles du chantier</h3>
+  <p class="muted">Règles dures du standard (A1 à A5, G). Garde chaque ligne telle quelle, valeurs remplies : le lint du préflight les lit (check 11). Une seule des deux lignes « Chips » subsiste.</p>
+  <ul class="list">
+    <li>Budget total : &lt;cible&gt; / &lt;plafond&gt; lignes ajoutées (code + tests + scripts)</li>
+    <li>Chips : autorisés <!-- ou « Chips : interdits » : garder une seule des deux lignes --></li>
+    <li>Fiche d'intention : &lt;chemin&gt;</li>
+    <li>Revue : 2 rounds au plus, round 2 sur le delta, puis clôture</li>
+  </ul>
 </section>
 
 <!-- ═══ SECTION OPTIONNELLE — FLOTTE PARALLÈLE ═══════════════════════════════════
      À DÉCOMMENTER et remplir UNIQUEMENT si ce plan appartient à une VAGUE de
      chantiers parallèles (rôle ORCHESTRATEUR, Phase 2, étape 4bis du standard).
-     Plan solo = laisse ce bloc commenté, ou supprime-le. Le lint l'ignore tant
-     qu'il dort dans ce commentaire ; dès qu'il est décommenté, les trois
-     marqueurs ci-dessous deviennent obligatoires (check 9 du préflight).
+     Plan solo = SUPPRIME ce bloc et sa ligne de TOC (ses placeholders feraient échouer
+     le lint). Décommenté, les trois marqueurs ci-dessous deviennent
+     obligatoires (check 9 du préflight).
      Ne pas oublier la ligne de TOC correspondante, en bas de ce fichier.
 
 <section id="s-flotte">
@@ -187,7 +195,7 @@
 
 <section id="s-lots">
   <div class="sec-head"><span class="sec-num">03</span><h2>Les lots — dans l'ordre, un commit par lot</h2></div>
-  <p>Chaque lot laisse le repo vert et commitable. Après la vérification du lot : <code>git commit</code> — message <code>chantier({{SLUG_PLAN}}): lot N — &lt;titre&gt;</code>, jamais de ligne Co-Authored-By. <strong>Le DERNIER lot ne fait pas exception</strong> : c'est un lot de PROCESSUS (clôture, revue, PR/rapport), il porte quand même l'étiquette <code>lot N</code> — un message libre du genre « correctifs de revue » casse le <code>git log --grep</code> du run aval. Le git log est le suivi d'avancement : ne modifie pas ce fichier HTML. Lot sous gate humain explicite : run local → travail laissé staged jusqu'à validation ; run cloud éphémère → commit préfixé <code>[GATE-HELD]</code> devant le message normal du lot (le git log porte l'état « en attente de validation humaine » ; relecture par <code>git log --grep "GATE-HELD"</code>).</p>
+  <p>Chaque lot laisse le repo vert et commitable. Après la vérification du lot : <code>git commit</code> — message <code>chantier({{SLUG_PLAN}}): lot N — &lt;titre&gt;</code>, jamais de ligne Co-Authored-By. <strong>Le DERNIER lot ne fait pas exception</strong> : c'est un lot de PROCESSUS (clôture, revue, PR/rapport), il porte quand même l'étiquette <code>lot N</code> — un message libre du genre « correctifs de revue » casse le <code>git log --grep</code> du run aval. Le git log est le suivi d'avancement : ne modifie pas ce fichier HTML. <strong>Disjoncteur (A5)</strong> : un lot qui dépasse le double de son estimation s'arrête, commite un état propre, rapporte, et le chantier passe à la clôture. Lot sous gate humain explicite : run local → travail laissé staged jusqu'à validation ; run cloud éphémère → commit préfixé <code>[GATE-HELD]</code> devant le message normal du lot (le git log porte l'état « en attente de validation humaine » ; relecture par <code>git log --grep "GATE-HELD"</code>).</p>
 
   <p class="classe-doublures"><strong>Classe pré-autorisée — doublures de test.</strong> La liste « Fichiers touchés » de chaque lot borne le périmètre : tout besoin hors liste est un arrêt et une question au hub. UNE exception, autorisée d'avance : quand un changement de ce chantier (signature, contrat d'un hook, nouveau membre obligatoire) casse d'anciens tests SEULEMENT parce que leurs doublures, fixtures ou mocks ne fournissent pas le nouveau membre, l'exécutant complète ces doublures sans s'arrêter, à quatre conditions : (1) uniquement par ajout du nouveau membre ; aucune valeur existante modifiée, aucun snapshot régénéré ; aucune assertion ajoutée, retirée ou modifiée ; aucun test sauté ni marqué en échec attendu ; (2) aucun fichier de production touché hors liste ; (3) chaque fichier ainsi touché est nommé, avec son nombre de lignes ajoutées, dans le message de commit du lot et dans le rapport final ; (4) le relecteur du lot vérifie ces fichiers contre ces conditions. Un échec de vérification causé SEULEMENT par de telles doublures se répare ainsi, en UNE seule passe par lot, puis la vérification est relancée : ce n'est pas un échec du protocole arrêt-et-chip. Si elle reste rouge, quelle qu'en soit la cause, c'est un arrêt immédiat selon le protocole d'échec (§05), diff laissé en l'état. Tout le reste (une assertion, une valeur existante, un fichier de production non listé, une règle) reste un arrêt et une question au hub. Ce paragraphe peut être restreint, jamais élargi ; son absence signifie : aucune pré-autorisation.</p>
 
@@ -214,7 +222,7 @@
   <div class="sec-head"><span class="sec-num">04</span><h2>Vérification de fin de run</h2></div>
   <pre class="cmd">{{COMMANDES_GLOBALES_FIN_DE_RUN}}</pre>
   <ul class="list">
-    <li>{{VERIF_UI_CLAIR_SOMBRE_SI_APPLICABLE}} — lance le dev server du repo CIBLE en Bash (<code>bun run dev</code> dans le repo du plan) ; n'utilise pas les outils de prévisualisation du harnais de l'agent (ex. <code>preview_*</code> sous Claude Code), ils sont liés à la racine de la session et démarreraient le mauvais serveur.</li>
+    <li>{{VERIF_UI_CLAIR_SOMBRE_SI_APPLICABLE}} — si le chantier touche une UI, lance le dev server du repo CIBLE en Bash (son script de dev, dans le repo du plan) ; n'utilise pas les outils de prévisualisation du harnais de l'agent (ex. <code>preview_*</code> sous Claude Code), ils sont liés à la racine de la session et démarreraient le mauvais serveur.</li>
     <li><strong>Hygiène machine</strong> : arrête tout serveur dev lancé pendant le run ; aucun worker orphelin (vitest/esbuild/vite) ne survit au run.</li>
     <li><strong>Rapport honnête</strong> : lots faits avec leurs commits, verdict exact des commandes (un test rouge se montre, il ne se résume pas en « quelques soucis »).</li>
   </ul>
@@ -229,7 +237,7 @@
   <p class="muted">Distinction unique avant d'arrêter : un échec de CODE (causé par les modifications du chantier) = arrêt immédiat ci-dessous ; un échec d'INFRA pré-existant (accès refusé, auth expirée, prompt interactif impossible — reproductible à l'identique sans les modifications du chantier) = chip + terminer les vérifications restantes + rapport honnête qui nomme l'échec verbatim. Dans le doute : échec de code. Exception : un échec causé SEULEMENT par des doublures de test qui ne fournissent pas un nouveau membre relève de la classe pré-autorisée du §03 — une seule passe de réparation, puis la vérification est relancée ; si elle reste rouge, quelle qu'en soit la cause : arrêt immédiat ci-dessous, diff laissé en l'état.</p>
   <ol class="list">
     <li>Arrête le run au lot en échec. Ne commit pas le lot raté ; laisse les modifications non commitées (le diff est le diagnostic).</li>
-    <li>Ouvre un chip : <code>spawn_task</code> (Claude Code) ou <code>chip_create</code> (Codex) si disponible, sinon <code>cd ~/Desktop/my-projets/workstation && echo '&lt;JSON&gt;' | bun run chips add -</code> avec <code>{"title","prompt","tldr","cwd"}</code> — le prompt contient : chemin du plan, lot en échec, commande, extrait d'erreur, état laissé, comment reprendre.</li>
+    <li>Ouvre un chip : <code>spawn_task</code> (Claude Code) ou <code>chip_create</code> (Codex) si disponible, sinon <code>echo '&lt;JSON&gt;' | bun run --cwd ~/Desktop/my-projets/workstation chips add -</code> avec <code>{"title","prompt","tldr","cwd"}</code> — le prompt contient : chemin du plan, lot en échec, commande, extrait d'erreur, état laissé, comment reprendre. Si les chips sont interdits : consigne l'échec dans le rapport à la place.</li>
     <li>Note l'échec dans la conversation hub du plan si elle existe, puis termine proprement (serveurs arrêtés, rapport honnête).</li>
   </ol>
 </section>
