@@ -41,36 +41,47 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
 <!-- /slot:goal-review-engine -->
 
 <!-- slot:watchdog-tick -->
-1. **Tick périodique (30-45 min)** — tant qu'au moins un chantier n'a pas livré
-   sa PR, une minuterie est armée en permanence : l'automatisation heartbeat de
-   la session (`automation_update`) si elle est disponible, sinon `sleep` (outil
-   `clock`) entre deux ticks — jamais une fin de tour sans minuterie armée.
-   Écris d'abord la consigne de surveillance COMPLÈTE (chantiers, worktrees,
-   quoi vérifier, quand relancer) dans un FICHIER, en tête du journal de
-   surveillance : `<repo-cible>/.worktrees/.surveillance-<vague>.md` (hors de
-   tout worktree de chantier) ; recopie-la aussi dans le message du heartbeat
-   s'il existe. Relis ce fichier à chaque tick : c'est lui, pas le présent
-   skill, qui survit à une compaction du contexte (une session-orchestrateur
-   nocturne compacte). À chaque tick, pour CHAQUE chantier : vérité disque du
-   worktree (`git -C <worktree> log --oneline -1` + mtime des fichiers récents)
-   comparée au dernier point connu, et état de l'agent (`list_agents` : en cours,
-   ou terminé avec sa réponse) s'il a été lancé par toi. Un retour de
-   `wait_agent` n'est pas un tick : ne refais la vérification disque que si 30 min
-   au moins se sont écoulées depuis la précédente (sinon c'est du polling). Si
-   un chantier tourne dans une session que tu n'as pas lancée, il n'y a pas
-   d'agent à interroger : seul le disque fait foi, et c'est la minuterie qui
-   produit le tick.
+1. **Tick périodique (30 min)** — la minuterie est le heartbeat de la session :
+   `automation_update` avec `mode:"create"`, `kind:"heartbeat"`,
+   `destination:"thread"`, `rrule:"FREQ=MINUTELY;INTERVAL=30"`, armé tant qu'au
+   moins un chantier n'a pas livré sa PR. Son `prompt` est un pointeur, pas une
+   copie : « Relis `<repo-cible>/.worktrees/.surveillance-<vague>.md` et exécute
+   le tick de surveillance ». Ce fichier est la seule source de la consigne
+   COMPLÈTE (chantiers, worktrees, quoi vérifier, quand relancer) et le journal
+   de l'item 4 (une ligne par chantier et par tick, ajoutée à la fin) : écris-le
+   avant d'armer le heartbeat, hors de tout worktree de chantier ; si
+   `git -C <repo-cible> check-ignore -q .worktrees/x` échoue, ajoute
+   `.worktrees/` à `.git/info/exclude` d'abord. Relis-le à chaque tick : c'est
+   lui qui survit à une compaction du contexte. Pas de heartbeat disponible
+   (`automation_update` absent) : dis-le à l'utilisateur au lancement — il n'y
+   aura pas de tick sans surveillance humaine — et n'utilise jamais `sleep`
+   comme minuterie (il ne dure que quelques dizaines de secondes : ce serait du
+   polling). À chaque tick, pour CHAQUE chantier : vérité disque du worktree
+   (`git -C <worktree> log --oneline -1` + mtime des fichiers récents)
+   comparée au dernier point connu, et état de l'agent (`list_agents`) s'il a
+   été lancé par toi. Un retour de `wait_agent` n'est pas un tick : hors tick,
+   ne refais la vérification disque que pour la vérification post-relance de
+   l'item 3 (≤ 10 min après une relance : `wait_agent` sur l'agent relancé avec
+   `timeout_ms: 600000`). Dès que tous les chantiers ont livré leur PR, ou à la
+   clôture du run, supprime le heartbeat (`automation_update` avec
+   `mode:"delete"` et son `id`) puis le fichier de surveillance.
 <!-- /slot:watchdog-tick -->
 <!-- slot:watchdog-relance -->
-2. **Disque immobile + agent absent de `list_agents` ou non « running » =
-   mort.** Un agent encore « running » mais silencieux (long `validate`, longue
-   réflexion) n'est PAS mort : relance-le avec `followup_task` (ou
-   `send_message`) vers son `task_name`, en lui donnant l'état exact vérifié sur
-   disque. Pour un agent mort : si tu dois le remplacer, `close_agent` d'abord
-   (jamais deux agents sur le même worktree), puis `spawn_agent` avec un message
-   qui porte l'état exact (commits présents, travail non commité vu par
-   `git status` / `git diff` dans le worktree, verdicts de revue déjà reçus) et
-   la consigne de continuer depuis là — jamais « reprends » à vide. Chantier dans
-   une session que tu n'as pas lancée : tu ne peux ni le fermer ni le relancer —
-   escalade à l'utilisateur avec l'état disque.
+2. **Lis l'état de l'agent avant de conclure** (`list_agents`, champ
+   `agent_status`) : `running` ou `pending_init` = vivant, même silencieux
+   (long `validate`, longue réflexion) — relance-le par `followup_task` (ou
+   `send_message`) vers son `task_name` avec l'état exact vérifié sur disque ;
+   `completed` = lis d'abord sa réponse finale, puis `followup_task` si le
+   travail n'est pas fini ; `interrupted`, `errored` ou absent avec un disque
+   immobile = mort — `followup_task` s'il existe encore (il garde son
+   contexte), sinon `close_agent` puis `spawn_agent` (jamais deux agents sur le
+   même worktree). Tout message de relance porte l'état exact (commits
+   présents, travail non commité vu par `git status` / `git diff` dans le
+   worktree, verdicts de revue déjà reçus) et la consigne de continuer depuis
+   là — jamais « reprends » à vide. Erreur « agent thread limit reached » :
+   `close_agent` les agents `completed` dont tu as lu la réponse, puis
+   réessaie. Chantier lancé dans une session que tu n'as pas ouverte (cas
+   courant : goal prompt collé par l'utilisateur) : tu ne peux ni le fermer ni
+   le relancer — la surveillance se limite à détecter et à escalader à
+   l'utilisateur avec l'état disque.
 <!-- /slot:watchdog-relance -->
