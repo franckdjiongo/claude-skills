@@ -1,39 +1,14 @@
 {
-  "description": "Standard for autonomous-execution work plans (\"plans de chantier\"). Three roles: AUTHOR a plan (write an HTML plan that a lesser model or a future session can execute with zero memory of the current conversation), EXECUTE a plan (run an existing brief-chantier plan lot by lot with verification gates), and ORCHESTRATE a fleet (turn a batch of chips/backlog items into several file-disjoint chantiers executed IN PARALLEL in git worktrees by other sessions, then merge/deploy/clean up afterwards). Use whenever the user asks to write/découper a \"plan de chantier\", \"brief-chantier\", \"plan de finition\", \"liste de finition\", a plan for \"runs nocturnes\" / \"run autonome\" / \"exécution autonome\", or asks to EXECUTE such a plan (e.g. \"exécute le plan docs/plans/….html\"). ALSO use — role ORCHESTRATEUR — whenever the user asks to execute a BATCH of chips/tasks as chantiers (e.g. \"exécute les 12 chips de tel projet\", \"fais les chips en chantiers\", \"chantiers parallèles\", \"exécute ça dans les worktrees\"), or to merge/close a finished parallel run. Also use when another brief or skill says a development plan must follow \"le standard brief-chantier\". Development plans only — one-shot documents (offers, playbooks, checklists) are out of scope.",
+  "description": "Standard for autonomous-execution work plans (\"plans de chantier\"). Three roles: AUTHOR a plan (an HTML plan that a lesser model or a future session can execute with zero memory of the current conversation), EXECUTE a plan (lot by lot, with verification gates), ORCHESTRATE a fleet (turn a batch of chips into file-disjoint chantiers executed in parallel in git worktrees, then merge/deploy/clean up). Use whenever the user asks to write/découper a \"plan de chantier\", \"brief-chantier\", \"plan de finition\", \"liste de finition\", a plan for \"runs nocturnes\" / \"run autonome\" / \"exécution autonome\", or to EXECUTE such a plan (\"exécute le plan docs/plans/….html\"). ALSO use — role ORCHESTRATEUR — to execute a BATCH of chips/tasks as chantiers (\"exécute les 12 chips de tel projet\", \"chantiers parallèles\", \"exécute ça dans les worktrees\") or to merge/close a finished parallel run. Also use when another skill says a development plan must follow \"le standard brief-chantier\". Development plans only: one-shot documents are out of scope.",
   "replace": [
     {
-      "from": "`~/.claude/settings.json`\n   ou `~/.codex/hooks.json`, refusée",
-      "to": "`~/.codex/hooks.json`\n   (ou le fichier de réglages de Claude Code), refusée",
+      "from": "`.claude/agents/`)",
+      "to": "`.codex/agents/*.toml`)",
       "count": 1
     },
     {
-      "from": "d'ultracode sur un seul hook",
-      "to": "de revue adversariale sur un seul hook",
-      "count": 1
-    },
-    {
-      "from": "`.claude/agents/` du repo cible",
-      "to": "`.codex/agents/*.toml` du repo cible",
-      "count": 1
-    },
-    {
-      "from": "rounds ultracode adversariaux",
-      "to": "rounds adversariaux multi-agents",
-      "count": 1
-    },
-    {
-      "from": "(routine claude.ai)",
-      "to": "(tâche cloud Codex)",
-      "count": 1
-    },
-    {
-      "from": "les outils `preview_*` du harnais sont liés à la racine de\n   la session, pas au repo cible, et démarreraient le mauvais serveur.",
-      "to": "un outil de prévisualisation du harnais lié à la racine de\n   la session, et non au repo cible, démarrerait le mauvais serveur.",
-      "count": 1
-    },
-    {
-      "from": "oublié par le run Opus du",
-      "to": "oublié par un run du",
+      "from": "(les outils `preview_*` du harnais sont liés à la racine de la session, pas au repo cible)",
+      "to": "(un outil de prévisualisation du harnais, lié à la racine de la session et non au repo cible, démarrerait le mauvais serveur)",
       "count": 1
     },
     {
@@ -42,48 +17,28 @@
       "count": 1
     },
     {
-      "from": "(un Workflow par plan,\n   lentilles sonnet/medium — jamais le modèle de session pour les lentilles)",
-      "to": "(un fan-out `spawn_agent` par plan, lancé par vagues quand `spawn_agent`\n   répond « agent thread limit reached » ; lentilles au modèle résolu du rôle\n   `review-hunter`, voir `brief-preflight` — jamais le modèle de session pour les lentilles)",
-      "count": 1
-    },
-    {
       "from": "node ~/.claude/skills/brief-preflight/scripts/preflight-flotte.mjs",
       "to": "node ~/.agents/skills/brief-preflight/scripts/preflight-flotte.mjs",
       "count": 1
     },
     {
-      "from": "(`.claude/worktrees/<slug>`, gitignoré)",
-      "to": "(`.worktrees/<slug>`, gitignoré)",
+      "from": "`.claude/worktrees/<slug>`",
+      "to": "`.worktrees/<slug>`",
       "count": 1
     },
     {
-      "from": "rejouable existe : `sh ~/.claude/hooks/tests/adversarial-pr-guard.smoke.sh`\n   (4 scénarios, dont celui de l'incident) — il doit finir `SMOKE OK`.",
-      "to": "rejouable n'existe pas encore côté Codex (le hook est\n   `~/.codex/hooks/adversarial-pr-guard.mjs`) : fais la simulation ci-dessus à la\n   main depuis le worktree, scénario de l'incident compris.",
-      "count": 1
-    },
-    {
-      "from": "modèle recommandé (défaut : orchestrateur Sonnet high +\n   implémenteur Sonnet medium ; sécurité/concurrence sensible : Opus high),",
-      "to": "modèles recommandés (l'orchestrateur garde le modèle de la\n   session ; les sous-agents prennent les modèles résolus au moment de l'usage par\n   `node ~/.agents/skills/adversarial-pr-review/scripts/resolve-codex-models.mjs --repo <repo-cible>`,\n   jamais un nom de modèle écrit dans le goal prompt ; sécurité/concurrence\n   sensible : effort `high`, jamais au-dessus pour un sous-agent ; ce résolveur ne\n   couvre que les rôles de revue : un implémenteur prend le modèle de l'agent\n   `.codex/agents/<nom>.toml` du projet, à défaut celui de la session, avec un\n   effort passé explicitement — `medium` par défaut, `high` si sensible),",
-      "count": 1
-    },
-    {
-      "from": "(SendMessage)",
-      "to": "(par un outil de message vers un agent si ta session en expose\n     un, sinon dans la conversation hub du plan)",
-      "count": 1
-    },
-    {
-      "from": "jamais general-purpose par défaut",
+      "from": "jamais `general-purpose` par défaut",
       "to": "jamais l'agent générique (`default`) par défaut",
       "count": 1
     },
     {
       "from": "`general-purpose`",
       "to": "`default`",
-      "count": 2
+      "count": 1
     },
     {
-      "from": "commit des plans HTML dans\n    `docs/plans/` du main. Puis session review honnête (rounds, écarts,\n    temps par chantier) et capture brain/frictions.",
-      "to": "commit des plans HTML dans\n    `docs/plans/` du main, suppression du heartbeat `surveillance-<vague>` s'il\n    existe encore (`automation_update` avec `mode:\"delete\"` et `id` =\n    l'`automationId` noté dans le fichier de surveillance ; déjà supprimé = rien\n    à faire ; refus de l'outil = signale-le à l'utilisateur). Puis session\n    review honnête (rounds, écarts, temps par chantier, lus dans le journal du\n    fichier de surveillance) et capture brain/frictions ; en tout dernier,\n    suppression du fichier `<repo-cible>/.worktrees/.surveillance-<vague>.md`.",
+      "from": "`docs/plans/`) ; session review honnête.",
+      "to": "`docs/plans/`), suppression du heartbeat `surveillance-<vague>` s'il existe encore (`automation_update` avec `mode:\"delete\"` et `id` = l'`automationId` noté dans le fichier de surveillance ; déjà supprimé = rien à faire ; refus de l'outil = signale-le à l'utilisateur). Puis session review honnête (rounds, écarts, temps par chantier, lus dans le journal du fichier de surveillance) et capture brain/frictions ; en tout dernier, suppression du fichier `<repo-cible>/.worktrees/.surveillance-<vague>.md`.",
       "count": 1
     }
   ],
@@ -118,9 +73,10 @@
     "claude-home": {
       "match": [
         "~/.claude/scripts/night-run-lock.sh",
-        "<code>.claude/agents/</code> / <code>.codex/agents/</code>"
+        "<code>.claude/agents/</code> / <code>.codex/agents/</code>",
+        "~/.claude/skills/brief-chantier/references/gardien-intention.md"
       ],
-      "reason": "night-run-lock.sh is one shared machine script that lives at this real path and serves every runtime, so the Codex text must name it. The plan template also names both agent directories on purpose, as a dual-runtime skeleton."
+      "reason": "night-run-lock.sh is one shared machine script that lives at this real path and serves every runtime, so the Codex text must name it. The plan template also names both agent directories on purpose, as a dual-runtime skeleton. The Claude wrapper agents/gardien-intention.md ships in the Codex build too (its sibling .toml is the Codex one) and names its own runtime's install path."
     },
     "spawn-task": {
       "match": [
@@ -132,17 +88,23 @@
       "match": [
         "(ex. <code>preview_*</code> sous Claude Code)",
         "<code>.claude/agents/</code> / <code>.codex/agents/</code>",
-        "<code>spawn_task</code> (Claude Code) ou <code>chip_create</code> (Codex)"
+        "<code>spawn_task</code> (Claude Code) ou <code>chip_create</code> (Codex)",
+        "~/.claude/skills/brief-chantier/references/gardien-intention.md"
       ],
-      "reason": "assets/template.html is a dual-runtime plan skeleton that names both runtimes deliberately, so these three exact strings (preview_*, the two agent directories, spawn_task next to chip_create) are the only ones the skill's forbid entries may skip."
+      "reason": "assets/template.html is a dual-runtime plan skeleton that names both runtimes deliberately, so its three exact strings (preview_*, the two agent directories, spawn_task next to chip_create) are skipped; the fourth string is the install path written in the Claude wrapper agents/gardien-intention.md, shipped next to its Codex .toml."
+    },
+    "claude-model-alias": {
+      "match": [
+        "model: sonnet"
+      ],
+      "reason": "agents/gardien-intention.md is the Claude Code wrapper agent (frontmatter model alias), shipped verbatim next to its Codex .toml, which carries no model."
     }
   },
   "slotSources": {
-    "preflight-invoke": "2dad63dacd436bb2",
-    "wait-subagents": "fc1d90f647786dec",
-    "flotte-hook": "9819e102a6aac770",
-    "goal-review-engine": "94dcb40a6b89f990",
-    "watchdog-tick": "edc52937a0a328eb",
-    "watchdog-relance": "fde65102d7205856"
+    "preflight-invoke": "616a2eb7b03bc999",
+    "wait-subagents": "d4196a60b7631677",
+    "flotte-hook": "94fffd67f0d7ed15",
+    "watchdog-tick": "c635a8b8cbb2f9a8",
+    "watchdog-relance": "f6c9135dec290b0f"
   }
 }

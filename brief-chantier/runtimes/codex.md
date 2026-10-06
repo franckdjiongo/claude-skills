@@ -9,7 +9,7 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
 <!-- /slot:preflight-invoke -->
 
 <!-- slot:wait-subagents -->
-   chez l'orchestrateur ». Quand tu attends un sous-agent (`spawn_agent`) :
+   Quand tu attends un sous-agent (`spawn_agent`) :
    appelle `wait_agent` avec un `timeout_ms` fini, en boucle, jusqu'à ce que
    chaque agent lancé ait rendu sa réponse finale. `wait_agent` dit seulement
    qu'UN agent a fini (ou que le délai a expiré) : tiens la liste de tes
@@ -32,13 +32,6 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
    logique vit dans le lint ; il n'y a aucun smoke test de hook à rejouer côté
    Codex.
 <!-- /slot:flotte-hook -->
-
-<!-- slot:goal-review-engine -->
-   round vide, **menée par des SOUS-AGENTS `spawn_agent` parallèles** — c'est le
-   seul moteur de revue sous Codex, donc rien à choisir ni à éviter pour un run
-   NON SUPERVISÉ ; nomme-le quand même dans le goal prompt (`spawn_agent`,
-   jamais « un workflow »), pour que l'instruction n'ait qu'une seule lecture, PR
-<!-- /slot:goal-review-engine -->
 
 <!-- slot:watchdog-tick -->
 1. **Tick périodique (30 min)** — la minuterie est le heartbeat de la session :
