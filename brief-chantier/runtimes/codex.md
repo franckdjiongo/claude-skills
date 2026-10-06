@@ -82,8 +82,12 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
    10000 ms) ; (b) la re-vérification à relance + 10 min décrite ci-dessous.
    Ni l'une ni l'autre n'écrit de ligne au journal, sauf si elle tombe aussi sur
    un tick. Toute relance est notée avec son heure dans la ligne de journal du
-   tick qui l'a faite. Le tick suivant ne relance jamais un agent relancé il y a
-   moins de 10 min : une relance proche de la limite des 30 min ne reçoit
+   tick qui l'a faite ; une relance faite hors tick (retour de `wait_agent` qui
+   n'est pas un tick, heartbeat sauté) s'ajoute aussitôt au journal en ligne
+   « relance <chantier> <heure> » ; partout ailleurs, « la dernière ligne du
+   journal » désigne la dernière ligne de tick (l'armement compte comme tick),
+   jamais une ligne « relance ». Le tick suivant ne relance jamais un agent
+   relancé il y a moins de 10 min : une relance proche de la limite des 30 min ne reçoit
    qu'une courte attente post-relance, ce n'est pas un silence. Ce tick
    journalise quand même cet agent ; si son disque n'a pas bougé, fais la
    re-vérification (b) : `wait_agent` sur lui, `timeout_ms` = (heure de la
