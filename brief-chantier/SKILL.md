@@ -33,8 +33,8 @@ un modèle moindre doit pouvoir l'exécuter sans personne pour répondre. Déter
   de revue reçoit UNE décision : CORRIGER (P1, et P2 qui servent l'intention), CHIP (si autorisés),
   NE PAS CORRIGER (une ligne de raison), INVALIDE. Jamais « tout corriger, y compris les mineurs ».
 - **A3 Revue : 2 rounds au plus.** Non contournable par un plan. Round 2 = relecture du delta seulement.
-  Après, le chantier TERMINE : commit, push, PR (brouillon s'il reste un P1) avec les remarques ouvertes
-  listées. Le run ne s'arrête jamais pour attendre.
+  Après, le chantier TERMINE : commit, push, puis PR si la revue a convergé ; sinon le corps de PR (remarques
+  ouvertes listées) va dans le rapport et l'humain ouvre la PR. Le run ne s'arrête jamais pour attendre.
 - **A4 Tester ce que l'utilisateur voit, pas les internes.** Preuve par exécution réelle quand elle est
   possible (dry-run, sandbox, app en local comme le ferait l'humain) avant d'ajouter des tests simulés.
 - **A5 Disjoncteur.** Un lot qui dépasse le double de son estimation s'arrête, commite un état propre,
@@ -128,8 +128,8 @@ Chaque étape est un gate.
    3. Avant la PR : gardien moment 2 ; `DÉRIVE` = retire les parties listées ou justifie-les une à une.
    4. Dernier lot : `git rm` la fiche d'intention, commit `chantier(<slug>): lot N — Clôture…`. La sentinelle
       de revue se pose sur ce HEAD final, par le flow légitime du skill de revue, jamais à la main.
-   5. Push, PR vers la branche prévue par le plan (brouillon s'il reste un P1), remarques ouvertes listées.
-      Aucun merge par l'exécutant.
+   5. Push. Revue convergée : PR vers la branche prévue par le plan, remarques ouvertes listées. Sinon : pas
+      de PR (le hook la bloque sans sentinelle), corps de PR dans le rapport. Aucun merge par l'exécutant.
    6. Hygiène : `sh ~/.claude/scripts/night-run-lock.sh release`, arrête tout serveur dev lancé, aucun worker
       orphelin.
 8. **Rapporte** dans la conversation hub du plan (sinon en fin de session) : lots et commits, verdict exact
