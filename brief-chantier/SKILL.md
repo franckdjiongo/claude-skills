@@ -175,12 +175,13 @@ Trois rôles. Détermine le tien et lis la section correspondante :
    modifiée, aucun snapshot régénéré, aucune assertion touchée, aucun test
    sauté), aucun fichier de production hors liste, fichiers nommés avec leurs
    lignes ajoutées dans le commit du lot et le rapport, vérification par le
-   relecteur. Tu peux le restreindre, jamais l'élargir. Observé le 2026-10-06
+   relecteur, une seule passe de réparation par lot. Tu peux le restreindre,
+   jamais l'élargir. Observé le 2026-10-06
    (R4, temps-chantier) : 76 tests cassés par un nouvel accesseur, réparés
    par simple ajout aux doublures, mais trois fichiers hors liste — le run a
    attendu toute la nuit une approbation pour une retouche sans risque.
    **Contrôlé par le lint du préflight, check 10, sévérité ERREUR** (présence
-   du paragraphe et de chacune de ses clauses ; `--legacy` rétrograde
+   du paragraphe et de ses clauses de bornage ; `--legacy` rétrograde
    seulement son absence).
 6. **Assigne un agent par lot — jamais general-purpose par défaut.** Vérifie
    les subagents disponibles pour ce projet (liste d'agents de la session, ou
@@ -278,11 +279,13 @@ Trois rôles. Détermine le tien et lis la section correspondante :
    doublures de test** : avant de t'arrêter, vérifie si le besoin entre dans
    la classe pré-autorisée du paragraphe `classe-doublures` du §03 du plan
    (rôle AUTEUR, étape 5ter). Si oui, complète les doublures par simple ajout
-   du nouveau membre, relance la vérification, et nomme chaque fichier avec
+   du nouveau membre, en une seule passe, relance la vérification (rouge
+   encore = protocole arrêt-et-chip), et nomme chaque fichier avec
    ses lignes ajoutées dans le commit du lot et le rapport ; le relecteur du
    lot les vérifie. Si le besoin touche une assertion, une valeur existante,
    un fichier de production ou une règle, ou si le plan n'a pas ce
-   paragraphe, c'est un arrêt et une question au hub. **Lot sous gate humain explicite** (validation User avant
+   paragraphe, c'est un arrêt et une question au hub.
+   **Lot sous gate humain explicite** (validation User avant
    commit) : en run LOCAL, laisse le lot staged et signale-le ; en run CLOUD
    ÉPHÉMÈRE (routine claude.ai), le staged meurt avec la session — commite
    avec le préfixe `[GATE-HELD]` devant le message normal
@@ -318,8 +321,9 @@ vérifications restantes et livrer son rapport, en y nommant l'échec verbatim.
 Dans le doute, traite-le comme un échec de code. Exception : un échec causé
 SEULEMENT par des doublures de test qui ne fournissent pas un nouveau membre
 relève de la classe pré-autorisée (étape 5ter, paragraphe `classe-doublures`
-du plan) — répare-les sous ses conditions et relance la vérification ; le
-protocole ne s'applique que si elle reste rouge. Concrètement :
+du plan) — répare-les sous ses conditions, en UNE seule passe par lot, et
+relance la vérification. Si elle reste rouge, quelle qu'en soit la cause :
+arrêt immédiat ci-dessous, diff laissé en l'état. Concrètement :
 
 1. **Arrête le run** au lot en échec. Ne commit PAS le lot raté ; laisse les
    modifications non commitées en l'état (le diff est le diagnostic — le
@@ -553,7 +557,10 @@ détruit).
 
 7. **Revue avant merge.** Établis une baseline verte sur main (typecheck +
    build + test) AVANT le premier merge. Lis les rapports hub des N sessions
-   ET le rapport final / la description de chaque PR (vérifie le sentinel de
+   ET le rapport final / la description de chaque PR (recoupe aussi les
+   fichiers de doublures que chaque rapport déclare au titre de l'étape 5ter :
+   hors listes, ils échappent au contrôle de disjonction ; un fichier cité par
+   deux chantiers impose un ordre de fusion explicite) (vérifie le sentinel de
    revue adversariale avant de merger — pas de merge sur une PR qui ne l'a
    pas) ; vérifie PRs/branches/worktrees ; spot-checke par lecture directe les
    invariants les plus porteurs de chaque plan dans le code livré.

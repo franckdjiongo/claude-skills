@@ -94,12 +94,15 @@ Le script vérifie mécaniquement, dans cet ordre :
    lint de vague ci-dessous, que ce check rappelle en avertissement dès qu'un
    plan se déclare membre d'une vague ;
 10. **classe pré-autorisée des doublures de test.** La section des lots porte le
-   paragraphe `<p class="classe-doublures">` du gabarit, chacune de ses clauses
+   paragraphe `<p class="classe-doublures">` du gabarit, chacune de ses clauses de bornage
    présente mot pour mot (ajout du seul nouveau membre, aucune valeur existante
    ni snapshot modifié, aucune assertion touchée, aucun test sauté, aucun
    fichier de production hors liste, fichiers nommés dans le commit et le
    rapport, vérification par le relecteur, tout le reste = arrêt au hub). Le
    check lit le HTML brut : un exemple échappé dans un `<pre>` ne compte pas.
+   Limite assumée : un contrôle par clauses voit une clause RETIRÉE, pas une
+   phrase AJOUTÉE qui élargit la règle (« sauf si… », « tout le reste est
+   permis ») — c'est aux lentilles du préflight et au relecteur de la voir.
    Rend le contrôle déterministe de l'étape 5ter du rôle AUTEUR de
    `brief-chantier`. Mode d'échec couvert : un run de nuit arrêté pour
    compléter des doublures de test cassées par son propre changement de

@@ -215,7 +215,7 @@ if (niceIdx === -1) {
   if (count < 5) errors.push(`Section Nice-to-have : ${count} item(s), minimum 5`);
 }
 
-/* --- Vue « live » du plan, réservée aux checks 8 et 9 ---------------------
+/* --- Vue « live » du plan, réservée aux checks 8 et 9 (le check 10 lit le HTML brut) ---
    Le gabarit brief-chantier livre la section flotte (§02b) en COMMENTAIRE HTML :
    un plan solo la laisse commentée, un plan de vague la décommente. Les checks
    ci-dessous ne doivent donc pas réagir à ce qui dort dans un commentaire.
@@ -330,8 +330,10 @@ if (flotte.present) {
       'Classe pré-autorisée des doublures de test : section des lots (id="s-lots") introuvable, check 10 impossible.',
     );
   } else {
-    const next = rawLive.indexOf('<section', lotsIdx);
-    const lotsSec = rawLive.slice(lotsIdx, next === -1 ? undefined : next);
+    // Fin = la prochaine section de PREMIER niveau (elles portent un id) : une
+    // <section> imbriquée sans id ne coupe pas la recherche.
+    const nextM = /<section\b[^>]*\bid=/i.exec(rawLive.slice(lotsIdx + 1));
+    const lotsSec = rawLive.slice(lotsIdx, nextM ? lotsIdx + 1 + nextM.index : undefined);
     const m = lotsSec.match(/<p\b[^>]*class="[^"]*\bclasse-doublures\b[^"]*"[^>]*>([\s\S]*?)<\/p>/i);
     if (!m) {
       (legacy ? warnings : errors).push(
@@ -342,25 +344,33 @@ if (flotte.present) {
           (legacy ? '' : '\n      (--legacy rétrograde ce finding en avertissement pour les plans antérieurs à la convention.)'),
       );
     } else {
+      const NAMED = { nbsp: ' ', amp: '&', quot: '"', lt: '<', gt: '>', rsquo: "'", lsquo: "'",
+        eacute: 'é', egrave: 'è', ecirc: 'ê', agrave: 'à', acirc: 'â', ccedil: 'ç', ocirc: 'ô',
+        icirc: 'î', ucirc: 'û', ugrave: 'ù', laquo: '«', raquo: '»', mdash: '—' };
       const norm = (x) =>
-        textOf(
-          x
-            .replace(/&nbsp;|&#160;/g, ' ')
-            .replace(/&#39;|&rsquo;|[‘’]/g, "'")
-            .replace(/&amp;/g, '&'),
-        )
+        textOf(x)
+          .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+          .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+          .replace(/&([a-z]+);/gi, (e, n) => NAMED[n.toLowerCase()] ?? e)
+          .normalize('NFC')
+          .replace(/[‘’]/g, "'")
           .replace(/\s+/g, ' ')
           .toLowerCase();
       const t = norm(m[1]);
       const missing = [
+        'seulement parce que leurs doublures, fixtures ou mocks ne fournissent pas le nouveau membre',
         'uniquement par ajout du nouveau membre',
         'aucune valeur existante modifiée, aucun snapshot régénéré',
         'aucune assertion ajoutée, retirée ou modifiée',
         'aucun test sauté ni marqué en échec attendu',
         'aucun fichier de production touché hors liste',
-        'dans le message de commit du lot et dans le rapport final',
+        'avec son nombre de lignes ajoutées, dans le message de commit du lot et dans le rapport final',
         'le relecteur du lot vérifie ces fichiers',
+        'en une seule passe par lot',
+        "si elle reste rouge, quelle qu'en soit la cause, c'est un arrêt immédiat",
         'reste un arrêt et une question au hub',
+        'peut être restreint, jamais élargi',
+        'son absence signifie : aucune pré-autorisation',
       ].filter((clause) => !t.includes(clause));
       if (missing.length) {
         errors.push(
