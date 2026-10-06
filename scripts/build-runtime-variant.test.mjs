@@ -280,19 +280,62 @@ describe('codex variant', () => {
 
   test('a symlinked .md is scanned through its target', () => {
     const d = skill({ codexMd: MD, codexJson: JSON_OK })
-    const outside = join(tmp(), 'outside.txt')
-    writeFileSync(outside, 'Ask the Agent tool.\n')
-    symlinkSync(outside, join(d, 'linked.md'))
+    writeFileSync(join(d, 'bad.txt'), 'Ask the Agent tool.\n')
+    symlinkSync('bad.txt', join(d, 'linked.md'))
     expect(() => checkVariant(d, 'codex')).toThrow('linked.md')
     expect(checkVariant(d, 'claude')).toContain('# Demo')
   })
 
   test('a symlink to a .md is scanned whatever its own name', () => {
     const d = skill({ codexMd: MD, codexJson: JSON_OK })
-    const outside = join(tmp(), 'bad.md')
-    writeFileSync(outside, 'Ask the Agent tool.\n')
-    symlinkSync(outside, join(d, 'alias.txt'))
-    expect(() => checkVariant(d, 'codex')).toThrow('alias.txt')
+    mkdirSync(join(d, 'sub', '.git'), { recursive: true })
+    writeFileSync(join(d, 'sub', '.git', 'bad.md'), 'Ask the Agent tool.\n')
+    symlinkSync('sub/.git/bad.md', join(d, 'alias.png'))
+    expect(() => checkVariant(d, 'codex')).toThrow('alias.png')
+  })
+
+  test('a symlink pointing outside the skill folder fails the Codex check', () => {
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    const outside = join(tmp(), 'outside.md')
+    writeFileSync(outside, 'Fine text.\n')
+    symlinkSync(outside, join(d, 'linked.md'))
+    expect(() => checkVariant(d, 'codex')).toThrow('linked.md: symlink pointing outside the skill folder')
+    expect(checkVariant(d, 'claude')).toContain('# Demo')
+  })
+
+  test('a symlink into runtimes/ fails the Codex check', () => {
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    symlinkSync('runtimes/codex.md', join(d, 'notes.md'))
+    expect(() => checkVariant(d, 'codex')).toThrow('notes.md: symlink into runtimes/ would dangle in the variant')
+  })
+
+  test('a symlink to the root SKILL.md is skipped and the variant builds', () => {
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    symlinkSync('SKILL.md', join(d, 'README.md'))
+    expect(() => checkVariant(d, 'codex')).not.toThrow()
+    buildVariant(d, 'codex', join(tmp(), 'out'))
+  })
+
+  test('shell, json, yaml, txt, htm and markdown files are scanned, case-insensitive', () => {
+    for (const name of ['run.sh', 'data.json', 'cfg.yaml', 'cfg.YML', 'n.txt', 'p.HTM', 'x.xhtml', 'a.markdown', 'b.mdx']) {
+      const d = skill({ codexMd: MD, codexJson: JSON_OK })
+      writeFileSync(join(d, name), '# Ask the Agent tool.\n')
+      expect(() => checkVariant(d, 'codex')).toThrow(name)
+      expect(checkVariant(d, 'claude')).toContain('# Demo')
+    }
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    writeFileSync(join(d, 'logo.png'), 'Ask the Agent tool.\n')
+    expect(() => checkVariant(d, 'codex')).not.toThrow()
+  })
+
+  test('a nested .git directory is not scanned, like the copy filter', () => {
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    mkdirSync(join(d, 'sub', '.git'), { recursive: true })
+    writeFileSync(join(d, 'sub', '.git', 'x.md'), 'Ask the Agent tool.\n')
+    expect(() => checkVariant(d, 'codex')).not.toThrow()
+    const out = join(tmp(), 'out')
+    buildVariant(d, 'codex', out)
+    expect(existsSync(join(out, 'sub', '.git'))).toBe(false)
   })
 
   test('a symlinked directory or a broken symlink fails the Codex check', () => {

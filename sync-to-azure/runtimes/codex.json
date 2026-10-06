@@ -36,9 +36,10 @@
   "allow": {
     "claude-home": {
       "match": [
-        "`.claude/`"
+        "`.claude/`",
+        "--exclude='.claude/'"
       ],
-      "reason": "sync.sh really excludes the .claude directory from the mirror, so the excluded-paths list must keep naming it."
+      "reason": "sync.sh really excludes the .claude directory from the mirror, so the excluded-paths list and the rsync flag must keep naming it."
     }
   },
   "slotSources": {

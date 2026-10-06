@@ -36,9 +36,11 @@
 //   strings from the skill's own `forbid` list only. Exact strings only: a second, different
 //   occurrence still fails. A plain forbid string that itself starts and ends with `/` is read
 //   as a regex: write a literal path as an escaped regex (e.g. `/\/usr\/local\//`).
-//   The same checks run on every other .md and .html file the variant ships (`--check`
-//   included), extension case-insensitive; a symlink is scanned through its target when its
-//   own name or its target is .md/.html.
+//   The same checks run on every other file the variant ships whose extension is in
+//   SCANNED_EXTENSIONS (`--check` included), case-insensitive, `.git` skipped at any depth. A symlink
+//   is scanned through its target when its own name or its target has a scanned extension. A symlink
+//   to the root SKILL.md is skipped (already checked). The variant must be self-contained: a symlink
+//   into runtimes/ or outside the skill folder fails the build.
 //
 // `slotSources` pins the Claude text each Codex slot was written against: when a
 // nightly improvement edits a slot's Claude text, the Codex build fails until a
@@ -52,7 +54,7 @@
 //        node build-runtime-variant.mjs --skill <skillDir> --runtime codex|claude --check
 //        node build-runtime-variant.mjs --skill <skillDir> --stamp
 import { readFileSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync, cpSync, realpathSync, statSync } from 'node:fs'
-import { join, basename, dirname, resolve, relative, isAbsolute, extname } from 'node:path'
+import { join, basename, dirname, resolve, relative, isAbsolute, extname, sep } from 'node:path'
 import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 
@@ -332,22 +334,33 @@ function realOrResolved(path) {
   return join(realOrResolved(dirname(resolve(path))), basename(path))
 }
 
-// Every shipped text file (.md, .html) besides SKILL.md (top-level runtimes/ and .git excluded).
+// Extensions of the shipped files scanned like SKILL.md (case-insensitive). The skill-root SKILL.md is
+// checked by buildSkillMd instead.
+export const SCANNED_EXTENSIONS = ['.md', '.markdown', '.mdx', '.html', '.htm', '.xhtml', '.txt', '.sh', '.json', '.yaml', '.yml']
+const scanned = (name) => SCANNED_EXTENSIONS.includes(extname(name).toLowerCase())
+
+// Every shipped file with a scanned extension besides the root SKILL.md. `base` is the realpath of the
+// skill folder. Top-level runtimes/ is skipped (cpSync drops it), `.git` at any depth (cpSync filters it by name).
 function shippedText(dir, base = dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
     const p = join(dir, e.name)
-    if (e.isDirectory()) return ['runtimes', '.git'].includes(e.name) && dir === base ? [] : shippedText(p, base)
-    const scanned = (name) => ['.md', '.html'].includes(extname(name).toLowerCase())
+    if (e.isDirectory()) return e.name === '.git' || (e.name === 'runtimes' && dir === base) ? [] : shippedText(p, base)
     if (p === join(base, 'SKILL.md')) return []
     if (e.isSymbolicLink()) {
+      const rel = relative(base, p)
       let st
-      try { st = statSync(p) } catch { throw new VariantError(`${relative(base, p)}: broken symlink in a Codex variant cannot be scanned`) }
-      if (st.isDirectory()) throw new VariantError(`${relative(base, p)}: symlinked directory in a Codex variant cannot be scanned`)
+      try { st = statSync(p) } catch { throw new VariantError(`${rel}: broken symlink in a Codex variant cannot be scanned`) }
+      if (st.isDirectory()) throw new VariantError(`${rel}: symlinked directory in a Codex variant cannot be scanned`)
+      const real = realpathSync(p)
+      // The shipped link resolves to the Codex SKILL.md, already checked by buildSkillMd.
+      if (real === join(base, 'SKILL.md')) return []
+      const inside = relative(base, real)
+      if (inside.split(sep)[0] === 'runtimes') throw new VariantError(`${rel}: symlink into runtimes/ would dangle in the variant`)
+      if (inside.startsWith('..') || isAbsolute(inside)) throw new VariantError(`${rel}: symlink pointing outside the skill folder`)
       // A link ships its target's text whatever its own name: match on either name.
-      return scanned(e.name) || scanned(realpathSync(p)) ? [p] : []
+      return scanned(e.name) || scanned(real) ? [p] : []
     }
-    if (!e.isFile()) return []
-    return scanned(e.name) ? [p] : []
+    return e.isFile() && scanned(e.name) ? [p] : []
   })
 }
 
