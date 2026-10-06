@@ -37,28 +37,40 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
    round vide, **menée par des SOUS-AGENTS `spawn_agent` parallèles** — c'est le
    seul moteur de revue sous Codex, donc rien à choisir ni à éviter pour un run
    NON SUPERVISÉ ; nomme-le quand même dans le goal prompt (`spawn_agent`,
-   jamais « un workflow »), pour que l'instruction n'ait qu'une seule lecture), PR
+   jamais « un workflow »), pour que l'instruction n'ait qu'une seule lecture, PR
 <!-- /slot:goal-review-engine -->
 
 <!-- slot:watchdog-tick -->
-1. **Tick périodique (30-45 min)** — une boucle de `wait_agent` à `timeout_ms`
-   fini, tenue tant qu'au moins un chantier n'a pas livré sa PR. À chaque retour
-   de `wait_agent` (agent fini ou délai écoulé), et au moins toutes les 30-45 min,
-   pour CHAQUE chantier : vérité disque du worktree (`git -C <worktree>
-   log --oneline -1` + mtime des fichiers récents) comparée au dernier point
-   connu, et l'agent a-t-il rendu sa réponse finale ou non. Si un chantier tourne
-   dans une session que tu n'as pas lancée toi-même, il n'y a pas d'agent à
-   attendre : seul le disque fait foi. Écris la consigne de surveillance
-   COMPLÈTE (chantiers, worktrees, quoi vérifier, quand relancer) en tête du
-   journal de surveillance (item 4) et relis-la à chaque tick : ne compte pas sur
-   le présent skill pour la retrouver après une compaction du contexte (une
-   session-orchestrateur nocturne compacte).
+1. **Tick périodique (30-45 min)** — tant qu'au moins un chantier n'a pas livré
+   sa PR, une minuterie est armée en permanence : l'automatisation heartbeat de
+   la session (`automation_update`) si elle est disponible, sinon `sleep` (outil
+   `clock`) entre deux ticks — jamais une fin de tour sans minuterie armée.
+   Écris d'abord la consigne de surveillance COMPLÈTE (chantiers, worktrees,
+   quoi vérifier, quand relancer) dans un FICHIER, en tête du journal de
+   surveillance : `<repo-cible>/.worktrees/.surveillance-<vague>.md` (hors de
+   tout worktree de chantier) ; recopie-la aussi dans le message du heartbeat
+   s'il existe. Relis ce fichier à chaque tick : c'est lui, pas le présent
+   skill, qui survit à une compaction du contexte (une session-orchestrateur
+   nocturne compacte). À chaque tick, pour CHAQUE chantier : vérité disque du
+   worktree (`git -C <worktree> log --oneline -1` + mtime des fichiers récents)
+   comparée au dernier point connu, et état de l'agent (`list_agents` : en cours,
+   ou terminé avec sa réponse) s'il a été lancé par toi. Un retour de
+   `wait_agent` n'est pas un tick : ne refais la vérification disque que si 30 min
+   au moins se sont écoulées depuis la précédente (sinon c'est du polling). Si
+   un chantier tourne dans une session que tu n'as pas lancée, il n'y a pas
+   d'agent à interroger : seul le disque fait foi, et c'est la minuterie qui
+   produit le tick.
 <!-- /slot:watchdog-tick -->
 <!-- slot:watchdog-relance -->
-2. **Disque immobile + agent sans réponse finale = mort.** Relance avec l'état
-   exact vérifié sur disque : si ta session expose un outil pour écrire à un
-   agent en cours, envoie-lui cet état ; sinon lance un nouvel agent dont le
-   message porte l'état exact (commits présents, travail non commité vu par
+2. **Disque immobile + agent absent de `list_agents` ou non « running » =
+   mort.** Un agent encore « running » mais silencieux (long `validate`, longue
+   réflexion) n'est PAS mort : relance-le avec `followup_task` (ou
+   `send_message`) vers son `task_name`, en lui donnant l'état exact vérifié sur
+   disque. Pour un agent mort : si tu dois le remplacer, `close_agent` d'abord
+   (jamais deux agents sur le même worktree), puis `spawn_agent` avec un message
+   qui porte l'état exact (commits présents, travail non commité vu par
    `git status` / `git diff` dans le worktree, verdicts de revue déjà reçus) et
-   la consigne de continuer depuis là — jamais « reprends » à vide.
+   la consigne de continuer depuis là — jamais « reprends » à vide. Chantier dans
+   une session que tu n'as pas lancée : tu ne peux ni le fermer ni le relancer —
+   escalade à l'utilisateur avec l'état disque.
 <!-- /slot:watchdog-relance -->

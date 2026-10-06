@@ -214,7 +214,7 @@
   <div class="sec-head"><span class="sec-num">04</span><h2>Vérification de fin de run</h2></div>
   <pre class="cmd">{{COMMANDES_GLOBALES_FIN_DE_RUN}}</pre>
   <ul class="list">
-    <li>{{VERIF_UI_CLAIR_SOMBRE_SI_APPLICABLE}} — lance le dev server du repo CIBLE en Bash (<code>bun run dev</code> dans le repo du plan) ; n'utilise pas les outils <code>preview_*</code> du harnais, ils sont liés à la racine de la session et démarreraient le mauvais serveur.</li>
+    <li>{{VERIF_UI_CLAIR_SOMBRE_SI_APPLICABLE}} — lance le dev server du repo CIBLE en Bash (<code>bun run dev</code> dans le repo du plan) ; n'utilise pas les outils de prévisualisation du harnais de l'agent (ex. <code>preview_*</code> sous Claude Code), ils sont liés à la racine de la session et démarreraient le mauvais serveur.</li>
     <li><strong>Hygiène machine</strong> : arrête tout serveur dev lancé pendant le run ; aucun worker orphelin (vitest/esbuild/vite) ne survit au run.</li>
     <li><strong>Rapport honnête</strong> : lots faits avec leurs commits, verdict exact des commandes (un test rouge se montre, il ne se résume pas en « quelques soucis »).</li>
   </ul>

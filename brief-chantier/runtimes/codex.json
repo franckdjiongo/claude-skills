@@ -63,7 +63,7 @@
     },
     {
       "from": "modèle recommandé (défaut : orchestrateur Sonnet high +\n   implémenteur Sonnet medium ; sécurité/concurrence sensible : Opus high),",
-      "to": "modèles recommandés (l'orchestrateur garde le modèle de la\n   session ; les sous-agents prennent les modèles résolus au moment de l'usage par\n   `node ~/.agents/skills/adversarial-pr-review/scripts/resolve-codex-models.mjs --repo <repo-cible>`,\n   jamais un nom de modèle écrit dans le goal prompt ; sécurité/concurrence\n   sensible : effort `high`, jamais au-dessus pour un sous-agent),",
+      "to": "modèles recommandés (l'orchestrateur garde le modèle de la\n   session ; les sous-agents prennent les modèles résolus au moment de l'usage par\n   `node ~/.agents/skills/adversarial-pr-review/scripts/resolve-codex-models.mjs --repo <repo-cible>`,\n   jamais un nom de modèle écrit dans le goal prompt ; sécurité/concurrence\n   sensible : effort `high`, jamais au-dessus pour un sous-agent ; ce résolveur ne\n   couvre que les rôles de revue : un implémenteur prend le modèle de l'agent\n   `.codex/agents/<nom>.toml` du projet, à défaut celui de la session, avec un\n   effort passé explicitement — `medium` par défaut, `high` si sensible),",
       "count": 1
     },
     {
@@ -101,7 +101,13 @@
     "Sonnet",
     "'sonnet'",
     "claude.ai",
-    "schedule-wakeup-guard"
+    "schedule-wakeup-guard",
+    "Monitor",
+    "bypassPermissions",
+    "$HOME/.claude",
+    "TaskCreate",
+    "haiku",
+    "opus"
   ],
   "allow": {
     "claude-home": {
