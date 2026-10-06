@@ -20,6 +20,8 @@
   section { margin-top:44px; } h2 { font-size:21px; border-bottom:2px solid var(--ink); padding-bottom:6px; margin-bottom:14px; }
   p, li { max-width:76ch; } p { margin-bottom:10px; } ul, ol { padding-left:22px; margin-bottom:10px; } li { margin-bottom:6px; }
   code { font-family:var(--mono); font-size:.88em; background:var(--surface); padding:1px 5px; border-radius:4px; }
+  .tw { overflow-x:auto; }
+  main { min-width:0; }
   table { border-collapse:collapse; width:100%; font-size:14.5px; margin:10px 0 14px; }
   th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
   th { font-family:var(--mono); font-size:11.5px; text-transform:uppercase; color:var(--soft); }
@@ -58,7 +60,7 @@
   </section>
 
   <section id="banc"><h2>Résultats du banc</h2>
-    <table>
+    <div class="tw"><table>
       <tr><th>Projet</th><th>Taille</th><th>Livré</th><th>Lignes</th><th>Note juge</th><th>Constat principal</th></tr>
       <tr><td>Export paie (7:30 lu 7)</td><td>petit FR</td><td class="ok">oui</td><td>77</td><td>non noté</td><td>Gardien : 7 remarques hors intention écartées sur 18.</td></tr>
       <tr><td>Cotisations au prorata</td><td>petit FR</td><td class="ok">oui</td><td>58</td><td>12/20</td><td>Sévérités gonflées ; le gardien a laissé passer un nice-to-have exclu du plan.</td></tr>
@@ -67,7 +69,7 @@
       <tr><td>Relances de factures</td><td>grand FR</td><td class="bad">non</td><td>432</td><td>5/20</td><td>Lots par couches, disjoncteur à 1,46×, 111 lignes de verrou que personne n'appelle.</td></tr>
       <tr><td>Portail d'équipe (rôles)</td><td>grand EN</td><td class="bad">non</td><td>0</td><td>5/20</td><td>Fiche non validée → arrêt correct ; mon harnais a continué sur des chemins vides.</td></tr>
       <tr><td>Migration des heures</td><td>grand FR</td><td class="bad">non</td><td>0</td><td>6/20</td><td>Idem ; deux correcteurs ont alors écrit dans d'autres dépôts fictifs.</td></tr>
-    </table>
+    </table></div>
   </section>
 
   <section id="tient"><h2>Ce qui tient</h2>
