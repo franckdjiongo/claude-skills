@@ -54,7 +54,7 @@
 // Usage: node build-runtime-variant.mjs --skill <skillDir> --runtime codex|claude --out <dir>
 //        node build-runtime-variant.mjs --skill <skillDir> --runtime codex|claude --check
 //        node build-runtime-variant.mjs --skill <skillDir> --stamp
-import { readFileSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync, cpSync, realpathSync, statSync } from 'node:fs'
+import { readFileSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync, cpSync, realpathSync, statSync, readlinkSync } from 'node:fs'
 import { join, basename, dirname, resolve, relative, isAbsolute, extname, sep } from 'node:path'
 import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
@@ -365,6 +365,17 @@ function shippedText(dir, base = dir) {
       let st
       try { st = statSync(p) } catch { throw new VariantError(`${rel}: broken symlink in a Codex variant cannot be scanned`) }
       if (st.isDirectory()) throw new VariantError(`${rel}: symlinked directory in a Codex variant cannot be scanned`)
+      // verbatimSymlinks copies the link text as is: an absolute one would point back at the source folder.
+      const linkText = readlinkSync(p)
+      if (isAbsolute(linkText)) throw new VariantError(`${rel}: absolute symlink would point back at the source folder`)
+      // The DIRECT target is what the variant keeps: it must be shipped itself, not only the final file.
+      const direct = resolve(dirname(p), linkText)
+      if (direct !== join(base, 'SKILL.md')) {
+        const d = relative(base, direct)
+        if (d === '..' || d.startsWith('..' + sep) || isAbsolute(d)) throw new VariantError(`${rel}: symlink pointing outside the skill folder`)
+        if (d.split(sep)[0] === 'runtimes') throw new VariantError(`${rel}: symlink into runtimes/ would dangle in the variant`)
+        if (!isShipped(base, direct, 'codex')) throw new VariantError(`${rel}: symlink to a file the variant does not ship`)
+      }
       const real = realpathSync(p)
       // The shipped link resolves to the Codex SKILL.md, already checked by buildSkillMd.
       if (real === join(base, 'SKILL.md')) return []

@@ -1,7 +1,7 @@
 import { describe, expect, test, afterEach } from 'bun:test'
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync, readdirSync, symlinkSync, readlinkSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync, readdirSync, symlinkSync, readlinkSync, realpathSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, relative } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { buildSkillMd, buildVariant, checkVariant, parseSlots, slotHash, NotDeclaredError, VariantError } from './build-runtime-variant.mjs'
 
@@ -351,7 +351,7 @@ describe('codex variant', () => {
     const d = skill({ codexMd: MD, codexJson: JSON_OK })
     const outside = join(tmp(), 'outside.md')
     writeFileSync(outside, 'Fine text.\n')
-    symlinkSync(outside, join(d, 'linked.md'))
+    symlinkSync(relative(realpathSync(d), outside), join(d, 'linked.md'))
     expect(() => checkVariant(d, 'codex')).toThrow('linked.md: symlink pointing outside the skill folder')
     expect(checkVariant(d, 'claude')).toContain('# Demo')
   })
@@ -398,6 +398,41 @@ describe('codex variant', () => {
     const e = skill({ codexMd: MD, codexJson: JSON_OK })
     symlinkSync(join(tmp(), 'missing.md'), join(e, 'dead.md'))
     expect(() => checkVariant(e, 'codex')).toThrow('dead.md: broken symlink')
+  })
+
+  test('an absolute symlink to a file inside the skill fails: the variant would point back at the source', () => {
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    writeFileSync(join(d, 'real.md'), 'Fine text.\n')
+    symlinkSync(join(realpathSync(d), 'real.md'), join(d, 'abs.md'))
+    expect(() => checkVariant(d, 'codex')).toThrow('abs.md: absolute symlink would point back at the source folder')
+  })
+
+  test('a chain through a hop the variant does not ship fails for Codex', () => {
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    writeFileSync(join(d, 'real.md'), 'Fine text.\n')
+    symlinkSync('real.md', join(d, 'hop.test.js'))
+    symlinkSync('hop.test.js', join(d, 'chain.md'))
+    expect(() => checkVariant(d, 'codex')).toThrow('chain.md: symlink to a file the variant does not ship')
+  })
+
+  test('a chain through shipped hops passes and builds', () => {
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    writeFileSync(join(d, 'c.md'), 'Fine text.\n')
+    symlinkSync('c.md', join(d, 'b.md'))
+    symlinkSync('b.md', join(d, 'a.md'))
+    expect(() => checkVariant(d, 'codex')).not.toThrow()
+    const out = join(tmp(), 'out')
+    buildVariant(d, 'codex', out)
+    expect(readlinkSync(join(out, 'a.md'))).toBe('b.md')
+  })
+
+  test('a relative link to the root SKILL.md still passes and builds', () => {
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    symlinkSync('SKILL.md', join(d, 'ref.md'))
+    expect(() => checkVariant(d, 'codex')).not.toThrow()
+    const out = join(tmp(), 'out')
+    buildVariant(d, 'codex', out)
+    expect(readlinkSync(join(out, 'ref.md'))).toBe('SKILL.md')
   })
 
   test('buildVariant keeps relative symlinks relative', () => {
