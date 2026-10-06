@@ -47,14 +47,14 @@
 <nav class="toc" aria-label="Sommaire">
   <a href="#s0">00 · Intention <span class="st done">ok</span></a>
   <a href="#s1">01 · Règles <span class="st done">ok</span></a>
-  <a href="#l1">L1 · Gardien <span class="st todo">à faire</span></a>
-  <a href="#l2">L2 · brief-chantier <span class="st todo">à faire</span></a>
-  <a href="#l3">L3 · adversarial-pr-review <span class="st todo">à faire</span></a>
-  <a href="#l4">L4 · brief-preflight + lint <span class="st todo">à faire</span></a>
-  <a href="#l5">L5 · Build et installation <span class="st todo">à faire</span></a>
-  <a href="#l6">L6 · Test sur dépôt bidon <span class="st todo">à faire</span></a>
-  <a href="#l7">L7 · Vérification et clôture <span class="st todo">à faire</span></a>
-  <a href="#s9">Journal <span class="st wip">vivant</span></a>
+  <a href="#l1">L1 · Gardien <span class="st done">fait</span></a>
+  <a href="#l2">L2 · brief-chantier <span class="st done">fait</span></a>
+  <a href="#l3">L3 · adversarial-pr-review <span class="st done">fait</span></a>
+  <a href="#l4">L4 · brief-preflight + lint <span class="st done">fait</span></a>
+  <a href="#l5">L5 · Build et installation <span class="st done">fait</span></a>
+  <a href="#l6">L6 · Test sur dépôt bidon <span class="st done">fait</span></a>
+  <a href="#l7">L7 · Vérification et clôture <span class="st done">fait</span></a>
+  <a href="#s9">Journal <span class="st done">clos</span></a>
 </nav>
 <main>
   <p class="st">claude-skills · branche feat/gardien-intention-allegement · 2026-10-06</p>
@@ -86,7 +86,7 @@
     </table>
   </section>
 
-  <section id="l1"><h2>L1 · Gardien d'intention <span class="st todo">à faire</span></h2>
+  <section id="l1"><h2>L1 · Gardien d'intention <span class="st done">fait</span></h2>
     <ul>
       <li><code>brief-chantier/assets/fiche-intention.md</code> : gabarit d'une page (pourquoi, journée avant/après, ce que ce n'est pas, preuve réelle, règles du chantier).</li>
       <li><code>brief-chantier/references/gardien-intention.md</code> : protocole canonique du gardien (entrées, deux moments, format de sortie, interdits). Source unique ; les agents ne font que le pointer.</li>
@@ -95,33 +95,37 @@
     <div class="box"><p><strong>Interface figée</strong> (les lots 2 et 3 s'y réfèrent) — Entrées : chemin de la fiche, <code>git diff --stat</code> de la base, liste des remarques (id, sévérité, résumé, correctif proposé). Moment 1, après chaque round : verdict par remarque <code>SERT</code> ou <code>HORS</code> + raison d'une ligne. Moment 2, avant la PR : verdict <code>ALIGNÉ</code> ou <code>DÉRIVE</code> + liste des parties du diff non rattachables à la fiche. Exception : une remarque sécurité ou perte de données est toujours <code>SERT</code>. Le gardien ne propose jamais de code.</p></div>
   </section>
 
-  <section id="l2"><h2>L2 · brief-chantier <span class="st todo">à faire</span></h2>
+  <section id="l2"><h2>L2 · brief-chantier <span class="st done">fait</span></h2>
     <p>SKILL.md réécrit, cible ≤ 200 lignes : règles dures A1 à A5 et G en tête, puis les trois rôles. Les détails rarement utiles vont dans <code>references/</code> (chargés à la demande), les récits datés sont supprimés. <code>assets/template.html</code> gagne les champs Budget total, Chips, Fiche d'intention, Revue. <code>runtimes/codex.json</code> et <code>codex.md</code> réalignés.</p>
   </section>
 
-  <section id="l3"><h2>L3 · adversarial-pr-review <span class="st todo">à faire</span></h2>
+  <section id="l3"><h2>L3 · adversarial-pr-review <span class="st done">fait</span></h2>
     <p>SKILL.md réécrit, cible ≤ 220 lignes : décision par remarque (A2), plafond dur de 2 rounds et delta seul au round 2 (A3), appel au gardien après chaque round quand une fiche existe, clôture qui ne bloque jamais. Le gabarit de workflow quitte le SKILL.md pour <code>references/workflow-template.js</code> ; <code>scripts/workflow.test.mjs</code> lit ce fichier. Sentinelle et mode B inchangés sur le fond.</p>
   </section>
 
-  <section id="l4"><h2>L4 · brief-preflight et lint <span class="st todo">à faire</span></h2>
+  <section id="l4"><h2>L4 · brief-preflight et lint <span class="st done">fait</span></h2>
     <p>SKILL.md cible ≤ 150 lignes, revue de jugement plafonnée à 2 rounds. <code>preflight-lint.mjs</code> refuse un plan sans budget total, sans déclaration de chips, sans fiche d'intention, ou qui contient « jusqu'à convergence », « jusqu'au critère de convergence » ou « y compris les mineurs ». Nouveau <code>scripts/preflight-lint.test.mjs</code>. Option <code>--legacy</code> conservée pour les anciens plans.</p>
   </section>
 
-  <section id="l5"><h2>L5 · Build et installation <span class="st todo">à faire</span></h2>
+  <section id="l5"><h2>L5 · Build et installation <span class="st done">fait</span></h2>
     <p>Tous les tests des trois skills, <code>build-runtime-variant --check</code> pour Codex, installation dans <code>~/.claude/skills</code>, <code>~/.agents/skills</code>, <code>~/.claude/agents</code>, <code>~/.codex/agents</code>, sauvegarde préalable des copies installées. Registre <code>skills-registry.yaml</code> si une description change.</p>
   </section>
 
-  <section id="l6"><h2>L6 · Test sur dépôt bidon <span class="st todo">à faire</span></h2>
+  <section id="l6"><h2>L6 · Test sur dépôt bidon <span class="st done">fait</span></h2>
     <p>Dépôt jetable dans le scratchpad : petite app avec un défaut visible par l'utilisateur. Un sous-agent Sonnet joue l'AUTEUR (fiche + plan), le lint tourne, un second joue l'EXÉCUTANT, la revue tourne avec le gardien. Mesures : rounds ≤ 2, budget respecté, au moins une remarque écartée par le gardien avec sa raison, PR simulée (diff final + description).</p>
   </section>
 
-  <section id="l7"><h2>L7 · Vérification et clôture <span class="st todo">à faire</span></h2>
+  <section id="l7"><h2>L7 · Vérification et clôture <span class="st done">fait</span></h2>
     <p>Une vérification Opus du diff complet contre la fiche (2 rounds au plus). Correctifs, suppression de <code>.chantier/</code>, fusion dans <code>main</code>, push, réinstallation, retrait du worktree et de la branche, rapport final à Franck.</p>
   </section>
 
-  <section id="s9"><h2>Journal <span class="st wip">vivant</span></h2>
+  <section id="s9"><h2>Journal <span class="st done">clos</span></h2>
     <ul>
       <li>2026-10-06 — fiche et plan écrits ; inventaire des couplages (hooks, test du workflow, builder Codex) fait.</li>
+      <li>L1 <code>feb385f</code> gardien (fiche, protocole, agents Claude et Codex). L4 <code>f82f712</code> brief-preflight 2 483 → 1 416 mots, lint des règles dures + 10 tests. L2 <code>daedc19</code> brief-chantier 5 987 → 2 438 mots. L3 <code>2ca72e4</code> adversarial-pr-review ~10 400 → ~2 475 mots, gabarit de workflow sorti du SKILL.md.</li>
+      <li>Écart : le hook bloque toute PR sans sentinelle, même brouillon. Clôture non convergée = branche poussée + corps de PR dans le rapport. Chip ouvert pour une exception brouillon.</li>
+      <li>L6 test sur dépôt bidon (export paie, 7:30 lu comme 7) : plan PASS au lint, lot 1 en 27 lignes, round 1 = 18 remarques, gardien 11 SERT / 7 HORS, 4 correctifs, round 2 = 2 P3, revue convergée en 2 rounds, gardien moment 2 ALIGNÉ, 77 lignes ajoutées (plafond 120). Correctifs du skill issus du test : <code>f83398f</code>.</li>
+      <li>L7 vérification Opus : round 1 = 0 P1, 5 P2 (3e round résiduel, P1 jugeable HORS, « SERT = CORRIGER », retrait de la fiche hors sentinelle, plan sans fiche bloquant), corrigés <code>399164a</code> ; round 2 = 1 P3 corrigé. Budget : 1 216 lignes ajoutées (plafond 1 200 dépassé de 16, dont 211 lignes de gabarit déplacées), 1 791 supprimées, solde −575.</li>
     </ul>
   </section>
 </main>
