@@ -50,10 +50,10 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
    copie : « Relis `<repo-cible>/.worktrees/.surveillance-<vague>.md` et exécute
    le tick de surveillance ». Ce fichier est la seule source de la consigne
    COMPLÈTE (chantiers, worktrees, quoi vérifier, quand relancer) et le journal
-   de l'item 4 (une ligne par chantier et par tick, ajoutée à la fin) : écris-le
-   avant d'armer le heartbeat, hors de tout worktree de chantier, avec une
-   en-tête qui porte l'`automationId` rendu par la création, puis une première
-   ligne de journal datée « armement » (référence du premier tick) ; chaque
+   de l'item 4 (une ligne par chantier et par tick, ajoutée à la fin) : crée-le
+   hors de tout worktree de chantier, arme le heartbeat, puis inscris dans
+   l'en-tête du fichier l'`automationId` rendu par la création et ajoute une
+   première ligne de journal datée « armement » (référence du premier tick) ; chaque
    ligne de journal est datée au DÉBUT du tick ; si
    `git -C <repo-cible> check-ignore -q .worktrees/x` échoue, ajoute
    `.worktrees/` à `.git/info/exclude` d'abord. Relis-le à chaque tick : c'est
@@ -71,7 +71,8 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
    prochain retour tombe au plus tard 30 min après elle ; un retour compte
    comme tick si ces 30 min sont écoulées, sinon ce n'est pas un tick et tu ne
    refais pas la vérification disque (ce serait du polling). Un réveil du
-   heartbeat est toujours un tick. Seule exception hors tick : la vérification
+   heartbeat est toujours un tick, et avant de terminer un tour tu fais un tick
+   si la dernière ligne du journal a 30 min ou plus. Seule exception hors tick : la vérification
    post-relance de l'item 3 (`wait_agent` sur l'agent relancé, `timeout_ms` =
    le plus petit de 600000 et du délai restant avant le prochain tick), qui
    n'écrit de ligne au journal que si elle tombe aussi sur un tick. Dès que tous les chantiers ont livré leur PR, ou si le
