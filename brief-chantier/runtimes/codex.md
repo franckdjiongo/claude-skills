@@ -52,8 +52,9 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
    COMPLÈTE (chantiers, worktrees, quoi vérifier, quand relancer) et le journal
    de l'item 4 (une ligne par chantier et par tick, ajoutée à la fin) : écris-le
    avant d'armer le heartbeat, hors de tout worktree de chantier, avec une
-   première ligne datée « armement » (référence du premier tick), puis ajoute-y
-   l'`automationId` rendu par la création ; si
+   en-tête qui porte l'`automationId` rendu par la création, puis une première
+   ligne de journal datée « armement » (référence du premier tick) ; chaque
+   ligne de journal est datée au DÉBUT du tick ; si
    `git -C <repo-cible> check-ignore -q .worktrees/x` échoue, ajoute
    `.worktrees/` à `.git/info/exclude` d'abord. Relis-le à chaque tick : c'est
    lui qui survit à une compaction du contexte. Pas de heartbeat disponible
@@ -69,12 +70,11 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
    écoulé depuis la dernière ligne du journal (minimum 10000), pour que le
    prochain retour tombe au plus tard 30 min après elle ; un retour compte
    comme tick si ces 30 min sont écoulées, sinon ce n'est pas un tick et tu ne
-   refais pas la vérification disque (ce serait du polling). Un tick, du
-   heartbeat ou de `wait_agent`, est sauté si la dernière ligne a moins de
-   30 min. Seule exception : la vérification post-relance de l'item 3
-   (≤ 10 min après une relance, `wait_agent` sur l'agent relancé avec
-   `timeout_ms: 600000`), qui n'écrit de ligne au journal que si elle tombe
-   aussi sur un tick. Dès que tous les chantiers ont livré leur PR, ou si le
+   refais pas la vérification disque (ce serait du polling). Un réveil du
+   heartbeat est toujours un tick. Seule exception hors tick : la vérification
+   post-relance de l'item 3 (`wait_agent` sur l'agent relancé, `timeout_ms` =
+   le plus petit de 600000 et du délai restant avant le prochain tick), qui
+   n'écrit de ligne au journal que si elle tombe aussi sur un tick. Dès que tous les chantiers ont livré leur PR, ou si le
    run est abandonné, supprime le heartbeat (`automation_update` avec
    `mode:"delete"` et `id` = l'`automationId` noté dans le fichier). Si la
    session orchestratrice a disparu sans le faire, la session de clôture
