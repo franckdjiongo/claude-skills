@@ -27,10 +27,10 @@
 <div class="layout">
 <nav aria-label="Sommaire">
   <a href="#s0">00 · Intention <span class="st done">ok</span></a>
-  <a href="#b1">B1 · Dépôts fictifs <span class="st todo">à faire</span></a>
-  <a href="#b2">B2 · Petit (FR) <span class="st todo">à faire</span></a>
-  <a href="#b3">B3 · Moyen (EN) <span class="st todo">à faire</span></a>
-  <a href="#b4">B4 · Grand (FR) <span class="st todo">à faire</span></a>
+  <a href="#b1">B1 · Dépôts fictifs <span class="st done">fait</span></a>
+  <a href="#b2">B2 · Petit (FR) <span class="st done">fait</span></a>
+  <a href="#b3">B3 · Moyen (EN) <span class="st done">fait</span></a>
+  <a href="#b4">B4 · Grand (FR) <span class="st done">fait</span></a>
   <a href="#b5">B5 · Correctifs skills <span class="st todo">à faire</span></a>
   <a href="#b6">B6 · Synchronisation <span class="st todo">à faire</span></a>
   <a href="#j">Journal <span class="st todo">vivant</span></a>
@@ -44,7 +44,7 @@
     <p>Éprouver brief-chantier, brief-preflight, adversarial-pr-review et le gardien sur trois tailles de chantier, dont un en anglais, corriger ce que le banc révèle (dont le bilinguisme des contrôles déterministes), puis resynchroniser Claude Code, Codex, la navette cloud et la charte cloud de Temps Chantier.</p>
   </section>
 
-  <section id="b1"><h2>B1 · Dépôts fictifs <span class="st todo">à faire</span></h2>
+  <section id="b1"><h2>B1 · Dépôts fictifs <span class="st done">fait</span></h2>
     <table>
       <tr><th>Taille</th><th>Langue</th><th>Projet</th><th>Demande</th></tr>
       <tr><td>Petit</td><td>FR</td><td><code>cotisations</code> : CLI des cotisations annuelles d'une association</td><td>Un membre inscrit en cours d'année paie l'année entière : calculer au prorata des mois.</td></tr>
@@ -52,13 +52,17 @@
       <tr><td>Grand</td><td>FR</td><td><code>planif-equipes</code> : app web de planification des équipes sur les chantiers</td><td>Planning hebdomadaire avec détection des conflits (une personne sur deux chantiers), export CSV pour la paie, vue mobile. Doit dépasser le plafond A1 et être découpé.</td></tr>
     </table>
   </section>
-  <section id="b2"><h2>B2 · Petit (FR) <span class="st todo">à faire</span></h2><p>Auteur, lint, exécutant, revue 2 rounds avec gardien, clôture.</p></section>
-  <section id="b3"><h2>B3 · Moyen (EN) <span class="st todo">à faire</span></h2><p>Même chaîne, plan et fiche rédigés en anglais.</p></section>
-  <section id="b4"><h2>B4 · Grand (FR) <span class="st todo">à faire</span></h2><p>Auteur en rôle ORCHESTRATEUR : découpage en vague, lint de vague, exécution du premier chantier seulement.</p></section>
+  <section id="b2"><h2>B2 · Petit (FR) <span class="st done">fait</span></h2><p>Auteur, lint, exécutant, revue 2 rounds avec gardien, clôture.</p></section>
+  <section id="b3"><h2>B3 · Moyen (EN) <span class="st done">fait</span></h2><p>Même chaîne, plan et fiche rédigés en anglais.</p></section>
+  <section id="b4"><h2>B4 · Grand (FR) <span class="st done">fait</span></h2><p>Auteur en rôle ORCHESTRATEUR : découpage en vague, lint de vague, exécution du premier chantier seulement.</p></section>
   <section id="b5"><h2>B5 · Correctifs des skills <span class="st todo">à faire</span></h2><p>Corriger ce que B2 à B4 révèlent, bilinguisme des contrôles déterministes compris. Tests, <code>--check</code> Codex.</p></section>
   <section id="b6"><h2>B6 · Synchronisation <span class="st todo">à faire</span></h2><p>Fusion dans <code>main</code>, push, installation <code>~/.claude/skills</code>, <code>~/.agents/skills</code>, agents, navette <code>cloud/generated-snapshot</code>, charte cloud de Temps Chantier ; diff vide contre le build.</p></section>
   <section id="j"><h2>Journal <span class="st todo">vivant</span></h2>
-    <ul><li>2026-10-06 — navette cloud republiée (<code>b9d814c5</code>) avec les skills de la PR précédente ; fiche et plan écrits.</li></ul>
+    <ul><li>2026-10-06 — navette cloud republiée (<code>b9d814c5</code>) avec les skills de la PR précédente ; fiche et plan écrits.</li>
+      <li>Petit (cotisations, FR) : 58 lignes, 2 rounds, gardien 1 SERT / 5 HORS puis 1 / 1, TOTAL 1317 prouvé. Juge Opus 12/20 : sévérités gonflées, gardien aveugle aux exclusions du plan, consigne de correcteur improvisée.</li>
+      <li>Moyen (tool-crib, EN) : lint FR seul a forcé 4 passages au français ; 449 lignes, 2 rounds, gardien 6 SERT / 10 HORS. Juge 10/20 : le correctif M-a a introduit une régression de doublons de série (20/20) non vue au round 2.</li>
+      <li>Grand (planif-equipes, FR) : vague de 5 chantiers, lints PASS ; socle exécuté, 477 → 449 lignes sous plafond 450 par retraits, relecture par lot hors plafond A3, gardien 15 SERT / 18 (trop permissif sur un chantier technique). Juge en cours.</li>
+      <li>Frictions consolidées : <code>scratchpad/banc/frictions.md</code> (B1-B6, P1-P5, R1-R7, G1-G3, V1-V10, J1-J6).</li></ul>
   </section>
 </main>
 </div>
