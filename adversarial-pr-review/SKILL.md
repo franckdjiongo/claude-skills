@@ -124,8 +124,9 @@ Both modes run the **same engine** (below) and the **same core discipline**. The
    The classic loop is fixing one unbounded query while its twin three functions away waits to be
    flagged next round — same failure mode whether the twin is textual or structural.
 4. **Re-verify the FULL diff after fixing, before pushing** — the *same dimension fan-out* over the
-   whole changed file set, NOT just the symptom you fixed. Loop until the size-scaled convergence
-   criterion is met (see "Scaling & cost"). This is the opposite of "fix → push → wait for the bot →
+   whole changed file set, NOT just the symptom you fixed, while the round cap still allows a round;
+   once it is spent, each fix gets its own independent verifier instead. Loop until the review
+   converges, within the round cap (see "Scaling & cost"). This is the opposite of "fix → push → wait for the bot →
    fix → push".
 5. **Never ship an unverified behavioral claim.** If a fix — or its comment — asserts timing /
    scheduling / limit behavior the code doesn't *structurally* guarantee ("updates at midnight",
@@ -163,11 +164,13 @@ Run this the moment a PR is imminent. Steps:
 4. **Fix every confirmed finding — BOTH gates** (correctness AND convention/scalability/platform-limit,
    discipline #2), each with a **class-sweep** (discipline #3) whose enumeration table you emit in the
    main thread before moving on. Don't park a "works today" unbounded query as P3; the bot won't.
-5. **Re-run the engine** on the new diff. Repeat until the size-scaled convergence criterion is met
-   (see "Scaling & cost").
+5. **Re-run the engine** on the new diff. Repeat until the review converges, within the round cap
+   (two rounds; a third only if round 2 confirmed a P1 or at least five P2 — see "Scaling & cost").
 6. **Re-run the quality gate** to confirm fixes didn't break the build.
 7. **Commit** the reviewed state (if not already committed).
-8. **Record the sentinel** so the hook lets the PR through (see "Sentinel").
+8. **If the review converged, record the sentinel** so the hook lets the PR through (see
+   "Sentinel"). If it did not converge, skip steps 8 and 9 and follow the non-converged action in
+   "Round cap".
 9. **Now create the PR.**
 10. **Read the bot's first pass before any merge.** Once the PR is open and before it is merged
     (by you, by `ship-pr`, or handed to the user as "ready"), collect every comment and review —
@@ -197,18 +200,26 @@ When a bot (Codex et al.) posts comments, do **not** fix them one-by-one-and-pus
    query / oversized payload / clock-derived window, grep for EVERY sibling with that signature and
    fix them all now — not just the one line the bot pointed at. The bot found one instance; you fix
    the class, so the *next* round can't re-flag its twin.
-4. **Re-run the engine on the WHOLE new diff with the FULL dimension fan-out** — *before* pushing,
+4. **Re-run the engine on the WHOLE new diff with the FULL dimension fan-out** while the round cap
+   still allows a round and the review has not yet converged (otherwise: a fix plus its own
+   independent verifier) — *before* pushing,
    NOT scoped to the symptoms the comments named. The unbounded read sitting next to your fix must be
    assessed too. This is the step that breaks the loop. Also re-run the quality gate.
-5. **Push once.** Then reply on each addressed thread (one line: what changed, or why you didn't),
-   and resolve it. Skip replies for comments you didn't act on, unless asked otherwise.
+5. **Commit the batch; if the review converged, record the sentinel on that new HEAD** (see
+   "Sentinel"), then **push once.** If it did not converge, follow the non-converged action in
+   "Round cap" instead. Then reply on each addressed thread (one line: what changed, or why you didn't), and
+   resolve it. Skip replies for comments you didn't act on, unless asked otherwise.
 6. **If the bot reacts 👍 / posts no new comments → done.** If it posts genuinely new findings
    (not re-raises of what you already addressed), repeat — but each iteration must include step 4,
    so rounds shrink fast instead of oscillating.
 
-**Convergence check:** if you're on round 3+ and the bot keeps finding things, stop and ask
-*"are these new, or the same anti-pattern class / a consequence of my own fix?"* If the latter, your
-step-3 class-sweep or step-4 full-diff fan-out was too shallow — widen both before pushing again.
+**Convergence check:** the round cap (see "Scaling & cost") counts step-4 rounds per PR, across
+Mode A and Mode B together: a bot batch does not reset it. Once the cap is spent or the review has
+converged, a new bot finding
+gets a fix plus its own independent verifier on the fix diff, never another full fan-out. If the bot
+keeps finding things, stop and ask *"are these new, or the same anti-pattern class / a consequence
+of my own fix?"* If the latter, your step-3 class-sweep or step-4 full-diff fan-out was too shallow;
+if a P1 stays open, the review has not converged (see "Round cap").
 
 ---
 
@@ -469,13 +480,15 @@ return {
 ```
 
 When the workflow returns `INCOMPLETE`, close its coverage or restitution gaps and rerun before
-counting a clean pass. A `FINDINGS` result can also contain those gaps.
+counting a clean pass, while the round cap still allows a round (resuming dead agents of the same
+run is not a new round); once it is spent, close them by examining them yourself, as "Converged"
+in "Scaling & cost" says. A `FINDINGS` result can also contain those gaps.
 
 When the workflow returns `FINDINGS`, **you** fix each confirmed item (once per distinct defect, not
 once per `duplicateCount`) with a **class-sweep** (core
 discipline #3 — fix every sibling of the same anti-pattern in the same pass, repo-wide, with the
-enumeration table), then re-run the workflow on the **whole** new diff. Proceed once the size-scaled
-convergence criterion (see "Scaling & cost") is met.
+enumeration table), then re-run the workflow on the **whole** new diff. Proceed once the review
+converges, within the round cap (see "Scaling & cost").
 
 **Reading `sweeps` and `residualRisk` is part of reading the results, not optional extra credit.**
 The workflow's return carries `sweeps`, `notExaminedSweeps`, `inconsistentSweeps`,
@@ -593,8 +606,35 @@ field round). Do not restart the round from scratch and do not respawn dead agen
 ## Sentinel (this is what unblocks `gh pr create`)
 
 The global hook `adversarial-pr-guard.mjs` blocks `gh pr create` unless the **current HEAD** has been
-recorded as reviewed. After Mode A passes **and you've committed the reviewed state**, record it —
-**always with an explicit `cd` into the reviewed repo/worktree root in the SAME command**:
+recorded as reviewed.
+
+**Recording the sentinel is the last step of EVERY converged review** (see "Round cap" in
+"Scaling & cost"), not only of Mode A: Mode A, Mode B, the Trivial tier, and rounds run by other
+reviewers outside this engine (a `codex exec` review pass, a second opinion the user asked for). The
+reviewer changes nothing: once the review converges and the reviewed state is committed, you record
+it. Field, PR 26 (2026-10-04): three of its four review rounds ran through `codex exec`, outside
+this skill, and none wrote the sentinel; the merge was blocked until it was written after the fact.
+Never record it for a review that did not converge.
+
+**An external pass is an input to a round, not a round by itself.** A `codex exec` review (or any
+reviewer outside this engine) counts as a round only when all of these hold:
+
+- it reviewed the whole diff against the PR base, and you cite its output file and the HEAD sha it
+  ran at; the HEAD you record is that sha, or descends from it only by fix commits covered by the
+  cap exception below;
+- you read its full output, not a summary of it;
+- every finding it raised got a disposition: fixed with its own verifier, refuted by a fresh
+  verifier agent with its `checksPerformed` (your own check refutes only a P3), or a P3 converted
+  to a chip;
+- you emitted, in your own thread, a class-sweep table and `checksPerformed` entries built from
+  greps and reads YOU ran on the code, each as "command → observed output" (discipline #7), never a
+  copy of the reviewer's claims.
+
+A pass that fails this bar, such as one answering "looks fine" with no such evidence, is not a round
+and does not count toward the cap: run the engine before recording.
+
+Record it **always with an explicit `cd` into the reviewed repo/worktree root in the SAME command**,
+as a standalone Bash command (never chained with `gh pr create` or a push):
 
 ```bash
 cd <racine-absolue-du-repo-ou-worktree-revu> && git rev-parse HEAD > "$(git rev-parse --absolute-git-dir)/.adversarial-review-passed"
@@ -606,9 +646,18 @@ running the bare command from the wrong cwd writes the wrong sha into the wrong 
 2026-08-14 (temps-chantier T77): the bare form ran from the main repo root and dropped master's sha
 into the SHARED `.git`, forging a pass for a diff that hook never validated and potentially
 contaminating the sibling worktrees. After writing, confirm the printed sha equals the HEAD you just
-reviewed. The hook allows `gh pr create` only while that sha equals `HEAD` (and, for
-`--head <branch>`, the tip of that branch). If you commit more after reviewing, the sentinel goes
-stale and the hook re-blocks — **re-run the review** on the new diff, then re-record. Do **not**
+reviewed; in Mode A, cite that sha in the PR description. The hook allows `gh pr create` only while
+that sha equals `HEAD` (and, for `--head <branch>`, the tip of that branch). If you commit more after
+reviewing, the sentinel goes stale and the hook re-blocks — **re-run the review** on the new diff,
+then re-record. The one exception is the cap. After the last round the cap allows, you may
+re-record without a new full round only when `git diff <last-reviewed-sha>..HEAD` contains nothing
+but (a) fixes of confirmed findings from that round, or of findings raised after it (a bot's, in
+Mode B), each passing its own fresh verifier, (b) quality gate repairs that change no reviewed
+behavior, and (c) a merge of the base that needed no conflict edits (`git show --remerge-diff
+<merge>` prints no hunk). One more fresh verifier classifies every hunk of that range into exactly
+one of (a), (b) or (c), with `checksPerformed`, and lists the lines each (b) repair touches. Any
+hunk it cannot classify (a new feature hunk, a conflict resolution, a "repair" that changes
+reviewed behavior) is not covered: the review has not converged for it, so report it. Do **not**
 write the sentinel to bypass the review, and NEVER write it into a `.git` that is not the reviewed
 checkout's own git dir; that defeats the entire point and counts as a security incident. If the hook
 blocks despite a genuine completed review, that is an infra failure: stop and report it (chip /
@@ -627,23 +676,52 @@ Match the fan-out to the change. Over-reviewing is its own waste.
 | Medium (feature, multiple files) | 4–5 dimensions, adversarial verify each finding. |
 | Large / risky (auth, schema, public API, shared dispatch, migration) | Full dimensions + 3-vote adversarial verify; widen blast-radius coverage. |
 
-**Convergence criterion — scaled to diff size.** A single stop rule can't serve both a 200-line PR
-and a migration branch: on big diffs "two consecutive clean passes" may literally never arrive (a
-field migration review ran 16→7→10→8→2→2 findings over six rounds), while an unbounded loop grinds
-tokens. Pick the rule by changed-line count:
+**Round cap — two rounds, a third only for a P1 or at least five P2 (Franck's decision,
+2026-10-05).** A round is one full dimension fan-out with its Verify step (a per-fix verifier is not
+a round). The cap counts rounds per PR, across Mode A and Mode B, whoever runs them: this engine,
+the hand-run fan-out, or an external reviewer that meets the bar in "Sentinel".
 
-- **Normal PR (≲5k changed lines):** loop until **two consecutive clean passes**; hard cap ~3 fix
-  rounds. The cap binds: at the cap round the fan-out stops chasing zero. Surviving **P1/P2 still get
-  fixed and re-verified** past the cap until clean; remaining **P3 / low-severity findings convert to
-  follow-up chips** (`spawn_task`) instead of triggering another full fan-out — a P3 twin is worth a
-  chip, not a fresh multi-million-token round. If a P1/P2 hasn't converged by the cap, the changeset
-  is too entangled — surface that to the user with the open findings rather than grinding silently.
-  In the field, two runs that re-ran the whole fan-out past the cap for P3-only residue cost ~2 extra
-  rounds each (~4-6M subagent tokens).
-- **Large diff (≳5k changed lines / migration-scale):** drain instead of chasing zero — loop until
-  **two consecutive rounds each yield ≤2 findings, none P1**, then fix those, stop, and report the
-  **residual risk** honestly (what classes were swept, what the last rounds still surfaced, what was
-  not exhaustively re-verified). A truthful residual-risk note beats a hollow "clean pass" claim.
+1. **Round 1** runs on the whole diff. If it confirms no P1/P2, the review has converged (any P3
+   becomes a chip): no round 2.
+2. **Round 2** runs on the whole diff after the round-1 fixes. Wherever this skill calls the second
+   round on the fix diff "not optional", it means this round, owed whenever round 1 confirmed a
+   P1/P2.
+3. **Round 3** runs when, and only when, round 2 confirmed at least one P1 or at least five P2. The
+   threshold is read on round 2 only, and counts distinct confirmed defects after dedupe and Verify.
+   There is never a fourth round.
+
+Field, PR 26 (2026-10-04): four rounds on an autosave module, and each batch of fixes brought a new
+regression that the next round found; the rounds stopped converging, they kept the diff moving.
+
+**Converged** means one of the cases below, and in every case no `notExaminedSweeps`,
+`inconsistentSweeps` or `uncoveredTargets` stays open. An open item is closed by the next round
+while the cap allows one and that round is owed anyway (never a round 2 run only for it, after a
+round 1 with no P1/P2), otherwise by examining it yourself with `checksPerformed` in the thread;
+an item that still cannot be closed means the review has not converged.
+
+- round 1 confirmed no P1/P2;
+- round 2 or 3 confirmed nothing;
+- the last round the cap allows confirmed findings, and every P1/P2 among them is fixed, each fix
+  passed its own independent verifier on the fix diff (not a new full fan-out), and the quality gate
+  is green;
+- after the cap is spent, or after a round 1 that converged, every later P1/P2 (a bot's, in Mode
+  B) is fixed the same way, never by a new full round;
+- Trivial tier (no fan-out): the diff was read in full and the quality gate is green.
+
+In every case, remaining **P3 / low-severity findings convert to follow-up chips** (`spawn_task`)
+instead of another round, and you report the **residual risk** honestly: what classes were swept,
+what the last round still surfaced, what was not re-verified.
+
+A P1/P2 confirmed in the last allowed round counts as closed once its fix passes its verifier, a
+fresh agent that did not write the fix. If a verifier rejects a fix, or finds a regression in it,
+you get one more fix plus a fresh verifier for that finding (a regression counts against the same
+finding); if that one fails too, or a P1/P2 is left unfixed, the review has NOT converged: the
+changeset is too entangled. Do not record the sentinel. Surface the open findings to the user
+instead of grinding silently. In an unattended run, stop and report the open findings: in Mode A,
+push the branch and open no PR; in Mode B, do not push the unconverged batch. On a large diff (≳5k changed lines, migration-scale) the same
+cap holds: drain to the cap, fix, and lead the report with the residual risk rather than a hollow
+"clean pass" claim (a field migration review ran 16→7→10→8→2→2 findings over six rounds without
+ever reaching zero).
 
 ---
 
@@ -663,7 +741,8 @@ tokens. Pick the rule by changed-line count:
   resource pattern across the ENTIRE diff (every mutation × that FK, every array × that cap); the
   sweep's deliverable is an enumeration table of every candidate site.
 - ❌ Re-verifying only the symptom the comment named. → ✅ Re-run the **full dimension fan-out over the
-  whole diff** — the twin anti-pattern next to your fix must be assessed.
+  whole diff** while the round cap allows it — the twin anti-pattern next to your fix must be
+  assessed.
 - ❌ Shipping a comment/claim the code doesn't structurally guarantee ("updates at midnight"). → ✅
   Reproduce the claimed behavior or drop the claim.
 - ❌ Using "refute on doubt" to downgrade a cited convention/scalability/limit finding. → ✅
@@ -690,7 +769,7 @@ tokens. Pick the rule by changed-line count:
   `SendMessage` with its context intact.
 <!-- /runtime-slot:anti-pattern-deaths -->
 - ❌ Fixing a bot comment, pushing, waiting for the next comment, repeat. → ✅ Batch + one full
-  adversarial pass over the whole diff before each push.
+  adversarial pass over the whole diff before each push, within the round cap.
 - ❌ Declaring "compliant / no bugs" you can't back. → ✅ Re-verify the full diff; report honestly,
   including regressions you caused.
 - ❌ Writing the sentinel to skip the review. → ✅ The sentinel attests a real pass; earn it.
