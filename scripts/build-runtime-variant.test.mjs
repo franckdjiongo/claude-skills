@@ -286,12 +286,12 @@ describe('codex variant', () => {
     expect(checkVariant(d, 'claude')).toContain('# Demo')
   })
 
-  test('a symlink to a .md is scanned whatever its own name', () => {
+  test('a symlink named .md is scanned even when its target extension is not', () => {
     const d = skill({ codexMd: MD, codexJson: JSON_OK })
     mkdirSync(join(d, 'sub'), { recursive: true })
-    writeFileSync(join(d, 'sub', 'bad.md'), 'Ask the Agent tool.\n')
-    symlinkSync('sub/bad.md', join(d, 'alias.png'))
-    expect(() => checkVariant(d, 'codex')).toThrow('bad.md')
+    writeFileSync(join(d, 'sub', 'notes.bin'), 'Ask the Agent tool.\n')
+    symlinkSync('sub/notes.bin', join(d, 'alias.md'))
+    expect(() => checkVariant(d, 'codex')).toThrow('alias.md')
   })
 
   test('a symlink to a file the variant does not ship fails the Codex check', () => {
