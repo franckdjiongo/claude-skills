@@ -1,0 +1,128 @@
+{
+  "description": "Standard for autonomous-execution work plans (\"plans de chantier\"). Three roles: AUTHOR a plan (write an HTML plan that a lesser model or a future session can execute with zero memory of the current conversation), EXECUTE a plan (run an existing brief-chantier plan lot by lot with verification gates), and ORCHESTRATE a fleet (turn a batch of chips/backlog items into several file-disjoint chantiers executed IN PARALLEL in git worktrees by other sessions, then merge/deploy/clean up afterwards). Use whenever the user asks to write/découper a \"plan de chantier\", \"brief-chantier\", \"plan de finition\", \"liste de finition\", a plan for \"runs nocturnes\" / \"run autonome\" / \"exécution autonome\", or asks to EXECUTE such a plan (e.g. \"exécute le plan docs/plans/….html\"). ALSO use — role ORCHESTRATEUR — whenever the user asks to execute a BATCH of chips/tasks as chantiers (e.g. \"exécute les 12 chips de tel projet\", \"fais les chips en chantiers\", \"chantiers parallèles\", \"exécute ça dans les worktrees\"), or to merge/close a finished parallel run. Also use when another brief or skill says a development plan must follow \"le standard brief-chantier\". Development plans only — one-shot documents (offers, playbooks, checklists) are out of scope.",
+  "replace": [
+    {
+      "from": "`~/.claude/settings.json`\n   ou `~/.codex/hooks.json`, refusée",
+      "to": "`~/.codex/hooks.json`\n   (ou le fichier de réglages de Claude Code), refusée",
+      "count": 1
+    },
+    {
+      "from": "d'ultracode sur un seul hook",
+      "to": "de revue adversariale sur un seul hook",
+      "count": 1
+    },
+    {
+      "from": "`.claude/agents/` du repo cible",
+      "to": "`.codex/agents/*.toml` du repo cible",
+      "count": 1
+    },
+    {
+      "from": "rounds ultracode adversariaux",
+      "to": "rounds adversariaux multi-agents",
+      "count": 1
+    },
+    {
+      "from": "(routine claude.ai)",
+      "to": "(tâche cloud Codex)",
+      "count": 1
+    },
+    {
+      "from": "les outils `preview_*` du harnais sont liés à la racine de\n   la session, pas au repo cible, et démarreraient le mauvais serveur.",
+      "to": "un outil de prévisualisation du harnais lié à la racine de\n   la session, et non au repo cible, démarrerait le mauvais serveur.",
+      "count": 1
+    },
+    {
+      "from": "oublié par le run Opus du",
+      "to": "oublié par un run du",
+      "count": 1
+    },
+    {
+      "from": "si l'outil `spawn_task` est disponible",
+      "to": "si l'outil workstation `chip_create` est disponible",
+      "count": 1
+    },
+    {
+      "from": "(un Workflow par plan,\n   lentilles sonnet/medium — jamais le modèle de session pour les lentilles)",
+      "to": "(un fan-out `spawn_agent` par plan, lancé par vagues quand `spawn_agent`\n   répond « agent thread limit reached » ; lentilles au modèle résolu du rôle\n   `review-hunter`, voir `brief-preflight` — jamais le modèle de session pour les lentilles)",
+      "count": 1
+    },
+    {
+      "from": "node ~/.claude/skills/brief-preflight/scripts/preflight-flotte.mjs",
+      "to": "node ~/.agents/skills/brief-preflight/scripts/preflight-flotte.mjs",
+      "count": 1
+    },
+    {
+      "from": "(`.claude/worktrees/<slug>`, gitignoré)",
+      "to": "(`.worktrees/<slug>`, gitignoré)",
+      "count": 1
+    },
+    {
+      "from": "rejouable existe : `sh ~/.claude/hooks/tests/adversarial-pr-guard.smoke.sh`\n   (4 scénarios, dont celui de l'incident) — il doit finir `SMOKE OK`.",
+      "to": "rejouable n'existe pas encore côté Codex (le hook est\n   `~/.codex/hooks/adversarial-pr-guard.mjs`) : fais la simulation ci-dessus à la\n   main depuis le worktree, scénario de l'incident compris.",
+      "count": 1
+    },
+    {
+      "from": "modèle recommandé (défaut : orchestrateur Sonnet high +\n   implémenteur Sonnet medium ; sécurité/concurrence sensible : Opus high),",
+      "to": "modèles recommandés (l'orchestrateur garde le modèle de la\n   session ; les sous-agents prennent les modèles résolus au moment de l'usage par\n   `node ~/.agents/skills/adversarial-pr-review/scripts/resolve-codex-models.mjs --repo <repo-cible>`,\n   jamais un nom de modèle écrit dans le goal prompt ; sécurité/concurrence\n   sensible : effort `high`, jamais au-dessus pour un sous-agent ; ce résolveur ne\n   couvre que les rôles de revue : un implémenteur prend le modèle de l'agent\n   `.codex/agents/<nom>.toml` du projet, à défaut celui de la session, avec un\n   effort passé explicitement — `medium` par défaut, `high` si sensible),",
+      "count": 1
+    },
+    {
+      "from": "(SendMessage)",
+      "to": "(par un outil de message vers un agent si ta session en expose\n     un, sinon dans la conversation hub du plan)",
+      "count": 1
+    },
+    {
+      "from": "jamais general-purpose par défaut",
+      "to": "jamais l'agent générique (`default`) par défaut",
+      "count": 1
+    },
+    {
+      "from": "`general-purpose`",
+      "to": "`default`",
+      "count": 2
+    }
+  ],
+  "forbid": [
+    ".claude/agents",
+    "ScheduleWakeup",
+    "run_in_background",
+    "subagent_type",
+    "~/.claude/hooks",
+    "~/.claude/skills",
+    "~/.claude/settings.json",
+    ".claude/worktrees",
+    "SendMessage",
+    "ListAgents",
+    "spawn_task",
+    "preview_",
+    "ultracode",
+    "Workflow",
+    "Opus",
+    "Sonnet",
+    "'sonnet'",
+    "claude.ai",
+    "schedule-wakeup-guard",
+    "Monitor",
+    "bypassPermissions",
+    "$HOME/.claude",
+    "TaskCreate",
+    "haiku",
+    "opus"
+  ],
+  "allow": {
+    "claude-home": {
+      "match": [
+        "~/.claude/scripts/night-run-lock.sh"
+      ],
+      "reason": "night-run-lock.sh is one shared machine script that lives at this real path and serves every runtime, so the Codex text must name it."
+    }
+  },
+  "slotSources": {
+    "preflight-invoke": "2dad63dacd436bb2",
+    "wait-subagents": "fc1d90f647786dec",
+    "flotte-hook": "9819e102a6aac770",
+    "goal-review-engine": "94dcb40a6b89f990",
+    "watchdog-tick": "edc52937a0a328eb",
+    "watchdog-relance": "fde65102d7205856"
+  }
+}
