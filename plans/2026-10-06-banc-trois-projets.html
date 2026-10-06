@@ -31,9 +31,9 @@
   <a href="#b2">B2 · Petit (FR) <span class="st done">fait</span></a>
   <a href="#b3">B3 · Moyen (EN) <span class="st done">fait</span></a>
   <a href="#b4">B4 · Grand (FR) <span class="st done">fait</span></a>
-  <a href="#b5">B5 · Correctifs skills <span class="st todo">à faire</span></a>
-  <a href="#b6">B6 · Synchronisation <span class="st todo">à faire</span></a>
-  <a href="#j">Journal <span class="st todo">vivant</span></a>
+  <a href="#b5">B5 · Correctifs skills <span class="st done">fait</span></a>
+  <a href="#b6">B6 · Synchronisation <span class="st done">fait</span></a>
+  <a href="#j">Journal <span class="st done">clos</span></a>
 </nav>
 <main>
   <p class="st">claude-skills · feat/banc-trois-projets · 2026-10-06</p>
@@ -56,12 +56,14 @@
   <section id="b3"><h2>B3 · Moyen (EN) <span class="st done">fait</span></h2><p>Même chaîne, plan et fiche rédigés en anglais.</p></section>
   <section id="b4"><h2>B4 · Grand (FR) <span class="st done">fait</span></h2><p>Auteur en rôle ORCHESTRATEUR : découpage en vague, lint de vague, exécution du premier chantier seulement.</p></section>
   <section id="b5"><h2>B5 · Correctifs des skills <span class="st todo">à faire</span></h2><p>Corriger ce que B2 à B4 révèlent, bilinguisme des contrôles déterministes compris. Tests, <code>--check</code> Codex.</p></section>
-  <section id="b6"><h2>B6 · Synchronisation <span class="st todo">à faire</span></h2><p>Fusion dans <code>main</code>, push, installation <code>~/.claude/skills</code>, <code>~/.agents/skills</code>, agents, navette <code>cloud/generated-snapshot</code>, charte cloud de Temps Chantier ; diff vide contre le build.</p></section>
-  <section id="j"><h2>Journal <span class="st todo">vivant</span></h2>
+  <section id="b6"><h2>B6 · Synchronisation <span class="st done">fait</span></h2><p>Fusion dans <code>main</code>, push, installation <code>~/.claude/skills</code>, <code>~/.agents/skills</code>, agents, navette <code>cloud/generated-snapshot</code>, charte cloud de Temps Chantier ; diff vide contre le build.</p></section>
+  <section id="j"><h2>Journal <span class="st done">clos</span></h2>
     <ul><li>2026-10-06 — navette cloud republiée (<code>b9d814c5</code>) avec les skills de la PR précédente ; fiche et plan écrits.</li>
       <li>Petit (cotisations, FR) : 58 lignes, 2 rounds, gardien 1 SERT / 5 HORS puis 1 / 1, TOTAL 1317 prouvé. Juge Opus 12/20 : sévérités gonflées, gardien aveugle aux exclusions du plan, consigne de correcteur improvisée.</li>
       <li>Moyen (tool-crib, EN) : lint FR seul a forcé 4 passages au français ; 449 lignes, 2 rounds, gardien 6 SERT / 10 HORS. Juge 10/20 : le correctif M-a a introduit une régression de doublons de série (20/20) non vue au round 2.</li>
       <li>Grand (planif-equipes, FR) : vague de 5 chantiers, lints PASS ; socle exécuté, 477 → 449 lignes sous plafond 450 par retraits, relecture par lot hors plafond A3, gardien 15 SERT / 18 (trop permissif sur un chantier technique). Juge en cours.</li>
+      <li>Juge Opus : petit 12/20, moyen 10/20, grand 10/20, système 10/20 ; 10 règles prioritaires K1-K10 et 6 suppressions S1-S6.</li>
+      <li>Passe unique de correctifs (3 agents Sonnet, fichiers disjoints) : <code>f0f6d96</code> adversarial-pr-review 2 486 → 2 346 mots ; <code>f63f2c6</code> brief-chantier 2 497 → 2 290 mots, références 2 998 → 2 386 ; <code>f898f1d</code> lint bilingue, disjonction des fichiers en vague, gabarit 2 968 → 1 480 mots, préflight 1 416 → 1 193 ; <code>697460f</code> deux incohérences relevées par un vérificateur frais.</li>
       <li>Frictions consolidées : <code>scratchpad/banc/frictions.md</code> (B1-B6, P1-P5, R1-R7, G1-G3, V1-V10, J1-J6).</li></ul>
   </section>
 </main>
