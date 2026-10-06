@@ -288,10 +288,63 @@ describe('codex variant', () => {
 
   test('a symlink to a .md is scanned whatever its own name', () => {
     const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    mkdirSync(join(d, 'sub'), { recursive: true })
+    writeFileSync(join(d, 'sub', 'bad.md'), 'Ask the Agent tool.\n')
+    symlinkSync('sub/bad.md', join(d, 'alias.png'))
+    expect(() => checkVariant(d, 'codex')).toThrow('bad.md')
+  })
+
+  test('a symlink to a file the variant does not ship fails the Codex check', () => {
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
     mkdirSync(join(d, 'sub', '.git'), { recursive: true })
-    writeFileSync(join(d, 'sub', '.git', 'bad.md'), 'Ask the Agent tool.\n')
-    symlinkSync('sub/.git/bad.md', join(d, 'alias.png'))
-    expect(() => checkVariant(d, 'codex')).toThrow('alias.png')
+    writeFileSync(join(d, 'sub', '.git', 'x.md'), 'Fine text.\n')
+    symlinkSync('sub/.git/x.md', join(d, 'git-link.md'))
+    expect(() => checkVariant(d, 'codex')).toThrow('git-link.md: symlink to a file the variant does not ship')
+    const e = skill({ codexMd: MD, codexJson: JSON_OK })
+    writeFileSync(join(e, 'scripts', 'a.test.mjs'), '// test\n')
+    symlinkSync('scripts/a.test.mjs', join(e, 'test-link.md'))
+    expect(() => checkVariant(e, 'codex')).toThrow('test-link.md: symlink to a file the variant does not ship')
+    expect(checkVariant(e, 'claude')).toContain('# Demo')
+    const f = skill({ codexMd: MD, codexJson: JSON_OK })
+    writeFileSync(join(f, '.DS_Store'), 'x')
+    symlinkSync('.DS_Store', join(f, 'ds-link.md'))
+    expect(() => checkVariant(f, 'codex')).toThrow('ds-link.md: symlink to a file the variant does not ship')
+  })
+
+  test('a link to a file whose name starts with two dots is inside the skill', () => {
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    writeFileSync(join(d, '..foo.md'), 'Fine text.\n')
+    symlinkSync('..foo.md', join(d, 'l.md'))
+    expect(() => checkVariant(d, 'codex')).not.toThrow()
+    buildVariant(d, 'codex', join(tmp(), 'out'))
+    const e = skill({ codexMd: MD, codexJson: JSON_OK })
+    writeFileSync(join(e, '..sibling.md'), 'Fine text.\n')
+    mkdirSync(join(e, 'sub'))
+    symlinkSync('../..sibling.md', join(e, 'sub', 'up.md'))
+    expect(() => checkVariant(e, 'codex')).not.toThrow()
+  })
+
+  test('a link to a file in the parent directory is outside the skill folder', () => {
+    const parent = tmp()
+    const d = join(parent, 'skill')
+    mkdirSync(d)
+    writeFileSync(join(d, 'SKILL.md'), SOURCE)
+    mkdirSync(join(d, 'runtimes'))
+    writeFileSync(join(d, 'runtimes', 'codex.md'), MD)
+    writeFileSync(join(d, 'runtimes', 'codex.json'), JSON.stringify({ ...JSON_OK, slotSources: { engine: slotHash('Use the Workflow tool with model:\'sonnet\'.') } }))
+    writeFileSync(join(parent, 'sibling.md'), 'Fine text.\n')
+    symlinkSync('../sibling.md', join(d, 'up.md'))
+    expect(() => checkVariant(d, 'codex')).toThrow('up.md: symlink pointing outside the skill folder')
+  })
+
+  test('runtimes-extra/ is an ordinary folder, top-level runtimes/ is not', () => {
+    const d = skill({ codexMd: MD, codexJson: JSON_OK })
+    mkdirSync(join(d, 'runtimes-extra'))
+    writeFileSync(join(d, 'runtimes-extra', 'x.md'), 'Fine text.\n')
+    symlinkSync('runtimes-extra/x.md', join(d, 'ok.md'))
+    expect(() => checkVariant(d, 'codex')).not.toThrow()
+    symlinkSync('runtimes/codex.md', join(d, 'bad.md'))
+    expect(() => checkVariant(d, 'codex')).toThrow('bad.md: symlink into runtimes/ would dangle in the variant')
   })
 
   test('a symlink pointing outside the skill folder fails the Codex check', () => {

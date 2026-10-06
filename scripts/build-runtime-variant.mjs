@@ -40,7 +40,8 @@
 //   SCANNED_EXTENSIONS (`--check` included), case-insensitive, `.git` skipped at any depth. A symlink
 //   is scanned through its target when its own name or its target has a scanned extension. A symlink
 //   to the root SKILL.md is skipped (already checked). The variant must be self-contained: a symlink
-//   into runtimes/ or outside the skill folder fails the build.
+//   into runtimes/, outside the skill folder, or to a file the variant does not ship (inside a `.git`
+//   dir, `.DS_Store`, a Codex test file) fails the build.
 //
 // `slotSources` pins the Claude text each Codex slot was written against: when a
 // nightly improvement edits a slot's Claude text, the Codex build fails until a
@@ -339,12 +340,25 @@ function realOrResolved(path) {
 export const SCANNED_EXTENSIONS = ['.md', '.markdown', '.mdx', '.html', '.htm', '.xhtml', '.txt', '.sh', '.json', '.yaml', '.yml']
 const scanned = (name) => SCANNED_EXTENSIONS.includes(extname(name).toLowerCase())
 
+// Single source of truth for "does buildVariant copy this path?", used by the cpSync filter and by
+// shippedText. `path` is a source path (inside `source`, the realpath of the skill folder). Not shipped:
+// any path with a `.git` segment, any `.DS_Store`, the root SKILL.md (rewritten by the build), the
+// top-level runtimes/ folder and everything under it, and for Codex the test files.
+export function isShipped(source, path, runtime) {
+  const rel = relative(source, path)
+  if (!rel) return true
+  const segments = rel.split(sep)
+  if (segments.some((s) => s === '.git' || s === '.DS_Store')) return false
+  if (rel === 'SKILL.md' || segments[0] === 'runtimes') return false
+  return !(runtime === 'codex' && /\.test\.[cm]?[jt]s$/.test(path))
+}
+
 // Every shipped file with a scanned extension besides the root SKILL.md. `base` is the realpath of the
-// skill folder. Top-level runtimes/ is skipped (cpSync drops it), `.git` at any depth (cpSync filters it by name).
+// skill folder.
 function shippedText(dir, base = dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
     const p = join(dir, e.name)
-    if (e.isDirectory()) return e.name === '.git' || (e.name === 'runtimes' && dir === base) ? [] : shippedText(p, base)
+    if (e.isDirectory()) return isShipped(base, p, 'codex') ? shippedText(p, base) : []
     if (p === join(base, 'SKILL.md')) return []
     if (e.isSymbolicLink()) {
       const rel = relative(base, p)
@@ -356,11 +370,12 @@ function shippedText(dir, base = dir) {
       if (real === join(base, 'SKILL.md')) return []
       const inside = relative(base, real)
       if (inside.split(sep)[0] === 'runtimes') throw new VariantError(`${rel}: symlink into runtimes/ would dangle in the variant`)
-      if (inside.startsWith('..') || isAbsolute(inside)) throw new VariantError(`${rel}: symlink pointing outside the skill folder`)
+      if (inside === '..' || inside.startsWith('..' + sep) || isAbsolute(inside)) throw new VariantError(`${rel}: symlink pointing outside the skill folder`)
+      if (!isShipped(base, real, 'codex')) throw new VariantError(`${rel}: symlink to a file the variant does not ship`)
       // A link ships its target's text whatever its own name: match on either name.
       return scanned(e.name) || scanned(real) ? [p] : []
     }
-    return e.isFile() && scanned(e.name) ? [p] : []
+    return e.isFile() && isShipped(base, p, 'codex') && scanned(e.name) ? [p] : []
   })
 }
 
@@ -390,8 +405,7 @@ export function buildVariant(skillDir, runtime, out) {
       recursive: true,
       verbatimSymlinks: true,
       // Tests stay with the source: they check the Claude text and would fail against the variant.
-      filter: (src) => !['.git', '.DS_Store'].includes(basename(src)) && src !== join(source, 'SKILL.md') && src !== join(source, 'runtimes')
-        && !(runtime === 'codex' && /\.test\.[cm]?[jt]s$/.test(src)),
+      filter: (src) => isShipped(source, src, runtime),
     })
     writeFileSync(join(target, 'SKILL.md'), skillMd)
     if (runtime === 'codex' && /^disable-model-invocation:\s*true\s*$/m.test(skillMd.match(/^---\n([\s\S]*?)\n---\n/)?.[1] ?? '')) {
