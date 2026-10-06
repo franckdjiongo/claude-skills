@@ -92,7 +92,14 @@ Le script vérifie mécaniquement, dans cet ordre :
    `brief-chantier`. Ce check ne voit qu'UN plan : il constate qu'une plage est
    DÉCLARÉE, jamais qu'elle est DISJOINTE. La disjonction est vérifiée par le
    lint de vague ci-dessous, que ce check rappelle en avertissement dès qu'un
-   plan se déclare membre d'une vague.
+   plan se déclare membre d'une vague ;
+10. **classe pré-autorisée des doublures de test.** La section des lots porte le
+   paragraphe `<p class="classe-doublures">` du gabarit, avec ses quatre
+   conditions (aucune assertion touchée, aucun fichier de production hors liste,
+   fichiers nommés dans le commit du lot, vérification par le relecteur). Rend
+   le contrôle déterministe de l'étape 5ter du rôle AUTEUR de `brief-chantier`.
+   Mode d'échec couvert : un run de nuit arrêté pour compléter des doublures de
+   test cassées par son propre changement de contrat (observé le 2026-10-06).
 
 ## Étape 0bis — Lint de VAGUE (chantiers parallèles uniquement)
 
@@ -131,8 +138,9 @@ par 2 chantiers sur 5 alors qu'elle était écrite dans le standard.
 <!-- /runtime-slot:flotte-proof -->
 
 `--legacy` rétrograde en avertissement les conventions POSTÉRIEURES au plan
-linté — la section Nice-to-have (7) et le message de commit du lot de clôture
-(8) — pour les plans écrits avant ces conventions. Le check 9 n'est jamais
+linté — la section Nice-to-have (7), le message de commit du lot de clôture
+(8) et la classe pré-autorisée des doublures de test (10) — pour les plans
+écrits avant ces conventions. Le check 9 n'est jamais
 rétrogradé : la section flotte est opt-in, un plan qui la porte l'a écrite après
 la convention.
 
