@@ -42,7 +42,7 @@ personne pour répondre. Détermine ton rôle :
 
 Exigences : **contexte 100 % autonome** (zéro « cette session », chemins absolus, état du repo décrit,
 hypothèses explicites) ; **lots ≤ 2 h**, vérifiables en une passe, repo vert, DONE testable en une phrase ;
-**commande de vérification par lot** et de fin de run exactes ; **coûts Convex déclarés** ou « aucun ». Texte
+**checks par lot** (liste `<ol class="checks">`, voir étape 5) et commandes de fin de run exacts ; **coûts Convex déclarés** ou « aucun ». Texte
 figé = renvoi d'une ligne au skill, section sans objet = « aucun ». Détails par étape : `references/auteur-details.md`.
 
 0. **Brain d'abord.** `bun run --cwd ~/Desktop/my-projets/second-brain cli/index.ts search "<sujet + projet>"` ;
@@ -60,8 +60,9 @@ figé = renvoi d'une ligne au skill, section sans objet = « aucun ». Détails 
    usage existant (README, CLI) est une décision de l'humain dans la fiche, jamais du tri.
 5. **Lots** : le lot 1 livre la tranche verticale minimale que la preuve de la fiche exécute ; chaque lot
    suivant ajoute une garantie en gardant cette preuve verte. Par lot : estimation en heures, fichiers touchés
-   (hors liste = arrêt), agent, vérification, DONE, « Commit du lot » `chantier(<slug>): lot N — <titre>`,
-   DERNIER lot de processus compris (lint check 8).
+   (hors liste = arrêt), agent, checks (`<ol class="checks">`, un `<li data-check="id">` par check, UNE commande
+   exacte dans `<code>`, exit 0 = succès ; jamais de bloc `<pre class="cmd">` dans un lot), DONE, « Commit du
+   lot » `chantier(<slug>): lot N — <titre>`, DERNIER lot de processus compris (lint check 8).
 6. **Un agent par lot**, jamais `general-purpose` par défaut si le projet a des agents dédiés (`.claude/agents/`) ;
    clôture/PR/merge : « aucun — reste chez l'orchestrateur ».
 7. **Galley** : `html_review_register` (chemin absolu), termine par `http://localhost:5179/html-review/<docId>` ;
@@ -94,7 +95,7 @@ Chaque étape est un gate.
    ré-armement à moins de 30 s). Jamais d'attente nue sans wakeup armé. Ne laisse pas le subagent committer :
 <!-- /runtime-slot:wait-subagents -->
    relis son diff et le verdict de la vérification toi-même ; le code réel fait foi sur le plan, consigne
-   l'écart. Un lot se ferme par sa seule commande de vérification, puis commit `chantier(<slug-du-plan>): lot N —
+   l'écart. Un lot se ferme quand tous ses checks sortent 0, puis commit `chantier(<slug-du-plan>): lot N —
    <titre>` (jamais de Co-Authored-By). Le git log EST le suivi : ne modifie pas le plan HTML. Fichier hors
    liste, doublures de test, gate humain, run cloud : `references/executant-details.md`.
 5. **Clôture (A3, ne bloque jamais)**, dans l'ordre : vérifications globales ; `adversarial-pr-review`
