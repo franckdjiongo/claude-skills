@@ -105,6 +105,17 @@ describe('install', () => {
     expect(status(run(), 'claude', 'plain').status).toBe('current')
   })
 
+  test('bytecode caches and .DS_Store from the source checkout are not installed', () => {
+    const { repo, roots, run } = setup()
+    put(join(repo, 'plain', 'scripts', '__pycache__', 'a.pyc'), 'x')
+    put(join(repo, 'plain', '.DS_Store'), 'x')
+    put(join(roots.claude, 'plain', 'SKILL.md'), 'stale')
+    run()
+    expect(existsSync(join(roots.claude, 'plain', 'scripts', '__pycache__'))).toBe(false)
+    expect(existsSync(join(roots.claude, 'plain', '.DS_Store'))).toBe(false)
+    expect(existsSync(join(roots.claude, 'plain', 'scripts', 'run.sh'))).toBe(true)
+  })
+
   test('dry run reports the plan and writes nothing', () => {
     const { roots, backupDir, run } = setup()
     put(join(roots.claude, 'plain', 'SKILL.md'), 'stale')

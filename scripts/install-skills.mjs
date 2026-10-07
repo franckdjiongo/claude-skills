@@ -89,7 +89,7 @@ function swap(built, target, backup, sha) {
   const staged = join(dirname(target), `.${resolve(target).split('/').pop()}.new-${process.pid}`)
   rmSync(staged, { recursive: true, force: true })
   try {
-    cpSync(built, staged, { recursive: true, verbatimSymlinks: true })
+    cpSync(built, staged, { recursive: true, verbatimSymlinks: true, filter: (src) => !NOISE.has(src.split('/').pop()) })
     writeMarker(staged, sha)
     moveAside(target, backup)
     try { renameSync(staged, target) } catch (err) { moveAside(backup, target); throw err }
