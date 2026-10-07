@@ -1,6 +1,6 @@
 ---
 name: dtsx-workflow-analyzer
-description: Analyze DTSX files (SSIS/KingswaySoft packages) for reverse engineering integration workflows between Dynamics On-Premise and Dynamics Cloud. Use when user uploads DTSX files and asks to understand, document, or analyze integration workflows, data mappings, or table relationships. Triggers on mentions of DTSX, SSIS, KingswaySoft, Dynamics integration packages, or requests to reverse engineer ETL workflows.
+description: "Analyze DTSX files (SSIS/KingswaySoft packages) to reverse engineer integration workflows between Dynamics on-premise and cloud. Use when the user uploads DTSX files and wants workflows, data mappings or table relationships documented. Triggers: DTSX, SSIS, KingswaySoft, ETL."
 ---
 
 # DTSX Workflow Analyzer

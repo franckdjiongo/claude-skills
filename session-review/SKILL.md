@@ -1,7 +1,7 @@
 ---
 name: session-review
 description: >-
-  Produce an evidence-grounded retrospective of a Codex or Claude Code session, or an explicitly requested group of sessions. Use for /session-review, session review, retrospective, rétrospective, post-mortem, retour d'expérience, or an assessment of how a session went. Inspect real traces, distinguish outcomes from coordination cost, and propose proportionate improvements. Not a substitute for code review or a feature design review.
+  Evidence-grounded retrospective of a Codex or Claude Code session, or an explicit group of sessions. Use for /session-review, retrospective, rétrospective, post-mortem, retour d'expérience, or an assessment of how a session went. Inspects real traces. Not a code review or design review.
 ---
 
 # Session Review

@@ -1,17 +1,6 @@
 ---
 name: prep-discussion
-description: >
-  Prépare les points à discuter avec un collègue en analysant des fichiers de référence.
-  Génère un message Teams, un courriel, une liste de discussion ou des notes personnelles
-  à partir des zones d'ombre, questions en attente, tâches bloquées et décisions requises
-  identifiées dans les documents fournis. Utilise ce skill dès que l'utilisateur veut
-  préparer une communication ou une rencontre avec quelqu'un en se basant sur des documents,
-  même s'il ne nomme pas le skill explicitement. Exemples de déclencheurs :
-  "prépare les points à discuter avec François", "qu'est-ce que j'ai besoin de Vincent",
-  "analyse ces fichiers pour ma rencontre avec Lyne", "fais-moi un résumé des points en attente
-  pour Karolane", "prepare discussion points with X", "what do I need from Y",
-  "draft a message for Z based on these docs", "prépare un message pour [nom]",
-  "quels sont les points bloquants côté [nom]", "je rencontre [nom] demain, prépare-moi".
+description: "Prépare une discussion avec un collègue à partir de fichiers de référence: message Teams, courriel, liste de points ou notes. Utiliser pour \"prépare les points à discuter avec X\", \"qu'est-ce que j'ai besoin de Y\", \"je rencontre X demain\", \"what do I need from Y\"."
 ---
 
 # Préparer une discussion avec un collègue

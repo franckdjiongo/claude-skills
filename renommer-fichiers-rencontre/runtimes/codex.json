@@ -1,5 +1,5 @@
 {
-  "description": "Rename meeting transcription (.docx) and meeting summary (.md) files according to the user's personal naming conventions. Always use this skill when the user provides a file path and asks to rename it, says \"renomme ce fichier\", \"renomme la transcription\", \"renomme le résumé\", \"rename this transcription\", \"rename this summary\", \"rename according to my convention\", or whenever a .docx or .md file from a meeting needs to be renamed. Also triggers when the user drops a path with a raw or auto-generated name (e.g. \"Temps Chantier_.docx\", \"synthese-20260415-...md\") and asks to give it the right name. Use this skill even if the user just says \"renomme-le\" or \"donne-lui le bon nom\" and a file path is present in the conversation.",
+  "description": "Rename meeting transcript (.docx) and summary (.md) files to the user's naming conventions. Use when given a file path with \"renomme ce fichier\", \"renomme la transcription\", \"renomme le résumé\", \"rename this summary\", \"renomme-le\", \"donne-lui le bon nom\", or a name like \"Temps Chantier_.docx\".",
   "forbid": [
     "CLAUDE_SKILL_DIR",
     "AskUserQuestion",

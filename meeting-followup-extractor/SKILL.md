@@ -1,6 +1,6 @@
 ---
 name: meeting-followup-extractor
-description: Extract follow-up questions from meeting summaries and draft client follow-up emails. Use when the user provides a meeting summary document and requests extraction of questions for client follow-up, or when they want to generate a follow-up email based on meeting notes. Automatically detects the document language (French or English) and generates the email in the same language.
+description: "Extract follow-up questions from a meeting summary and draft a client follow-up email in the document's language (French or English). Use when given a meeting summary and asked for client questions or a follow-up email."
 ---
 
 # Meeting Follow-up Extractor
@@ -85,20 +85,7 @@ After generating the email, ask the user if they want to update the original mee
 
 ## Language Handling
 
-**Auto-detection rules:**
-1. Check document title and headers for language indicators
-2. Scan first 500 words for language patterns
-3. Default to document's primary language
-
-**French indicators:**
-- "Rencontre", "Synthèse", "Questions", "Règles d'affaires"
-- French date formats (28 octobre 2025)
-- French-specific words (avec, pour, mais, etc.)
-
-**English indicators:**
-- "Meeting", "Summary", "Questions", "Business Rules"
-- English date formats (October 28, 2025)
-- English-specific words (with, for, but, etc.)
+Detect the language from the document title and headers, then the first 500 words (section names such as "Rencontre", "Synthèse", "Questions" versus "Meeting", "Summary", "Business Rules", date formats, common words). Write the email in that language. Default to the document's primary language.
 
 ## Examples
 
@@ -121,27 +108,6 @@ J'ai revu notre rencontre et j'aurais quelques questions de clarification:
 Pourriez-vous prendre un moment pour répondre à ces points?
 
 Merci beaucoup
-```
-
-### Example 2: English Meeting Summary
-
-**Input:** Meeting summary with "Points requiring validation"
-
-**Output:**
-```
-Subject: Follow-up from our meeting on October 28, 2025
-
-Hello Sarah,
-
-I've reviewed our meeting and have a few clarification questions:
-
-1. What is your current process for handling multi-day projects?
-2. Do you need approval for expenses over $1000?
-3. How often should the reports be generated?
-
-Could you take a moment to address these points?
-
-Thank you very much
 ```
 
 ## Output Format

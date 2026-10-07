@@ -1,0 +1,32 @@
+Insight Coaching System Setup Complete
+======================================
+Project:        <project-name>
+Package manager: <detected>
+Validate cmd:   <VALIDATE_CMD>
+Format cmd:     <FORMAT_CMD>
+
+Files created:
+  .claude/insights/MY_INSIGHTS.md
+  .claude/hooks/prompt-enhancer.cjs
+  .claude/hooks/precompact-inject.cjs
+  .claude/hooks/session-logger.cjs
+  .claude/hooks/session-start.cjs
+  .claude/hooks/session-end.cjs
+  .claude/hooks/friction-logger.cjs
+  .claude/settings.local.json
+  .claude/logs/.gitkeep
+  .claude/logs/archive/.gitkeep
+
+Files updated:
+  CLAUDE.md (appended coaching sections)
+  .gitignore (added coaching exclusions)
+
+Verification:
+  Hook syntax:     <PASS/FAIL details>
+  Settings JSON:   <PASS/FAIL>
+  Smoke test:      <PASS/FAIL>
+  Slash commands:  <OK/WARNING>
+
+The coaching system is now active. Start a new Claude Code session
+in this project to activate the hooks. Use `!` prefix to bypass
+coaching on any prompt. Run `/coach` for coaching status.

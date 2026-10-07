@@ -1,426 +1,108 @@
 ---
 name: custom-connector-generator
-description: Expert generator for Power Automate custom connectors from OpenAPI specifications. Converts OpenAPI 3.x to Swagger 2.0 format with Microsoft-specific extensions (x-ms-summary, x-ms-visibility, x-ms-dynamic-values), generates apiProperties.json with proper authentication configuration, creates PAC CLI deployment scripts, and applies Power Platform best practices. Use when the user wants to create, convert, or optimize Power Automate custom connectors, import OpenAPI specs, configure authentication for connectors, or deploy connectors using PAC CLI.
+description: "Generate Power Automate custom connectors from OpenAPI specs: convert OpenAPI 3.x to Swagger 2.0, add x-ms-* extensions, build apiProperties.json auth, PAC CLI deploy scripts. Use to create, convert, optimize or deploy a custom connector."
 ---
 
 # Power Automate Custom Connector Generator
 
-Transforms OpenAPI specifications into production-ready Power Automate custom connectors with proper authentication, Microsoft-specific extensions, and deployment scripts.
+Transforms OpenAPI specifications into production-ready Power Automate custom connectors with proper authentication, Microsoft extensions and deployment scripts. Code blocks, auth examples, patterns and walkthroughs live in `references/authoring-snippets.md`.
 
-## Core Capabilities
+## When to use
 
-1. **OpenAPI Conversion**: Converts OpenAPI 3.x → Swagger 2.0 (required format)
-2. **Microsoft Extensions**: Applies x-ms-* extensions for enhanced UX
-3. **Authentication Config**: Generates apiProperties.json with OAuth2/API Key/Basic auth
-4. **Policy Templates**: Adds routing, caching, and transformation policies
-5. **PAC CLI Scripts**: Creates deployment and update commands
+- An OpenAPI 3.x spec must become a custom connector, or a connector is built from scratch.
+- Authentication must be added to a connector.
+- A connector must be deployed with PAC CLI, or optimized with x-ms extensions.
+- The user wants to understand the custom connector structure.
 
-## When to Use This Skill
+## Critical Power Platform constraints
 
-- User provides an OpenAPI 3.x specification → Convert to custom connector
-- User wants to create a custom connector from scratch
-- User needs to add authentication to a connector
-- User wants to deploy a connector using PAC CLI
-- User needs to optimize an existing connector with x-ms extensions
-- User wants to understand custom connector structure
+- **CRITICAL**: custom connectors ONLY support OpenAPI 2.0 (Swagger). OpenAPI 3.0/3.1 is NOT supported: convert to Swagger 2.0. The file MUST be named `apiDefinition.swagger.json`.
+- Files: `apiDefinition.swagger.json` (required), `apiProperties.json` (required, authentication and metadata), `icon.png` (optional, 32x32 or 64x64), `script.csx` (optional, custom C#).
 
-## Critical Power Platform Constraints
+## Workflow
 
-### OpenAPI Version Requirement
-**CRITICAL**: Power Platform custom connectors **ONLY** support OpenAPI 2.0 (Swagger).
-- ❌ OpenAPI 3.0/3.1 is **NOT** supported
-- ✅ Must convert to Swagger 2.0 format
-- The file MUST be named `apiDefinition.swagger.json`
+### Step 1: Analyze the input
 
-### File Structure
-Custom connectors require 3-4 files:
-1. **apiDefinition.swagger.json** (required) - The OpenAPI 2.0 definition
-2. **apiProperties.json** (required) - Authentication and metadata
-3. **icon.png** (optional) - Connector icon (32x32 or 64x64)
-4. **script.csx** (optional) - Custom C# code for transformations
-
-## Step-by-Step Workflow
-
-### Step 1: Analyze the Input
-
-When the user provides an OpenAPI specification:
-
-1. **Determine the OpenAPI version**
-   - Check the `openapi` field (3.x) or `swagger` field (2.0)
-   - If OpenAPI 3.x → Conversion required
-   - If Swagger 2.0 → Enhancement with x-ms extensions
-
-2. **Identify authentication type**
-   - OAuth 2.0? → Check authorization/token URLs
-   - API Key? → Check security definitions
-   - Basic Auth? → Username/password
-   - Multiple auth options? → Use connectionParameterSets
-
-3. **Analyze operations**
-   - Count GET/POST/PUT/DELETE operations
-   - Identify parameters (path, query, body, header)
-   - Check for pagination patterns
-   - Look for webhooks/triggers
+1. Version: `openapi` field (3.x, conversion required) or `swagger` field (2.0, enhance with x-ms extensions).
+2. Authentication: OAuth 2.0 (check authorization/token URLs), API key (security definitions), Basic, or several options (use `connectionParameterSets`).
+3. Operations: count by verb, identify parameters (path, query, body, header), pagination patterns, webhooks/triggers.
 
 ### Step 2: Convert OpenAPI 3.x to Swagger 2.0
 
-If the spec is OpenAPI 3.x, perform these transformations:
+- `openapi: "3.x"` to `swagger: "2.0"`
+- `servers` to `host`, `basePath`, `schemes`
+- `components.schemas` to `definitions`
+- `components.securitySchemes` to `securityDefinitions`
+- `requestBody` to `parameters` with `in: "body"`
+- `content` (media types) to `consumes`/`produces`
 
-**Major Changes Required:**
-```json
-// OpenAPI 3.x
-{
-  "openapi": "3.0.0",
-  "servers": [
-    {"url": "https://api.example.com/v1"}
-  ],
-  ...
-}
+Refer to `references/swagger-2.0-guide.md` for complete rules, `references/authoring-snippets.md` for a before/after.
 
-// Swagger 2.0 (Required)
-{
-  "swagger": "2.0",
-  "host": "api.example.com",
-  "basePath": "/v1",
-  "schemes": ["https"],
-  ...
-}
-```
+### Step 3: Add Microsoft extensions
 
-**Refer to**: `references/swagger-2.0-guide.md` for complete conversion rules.
-
-**Key Conversions:**
-- `openapi: "3.x"` → `swagger: "2.0"`
-- `servers` → `host`, `basePath`, `schemes`
-- `components.schemas` → `definitions`
-- `components.securitySchemes` → `securityDefinitions`
-- `requestBody` → `parameters` with `in: "body"`
-- `content` (with media types) → `consumes`/`produces`
-
-### Step 3: Add Microsoft-Specific Extensions
-
-Power Platform uses custom x-ms-* extensions for enhanced functionality:
-
-**Essential Extensions:**
-
-1. **x-ms-summary** - Display name in Power Automate UI
-```json
-"operationId": "GetUser",
-"summary": "Get user information",
-"x-ms-summary": "Get User"  // ← Shows in UI instead of "Get user information"
-```
-
-2. **x-ms-visibility** - Control parameter visibility
-```json
-"parameters": [{
-  "name": "id",
-  "in": "path",
-  "required": true,
-  "type": "string",
-  "x-ms-visibility": "important"  // Options: "important", "advanced", "internal"
-}]
-```
-
-3. **x-ms-dynamic-values** - Dropdown with dynamic data
-```json
-"parameters": [{
-  "name": "userId",
-  "in": "query",
-  "x-ms-dynamic-values": {
-    "operationId": "GetUsers",
-    "value-path": "id",
-    "value-title": "name"
-  }
-}]
-```
-
-**Refer to**: `references/x-ms-extensions-guide.md` for all extensions and usage patterns.
+Essential: `x-ms-summary` (display name in the UI), `x-ms-visibility` (`important`, `advanced`, `internal`), `x-ms-dynamic-values` (dropdown from another operation: `operationId`, `value-path`, `value-title`). Snippets: `references/authoring-snippets.md`. All extensions: `references/x-ms-extensions-guide.md`.
 
 ### Step 4: Generate apiProperties.json
 
-The apiProperties.json file contains authentication configuration and metadata.
+Structure: `properties.iconBrandColor`, `capabilities`, `connectionParameters`, `policyTemplateInstances`.
 
-**Basic Structure:**
-```json
-{
-  "properties": {
-    "iconBrandColor": "#007ee5",
-    "capabilities": [],
-    "connectionParameters": {
-      // Authentication configuration
-    },
-    "policyTemplateInstances": []
-  }
-}
-```
+- OAuth 2.0 (recommended when the API has it): `type: oauthSetting` with `oAuthSettings` (identityProvider, clientId, scopes, redirectMode, customParameters for authorization/token/refresh URLs).
+- API key: `type: securestring` with `uiDefinition` (displayName, description, tooltip, constraints with `clearText: false`).
+- Basic: a `string` username plus a `securestring` password.
 
-**Authentication Types:**
+Examples: `references/authoring-snippets.md`. Complete patterns: `references/apiproperties-guide.md`.
 
-1. **OAuth 2.0 (Recommended for APIs with OAuth)**
-```json
-"connectionParameters": {
-  "token": {
-    "type": "oauthSetting",
-    "oAuthSettings": {
-      "identityProvider": "oauth2",
-      "clientId": "YOUR_CLIENT_ID",
-      "scopes": ["read", "write"],
-      "redirectMode": "Global",
-      "customParameters": {
-        "authorizationUrl": {"value": "https://api.example.com/oauth/authorize"},
-        "tokenUrl": {"value": "https://api.example.com/oauth/token"},
-        "refreshUrl": {"value": "https://api.example.com/oauth/refresh"}
-      }
-    }
-  }
-}
-```
+### Step 5: Apply best practices
 
-2. **API Key (Simple and common)**
-```json
-"connectionParameters": {
-  "api_key": {
-    "type": "securestring",
-    "uiDefinition": {
-      "displayName": "API Key",
-      "description": "Enter your API key",
-      "tooltip": "Get your API key from the developer portal",
-      "constraints": {
-        "tabIndex": 2,
-        "clearText": false,
-        "required": "true"
-      }
-    }
-  }
-}
-```
+- Operations: group with `tags`, descriptive `operationId` (GetUser, CreateOrder), `summary` and `x-ms-summary` on every operation.
+- Parameters: mark required clearly, set `x-ms-visibility`, use `x-ms-dynamic-values` for lists, add descriptions and tooltips.
+- Responses: complete schemas (not just status codes), examples, `$ref` for reuse.
+- Errors: document 4xx/5xx with an error schema (code/message) and meaningful descriptions.
 
-3. **Basic Authentication**
-```json
-"connectionParameters": {
-  "username": {
-    "type": "string",
-    "uiDefinition": {
-      "displayName": "Username",
-      "description": "Your account username",
-      "constraints": {"required": "true"}
-    }
-  },
-  "password": {
-    "type": "securestring",
-    "uiDefinition": {
-      "displayName": "Password",
-      "description": "Your account password",
-      "constraints": {"required": "true", "clearText": false}
-    }
-  }
-}
-```
+### Step 6: Generate deployment scripts
 
-**Refer to**: `references/apiproperties-guide.md` for complete authentication patterns and examples.
-
-### Step 5: Apply Best Practices
-
-**Operation Organization:**
-- Group related operations using `tags`
-- Use descriptive `operationId` values (GetUser, CreateOrder, etc.)
-- Ensure all operations have `summary` and `x-ms-summary`
-
-**Parameter Optimization:**
-- Mark required parameters clearly
-- Set appropriate `x-ms-visibility` levels
-- Use `x-ms-dynamic-values` for list/dropdown parameters
-- Provide clear descriptions and tooltips
-
-**Response Schemas:**
-- Define complete response schemas (not just status codes)
-- Include examples for each response type
-- Use $ref for reusable schemas
-
-**Error Handling:**
-- Document error responses (4xx, 5xx)
-- Include error schema with code/message fields
-- Provide meaningful error descriptions
-
-### Step 6: Generate Deployment Scripts
-
-Create PAC CLI commands for connector management:
-
-**Create Connector (First Time):**
 ```bash
-pac connector create \
-  --api-definition-file ./apiDefinition.swagger.json \
-  --api-properties-file ./apiProperties.json \
-  --icon-file ./icon.png \
-  --environment "YOUR_ENVIRONMENT_ID"
-```
-
-**Update Connector (After Changes):**
-```bash
-pac connector update \
-  --api-definition-file ./apiDefinition.swagger.json \
-  --api-properties-file ./apiProperties.json \
-  --connector-id "YOUR_CONNECTOR_ID" \
-  --environment "YOUR_ENVIRONMENT_ID"
-```
-
-**Validate Before Deployment:**
-```bash
+pac connector create --api-definition-file ./apiDefinition.swagger.json --api-properties-file ./apiProperties.json --icon-file ./icon.png --environment "YOUR_ENVIRONMENT_ID"
+pac connector update --api-definition-file ./apiDefinition.swagger.json --api-properties-file ./apiProperties.json --connector-id "YOUR_CONNECTOR_ID" --environment "YOUR_ENVIRONMENT_ID"
 paconn validate --api-def ./apiDefinition.swagger.json
 ```
 
-## Output Format
+## Output format
 
-When generating a custom connector, provide:
+Provide: `apiDefinition.swagger.json` (Swagger 2.0, x-ms extensions, complete schemas, securityDefinitions), `apiProperties.json` (auth type, brand color, policy templates if needed), `deployment.md` (PAC CLI commands, environment setup, testing checklist), `README.md` (overview, auth setup, operations, known limitations).
 
-1. **apiDefinition.swagger.json** - Complete Swagger 2.0 definition
-   - Converted from OpenAPI 3.x if needed
-   - All x-ms extensions applied
-   - Complete request/response schemas
-   - Proper authentication configuration in securityDefinitions
+## Patterns and walkthroughs
 
-2. **apiProperties.json** - Authentication and metadata
-   - Appropriate authentication type configured
-   - Icon brand color and metadata
-   - Policy templates if needed
+`references/authoring-snippets.md` holds the three common patterns (Bearer token conversion, OAuth 2.0 with dynamic dropdowns, multi-authentication) and three step-by-step walkthroughs (convert a spec, add OAuth, optimize UX). Full before/after files: `references/examples.md`.
 
-3. **deployment.md** - Deployment instructions
-   - PAC CLI commands ready to use
-   - Environment setup instructions
-   - Testing checklist
+## Reference files
 
-4. **README.md** - Connector documentation
-   - Overview of the connector
-   - Authentication setup instructions
-   - Available operations and examples
-   - Known limitations
+- `references/swagger-2.0-guide.md`: Swagger 2.0 specification and conversion.
+- `references/x-ms-extensions-guide.md`: all Microsoft extensions with examples.
+- `references/apiproperties-guide.md`: apiProperties.json structure and authentication.
+- `references/examples.md`: complete conversion examples.
+- `templates/basic-connector-template.json`: minimal working connector.
 
-## Common Patterns and Solutions
-
-### Pattern 1: Convert OpenAPI 3.x with Bearer Token
-
-**Input**: OpenAPI 3.x with Bearer token authentication
-
-**Steps**:
-1. Convert structure (openapi→swagger, servers→host/basePath)
-2. Move components.securitySchemes → securityDefinitions
-3. Convert Bearer token to API Key in header
-4. Add x-ms-summary to all operations
-5. Generate apiProperties.json with API Key auth
-
-**Refer to**: `references/examples.md` Example 1
-
-### Pattern 2: OAuth 2.0 Connector with Dynamic Dropdowns
-
-**Input**: OpenAPI spec with OAuth 2.0 and related resources
-
-**Steps**:
-1. Convert to Swagger 2.0
-2. Add OAuth 2.0 in securityDefinitions
-3. Identify list operations for dynamic values
-4. Add x-ms-dynamic-values to dependent parameters
-5. Configure OAuth in apiProperties.json with proper scopes
-
-**Refer to**: `references/examples.md` Example 2
-
-### Pattern 3: Multi-Authentication Connector
-
-**Input**: API supporting both API Key and OAuth
-
-**Steps**:
-1. Convert to Swagger 2.0 with both security schemes
-2. Use connectionParameterSets in apiProperties.json
-3. Define UI for authentication selection
-4. Configure each auth type properly
-
-**Refer to**: `references/examples.md` Example 3
-
-## Reference Files
-
-- **`references/swagger-2.0-guide.md`** - Complete Swagger 2.0 specification and conversion guide
-- **`references/x-ms-extensions-guide.md`** - All Microsoft-specific extensions with examples
-- **`references/apiproperties-guide.md`** - apiProperties.json structure and authentication patterns
-- **`references/examples.md`** - Complete conversion examples with before/after
-
-## Templates
-
-- **`templates/basic-connector-template.json`** - Minimal working connector template
-
-## Usage Examples
-
-### Example 1: Convert OpenAPI 3.0 Spec
-
-**User**: "Convert this OpenAPI 3.0 spec to a Power Automate custom connector"
-
-**Claude Process**:
-1. Read the OpenAPI spec
-2. Read `references/swagger-2.0-guide.md` for conversion rules
-3. Convert openapi→swagger, servers→host/basePath
-4. Read `references/x-ms-extensions-guide.md` for extensions
-5. Add x-ms-summary, x-ms-visibility to operations/parameters
-6. Read `references/apiproperties-guide.md` for auth configuration
-7. Generate apiProperties.json based on detected auth type
-8. Generate deployment commands
-9. Output all files with deployment instructions
-
-### Example 2: Add OAuth to Existing Connector
-
-**User**: "Add OAuth 2.0 authentication to this connector"
-
-**Claude Process**:
-1. Read existing apiDefinition.swagger.json
-2. Read `references/apiproperties-guide.md` OAuth section
-3. Add OAuth 2.0 security definition to swagger
-4. Update apiProperties.json with OAuth configuration
-5. Update security requirements on operations
-6. Provide OAuth app registration instructions
-7. Generate updated deployment commands
-
-### Example 3: Optimize Connector UX
-
-**User**: "Make this connector easier to use in Power Automate"
-
-**Claude Process**:
-1. Read existing connector files
-2. Read `references/x-ms-extensions-guide.md`
-3. Identify improvement opportunities:
-   - Missing x-ms-summary → Add friendly names
-   - All parameters visible → Set appropriate visibility
-   - Manual entry for lists → Add x-ms-dynamic-values
-   - Missing descriptions → Add clear explanations
-4. Apply optimizations
-5. Output improved connector
-
-## Validation Checklist
-
-Before delivering a custom connector, verify:
+## Validation checklist
 
 - [ ] `swagger: "2.0"` (not openapi)
 - [ ] All operations have `summary` and `x-ms-summary`
-- [ ] Required parameters marked correctly
-- [ ] Appropriate `x-ms-visibility` levels set
-- [ ] Authentication properly configured in both files
-- [ ] Response schemas defined (not just 200: {})
-- [ ] Error responses documented
-- [ ] PAC CLI commands include correct placeholders
+- [ ] Required parameters marked correctly, appropriate `x-ms-visibility` levels
+- [ ] Authentication configured in both files
+- [ ] Response schemas defined (not just `200: {}`), error responses documented
+- [ ] PAC CLI commands use correct placeholders
 - [ ] README includes setup instructions
 
-## Important Limitations
+## Important limitations
 
-1. **OpenAPI 3.x NOT Supported** - Must convert to Swagger 2.0
-2. **Single Security Definition** - First security scheme in list is used
-3. **No OpenAPI Callbacks** - Webhooks must use x-ms-notification-content
-4. **File Size Limit** - apiDefinition.swagger.json must be < 1 MB
-5. **Dynamic Schema** - Use x-ms-dynamic-schema for truly dynamic responses
+1. OpenAPI 3.x is NOT supported: convert to Swagger 2.0.
+2. Single security definition: the first scheme in the list is used.
+3. No OpenAPI callbacks: webhooks must use `x-ms-notification-content`.
+4. `apiDefinition.swagger.json` must be under 1 MB.
+5. Use `x-ms-dynamic-schema` for truly dynamic responses.
 
 ## Notes
 
-- Always use official Microsoft documentation as source of truth
-- Test connectors in a development environment first
-- Premium license required for custom connectors
-- Custom code (script.csx) available for advanced scenarios
-- GitHub repo: microsoft/PowerPlatformConnectors has 900+ examples
-
----
-
-**Remember**: Custom connectors bridge external APIs to Power Platform. The goal is to make the API intuitive and easy to use within Power Automate and Power Apps through proper use of Microsoft extensions and clear documentation.
+- Use official Microsoft documentation as the source of truth and test in a development environment first.
+- A premium license is required for custom connectors. Custom code (`script.csx`) is available for advanced scenarios.
+- microsoft/PowerPlatformConnectors on GitHub has 900+ examples.

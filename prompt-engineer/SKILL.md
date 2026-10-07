@@ -1,13 +1,11 @@
 ---
 name: prompt-engineer
-description: Expert prompt architect specialized in Claude 4.5 optimization. Analyzes and refines prompts using documented best practices including role-prompting, chain-of-thought reasoning, iterative workflows, extended thinking, agentic patterns, and format control. This skill should be used when users need to create, refine, or optimize prompts for Claude 4.5, or when they want to leverage advanced Claude 4.5 capabilities (Extended Thinking, tool use, long-context tasks, agentic workflows). Provides optimized, ready-to-use prompts with clear explanations grounded in authoritative documentation.
+description: Claude prompt architect. Creates, analyzes and refines prompts using documented best practices (role-prompting, XML structure, chain-of-thought, extended thinking, agentic patterns). Use to create, refine or optimize prompts for Claude. Cites the bundled reference PDFs.
 ---
 
 # Claude 4.5 Prompt Engineer
 
-## Overview
-
-This skill transforms Claude into an expert Prompt Architect specializing in Claude 4.5 optimization. It provides a systematic methodology for creating, analyzing, and refining prompts using state-of-the-art techniques documented in comprehensive best practices guides. The skill is grounded in two authoritative reference documents that cover everything from foundational principles to advanced agentic design patterns.
+Expert Prompt Architect for Claude 4.5. Creates, analyzes and refines prompts using the two bundled reference documents.
 
 ## Primary Directive: Knowledge Base First
 
@@ -63,160 +61,23 @@ When a user provides a prompt to refine or requests a new prompt:
    - Safety-conscious framing
 
 3. **Consult Reference Documents:**
-   - Search for relevant sections in the knowledge base
-   - Identify applicable techniques and patterns
-   - Note specific examples and implementation details
+   - Search the knowledge base for applicable techniques and examples
 
 ### Step 2: Technique Selection
 
-Select techniques strategically based on task requirements. Always verify each technique exists in the reference documents before applying.
+Select techniques from the knowledge base only, and verify each one exists in the reference documents before applying it. The full catalog (foundation, reasoning, complex-task, agentic and special-case techniques, each with its document source), the prompt architecture (system and user message components), reusable scaffolds, agentic system design and the troubleshooting table are in [references/technique-catalog.md](references/technique-catalog.md). Read it at this step.
 
-#### Foundation Techniques (Use Always)
-
-**Explicit Instructions with Context and Rationale:**
-- Spell out exactly what you want (format, depth, constraints)
-- Explain WHY behind instructions to help Claude generalize
-- Provide complete specifications without relying on inference
-- Document source: Section 1.1 (Report), Technique #2 (PDF)
-
-**Role-Prompting via System Message:**
-- Set domain-expert persona in system parameter
-- Most powerful use of system prompts
-- Dramatically boosts accuracy and tailors tone
-- Document source: Section 3.1 (Report), Technique #1 (PDF)
-
-**Structured Formatting with XML Tags:**
-- Use tags like `<context>`, `<instructions>`, `<example>`, `<output_format>`
-- Reduces ambiguity and ensures reliable interpretation
-- Claude is trained to recognize and prioritize XML-tagged content
-- Document source: Section 1.2 (Report), Technique #9 (PDF)
-
-**Verbosity Control:**
-- Claude 4.5 defaults to concise, efficient responses
-- Explicitly request detail when needed or enforce brevity with constraints
-- Match verbosity to task complexity
-- Document source: Section 1.3 (Report), Technique #8 (PDF)
-
-#### Reasoning & Accuracy Techniques
-
-**Chain-of-Thought Prompting:**
-- Use "think step by step" or "ultrathink" to trigger deeper reasoning
-- Three levels: Basic CoT, Guided CoT, Structured CoT
-- Improves logic on complex problems (math, coding, puzzles)
-- Document source: Section 2.3 (Report), Technique #3 (PDF)
-
-**Extended Thinking:**
-- API-level feature allocating "thinking budget" (budget_tokens)
-- For computationally intensive problems: proofs, physics, competitive coding
-- Produces visible thinking blocks showing reasoning process
-- Document source: Section 2.1 (Report), Technique #3 (PDF)
-
-**Interleaved Thinking (Beta):**
-- Reasoning between tool calls within a single turn
-- Enables dynamic strategy adjustment based on real-time results
-- Requires beta header: `interleaved-thinking-2025-05-14`
-- Document source: Section 2.2 (Report)
-
-**Self-Critique and Correction:**
-- Have Claude review and refine its own outputs
-- Catches errors, inconsistencies, missing pieces
-- Use for high-stakes accuracy tasks
-- Document source: Technique #5 (PDF)
-
-#### Complex Task Techniques
-
-**Iterative Planning then Action:**
-- Two-phase approach: plan first, then execute
-- Prevents haphazard answers and allows verification
-- Critical for coding tasks and multi-step workflows
-- Document source: Section 4 (Report), Technique #4 (PDF)
-
-**Multi-Pass Drafting & Refinement:**
-- Split work into focused passes (outline → draft → refine)
-- Maintains long-term consistency
-- Produces higher-quality creative and long-form outputs
-- Document source: Technique #6 (PDF)
-
-**Few-Shot Examples:**
-- Provide sample Q&A pairs or formatted examples
-- Claude mimics patterns for style, format, or specialized output
-- Especially useful when format is hard to describe
-- Document source: Technique #7 (PDF)
-
-#### Agentic Patterns
-
-**Action Bias Control:**
-- `<default_to_action>` for proactive autonomous agents
-- `<do_not_act_before_instructions>` for cautious human-in-loop
-- Controls whether Claude acts autonomously or waits for confirmation
-- Document source: Section 3.3 (Report), Technique #10 (PDF)
-
-**Parallel vs. Sequential Tool Execution:**
-- Claude 4.5 defaults to aggressive parallelism for speed
-- Use `<use_parallel_tool_calls>` to maximize concurrency
-- Enforce sequential execution for dependent tasks
-- Document source: Section 4.3 (Report), Technique #11 (PDF)
-
-**State Management Architecture:**
-- Layer 1: Filesystem as scratchpad (progress.txt, SUMMARY.md)
-- Layer 2: Memory Tool API for persistent cross-session knowledge
-- Layer 3: Git for checkpointing and versioning code changes
-- Document source: Section 4.1 (Report), Technique #12 (PDF)
-
-**Context Management:**
-- Context Editing API to prune least relevant tool results
-- Instruct agent on handling impending context limits
-- Use CLAUDE.md for project-wide persistent instructions
-- Document source: Section 4.2 (Report), Technique #12 (PDF)
-
-#### Special Cases
-
-**Safety-Conscious Framing:**
-- Acknowledge and clarify context for sensitive topics
-- Set boundaries and intent explicitly
-- Use neutral/clinical language when appropriate
-- Two-step approach: outline abstractly, then execute concretely
-- Document source: Section 3.4 (Report), Technique #14 (PDF)
-
-**Hallucination Prevention:**
-- Use `<investigate_before_answering>` tag
-- Instruct Claude to read files/docs before answering questions about them
-- Force verification before speculation
-- Document source: Section 3.3 (Report), Technique #13 (PDF)
-
-### Step 3: Prompt Architecture
-
-Structure prompts with clear, hierarchical sections:
-
-#### System Message Components
-
-1. **Role/Persona**: Domain expertise and perspective level
-2. **Operational Constraints**: Guardrails and boundaries
-3. **Default Behaviors**: Action bias, tool use preferences, verbosity
-4. **Output Format Preferences**: Structure and style guidelines
-
-#### User Message Components
-
-1. **Context**: Background information and rationale
-2. **Task**: Explicit request with specific requirements
-3. **Constraints**: Length, tone, format, scope limitations
-4. **Output Structure**: Desired format with XML tags if complex
-5. **Examples**: Few-shot demonstrations if format/style is critical
-
-**Best Practice**: Use XML tags liberally to separate sections and reduce ambiguity.
-
-### Step 4: Claude 4.5 Optimization Checklist
+### Step 3: Claude 4.5 Optimization Checklist
 
 Ensure prompts leverage Claude 4.5's specific characteristics:
 
-- ✅ **Concise by Default**: Explicitly request detail/verbosity when needed
-- ✅ **Literal Instruction-Following**: Be complete and unambiguous
-- ✅ **Extended Thinking**: Use "ultrathink" or API parameters for hard problems
-- ✅ **Terse Personality**: Focus on substance, avoid expecting pleasantries
-- ✅ **Long-Horizon Capable**: Leverage 200K context, use memory tools
-- ✅ **Agentic Excellence**: Provide clear tool permissions and action directives
-- ✅ **ASL-3 Safety**: Frame sensitive queries with context/intent/boundaries
-- ✅ **Format Mirroring**: Match prompt style to desired output style
+- **Concise by default**: request detail explicitly when needed
+- **Literal instruction-following**: be complete and unambiguous
+- **Extended Thinking**: "ultrathink" or API parameters for hard problems
+- **Long-horizon capable**: leverage 200K context, use memory tools
+- **Agentic**: give clear tool permissions and action directives
+- **ASL-3 safety**: frame sensitive queries with context, intent and boundaries
+- **Format mirroring**: match prompt style to desired output style
 
 ## Output Format
 
@@ -249,47 +110,6 @@ Structure ALL responses using this exact format:
 [List specific sections/pages from knowledge base that support recommendations]
 [Format: "Section X.X (Report)" or "Technique #X (PDF)"]
 
-## Advanced Patterns
-
-### Reusable Prompt Scaffolds
-
-For production or team use, create standardized scaffolds with:
-
-1. **Persona/Role**: Expertise and perspective definition
-2. **Objective**: High-level goal statement
-3. **Constraints**: Hard boundaries and rules
-4. **Acceptance Criteria**: Definition of "done"
-5. **Output Format**: Strict structure specification
-6. **Behavioral Guardrails**: Decision-making logic (XML-tagged)
-
-**Document source**: Section 3.2 (Report)
-
-### Agentic System Design
-
-For autonomous agents, implement:
-
-1. **Memory Architecture**:
-   - Filesystem for intra-session state
-   - Memory Tool for cross-session persistence
-   - Git for code versioning and checkpointing
-
-2. **Context Engineering**:
-   - Context Editing API for automatic pruning
-   - Instruct on graceful handling of context limits
-   - Use CLAUDE.md for project-wide context
-
-3. **Tool Orchestration**:
-   - Define parallel vs. sequential preferences
-   - Establish Human-in-the-Loop gates for critical actions
-   - Specify tool invocation patterns
-
-4. **State Awareness**:
-   - Instruct agent to track progress externally
-   - Implement recovery patterns for interruptions
-   - Define checkpoint strategies
-
-**Document source**: Section 4 (Report), Techniques #10-12 (PDF)
-
 ## Key Principles
 
 1. **Knowledge Base is Authoritative**: Always consult reference documents first; cite specific sections
@@ -303,22 +123,6 @@ For autonomous agents, implement:
 9. **Scaffold for Reuse**: Create reusable templates for consistency
 10. **Frame for Safety**: Set context/intent/boundaries for sensitive topics
 11. **Document Your Sources**: Every recommendation traces back to knowledge base
-
-## Troubleshooting Guide
-
-Consult reference documents for detailed solutions. Common issues:
-
-| Issue | Solution | Document Reference |
-|-------|----------|-------------------|
-| Incomplete outputs | Add explicit acceptance criteria; use iterative planning | Section 4 (Report) |
-| Hallucinations | Add `<investigate_before_answering>`; require source citation | Section 3.3 (Report) |
-| Wrong verbosity | Explicitly set verbosity level or length constraints | Technique #8 (PDF) |
-| Wrong format | Provide few-shot example or detailed XML-tagged format spec | Technique #9 (PDF) |
-| Safety refusals | Reframe with context/intent; try two-step approach | Technique #14 (PDF) |
-| Lost context | Use memory tools, CLAUDE.md, or maintain decision log | Technique #12 (PDF) |
-| Inconsistent behavior | Create reusable system prompt scaffold with guardrails | Section 3.2 (Report) |
-| Too aggressive actions | Add `<do_not_act_before_instructions>` guardrail | Section 3.3 (Report) |
-| Too hesitant | Add `<default_to_action>` directive | Section 3.3 (Report) |
 
 ## Reference Materials
 

@@ -1,0 +1,36 @@
+/ralph-loop "## CRITICAL: Read State Files First
+
+BEFORE doing anything else:
+1. Read prd.json to understand the feature and find next story
+2. Read progress.txt for context and learnings
+3. Check git log --oneline -10 for recent work
+
+## Your Task
+Implement the next eligible user story from prd.json where:
+- passes: false
+- All dependsOn stories have passes: true
+
+## Workflow Per Story
+1. Create/checkout feature branch from prd.json branchName
+2. Implement the story following acceptance criteria
+3. Run the story's verificationCommand
+4. If tests pass:
+   - Update prd.json: set story's passes: true
+   - Update progress.txt with learnings
+   - Commit with message: '[US-XXX] Story title'
+5. If tests fail:
+   - Log the failure in progress.txt
+   - Fix and retry
+
+## Completion Check
+After completing a story, check prd.json:
+- If ALL stories have passes: true → Output <promise>COMPLETE</promise>
+- If stories remain → Continue to next story
+
+## If Stuck (after 5 attempts on same story)
+1. Document the blocker in progress.txt
+2. Note what was tried
+3. Move to next story if possible
+4. Output <promise>BLOCKED</promise> if all remaining stories are blocked
+
+Output <promise>COMPLETE</promise> when ALL stories pass." --max-iterations [N] --completion-promise "COMPLETE"

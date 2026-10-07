@@ -8,12 +8,15 @@ This skill enables Claude to generate production-ready PowerShell and PAC CLI sc
 
 ```
 governance-script-generator/
-├── SKILL.md (12,500 words)
+├── SKILL.md
 ├── README.md (this file)
 └── references/
     ├── pac-cli-reference.md (16,200 words)
     ├── powershell-reference.md (19,800 words)
-    └── governance-patterns.md (12,100 words)
+    ├── governance-patterns.md (12,100 words)
+    ├── script-template.md
+    ├── common-patterns.md
+    └── examples-and-advanced.md
 ```
 
 **Total Documentation**: ~60,600 words

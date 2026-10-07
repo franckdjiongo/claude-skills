@@ -1,20 +1,10 @@
 ---
 name: workstation-friction-capture
-description: >
-  Triage the workstation-tool frictions logged during the session that is
-  about to end (failed calls to `bun run convo|chips|secrets|lexicon|remind|
-  review`, or to `mcp__html-review__*` MCP tools), and report the genuine
-  structural defects — not typos or one-off slips — as a chip (spawn_task) or a note/reminder to the hub. Use this skill
-  when the global Stop hook (Claude: ~/.claude/hooks/workstation-friction-
-  capture-stop.mjs; Codex: ~/.codex/hooks/workstation-friction-capture-stop.mjs)
-  blocks a session end because the runtime's friction log (~/.claude/friction/
-  or ~/.codex/friction/<session-id>.jsonl) is non-empty — this is the ONLY
-  normal trigger, it is not user-invoked. Do not use it speculatively mid-session.
+description: >-
+  Triage the workstation-tool frictions logged this session (failed `bun run convo|chips|secrets|lexicon|remind|review` or mcp__html-review__* calls) and report genuine structural defects as a chip or note. Only when the Stop hook blocks session end on a non-empty friction log. Never speculatively.
 ---
 
 # Workstation Friction Capture
-
-> Source de vérité : `workstation/.claude/skills/workstation-friction-capture/` — ne pas éditer ici.
 
 The workstation's own CLIs and MCP tools sometimes have structural bugs or
 gaps that a session silently works around instead of reporting. A
@@ -57,16 +47,31 @@ workstation`, or a `note`-kind item via `bun run convo create`). Hard cap:
 
 ## Step 5 — Log the pass (mandatory, even at 0 candidates)
 
-Always append one line to `~/.claude/friction/capture-log.jsonl`:
+Run the deterministic logger exactly once:
 
-```json
-{"ts": "<ISO timestamp>", "sessionId": "<session id>", "found": <N lines in the friction log>, "reported": <M chips/notes actually created>}
+```bash
+node /Users/elmabi/Desktop/my-projets/workstation/.claude/skills/workstation-friction-capture/scripts/log-pass.mjs \
+  --runtime claude --session <session-id> --found <N> --reported <M>
 ```
+
+It appends `{ts, sessionId, found, reported}` to
+`~/.claude/friction/capture-log.jsonl`, the journal the Stop hook reads.
 
 `N` = total lines in the session's friction log. `M` = chips/notes actually
 created in Step 4 (0 is a fully valid, expected outcome). Never silent.
 
+**`found` is load-bearing, not bookkeeping.** The Stop hook re-blocks only when
+the session log has GROWN past the `found` of the last logged pass — that line is
+what tells it this pass happened and how much it covered. So count `N` as the
+log's non-empty lines, NOT the entries you judged worth reporting: under-count it
+and the hook nags again next turn about frictions you already triaged; over-count
+it and a genuinely new friction later in the session goes unnoticed. Skip the log
+entirely and the hook falls back on a coarse per-session time window — it stops
+nagging either way, but you lose the precision.
+
 ## Step 6 — Stop normally
 
 After Step 5 the pass is complete. End your turn normally — the Stop hook's
-`stop_hook_active` guard prevents a second block this turn; no `.jsonl` cleanup needed.
+`stop_hook_active` guard prevents a second block this turn, and its progress
+guard (the `found` you just logged) prevents one on later turns; no `.jsonl`
+cleanup needed.

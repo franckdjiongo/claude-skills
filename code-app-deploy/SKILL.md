@@ -1,16 +1,6 @@
 ---
 name: code-app-deploy
-description: >
-  Deploy a Power Apps code app to production, manage application lifecycle, configure security,
-  set up monitoring, and troubleshoot issues. Covers build/push, solutions, Power Platform
-  Pipelines, Content Security Policy, SDK migration, Azure App Insights, CLI telemetry, and
-  diagnostic workflows for PAC CLI failures including SSL proxy issues. Use this skill whenever
-  the user wants to deploy a code app, push to an environment, add an app to a solution, configure
-  CSP, set up monitoring, migrate SDK versions, or troubleshoot "pac code" failures. Also triggers
-  on: "pac code push", "npx power-apps push", "deploy to Power Platform", "add to solution",
-  "configure CSP", "set up App Insights for code app", "pac code add-data-source fails",
-  "fetch failed", "UNABLE_TO_VERIFY_LEAF_SIGNATURE", "Zscaler certificate", or any deployment,
-  ALM, security, monitoring, or troubleshooting question about Power Apps code apps.
+description: "Deploy and operate a Power Apps code app: build/push, solutions, Pipelines, CSP, SDK migration, App Insights, PAC CLI failures (fetch failed, UNABLE_TO_VERIFY_LEAF_SIGNATURE, Zscaler). Use for pac code push, npx power-apps push, ALM, security, monitoring."
 ---
 
 # Power Apps Code App — Deploy & Operate

@@ -1,17 +1,10 @@
 ---
 name: loop-autonomy
 description: >
-  Set up and run an autonomous work loop in ANY project: process a backlog, a
-  plan's tasks, or any work queue item by item — fresh subagent per item,
-  deterministic verification by a validate command, one commit per item, human
-  decisions routed out instead of guessed — using ONLY subscription-included
-  mechanisms (interactive session + subagents, /goal, /loop, Desktop scheduled
-  tasks). NEVER claude -p / Agent SDK (separate usage credits). Use this skill
-  whenever the user wants autonomous or unattended batch progress on queued
-  work: "process my backlog autonomously", "work through this list overnight",
-  "set up a loop on these implementations", "keep going until the queue is
-  empty", "boucle autonome", "traite mon backlog en autonomie", "run nocturne",
-  "loop-autonomy" — even if they never say the word "loop".
+  Autonomous work loop in any project: process a backlog or plan queue item by item,
+  fresh subagent per item, validate command as gate, one commit per item. Never
+  claude -p. Triggers: "boucle autonome", "traite mon backlog en autonomie", "run
+  nocturne", "loop-autonomy".
 ---
 
 # Loop Autonomy — boucle de travail autonome, 100 % souscription
@@ -22,10 +15,9 @@ Le contrat qui rend ça fiable tient en une phrase :
 > **Une itération = un item = un contexte frais = un commit = des
 > post-conditions vérifiées par commande, jamais sur parole.**
 
-Pourquoi c'est structuré comme ça : un agent qui s'auto-évalue déclare
-victoire trop tôt ; un contexte partagé entre items accumule du bruit jusqu'à
-dégrader le travail ; un item sans vérification mesurable n'a pas de
-définition de « fini ». Chaque règle ci-dessous ferme l'un de ces trois trous.
+Pourquoi : un agent qui s'auto-évalue déclare victoire trop tôt, un contexte
+partagé accumule du bruit, un item sans vérification mesurable n'a pas de
+« fini ». Chaque règle ci-dessous ferme l'un de ces trous.
 
 **Jamais `claude -p` ni l'Agent SDK** : tout fonctionne dans la session
 courante (subagents), via `/goal`, `/loop`, ou des tâches planifiées Desktop —
@@ -35,8 +27,8 @@ les mécanismes inclus dans la souscription. Si une étape te tente d'invoquer
 **Skills sœurs — route avant d'armer** : si l'utilisateur veut que le travail
 tourne **sur le cloud** (routines claude.ai, machine locale possiblement
 éteinte) ou qu'une session locale doit exécuter un plan à heure fixe, c'est
-`brief-chantier` (`references/nuits-planifiees.md`). Ce skill-ci est la boucle
-LOCALE sur une file d'items.
+`brief-chantier` (`brief-chantier/references/nuits-planifiees.md`). Ce skill-ci
+est la boucle LOCALE sur une file d'items.
 
 ## Étape 0 — L'adapter du projet (et la règle de refus)
 
@@ -46,18 +38,7 @@ package.json, sinon compose `test` + `lint` + `typecheck`, sinon l'équivalent
 de l'écosystème — `cargo test`, `pytest`, `make test`…), détecte la source
 d'items, propose le fichier, écris-le.
 
-```json
-{
-  "validate": "npm run validate",
-  "queue": { "type": "json", "path": ".claude/loop-queue.json" },
-  "branchPrefix": "loop/",
-  "decisionChannel": "ask-user",
-  "caps": { "maxItemsPerRun": 8, "maxMinutes": 240 }
-}
-```
-
-Spec complète, variantes (`queue.type: "custom"`, `decisionChannel:
-"command"`) et exemples réels : lis `references/adapter.md`.
+Exemple JSON, spec complète et variantes : lis `references/adapter.md`.
 
 **Règle de refus — la plus importante du skill.** Si le projet n'a AUCUNE
 commande de vérification déterministe (rien qui sorte 0/1 et qui prouve que le

@@ -1,29 +1,11 @@
 ---
 name: ship-polished-ui
-description: Use anytime the user wants to CREATE or improve premium, production-grade web UI — a site, landing page, app screen, or component — not just tweak CSS. Triggers on creation ("crée un site", "fais-moi un site vitrine", "nouveau site client", "build a landing page", "code this design") AND improvement ("rends ceci premium", "make this premium", "améliore l'UI", "polish the page", "make it production-ready", "ce bouton est laid", "the design looks generic"), on UI bug reports ("dropdown behind the cards", "the bottom is white"), and on verify requests ("vérifie que ça marche", "test this page"). Non-negotiable rule: always runs a real browser visual QA loop and posts a Verification Ledger before declaring done — even when the user never asks for testing. Entry point for all client websites and app UIs; for documentary artifacts (plans, reports, slides) use design-elevation.
+description: Create or improve premium, production-grade web UI (site, landing page, app screen, component). Triggers: "crée un site", "make this premium", "améliore l'UI", "polish the page", UI bugs, "vérifie que ça marche". Always runs real-browser QA and a Verification Ledger. Documents: use design-elevation.
 ---
 
 # ship-polished-ui — Premium frontend craft, browser-verified
 
-Pair the in-house design doctrine (**[references/design-direction.md](references/design-direction.md)** — the taste authority) with a disciplined visual QA loop. The doctrine handles taste — bold typography, distinctive aesthetics, motion, atmosphere. This skill handles craft — actually verifying in a real browser that the change shipped without regressions, hidden bugs, or the half-finished feeling of "looks fine on the bit I happened to screenshot."
-
-## Why this skill exists
-
-Without this discipline, a typical UI edit looks like:
-
-> "I changed the CSS, took a screenshot of the top of the page, it looks great, done."
-
-That phrase has shipped real bugs. Every one of them was preventable:
-
-- A search dropdown rendered behind the card grid because a parent had `isolation: isolate` — caught only when the user clicked it.
-- A premium card surface had a beautiful brand stripe at the top, but it overflowed past the rounded corners — caught only when the user zoomed into a corner.
-- A page background had an atmospheric gradient mesh that covered the first viewport beautifully, then dropped off to flat white from card row 4 onward — caught only when the user scrolled to the bottom.
-- A "Période configurée / 19 avril — 26 avril" label/value pair was rendering only the label; the value got clipped by `overflow: hidden` on a parent — caught only when the user squinted at it.
-- A plan progress bar rendered perfectly and read fine — but it was a flat fill hugging the card's raw edges, with status dots crammed against the text baseline, and it scrolled out of view on a long document. Every pixel was *correct*; it just looked unfinished and didn't behave like a thing you consult while you work. Caught only when the user said *"c'est trop simpliste, ça aurait dû être sticky."*
-
-In every case, Claude had the browser, had the screenshot tool, and had the technical capability to catch the bug. What was missing was the **discipline** to not declare "done" until the change had been seen, scrolled, zoomed, exercised, *and judged for craft* the way a human reviewer actually inspects a page. The first four bugs are *correctness* misses; the last is a *premium-craft* miss — a separate axis the verify loop now covers explicitly (checklist §11).
-
-This skill is that discipline, written down.
+Pair the in-house design doctrine (**[references/design-direction.md](references/design-direction.md)** — the taste authority) with a disciplined visual QA loop. The doctrine handles taste. This skill handles craft — actually verifying in a real browser that the change shipped without regressions, hidden bugs, or the half-finished feeling of "looks fine on the bit I happened to screenshot." Why this discipline exists, with the real bugs behind it: [references/why-and-anti-patterns.md](references/why-and-anti-patterns.md).
 
 ## Step 0 — Route before you build
 
@@ -64,107 +46,13 @@ Repeat until **every cell of the Verification Ledger is PASS with evidence** (se
 
 ## Phase 1 — Design
 
-### 1.0 — Load the contracts (mandatory before any code)
+Full procedure: **[references/phase1-design.md](references/phase1-design.md)** (contracts to load, visual direction, motion inventory, Design Spec block and its eight rubrics). The binding rules:
 
-Before writing a line of CSS, `Glob` the project for the pipeline's contract artifacts and read whatever exists:
-
-```
-Glob: **/design-intent.md
-Glob: docs/branding/brand-package.md
-Glob: docs/branding/brand-tokens.css
-Glob: **/tokens.css
-```
-
-- **If `docs/branding/brand-package.md` (or `brand-tokens.css`) exists → palette and typography are `brand-fixed`.** Treat them as contractual, at the same authority as `tokens.css`. You do not re-pick colors or fonts, and you never retype a hex by hand — the build **imports or copies** the custom properties from `brand-tokens.css`. Any deviation from a brand-fixed value must be written down and justified.
-- **If `design-intent.md` exists → its constraints (art direction, motion stance) bind Phase 1**, and its **TESTABLE CRITERIA** become extra rows of the Verification Ledger in Phase 2 (see the consumption rule at the top of Phase 2).
-- **If none exist on a new (greenfield) site → declare it, and offer design-forge BRIEF first** (Step 0). If the user proceeds anyway, you own the direction via the Design Spec below.
-- **On a new project with no `tokens.css` → ship-polished-ui bootstraps it.** Derive `tokens.css` from the brand-package / design-intent (or, absent those, from the Design Spec you post). This skill is the canonical producer of `tokens.css` for the build — downstream files reference these tokens, never raw literals.
-
-### 1.1 — Set the visual direction
-
-Read **[references/design-direction.md](references/design-direction.md)** for the in-house design doctrine (the 14 award-level rules, references-first Match/Change, the 3-directions exploration, media strategy, anti-average levers). **This read is mandatory in Phase 1 before you post the Design Spec** — the Spec below is where its rules become named, justified decisions. The direction owns:
-
-- Bold aesthetic direction (refined minimalism, editorial maximalism, brutalist, etc.)
-- Typography choices that aren't generic Inter/Roboto/Arial
-- Color and motion that fit context, not a SaaS template
-- Layered visual treatments — atmosphere, depth, spatial composition
-
-The Anthropic `frontend-design` skill is **not required** and is being retired from this pipeline; if it happens to be installed it may *complement* the in-house doctrine, but never depend on it and never invoke it as a precondition.
-
-Apply the design via direct edits to CSS modules, component files, design tokens, etc. Respect any project-level rules about design tokens (`tokens.css`), pre-commit hooks that ban raw hex/z-index literals, file-size budgets, and CSS Modules conventions. If you introduce a new color/shadow/z-index value, define it as a token first, then reference it.
-
-### 1.2 — Motion inventory (mandatory before coding, for any animated surface)
-
-For any **showcase site, landing page, or surface that carries animation, scroll effects, background media, or 3D**, you **MUST read [references/motion-craft.md](references/motion-craft.md) before writing code**, and then post a short **motion inventory** — a required line now, ahead of the full Design Spec that lands in Phase D. Motion is not an afterthought layered on at the end; a page that ships 100% static does not pass this skill. The inventory names, before you code:
-
-- **Hover / press feedback** for each family of interactive elements (buttons, links, cards, inputs) — what the feedback is, not "some hover state."
-- **Hero entrance** — how the hero resolves on first paint.
-- **Scroll reveals** — which sections reveal on scroll, and how (fade-up, stagger, scrub).
-- **THE signature moment** — exactly **one** memorable interaction per page (rule A1-01 / motion-craft §⑧). Name it and locate it. Accumulating effects is an amateur tell, not richness.
-- **Reduced-motion behavior** — what each of the above degrades to under `prefers-reduced-motion: reduce` (the non-negotiable WCAG 2.3.3 gate — motion-craft §⑤).
-
-`motion-craft.md` owns the *how*: the escalation hierarchy (CSS → Motion → GSAP → 3D, justified per storey), the per-project stacks, the canonical Lenis/ScrollTrigger/useGSAP/`@supports`/View-Transitions boilerplates (copy them verbatim), the 3D decision tree + R3F checklist, the animatable-property whitelist, and the 5 motion non-regression tests that the verify phase runs. Read it before Phase 1 coding on any animated site; the full Design Spec below folds this inventory into rubric 6.
-
-### 1.3 — Post the Design Spec (mandatory — no CSS before the Spec)
-
-**You may not write a line of CSS before you have posted the Design Spec.** The old exit
-criterion "complete enough to look at" is gone — it let the model start typing at the
-statistical average. The Spec is the artifact that forces the decisions *before* the code,
-so Phase 2 has something concrete to verify each decision against.
-
-Read **[references/design-direction.md](references/design-direction.md)** first (rules,
-references-first, media strategy, anti-average levers), then post this block **verbatim in
-shape**, filling every rubric. Copy it from the ecosystem plan's annex A4 — do not
-regenerate from memory:
-
-```
-## DESIGN SPEC — {projet} — {date}
-1. Direction typographique : {display face} + {famille texte} — parce que {justification liée au client, pas un adjectif}
-2. Palette nommée : "{nom}" — base {oklch/hex} + accent {oklch/hex} — dérivée de {attribut marque/produit}
-   (brand-package présent : OUI → valeurs brand-fixed / NON → dérivation documentée)
-3. Primitive de layout : {nom} — répétée sur {liste des sections}
-4. Signature moment : {description} — localisé {où} — technologie {CSS/Motion/GSAP/3D + justification d'étage}
-5. Références nommées : {1-3 produits/sites réels} — MATCH : {espacement/typo/densité} — CHANGE : {contenu/accent}
-6. Motion inventory : hover/press {familles} · entrance hero {…} · reveals scroll {sections} · reduced-motion {comportement}
-7. Stratégie média : {photo client / images IA / vidéo d'ambiance / illustration / 3D / aucun} — parce que {lien produit}
-   → production : {chatgpt-image-prompt-architect | nano-banana-prompt-engineer | outil vidéo} · règles perf A2-⑨
-8. Persona : {ex. senior frontend engineer, print-design background} · Seed d'art direction : {ère/culture}
-   · Données : {réelles du client | mock JSON structuré} — lorem ipsum interdit
-```
-
-The eight rubrics, and the rules that bind them:
-
-1. **Named typographic direction + justification** — a display face + a text family, each
-   named, each justified by the client (not "clean"). Bare adjectives ("clean", "modern",
-   "premium", "sleek") are **forbidden** unless attached to a named reference (rubric 5).
-2. **Named palette derived from the brand** — a named, non-default palette, base + accent,
-   derived from a brand/product attribute. If a `brand-package.md` was loaded in 1.0, the
-   values are **brand-fixed**; otherwise document the derivation. No lavender violet, no
-   violet→blue gradient.
-3. **ONE repeated layout primitive** — a single composition primitive named and listed
-   across the sections it repeats on (rule A1-07).
-4. **The localized signature moment** — exactly one memorable interaction, named, located,
-   with its motion-craft escalation storey justified (rule A1-01).
-5. **1–3 real named references, Match/Change** — real products/sites, each with what you
-   MATCH (craft language) and what you CHANGE (identity). This is the referent Phase 2 uses
-   for the swap-brand and greenfield-craft checks.
-6. **Motion inventory** — the inventory from 1.2, folded in as this rubric.
-7. **Media strategy + production routing** — the chosen visual register justified by the
-   product (rule A1-14), with production routed to the dedicated skills and the perf rules
-   of motion-craft §⑨.
-8. **Persona + art-direction seed + real data** — the three anti-average levers
-   (design-direction Part 5).
-
-**On an ambitious request** (full site, hero, redesign), first sketch **3 directions** in
-three lines each and choose one *with justification* before filling the Spec — never
-implement the first idea (design-direction Part 3).
-
-Only after the Spec is posted do you apply the design via direct edits. When phase 1 is
-posted and the first edits are made, move immediately to phase 2 — do not batch up many
-changes before verifying. Smaller verify cycles catch bugs closer to the change that caused
-them. **The Spec is carried into Phase 2:** the Verification Ledger gets one *"conformité
-Design Spec"* transverse row per decision (the named typo is actually loaded, the palette is
-in tokens, the signature moment exists and works, the media respects §⑨).
+- **Load the contracts first.** `Glob` for `**/design-intent.md`, `docs/branding/brand-package.md`, `docs/branding/brand-tokens.css`, `**/tokens.css`. A brand-package makes palette and typography `brand-fixed` (import the tokens, never retype a hex). A `design-intent.md` binds Phase 1 and its TESTABLE CRITERIA become Verification Ledger rows. On a greenfield site with neither, declare it and offer design-forge BRIEF first.
+- **Read `references/design-direction.md` before posting the Design Spec.** Mandatory.
+- **Animated surface, showcase site or landing page: read `references/motion-craft.md` before coding** and post a motion inventory (hover/press, hero entrance, scroll reveals, exactly one signature moment, reduced-motion behavior). A page that ships 100% static does not pass this skill.
+- **You may not write a line of CSS before you have posted the Design Spec**, all eight rubrics filled: typography, named palette, one layout primitive, signature moment, 1-3 real references (Match/Change), motion inventory, media strategy, persona + art-direction seed + real data. Bare adjectives ("clean", "modern", "premium") are forbidden unless attached to a named reference. On an ambitious request, sketch 3 directions first and choose one with justification.
+- Define any new color, shadow or z-index as a token before using it. Move to Phase 2 right after the first edits; do not batch.
 
 ## Phase 2 — Verify (the non-negotiable loop)
 
@@ -186,108 +74,20 @@ Post the ledger under a heading that contains the **exact** string `VERIFICATION
 
 **Verify the Design Spec, decision by decision.** The Design Spec posted in Phase 1 (§1.3) is a contract with Phase 2: the ledger carries **one `conformité Design Spec` transverse row per Spec decision**, each backed by a real proof, never a declarative PASS. Concretely — the **named typography** is actually loaded (`@font-face`/grep on the served CSS), the **named palette** is present as tokens (not a stray hex), the **layout primitive** repeats where the Spec said, the **signature moment** exists and works (see Motion QA), and the **media** respects the perf rules of motion-craft §⑨. A Spec decision with no matching ledger row was declared, not verified.
 
-**Tooling correspondence — measure, don't guess from a screenshot:**
+Tooling correspondence, the eleven headline checks (scope matrix, open the running app, multi-position screenshots, element zoom, interactive states, adjacent elements, label/value pairs, responsive sweep and data states, reading ergonomics, premium-craft and component-intent, loop until clean): **[references/phase2-verify.md](references/phase2-verify.md)**. The operational core is **[references/visual-qa-checklist.md](references/visual-qa-checklist.md)** — read it on every invocation. Every fallback tool actually used is recorded in the ledger.
 
-| Need | Preferred tool | Notes |
-|---|---|---|
-| Computed styles, box metrics, colors | Claude Preview `preview_inspect` | Read the value; do not eyeball it from a screenshot |
-| Viewports + dark mode | Claude Preview `preview_resize` | Presets mobile/tablet/desktop + `colorScheme` |
-| Full web-app driving, console, network | Chrome MCP | When Preview isn't enough / real app under test |
-| Native desktop apps | computer-use | Non-browser targets |
-| Fallback automation | Playwright | Last resort |
+## Before client delivery, and delegation
 
-Every fallback actually used is recorded in the ledger (which tool produced which proof), so a reviewer can see how each cell was evidenced.
-
-Read **[references/visual-qa-checklist.md](references/visual-qa-checklist.md)** — that file is the operational core of this skill. The headlines:
-
-1. **Identify what's in scope — as a matrix posted in the chat, not a list in your head.** When the codebase is accessible, start from the `scan-surfaces.mjs` manifest (see the essentials above) so the surface list is counted by a script, not recalled from memory. List every visual surface the change could plausibly affect, not just the one you intended to fix (removing `overflow: hidden` changes clipping for descendants; `isolation: isolate` can hide popups; a parent background can leak through a now-transparent child). Then make it two-dimensional: verification runs over **surfaces × viewports** (**320/360 small-mobile**, 375px mobile, ~768px tablet, desktop) — and × theme if the app has light/dark. On a **full-site build** the matrix is the inventory pages × sections × viewports. A surface seen at one viewport is not verified; a device class never rendered makes the whole verdict **invalid** (binary gate). Mark which surfaces are **interaction-reached** — modals, drawers, detail views, popovers, expanded rows, anything behind a click or a route change. Resizing the browser does not re-open those, so they are the cells most often left untested. **Post this matrix as a table in the chat *before* the first screenshot** — the ledger grows from it (checklist §1).
-
-2. **Open the running app — never trust HMR alone.** Connect via the appropriate browser MCP (Chrome MCP for web apps, computer-use for native apps, whatever the user's setup uses). If a dev server is already running, use it. If the app is in an iframe (Power Apps, Salesforce embeds, etc.), read **[references/iframe-and-host-shells.md](references/iframe-and-host-shells.md)** before debugging — iframe context flips a lot of normal CSS behavior.
-
-3. **Multi-position screenshots.** Default-scroll screenshots hide entire classes of bugs. For any change that affects layout, background, or scrollable regions:
-   - Scroll all the way to the top — screenshot.
-   - Scroll all the way to the bottom — screenshot.
-   - Mid-scroll — screenshot.
-   - If the change affects scroll behavior, capture during scroll.
-
-4. **Element-level zoom on every touched piece.** For each piece of CSS you changed and each element it affects, use the browser's zoom tool on a region of `~50–200px` around that element. Casual full-page screenshots are too zoomed-out to reveal hairline issues like rounded-corner overflow, 1-pixel misalignments, or text rendering at the wrong weight.
-
-5. **Exercise interactive states.** For every changed component, exercise:
-   - Hover (does the hover state reveal correctly? does motion feel right?)
-   - Click (does the click handler still fire? does any popup/dropdown render in front of siblings?)
-   - Focus (visible focus ring? keyboard navigation OK?)
-   - Type / paste (form fields)
-   - Disabled states if any
-   - Active / pressed states
-
-6. **Cross-check adjacent elements.** Whenever you remove or add a structural CSS property (`overflow`, `position`, `isolation`, `z-index`, `transform`, `filter`, `clip-path`), assume something else broke and explicitly verify nearby. **[references/css-side-effects.md](references/css-side-effects.md)** lists the dangerous patterns and their typical regressions.
-
-7. **Read every label/value pair and counter.** Silent text disappearance is one of the most embarrassing failure modes. After any layout change near text content, visually confirm that every label has its value, every counter has its number, every chip has its content.
-
-8. **Run the responsive sweep, then stress-test data states.** A viewport pass is not "resize the browser and glance at the current page." Resizing does not re-open a modal, a drawer, or a detail view — the interaction that opened it has to be redone. So for each viewport (**320/360 small-mobile**, ~375px mobile, ~768px tablet, desktop), re-walk the full surface list from step 1, and **re-trigger every interaction-reached view at that viewport**. Check each surface for horizontal overflow (`scrollWidth` should equal `clientWidth` — a page wider than the viewport spills images, buttons and text off the right edge), adapting layout, non-overlapping controls, and touch targets (**gate: ≥ 24×24 px, WCAG 2.5.8 AA**; **premium target: ≥ 44×44 px, WCAG 2.5.5 AAA / Apple HIG**). Then stress-test data states: empty (layout shouldn't collapse), single item, many items (scroll past a viewport — background still covers? state leaking between rows?), and long strings (ellipsize gracefully, or break the layout?).
-
-9. **Run the reading-ergonomics pass.** Correctness (no overflow, no clip, no regression) is table stakes, not the finish line. For any surface a user *reads or scans* — docs, tables, dashboards, forms — ask whether it's comfortable to live in for ten minutes: reading measure (~50–90 chars/line), chrome-to-content ratio (is a fat sidebar crowding a cramped reading column?), and scroll-cost of dense content (does a wide table force panning for *every* row?). These pass every correctness check and still get bounced back. Crucially: **if you measure a deficiency, apply the fix this pass or surface it — never ship a flaw you already diagnosed.**
-
-10. **Run the premium-craft + component-intent pass.** This is the third quality axis — separate from "is it correct?" (1–8) and "is it comfortable to read?" (9) — and it's the one behind the most common bounce-back: *"c'est trop simpliste / ça ne fait pas premium."* For any component you **designed or restyled**: (a) **Craft** — zoom in and judge it like a designer *against the page's nicest existing element*: depth/elevation (does it have the same shadow as sibling cards, or sit flat?), containment (does it breathe inside the layout padding, or hug the raw edges?), detail placement (are dots/badges/icons placed in their own space, or crammed against a line?), and one considered accent (rail/gradient/tint) vs. monochrome filler. The litmus test: screenshot your component beside the best element on the page — if yours looks like the poor cousin, it fails. (b) **Intent** — ask *what is this component for* over a realistic long/populated surface: a progress/status indicator exists to be consulted while you work → it should stay visible (`sticky`), not scroll away; a nav/filter should stay reachable; a primary action should be findable without a scroll-back. Sticky-ness and persistence are decisions you **owe** the component, not enhancements to await. This pass is doubly required when the component arrived from a generator/workflow and never went through a dedicated taste pass — then the verify phase is the *only* craft gate, so don't rubber-stamp your own un-reviewed work as "correct → done." See checklist §11.
-
-11. **Loop until clean.** Each verify pass that finds something feeds a phase-1 fix. Re-verify after every fix.
-
-## Before client delivery — hand off to design-forge for an independent audit
-
-The two-phase loop above is the **incremental** QA that runs *during* the build — it is ship-polished-ui's job. It is **not** the final gate. Before anything ships to a client:
-
-- Run **design-forge AUDIT** (or **design-forge TEST** if computer-use / a live-driving tool is available) against the `design-intent.md`. Its verdict is an *independent* review of the finished work, scored against the intent's criteria — a different pair of eyes than the builder.
-
-**QA responsibility split, written down:** *ship-polished-ui runs the incremental visual-QA loop during the build (Verification Ledger per change); design-forge runs the full pre-delivery audit against the design-intent.* Neither replaces the other — the ledger proves the build was verified as it went, the audit proves it holds up as a whole.
-
-## When to delegate to the visual-qa-inspector agent
-
-The skill ships with a paired sub-agent — the `visual-qa-inspector` agent (embedded in this plugin under `agents/` when installed as the `design-studio` plugin, or at `~/.claude/agents/visual-qa-inspector.md` when the skill runs standalone). **The agent file MUST live in `.claude/agents/`, not inside this skill folder** — Claude Code only auto-discovers sub-agents at that path (or in plugin `agents/` folders). Skills and sub-agents are separate primitives by design: a skill teaches the current context how to do something, a sub-agent delegates the task to an isolated context that returns only a final report. See **[references/agent-dispatch.md](references/agent-dispatch.md)** for the full briefing template and **[references/packaging-as-plugin.md](references/packaging-as-plugin.md)** if you want to ship the skill + agent as one distributable unit.
-
-Dispatch the agent via the Agent tool with `subagent_type: visual-qa-inspector`. Its **output is the Verification Ledger itself** (see agent-dispatch.md) — not a 300-word summary. Use it when:
-
-- **The change touches more than 3 components — dispatch is blocking, not optional** (above that count, verifying inline in a context already loaded with design decisions is exactly where cells get rubber-stamped).
-- You're under heavy context pressure (long session, many open threads).
-- You catch yourself thinking *"the design probably works, I'll just take one screenshot to confirm"* — that exact thought is the cue to delegate. The agent runs Sonnet in a fresh context, which makes it cheaper and more disciplined than the parent that's been juggling design decisions for an hour.
-
-Skip the agent for trivial changes (one CSS file, ~10 lines) — verify those yourself.
-
-**If the `visual-qa-inspector` agent is absent** (not installed on this machine, or unavailable in the current runtime): run the full checklist inline yourself, at **no reduced coverage** — every surface × viewport × state still gets its ledger cell. Note in the ledger that the agent was unavailable and the checklist ran inline, so the fallback is visible rather than silent.
+- Before anything ships to a client, run **design-forge AUDIT** (or **TEST** when a live-driving tool is available) against the `design-intent.md`. ship-polished-ui runs the incremental visual-QA loop during the build; design-forge runs the independent pre-delivery audit. Neither replaces the other.
+- Dispatch the `visual-qa-inspector` agent (`subagent_type: visual-qa-inspector`; its output is the Verification Ledger itself) when the change touches more than 3 components (blocking, not optional), under heavy context pressure, or when you think "I'll just take one screenshot". Skip it for trivial changes (one CSS file, ~10 lines). If the agent is absent, run the full checklist inline at no reduced coverage and note that in the ledger. Briefing and placement: [references/agent-dispatch.md](references/agent-dispatch.md), [references/packaging-as-plugin.md](references/packaging-as-plugin.md).
 
 ## Read these references when relevant
 
-- **[references/design-direction.md](references/design-direction.md)** — The in-house design doctrine for Phase 1: the 14 award-level rules, references-first Match/Change, the 3-directions exploration, media strategy, and the anti-average levers (persona / art-direction seed / real data). **Mandatory read before posting the Design Spec (§1.3).** Replaces any dependency on the Anthropic `frontend-design` skill, which is being retired from this pipeline.
-- **[references/motion-craft.md](references/motion-craft.md)** — The motion & 3D playbook: escalation hierarchy, per-project stacks, canonical GSAP/Lenis/useGSAP/scroll-driven/View-Transitions boilerplates, 3D decision tree + R3F checklist, reduced-motion gate, animatable-property whitelist, the 5 motion non-regression tests, the signature-moment rule, and background-media (video/AI-image) rules. **MUST read before Phase 1 coding** on any showcase site, landing page, or surface with animation, scroll effects, background media, or 3D.
-- **[references/visual-qa-checklist.md](references/visual-qa-checklist.md)** — The operational checklist for phase 2 (14 sections). Read on every invocation. Section 14 (Signature & slop) runs the swap-brand test, verifies the Design Spec decisions landed, applies the external craft referent in greenfield, and runs `slop-lint.mjs` for deterministic AI-slop tells.
-- **[references/css-side-effects.md](references/css-side-effects.md)** — Dangerous CSS patterns and the regressions they cause. Read whenever your change touches `overflow`, `position`, `z-index`, `isolation`, `clip-path`, `filter`, `transform`, `backdrop-filter`, `background-attachment`, or container sizing.
-- **[references/iframe-and-host-shells.md](references/iframe-and-host-shells.md)** — Behavior changes inside iframes (Power Apps, Salesforce, embedded SaaS, sandboxed previews). Read whenever the app is hosted inside another shell.
-- **[references/session-lessons-2026-05-04.md](references/session-lessons-2026-05-04.md)** + **[references/session-lessons-2026-05-21.md](references/session-lessons-2026-05-21.md)** + **[references/session-lessons-2026-05-31.md](references/session-lessons-2026-05-31.md)** — Concrete bugs caught in real sessions, each with symptom → root cause → the diagnostic that should have run → the fix. They trace the failure axes: *looking harder* at one surface (05-04), the *viewport matrix* (05-21), and the three quality axes — *correct, comfortable, premium* (05-31: ergonomics Bugs 6–7, then craft/intent Bug 8). Read them to ground the abstract checklist in what "rigorous" actually looks like.
-- **[references/agent-dispatch.md](references/agent-dispatch.md)** — How to brief the visual-qa-inspector sub-agent.
-- **[references/packaging-as-plugin.md](references/packaging-as-plugin.md)** — Read only when you want to ship the skill + agent as one distributable plugin.
-
-## Anti-patterns this skill exists to prevent
-
-The following moves are **always wrong** for UI work that's supposed to feel finished. Catching yourself doing them is the cue to back up to phase 2.
-
-| Anti-pattern | What to do instead |
-|---|---|
-| One default-scroll screenshot, declare done | Scroll to top AND bottom, zoom on every touched element |
-| "HMR served the new CSS, so it's applied" | Verify visually — sometimes HMR is silent, sometimes a `@media` query you didn't expect kicked in |
-| "I reloaded, so I'm seeing my latest CSS/JS" | A plain static server caches assets heuristically and serves stale copies — even in a new tab. Serve `no-store`, cache-bust the URL, or use a fresh origin (new port), and confirm the served asset actually changed before trusting the screenshot |
-| "It renders correctly, so it's done" | Correct ≠ comfortable. Run the ergonomics pass (checklist §10): reading measure, chrome/content ratio, per-row scroll cost. The bugs the user bounces back are usually ergonomic, not broken pixels |
-| "It renders and reads fine, so it's premium" | Correct + comfortable ≠ premium. Run the craft pass (checklist §11): put it beside the page's nicest element — flat vs. elevated, edge-hugging vs. inset, crammed vs. placed. "Trop simpliste" is this axis failing |
-| Ship a progress/nav/status component that scrolls away on a long page | Ask what it's *for*: an indicator you consult while working should be `sticky`/persistent. Behavior is part of design — don't wait for the user to ask for sticky |
-| Rubber-stamp a component a workflow/generator produced as "correct → done" | Generated work never got a dedicated taste pass, so verify is the ONLY craft gate. Judge its craft harder, not softer, than your own |
-| Notice a flaw, name the fix, ship anyway because it feels out of scope | If you diagnosed it, you own it. Apply the fix this pass or surface it explicitly ("I noticed X — want me to also do Y?"). A shelved self-diagnosis is a guaranteed bounce-back |
-| Ignore states you didn't directly edit | Removing `overflow: hidden` to fix one issue may break clipping for siblings — re-zoom on neighbors |
-| Skip interactive states because the static screenshot looks right | Click the dropdown, hover the card, focus the input — the bug is usually in the state you didn't bother to trigger |
-| Test an interaction-reached view (modal, drawer, detail page) at one viewport | Re-open it at mobile, tablet, and desktop — resizing the browser doesn't re-open it, so it silently stays a single-viewport check |
-| "The user will tell me if it's broken" | The user already told you not to ship like this. The point of this skill is that you tell yourself |
-| Guess at iframe behavior from regular browser intuition | Iframes change `background-attachment: fixed`, viewport reporting, cross-origin DOM access. Read the iframe reference. |
-| Decide an issue is "fine" because the data didn't show it | Imagine empty/long/many-item states explicitly; reproduce them where you can |
-
-## Style and tone of communication
-
-When you find issues during verify, report them concisely and with exact location. "Brand rail at top of period bar overflows past the rounded corners — visible in the zoom of `(125, 340) → (1370, 415)`." That's specific enough to fix without re-investigation.
-
-When you finish a verify pass clean, report briefly what you actually verified — not just "looks good." Something like: "Scrolled top→bottom, zoomed each card edge, exercised dropdown / hover / refresh states. Dropdown now stacks above cards. Brand rail clipped to corners. No regression on adjacent sticky bar." That's honest and tells the user exactly what was checked, so they can call out anything you missed before it ships.
+- **[references/design-direction.md](references/design-direction.md)** — design doctrine; mandatory before the Design Spec.
+- **[references/motion-craft.md](references/motion-craft.md)** — motion and 3D playbook; mandatory before coding any animated surface.
+- **[references/visual-qa-checklist.md](references/visual-qa-checklist.md)** — Phase 2 operational checklist (14 sections), including the slop and swap-brand gate (`slop-lint.mjs`).
+- **[references/css-side-effects.md](references/css-side-effects.md)** — read when touching `overflow`, `position`, `z-index`, `isolation`, `clip-path`, `filter`, `transform`, `backdrop-filter`, `background-attachment`, or container sizing.
+- **[references/iframe-and-host-shells.md](references/iframe-and-host-shells.md)** — read whenever the app is hosted inside another shell (Power Apps, Salesforce, embeds).
+- **[references/why-and-anti-patterns.md](references/why-and-anti-patterns.md)** — the bugs behind the discipline, the anti-patterns table (always-wrong moves), reporting tone. Read before declaring done.
+- **session-lessons-2026-05-04 / 05-21 / 05-31** (`references/`) — concrete bugs caught in real sessions: looking harder, the viewport matrix, and the correct / comfortable / premium axes.
+- **[references/phase1-design.md](references/phase1-design.md)**, **[references/phase2-verify.md](references/phase2-verify.md)** — the full Phase 1 and Phase 2 procedures.

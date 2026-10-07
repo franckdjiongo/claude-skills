@@ -1,6 +1,6 @@
 ---
 name: obsidian-vault-architect
-description: Expert guidance for Obsidian vault design, configuration, and optimization. Use when the user asks to (1) create a new Obsidian vault or vault structure, (2) organize or restructure an existing vault, (3) configure plugins (Templater, Dataview, Git, Tasks, etc.), (4) create templates for daily notes, meetings, or projects, (5) set up sync/backup strategies, (6) integrate Claude/MCP with Obsidian, (7) troubleshoot vault performance or anti-patterns, (8) migrate to or adopt Obsidian methodologies (LYT, ACE, PARA). Triggers on mentions of "Obsidian", "vault", "wikilinks", "Dataview", "Templater", "daily notes", "MOC", or "Maps of Content".
+description: "Design, configure and optimize Obsidian vaults: structure, plugins (Templater, Dataview, Git, Tasks), templates, sync, Claude/MCP integration, LYT/ACE/PARA. Use for \"Obsidian\", \"vault\", \"wikilinks\", \"Dataview\", \"Templater\", \"daily notes\", \"MOC\"."
 ---
 
 # Obsidian Vault Architect

@@ -1,6 +1,6 @@
 ---
 name: app-blueprint
-description: Analyze an entire codebase and produce a comprehensive Application Blueprint document in both English and French. The blueprint explains the application from A to Z in clear, plain language so that anyone—including non-developers—can fully understand its purpose, features, user journey, and workflow. Use when the user asks to document, explain, or reverse-engineer an application, or when they request a "cahier des charges", "application overview", "app blueprint", or similar comprehensive documentation from an existing codebase.
+description: Analyze a codebase and produce a plain-language Application Blueprint in English and French (Dossier applicatif). Use to document, explain or reverse-engineer an app, or for "cahier des charges", "app blueprint", "application overview".
 ---
 
 # Application Blueprint Skill

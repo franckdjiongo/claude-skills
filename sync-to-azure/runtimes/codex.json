@@ -1,5 +1,5 @@
 {
-  "description": "Syncs the current Power Apps Code App to the Fernand Gilbert Ltée Azure DevOps repository under code-apps/<app-name>/. Use this skill whenever the user wants to push or sync a code app to the company repo, share their work with the team, or says anything like \"push to company\", \"sync to azure\", \"deploy to azure devops\", \"update the company repo\", \"push to FGL\", \"push to Fernand Gilbert\", \"envoyer dans le repo de la compagnie\", or finishes a feature and wants colleagues to have access. Also use this skill proactively when the user completes a meaningful change and mentions wanting to share or hand off the work.",
+  "description": "Syncs the current Power Apps Code App to the Fernand Gilbert Ltée Azure DevOps repo under code-apps/<app-name>/. Use for \"push to company\", \"sync to azure\", \"push to FGL\", \"envoyer dans le repo de la compagnie\", or when a finished feature should be shared with the team.",
   "replace": [
     {
       "from": "bash ~/.claude/skills/sync-to-azure/scripts/sync.sh",

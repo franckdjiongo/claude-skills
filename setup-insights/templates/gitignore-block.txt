@@ -1,0 +1,7 @@
+# Claude Code coaching system -- ephemeral data
+.claude/logs/
+!.claude/logs/.gitkeep
+!.claude/logs/archive/
+!.claude/logs/archive/.gitkeep
+.claude/insights/MY_INSIGHTS.md.bak
+.claude/insights/ARCHIVE.md

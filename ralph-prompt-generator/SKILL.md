@@ -1,6 +1,6 @@
 ---
 name: ralph-prompt-generator
-description: Generate auto-compact-resilient Ralph Wiggum loop prompts for Claude Code. Use when the user wants to (1) create a Ralph Wiggum loop prompt for any task, (2) work on large features that will exceed context limits, (3) generate a PRD + prompt combo for complex multi-story features, or (4) ensure their Ralph loop survives auto-compact at 78% context. Triggers on "ralph", "ralph wiggum", "ralph loop", "loop until done", "autonomous loop", "keep going until complete", or requests to generate prompts that persist through context compaction.
+description: Generate auto-compact-resilient Ralph Wiggum loop prompts for Claude Code, with a PRD and progress file for large features. Triggers: ralph, ralph wiggum, ralph loop, loop until done, autonomous loop, keep going until complete.
 ---
 
 # Ralph Wiggum Prompt Generator
@@ -67,166 +67,27 @@ Output <promise>DONE</promise> when ALL criteria pass." --max-iterations [N] --c
 - Always include verification command (test, lint, build, etc.)
 - Success criteria must be objectively verifiable
 
-## Large Feature: PRD Structure
+## Large Feature: State Files
 
-Create `prd.json` in project root:
+Generate both files in the project root, from the templates:
 
-```json
-{
-  "featureName": "[FEATURE_NAME]",
-  "branchName": "feature/[branch-name]",
-  "description": "[One-line description]",
-  "userStories": [
-    {
-      "id": "US-001",
-      "title": "[Story title]",
-      "description": "[What this story accomplishes]",
-      "priority": 1,
-      "dependsOn": [],
-      "acceptanceCriteria": [
-        "[Criterion 1]",
-        "[Criterion 2]"
-      ],
-      "verificationCommand": "[command to verify]",
-      "passes": false
-    }
-  ]
-}
-```
+- `prd.json`: copy `assets/prd-template.json`. Fields: `featureName`, `branchName`, `description`, `userStories[]` with `id`, `title`, `description`, `priority`, `dependsOn`, `acceptanceCriteria`, `verificationCommand`, `passes` (false until verified).
+- `progress.txt`: copy `assets/progress-template.txt` (codebase patterns, completed stories, blockers, session notes, error patterns).
 
 **Story sizing rule**: Each story must be completable within one context window. If it's too big, split it.
 
-## Large Feature: Progress File
-
-Create `progress.txt` in project root:
-
-```
-# Progress Log for [FEATURE_NAME]
-
-## Codebase Patterns
-[Learnings about the codebase that future iterations should know]
-
-## Completed Stories
-- [US-XXX]: [Brief note on what was done]
-
-## Current Blockers
-[Any issues preventing progress]
-
-## Session Notes
-[Timestamp] - [What was accomplished this session]
-```
-
 ## Large Feature Prompt Template
 
-```
-/ralph-loop "## CRITICAL: Read State Files First
-
-BEFORE doing anything else:
-1. Read prd.json to understand the feature and find next story
-2. Read progress.txt for context and learnings
-3. Check git log --oneline -10 for recent work
-
-## Your Task
-Implement the next eligible user story from prd.json where:
-- passes: false
-- All dependsOn stories have passes: true
-
-## Workflow Per Story
-1. Create/checkout feature branch from prd.json branchName
-2. Implement the story following acceptance criteria
-3. Run the story's verificationCommand
-4. If tests pass:
-   - Update prd.json: set story's passes: true
-   - Update progress.txt with learnings
-   - Commit with message: '[US-XXX] Story title'
-5. If tests fail:
-   - Log the failure in progress.txt
-   - Fix and retry
-
-## Completion Check
-After completing a story, check prd.json:
-- If ALL stories have passes: true → Output <promise>COMPLETE</promise>
-- If stories remain → Continue to next story
-
-## If Stuck (after 5 attempts on same story)
-1. Document the blocker in progress.txt
-2. Note what was tried
-3. Move to next story if possible
-4. Output <promise>BLOCKED</promise> if all remaining stories are blocked
-
-Output <promise>COMPLETE</promise> when ALL stories pass." --max-iterations [N] --completion-promise "COMPLETE"
-```
+Use `assets/large-feature-prompt.txt` verbatim (replace `[N]`). It makes the loop read state files first, implement the next eligible story, verify, update `prd.json` and `progress.txt`, commit, and output `<promise>COMPLETE</promise>` or `<promise>BLOCKED</promise>`.
 
 **Iteration guidelines:**
 - 50-100 for multi-story features
 - Plan ~5-10 iterations per story
 - Always set `--max-iterations` as safety net
 
-## Example: Small Task
+## Examples
 
-**User says**: "Fix all TypeScript errors in the src/ folder"
-
-**Generated prompt**:
-```
-/ralph-loop "Fix all TypeScript errors in src/.
-
-## Verification
-Run: npx tsc --noEmit
-
-## Process
-1. Run tsc to identify errors
-2. Fix errors one file at a time
-3. Re-run tsc after each fix
-4. Continue until zero errors
-
-Output <promise>DONE</promise> when tsc --noEmit exits with code 0." --max-iterations 20 --completion-promise "DONE"
-```
-
-## Example: Large Feature
-
-**User says**: "Build a REST API for user management with CRUD, auth, and tests"
-
-**Generated prd.json**:
-```json
-{
-  "featureName": "User Management API",
-  "branchName": "feature/user-api",
-  "description": "REST API for user CRUD with authentication",
-  "userStories": [
-    {
-      "id": "US-001",
-      "title": "User model and database schema",
-      "description": "Create User model with id, email, password hash, timestamps",
-      "priority": 1,
-      "dependsOn": [],
-      "acceptanceCriteria": [
-        "User model exists with required fields",
-        "Migration runs successfully",
-        "Model can be imported without errors"
-      ],
-      "verificationCommand": "npm run db:migrate && npm run typecheck",
-      "passes": false
-    },
-    {
-      "id": "US-002",
-      "title": "Create user endpoint",
-      "description": "POST /users creates a new user with validation",
-      "priority": 2,
-      "dependsOn": ["US-001"],
-      "acceptanceCriteria": [
-        "POST /users creates user",
-        "Validates required fields",
-        "Returns 201 with user object",
-        "Returns 400 on validation error"
-      ],
-      "verificationCommand": "npm test -- --grep 'POST /users'",
-      "passes": false
-    }
-  ]
-}
-```
-
-**Generated prompt**: [Use large feature template above]
+Worked small-task and large-feature examples: [references/examples.md](references/examples.md). Edge cases (multi-phase, error-analysis, TDD, migration, overnight batch, auto-compact recovery, debugging): [references/advanced-patterns.md](references/advanced-patterns.md).
 
 ## Anti-Patterns to Avoid
 
