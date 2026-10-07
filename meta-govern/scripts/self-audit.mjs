@@ -51,11 +51,13 @@ if (fs.existsSync(skillMd)) {
   const lines = content.split('\n');
   const wordCount = content.split(/\s+/).length;
 
-  if (wordCount > 5000) {
-    add('HIGH', 'budget', `meta-govern SKILL.md is ${wordCount} words (cap: 5000).`, skillMd);
+  // Skill design rule R1: a SKILL.md has at most 150 lines and 1,800 words.
+  // Procedure belongs in references/ and scripts/, not in the entry file.
+  if (wordCount > 1800) {
+    add('HIGH', 'budget', `meta-govern SKILL.md is ${wordCount} words (cap: 1800). Move procedure to references/ or scripts/.`, skillMd);
   }
-  if (lines.length > 500) {
-    add('MEDIUM', 'budget', `meta-govern SKILL.md is ${lines.length} lines (recommended: <300).`, skillMd);
+  if (lines.length > 150) {
+    add('HIGH', 'budget', `meta-govern SKILL.md is ${lines.length} lines (cap: 150). Move procedure to references/ or scripts/.`, skillMd);
   }
   if (!/^name:\s*meta-govern\s*$/m.test(content)) {
     add('CRITICAL', 'frontmatter', 'meta-govern SKILL.md missing or malformed name: meta-govern.', skillMd);
@@ -226,6 +228,7 @@ const expectedScripts = [
   'migrate-project.mjs',
   'self-audit.mjs',
   'install-agent-symlinks.mjs',
+  'projects-behind.mjs',
   'lib/template-renderer.mjs',
   'lib/project-detection.mjs',
   // Moteur docs-html auto-scopé au skill (corpus propre de meta-govern)
@@ -250,6 +253,13 @@ const retiredArtifacts = [
   ['references/opus-4-7-defaults.html', 'v1.7.0 (renamed → references/model-effort-defaults.html)'],
   ['scripts/docs-html/verify.mjs', 'v1.7.2 (one-shot MD→HTML fidelity gate, migration complete)'],
   ['scripts/docs-html/convert-references.mjs', 'v1.7.2 (one-shot corpus converter, unrunnable standalone)'],
+  ['agents/architect.md', 'v1.19.0 (sub-agent switched off, nearly unused)'],
+  ['agents/project-analyzer.md', 'v1.19.0 (sub-agent switched off, nearly unused)'],
+  ['agents/source-of-truth-scaffolder.md', 'v1.19.0 (sub-agent switched off, nearly unused)'],
+  ['agents/hook-generator.md', 'v1.19.0 (sub-agent switched off, nearly unused)'],
+  ['agents/scaffolder.md', 'v1.19.0 (sub-agent switched off, nearly unused)'],
+  ['agents/workflow-validator.md', 'v1.19.0 (sub-agent switched off, nearly unused)'],
+  ['agents/governance-auditor.md', 'v1.19.0 (sub-agent switched off, nearly unused)'],
 ];
 for (const [rel, retiredIn] of retiredArtifacts) {
   if (fs.existsSync(path.join(SKILL_DIR, rel))) {
@@ -268,15 +278,12 @@ if (!fs.existsSync(path.join(SKILL_DIR, 'index.html'))) {
 // Master sub-agents — source files in skill bundle
 const agentsDir = path.join(SKILL_DIR, 'agents');
 const masterAgents = [
-  'architect',
-  'project-analyzer',
-  'source-of-truth-scaffolder',
-  'hook-generator',
-  'scaffolder',
-  'workflow-validator',
-  'governance-auditor',
   'evolution-orchestrator',
   'coherence-validator',
+];
+const retiredAgents = [
+  'architect', 'project-analyzer', 'source-of-truth-scaffolder', 'hook-generator',
+  'scaffolder', 'workflow-validator', 'governance-auditor',
 ];
 if (fs.existsSync(agentsDir)) {
   for (const name of masterAgents) {
@@ -309,6 +316,15 @@ if (!fs.existsSync(userAgentsDir)) {
       }
     } catch {
       add('MEDIUM', 'installation', `~/.claude/agents/${name}.md exists but is not a symlink (cannot point to skill bundle).`);
+    }
+  }
+  // A retired sub-agent must not stay installed: the link would dangle (its source is gone).
+  for (const name of retiredAgents) {
+    const link = path.join(userAgentsDir, `${name}.md`);
+    let target;
+    try { target = fs.readlinkSync(link); } catch { continue; }
+    if (path.resolve(path.dirname(link), target).includes(`${path.sep}meta-govern${path.sep}agents${path.sep}`)) {
+      add('MEDIUM', 'installation', `Retired sub-agent ${name} is still symlinked in ~/.claude/agents/. Run scripts/install-agent-symlinks.mjs --repair.`);
     }
   }
 }

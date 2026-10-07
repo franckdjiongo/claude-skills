@@ -24,7 +24,7 @@
   <div class="docs-shell">
     <aside class="docs-toc" id="docs-toc">
       <p class="docs-toc__label">Sur cette page</p>
-      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#what-was-built">What was built</a></li><li class="lvl-3"><a href="#foundation-(3-files)">Foundation (3 files)</a></li><li class="lvl-3"><a href="#references-(20-files-in-references%2F)">References (20 files in references/)</a></li><li class="lvl-3"><a href="#templates-(33-files-in-templates%2F)">Templates (33 files in templates/)</a></li><li class="lvl-3"><a href="#master-scripts-(5-%2B-2-lib)">Master scripts (5 + 2 lib)</a></li><li class="lvl-3"><a href="#master-sub-agents-(9-in-agents%2F)">Master sub-agents (9 in agents/)</a></li><li class="lvl-2"><a href="#build-process">Build process</a></li><li class="lvl-3"><a href="#phase-1-%E2%80%94-discovery-(agent-team-in-parallel)">Phase 1 — Discovery (Agent Team in parallel)</a></li><li class="lvl-3"><a href="#phase-2-%E2%80%94-foundation-built-sequentially">Phase 2 — Foundation built sequentially</a></li><li class="lvl-3"><a href="#phase-3-%E2%80%94-templates-in-parallel-(5-specialized-agents)">Phase 3 — Templates in parallel (5 specialized agents)</a></li><li class="lvl-3"><a href="#phase-4-%E2%80%94-master-scripts-%2B-sub-agents-(sequential%2C-careful)">Phase 4 — Master scripts + sub-agents (sequential, careful)</a></li><li class="lvl-3"><a href="#phase-5-%E2%80%94-validation-agent-team-(4-parallel-agents)">Phase 5 — Validation Agent Team (4 parallel agents)</a></li><li class="lvl-3"><a href="#phase-6-%E2%80%94-p0-fixes">Phase 6 — P0 fixes</a></li><li class="lvl-3"><a href="#final-state">Final state</a></li><li class="lvl-2"><a href="#known-minor-items-for-v1.1">Known minor items for v1.1</a></li><li class="lvl-2"><a href="#cross-references-with-existing-user-master-skills">Cross-references with existing user master skills</a></li><li class="lvl-2"><a href="#trigger-usage">Trigger usage</a></li><li class="lvl-2"><a href="#what-this-means-for-the-user">What this means for the user</a></li></ul></nav>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#what-was-built">What was built</a></li><li class="lvl-3"><a href="#foundation-(3-files)">Foundation (3 files)</a></li><li class="lvl-3"><a href="#references-(20-files-in-references%2F)">References (20 files in references/)</a></li><li class="lvl-3"><a href="#templates-(33-files-in-templates%2F)">Templates (33 files in templates/)</a></li><li class="lvl-3"><a href="#master-scripts-(5-%2B-2-lib)">Master scripts (5 + 2 lib)</a></li><li class="lvl-3"><a href="#master-sub-agents-(2-in-agents%2F)">Master sub-agents (2 in agents/)</a></li><li class="lvl-2"><a href="#build-process">Build process</a></li><li class="lvl-3"><a href="#phase-1-%E2%80%94-discovery-(agent-team-in-parallel)">Phase 1 — Discovery (Agent Team in parallel)</a></li><li class="lvl-3"><a href="#phase-2-%E2%80%94-foundation-built-sequentially">Phase 2 — Foundation built sequentially</a></li><li class="lvl-3"><a href="#phase-3-%E2%80%94-templates-in-parallel-(5-specialized-agents)">Phase 3 — Templates in parallel (5 specialized agents)</a></li><li class="lvl-3"><a href="#phase-4-%E2%80%94-master-scripts-%2B-sub-agents-(sequential%2C-careful)">Phase 4 — Master scripts + sub-agents (sequential, careful)</a></li><li class="lvl-3"><a href="#phase-5-%E2%80%94-validation-agent-team-(4-parallel-agents)">Phase 5 — Validation Agent Team (4 parallel agents)</a></li><li class="lvl-3"><a href="#phase-6-%E2%80%94-p0-fixes">Phase 6 — P0 fixes</a></li><li class="lvl-3"><a href="#final-state">Final state</a></li><li class="lvl-2"><a href="#known-minor-items-for-v1.1">Known minor items for v1.1</a></li><li class="lvl-2"><a href="#cross-references-with-existing-user-master-skills">Cross-references with existing user master skills</a></li><li class="lvl-2"><a href="#trigger-usage">Trigger usage</a></li><li class="lvl-2"><a href="#what-this-means-for-the-user">What this means for the user</a></li></ul></nav>
     </aside>
     <div class="docs-main">
       <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
@@ -95,15 +95,8 @@
 <li><code>lib/template-renderer.mjs</code> — variable substitution + conditionals</li>
 <li><code>lib/project-detection.mjs</code> — comprehensive detection</li>
 </ul>
-<h3 id="master-sub-agents-(9-in-agents%2F)" tabindex="-1"><a class="header-anchor" href="#master-sub-agents-(9-in-agents%2F)" aria-hidden="true">#</a> Master sub-agents (9 in <code>agents/</code>)</h3>
+<h3 id="master-sub-agents-(2-in-agents%2F)" tabindex="-1"><a class="header-anchor" href="#master-sub-agents-(2-in-agents%2F)" aria-hidden="true">#</a> Master sub-agents (2 in <code>agents/</code>)</h3>
 <ol>
-<li><code>architect</code> — BOOTSTRAP scaffolding planner (Opus xhigh)</li>
-<li><code>project-analyzer</code> — deep read-only project inventory (Sonnet high)</li>
-<li><code>source-of-truth-scaffolder</code> — interview + scaffold canonical docs (Opus high)</li>
-<li><code>scaffolder</code> — mechanical materializer of approved plan (Sonnet medium)</li>
-<li><code>hook-generator</code> — custom hook author (Sonnet medium)</li>
-<li><code>workflow-validator</code> — post-bootstrap checklist (Sonnet high)</li>
-<li><code>governance-auditor</code> — drift + anti-pattern detection (Opus high)</li>
 <li><code>evolution-orchestrator</code> — migration + self-update planner (Opus xhigh)</li>
 <li><code>coherence-validator</code> — final-phase end-to-end check (Opus xhigh)</li>
 </ol>
@@ -172,7 +165,6 @@
 <h2 id="cross-references-with-existing-user-master-skills" tabindex="-1"><a class="header-anchor" href="#cross-references-with-existing-user-master-skills" aria-hidden="true">#</a> Cross-references with existing user master skills</h2>
 <ul>
 <li><code>skill-creator</code> (plugin) — meta-govern delegates skill authoring here</li>
-<li><code>create-subagent</code> (user) — meta-govern delegates agent authoring here</li>
 <li><code>session-review</code> (user) — appended lessons feed <code>lessons-log.html</code></li>
 <li><code>domain-driven-design</code> (user) — meta-govern's ddd-strategic + ddd-tactical references redirect here for full guidance</li>
 <li><code>claude-md-improver</code> (plugin) — meta-govern delegates CLAUDE.md surgery here</li>

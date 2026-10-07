@@ -12,8 +12,7 @@ description: |
   source_version, target_version OR target_palier.
   Returns: detailed migration plan + risk analysis + per-step verification.
   Verdict: PASS | FINDINGS | BLOCKED.
-  Distinct from `architect` (which plans BOOTSTRAP) — this agent plans
-  incremental UPGRADES of already-bootstrapped projects.
+  Plans incremental UPGRADES of already-bootstrapped projects.
 tools: Read, Write, Edit, Grep, Glob, Bash
 model: opus
 effort: xhigh
