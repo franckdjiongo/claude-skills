@@ -59,6 +59,14 @@ describe('start', () => {
     assert.equal(info.gitDir, gitDirOf(wt))
     assert.match(info.gitDir, /worktrees/)
   })
+  test('the base ref is pinned once a round exists', async () => {
+    const d = makeRepo(); await started(d)
+    assert.equal((await run(d, 'start', '--base', 'main')).code, 0)
+    await run(d, 'round', roundFile(d))
+    const wider = await run(d, 'start', '--base', 'work')
+    assert.equal(wider.code, 2); assert.match(wider.err, /base ref is fixed/)
+    assert.equal((await run(d, 'start')).code, 0)
+  })
   test('not a repo, bad base, no state', async () => {
     assert.equal((await run(tmp(), 'start', '--base', 'main')).code, 2)
     const d = makeRepo()

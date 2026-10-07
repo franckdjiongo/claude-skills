@@ -137,6 +137,7 @@ function cmdStart(c, flags, out) {
   const old = readJson(join(c.dir, 'state.json'))
   const baseRef = flags.base ?? old?.baseRef ?? tryGit(c.repo, ['symbolic-ref', '--short', 'refs/remotes/origin/HEAD'])
   if (!baseRef) throw new UsageError('no base ref: pass --base <ref> (origin/HEAD is not set)')
+  if (old?.rounds.length && baseRef !== old.baseRef) throw new UsageError(`the base ref is fixed once a round is recorded (${old.baseRef}); a wider base would certify an unreviewed diff`)
   const base = mergeBase(c, baseRef)
   const state = old ? { ...old, baseRef } : { schema: 'adversarial.state/1', baseRef, rounds: [], cross: [], crossRuns: [] }
   saveState(c, state)
