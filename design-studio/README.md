@@ -48,8 +48,8 @@ design-studio/
     └── brand-forge/SKILL.md        (+ references/)
 ```
 
-> This plugin is a **mirror**: the source of truth for each skill is the
-> repo-root folder (`ship-polished-ui/`, `design-elevation/`, `brand-forge/`)
-> and `~/.claude/agents/visual-qa-inspector.md`. Re-sync with
+> This plugin mirrors two skills: the source of truth for each is the
+> repo-root folder (`ship-polished-ui/`, `brand-forge/`).
+> `skills/design-elevation/` has no root copy and is edited here directly. Re-sync with
 > `node scripts/sync-design-studio.mjs` (from the repo root) after editing a
 > source. See `SWITCH.md` before activating the plugin.

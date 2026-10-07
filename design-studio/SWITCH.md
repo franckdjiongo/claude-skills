@@ -75,9 +75,10 @@ mv ~/.claude/agents/visual-qa-inspector.md "$ARCHIVE/agents/visual-qa-inspector.
 Redémarrer Claude Code. Désormais seul le plugin fournit ces skills + l'agent —
 plus de double-déclenchement.
 
-> Les dossiers `ship-polished-ui/`, `design-elevation/`, `brand-forge/` **au
-> RACINE du repo** restent en place : ce sont les SOURCES que
-> `sync-design-studio.mjs` mirroir vers le plugin. Ne pas les archiver.
+> Les dossiers `ship-polished-ui/` et `brand-forge/` **au RACINE du repo**
+> restent en place : ce sont les SOURCES que `sync-design-studio.mjs` mirroir
+> vers le plugin. Ne pas les archiver. `design-elevation` n'a plus de copie à
+> la racine : `design-studio/skills/design-elevation/` est sa seule source.
 
 ---
 

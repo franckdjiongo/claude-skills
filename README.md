@@ -55,7 +55,6 @@ Skills are prompt engineering configurations that transform Claude Code into a d
 | `bun-migration` | Migrate Node.js projects to Bun |
 | `vite-react-ts-setup` | Vite + React + TypeScript setup |
 | `firestore-mastery` | Firebase Firestore patterns |
-| `i18n-web-localizer` | Web internationalization (React, Next.js) |
 | `api-test-script-generator` | Generate API test scripts |
 | `github-issue-creator` | Create GitHub issues programmatically |
 
@@ -66,7 +65,6 @@ Skills are prompt engineering configurations that transform Claude Code into a d
 | `google-forms-builder` | Generate Google Forms via Apps Script |
 | `obsidian-vault-architect` | Design Obsidian vault structures |
 | `dtsx-workflow-analyzer` | Analyze SSIS DTSX packages |
-| `design-elevation` | Elevate design quality through questioning |
 | `gpt5-prompt-architect` | GPT-5 prompt engineering patterns |
 
 ## Usage

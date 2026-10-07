@@ -34,8 +34,8 @@ les mécanismes inclus dans la souscription. Si une étape te tente d'invoquer
 
 **Skills sœurs — route avant d'armer** : si l'utilisateur veut que le travail
 tourne **sur le cloud** (routines claude.ai, machine locale possiblement
-éteinte), c'est `cloud-night-shift` ; une session locale à heure fixe qui
-exécute un plan, c'est `schedule-plan-execution`. Ce skill-ci est la boucle
+éteinte) ou qu'une session locale doit exécuter un plan à heure fixe, c'est
+`brief-chantier` (`references/nuits-planifiees.md`). Ce skill-ci est la boucle
 LOCALE sur une file d'items.
 
 ## Étape 0 — L'adapter du projet (et la règle de refus)

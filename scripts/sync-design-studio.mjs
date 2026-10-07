@@ -4,7 +4,9 @@
  * its source skills + agent so it never silently drifts.
  *
  * Sources of truth
- *   - 3 skills at the repo root:   ship-polished-ui/, design-elevation/, brand-forge/
+ *   - 2 skills at the repo root:   ship-polished-ui/, brand-forge/
+ *   - design-elevation lives ONLY in design-studio/skills/design-elevation/ (edit it there;
+ *     this script does not touch it)
  *   - 1 agent, per switch state (SWITCH.md):
  *       PRE-switch  (copy present at ~/.claude/agents/visual-qa-inspector.md):
  *         that user-scope file is the source, mirrored with the plugin adaptation.
@@ -41,7 +43,7 @@ const PLUGIN = path.join(REPO, "design-studio");
 const HOME = os.homedir();
 const CHECK = process.argv.includes("--check");
 
-const SKILLS = ["ship-polished-ui", "design-elevation", "brand-forge"];
+const SKILLS = ["ship-polished-ui", "brand-forge"];
 const AGENT_SRC = path.join(HOME, ".claude/agents/visual-qa-inspector.md");
 const AGENT_DST = path.join(PLUGIN, "agents/visual-qa-inspector.md");
 

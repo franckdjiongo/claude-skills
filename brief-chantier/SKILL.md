@@ -149,7 +149,7 @@ Tests verts mais fonctionnalité inopérante avec des données réelles : `refer
 
 ## Orchestrer une flotte de chantiers (rôle ORCHESTRATEUR)
 
-Détails, goal prompts et clôture : `references/orchestration.md`.
+Détails, goal prompts et clôture : `references/orchestration.md`. Lancer un plan à heure fixe (session locale programmée, routine cloud) : `references/nuits-planifiees.md`.
 
 **Phase 1 — Inventaire.** `bun run chips list` + `chips read <id>` pour CHAQUE chip du périmètre. Regroupe
 en 3 à 5 chantiers FILE-DISJOINTS (surface d'ÉDITION vérifiée par grep), ~4 sessions parallèles au plus par

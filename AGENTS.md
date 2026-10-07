@@ -63,13 +63,9 @@ The `description` field is critical - it determines when Claude Code should invo
 - `prompt-engineer` - Claude prompting best practices
 - `docs-workflow-generator` - Generate PRD, task breakdown, roadmap, and documentation workflow
 - `ralph-prompt-generator` - Generate auto-compact-resilient Ralph Wiggum loop prompts
-- `claude-hook-creator` - Create or revise Claude Code hooks in settings.json or subagent frontmatter
-- `create-subagent` - Scaffold a well-formed Claude Code subagent (.claude/agents/<name>.md)
 - `meta-govern` - Master governance skill: bootstrap, audit, migrate, and evolve Claude Code project workflows
 - `setup-insights` - Bootstrap the Insight Coaching System (coaching hooks, logging, quality gates) in a project
 - `loop-autonomy` - Run an autonomous work loop over a backlog using subscription-included mechanisms
-- `cloud-night-shift` - Orchestrate chained autonomous overnight cloud runs via claude.ai routines
-- `pipeline-audit` - Reverse-engineer and grade a project's brainstorm→plan→implementation skill pipeline
 - `handoff` - Compact the current conversation into a handoff document for another agent to pick up
 - `adversarial-pr-review` - Run an ultracode multi-agent ADVERSARIAL review over the working diff so a change is bulletproof and "compliant" BEFORE its pull request is opened,…
 - `update-dev-tools` - Autonomously update this macOS machine's local developer toolchain — Python (current stable) + its doc libraries and Node (LTS), both via mise, plus…
@@ -79,7 +75,6 @@ The `description` field is critical - it determines when Claude Code should invo
 - `workos` - Use when the user asks for a WorkOS docs URL, term, or dashboard field (Sign-in endpoint, initiate_login_uri, Redirect URI, `WORKOS_*` env vars), or…
 - `commit-session-work` - Finish Git work safely at the end of a Claude Code session: commit, and — depending on the mode — integrate, push, and clean up.
 - `ship-pr` - Merge one or more explicitly-named pull requests and land the result safely: verify each PR is mergeable and its required checks are green, merge it…
-- `building-production-macos-apps` - Builds, debugs, refactors, tests, profiles, secures, polishes, and prepares production macOS apps using Swift, SwiftUI, AppKit, and Xcode.
 
 **Convex Database**
 - `convex-queries` - Convex query patterns and best practices
@@ -118,7 +113,6 @@ The `description` field is critical - it determines when Claude Code should invo
 - `bun-migration` - Migrate Node.js projects to Bun
 - `vite-react-ts-setup` - Vite + React + TypeScript project setup
 - `firestore-mastery` - Firebase Firestore patterns
-- `i18n-web-localizer` - Web internationalization
 - `api-test-script-generator` - Generate API test scripts
 - `github-issue-creator` - Create GitHub issues programmatically
 - `supacode-cli` - Control Supacode from the terminal (worktrees, tabs, and surfaces)
@@ -129,10 +123,8 @@ The `description` field is critical - it determines when Claude Code should invo
 - `google-forms-builder` - Generate Google Forms via Apps Script
 - `obsidian-vault-architect` - Design Obsidian vault structures
 - `dtsx-workflow-analyzer` - Analyze SSIS DTSX packages
-- `design-elevation` - Elevate design quality through systematic questioning
 - `app-blueprint` - Reverse-engineer a codebase into a comprehensive Application Blueprint (EN/FR)
 - `brand-forge` - Automate end-to-end branding with naming, slogan, logo, and brand identity outputs
-- `seo-visibility` - Implement SEO, structured data, AI discoverability, and marketing visibility improvements
 - `galley` - POINTEUR — absorbé par le skill unifié `workstation` (source de vérité : repo workstation, references/galley.md) ; revue d'artefacts HTML via les outils MCP html_review_* ou la CLI `bun run review`
 - `ship-polished-ui` - Design then browser-QA premium, production-grade UI with a non-negotiable visual test loop
 - `brief-preflight` - Pré-analyse d'un plan brief-chantier AVANT exécution : lint déterministe (script auto-exécuté à l'invocation) puis rounds ultracode adversariaux (7…
@@ -201,9 +193,9 @@ A source with `disable-model-invocation: true` (Claude only) gets `agents/openai
 Codex sub-agent models are never written in a skill: they are resolved at use time from
 `.codex/model-routing.json` / `~/.codex/model-routing.json` (see
 `adversarial-pr-review/scripts/resolve-codex-models.mjs`). Deliberately outside the generator: `brain-capture`,
-`meta-govern` and `pipeline-audit` have hand-written Codex-only rewrites kept elsewhere (no
-`runtimes/codex.json`, so the build exits 3 for them and the rail never touches them), and
-`claude-hook-creator` is intentionally not installed for Codex. Tests: `bun test scripts adversarial-pr-review/scripts`.
+`meta-govern` has a hand-written Codex-only rewrite kept elsewhere (no
+`runtimes/codex.json`, so the build exits 3 for it and the rail never touches it).
+Tests: `bun test scripts adversarial-pr-review/scripts`.
 
 ## Multi-Repository Skills Registry
 

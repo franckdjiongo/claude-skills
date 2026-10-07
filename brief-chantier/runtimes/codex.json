@@ -68,9 +68,11 @@
     "claude-home": {
       "match": [
         "<code>.claude/agents/</code> / <code>.codex/agents/</code>",
-        "~/.claude/skills/brief-chantier/references/gardien-intention.md"
+        "~/.claude/skills/brief-chantier/references/gardien-intention.md",
+        "`sh ~/.claude/scripts/night-run-reaper.sh`",
+        "`~/.claude/scripts/night-run-lock.sh acquire <id>`"
       ],
-      "reason": "The plan template also names both agent directories on purpose, as a dual-runtime skeleton. The Claude wrapper agents/gardien-intention.md ships in the Codex build too (its sibling .toml is the Codex one) and names its own runtime's install path."
+      "reason": "The night-run reaper and lock scripts live in ~/.claude/scripts and are shared by both runtimes (references/nuits-planifiees.md). The plan template also names both agent directories on purpose, as a dual-runtime skeleton. The Claude wrapper agents/gardien-intention.md ships in the Codex build too (its sibling .toml is the Codex one) and names its own runtime's install path."
     },
     "spawn-task": {
       "match": [
