@@ -22,7 +22,7 @@ allowed-tools:
 
 # Brief-preflight — valider un plan avant exécution autonome
 
-Un brief-chantier s'exécute sans personne à qui poser une question : une ambiguïté, un fait faux ou une contradiction devient un run arrêté, ou un run qui livre autre chose. Deux couches : le DÉTERMINISTE (un script), puis le JUGEMENT (revue multi-agents). L'invocation de ce skill par brief-chantier ou par l'utilisateur VAUT opt-in ultracode pour les workflows décrits ici.
+Un brief-chantier s'exécute sans personne à qui poser une question : une ambiguïté, un fait faux ou une contradiction arrête le run ou le fait livrer autre chose. Deux couches : le DÉTERMINISTE (un script), puis le JUGEMENT (revue multi-agents). L'invocation de ce skill par brief-chantier ou par l'utilisateur VAUT opt-in ultracode pour les workflows décrits ici.
 
 ## Règles dures
 
@@ -46,20 +46,22 @@ node ${CLAUDE_SKILL_DIR}/scripts/preflight-lint.mjs <chemin-absolu-du-plan.html>
 ```
 <!-- /runtime-slot:etape0-run -->
 
-Le lint accepte les plans FR et EN. Il vérifie, sans jugement : placeholders, `undefined`, phrases interdites ; chemins absolus, scripts `bun|npm run`, ancres `fichier:ligne` ; structure (sections non vides, lots avec Agent + commande + DONE, étiquettes de lot uniques, TOC) ; Nice-to-have ≥ 5 ; commit du lot de clôture étiqueté `lot N` ; section flotte si présente (plage et `Dépend de`) ; règles dures : aucune clause de revue sans fin, `Budget total`, `Chips`, `Fiche d'intention` (validée : « Validée par : <nom> »), `Doublures de test`.
+Le lint (plans FR et EN) vérifie sans jugement : placeholders, phrases interdites, chemins, scripts et ancres existants, structure et TOC, section flotte, règles dures (revue sans fin interdite, `Budget total : <cible> / <plafond>` avec cible ≤ plafond ≤ 1000, `Chips`, `Fiche d'intention` validée, `Doublures de test`).
 
-`--legacy` rétrograde en avertissement les conventions récentes, jamais les clauses sans fin ni la section flotte. VERDICT FAIL = corrige TOUTES les erreurs avant le moindre round, puis relance le lint après chaque lot de correctifs.
+**Checks de lot.** Chaque lot liste ses checks en `<ol class="checks">` : un `<li data-check="id">` par check (id unique dans le plan), UNE commande exacte dans `<code>`, exit 0 = succès. Refusés : commande vague (consigne, phrase, placeholder, `|| true`), fichier ou script npm absent du repo cible, sauf fichier listé dans les « Fichiers touchés » du lot ou d'un lot précédent, ou check marqué `(nouveau)`.
+
+`--legacy` rétrograde en avertissement les conventions récentes (jamais les clauses sans fin ni la flotte). VERDICT FAIL = corrige TOUTES les erreurs avant tout round, puis relance le lint.
 
 ## Étape 0bis — Lint de VAGUE (chantiers parallèles uniquement)
 
-Le lint mono-plan ne voit pas deux plans qui se chevauchent. Ce script prend les N plans ENSEMBLE (il refuse un seul plan) ; l'ORCHESTRATEUR le lance en fin de Phase 2, **avant de dispatcher la flotte** :
+Le lint mono-plan ne voit pas deux plans qui se chevauchent. Ce script prend N ≥ 2 plans ENSEMBLE ; l'ORCHESTRATEUR le lance en fin de Phase 2, **avant de dispatcher la flotte** :
 
 ```bash
 node ${CLAUDE_SKILL_DIR}/scripts/preflight-flotte.mjs <plan1.html> <plan2.html> …
 node ${CLAUDE_SKILL_DIR}/scripts/preflight-flotte.mjs <répertoire-de-plans> [--depuis <N>]
 ```
 
-Erreurs : plan sans section flotte ; plage non déclarée, illisible ou en collision sur un même compteur ; noms de vague divergents ; plage sous `--depuis <N>` ; **même fichier dans les « Fichiers touchés » de deux plans**, sauf si l'un déclare `Dépend de` l'autre. Avertissements : frères incomplets, trous entre plages, `Dépend de` orphelin.
+Erreurs : plan sans section flotte ; plage absente, illisible, en collision ou sous `--depuis` ; noms de vague divergents ; **même fichier dans les « Fichiers touchés » de deux plans**, sauf si l'un déclare `Dépend de` l'autre. Avertissements : frères incomplets, trous entre plages, `Dépend de` orphelin.
 
 <!-- runtime-slot:flotte-proof -->
 Un run PASS enregistre sa preuve (contenu-adressée) dans `~/.claude/.flotte-lint-runs.json`, et le Stop hook global `~/.claude/hooks/flotte-plage-gate.mjs` empêche toute session ayant écrit ≥ 2 plans d'une même vague de s'arrêter tant que cette preuve manque ou ne correspond plus au contenu actuel des plans.
@@ -81,7 +83,7 @@ Quatre lentilles :
 1. **Candide** : exécuter le plan ce soir sans personne. Chaque commande lançable telle quelle, chaque DONE testable ? Où faudrait-il deviner ? Deux sections se contredisent-elles ?
 2. **Fact-check** : chaque affirmation technique (fichier:ligne, noms d'état, scripts, clés, valeurs recopiées) confrontée au code réel.
 3. **Mécanique du domaine** : le design tient-il ? Ne juge que les comportements que la fiche demande : chaque garantie cite la demande de l'humain, sinon NICE-TO-HAVE. Tout artefact NEUF hérite des invariants de l'existant.
-4. **Règles & process** : A1-A5 et G. Budget réaliste, chips cohérents, fiche d'intention PERTINENTE (le plan sert son « pourquoi » et reste hors de son « ce que ce n'est pas »), preuve réelle avant tout test simulé, aucune clause de revue sans fin. Puis cohérence avec CLAUDE.md : lots ≤ 2 h à état vert, gates complets.
+4. **Règles & process** : A1-A5 et G. Budget réaliste, chips cohérents, fiche d'intention PERTINENTE (le plan sert son « pourquoi » et reste hors de son « ce que ce n'est pas »), preuve réelle avant tout test simulé. Puis cohérence avec CLAUDE.md : lots ≤ 2 h à état vert, gates complets.
 
 Sur demande seulement, pour alimenter le nice-to-have : **Personas** (rôles, langues, thème sombre, mobile, accessibilité, états vides) et **Futur** (volume, deuxième consommateur, migration).
 

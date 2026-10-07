@@ -8,8 +8,8 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const LINT = fileURLToPath(new URL('./preflight-lint.mjs', import.meta.url));
-const REGLES = `<p>Budget total : 400 lignes</p><p>Chips : autorisés</p><p>Fiche d'intention : .chantier/intention.md</p><p>Doublures de test : aucune</p>`;
-const REGLES_EN = `<p>Total budget: 400 lines</p><p>Chips: allowed</p><p>Intent sheet: .chantier/intent.md</p><p>Test doubles: none</p>`;
+const REGLES = `<p>Budget total : 400 / 800 lignes</p><p>Chips : autorisés</p><p>Fiche d'intention : .chantier/intention.md</p><p>Doublures de test : aucune</p>`;
+const REGLES_EN = `<p>Total budget: 400 / 800 lines</p><p>Chips: allowed</p><p>Intent sheet: .chantier/intent.md</p><p>Test doubles: none</p>`;
 
 function plan(regles = REGLES, extra = '', lots = '') {
   const sections = ['s-intention', 's-contexte', 's-approbation', 's-verif']
@@ -18,7 +18,7 @@ function plan(regles = REGLES, extra = '', lots = '') {
   const nice = `<section id="s-nice"><ul>${'<li>x</li>'.repeat(5)}</ul></section>`;
   return `<!doctype html><html><body><nav><a href="#lot-1">Lot 1</a></nav>${sections}${nice}
 <section id="s-lots">
-<div class="lot" id="lot-1"><p><strong>Agent</strong> sonnet</p><pre class="cmd">npm test</pre>
+<div class="lot" id="lot-1"><p><strong>Agent</strong> sonnet</p><ol class="checks"><li data-check="1.1"><code>git diff --quiet</code></li></ol>
 <code class="commit-msg">chantier(x): lot 1 — fin</code><div class="done">ok</div>
 </div>${lots}</section>${regles}${extra}</body></html>`;
 }
@@ -65,7 +65,7 @@ test('a. clause cachée dans un commentaire HTML : ignorée', () => {
 });
 
 const MANQUES = [
-  ['b', 'Budget total', REGLES.replace('Budget total : 400 lignes', 'Budget total : à définir'), /Budget total absent/],
+  ['b', 'Budget total', REGLES.replace('Budget total : 400 / 800 lignes', 'Budget total : à définir'), /Budget total absent/],
   ['c', 'Chips', REGLES.replace('Chips : autorisés', 'Chips : peut-être'), /Chips absent/],
   ['d', "Fiche d'intention", REGLES.replace('.chantier/intention.md', ''), /Fiche d'intention absente/],
 ];
@@ -121,7 +121,7 @@ test('« undefined » dans le texte visible : FAIL', () => {
 });
 
 test('étiquettes de lot dupliquées : FAIL', () => {
-  const dup = (n) => `<div class="lot" id="lot-${n}"><span class="ln">LOT 1</span><p><strong>Agent</strong> a</p><pre class="cmd">x</pre><div class="done">ok</div>\n  </div>`;
+  const dup = (n) => `<div class="lot" id="lot-${n}"><span class="ln">LOT 1</span><p><strong>Agent</strong> a</p><ol class="checks"><li data-check="${n}.1"><code>git status</code></li></ol><div class="done">ok</div>\n  </div>`;
   const r = lint(plan(REGLES, '', dup(2)).replace('<div class="lot" id="lot-1">', '<div class="lot" id="lot-1"><span class="ln">LOT 1</span>').replace('</nav>', '<a href="#lot-2">2</a></nav>'));
   assert.equal(r.code, 1);
   assert.match(r.errs, /Étiquette « lot 1 »/);
