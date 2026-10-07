@@ -39,8 +39,7 @@ Complète les étapes 0 à 10 de `SKILL.md` § Écrire un plan. Rien ici n'assou
 - L'estimation en heures donne l'estimation en lignes de chaque lot, dont le double déclenche le disjoncteur A5.
 - **Dernier lot de PROCESSUS.** Écris en toutes lettres son message de commit (`chantier(<slug>): lot N —
   Clôture…`), jamais un message libre : le run suivant d'une chaîne le cherche par `git log --grep`. Forme
-  contrôlée (lint check 8) : `<code class="commit-msg">` portant `lot N`, ou `<pre class="cmd">` avec
-  `git commit -m "…: lot N — …"`.
+  contrôlée (lint check 8) : `<code class="commit-msg">` portant `lot N`.
 - **Doublures de test.** La ligne `Doublures de test` du plan vaut `aucune` ou `règle standard`. Règle
   standard, écrite ici une seule fois : quand un changement du chantier (signature, contrat, membre
   obligatoire) casse d'anciens tests SEULEMENT parce que leurs doublures, fixtures ou mocks n'ont pas le
@@ -58,7 +57,7 @@ dédiés.
 
 ## Étape 9 — Relecture en candide
 
-Cherche « cette session », « comme convenu », un chemin relatif, un lot sans vérification ni agent, une
+Cherche « cette session », « comme convenu », un chemin relatif, un lot sans check ni agent, une
 hypothèse implicite : chaque occurrence est un défaut. Relis le document ENTIER après chaque lot de
 correctifs, préflight compris. Corrige d'abord la DÉCISION (architecture ou décisions), puis propage aux lots :
 un patch local dans un seul lot crée les contradictions que le round suivant remontera.
