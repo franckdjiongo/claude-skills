@@ -181,6 +181,19 @@ describe('failures', () => {
   })
 })
 
+describe('swap failure', () => {
+  test('an unwritable backup dir leaves the installed copy intact and no staging dir behind', () => {
+    const { roots, run } = setup()
+    put(join(roots.claude, 'plain', 'SKILL.md'), 'stale')
+    const notADir = join(tmp(), 'file')
+    writeFileSync(notADir, 'x')
+    const r = run({ backupDir: notADir })
+    expect(status(r, 'claude', 'plain').status).toBe('error')
+    expect(readFileSync(join(roots.claude, 'plain', 'SKILL.md'), 'utf8')).toBe('stale')
+    expect(readdirSync(roots.claude)).toEqual(['plain'])
+  })
+})
+
 describe('repo guards and CLI', () => {
   const cli = (repo, roots, backupDir, ...extra) => spawnSync(process.execPath, [SCRIPT, '--repo', repo, '--claude-root', roots.claude, '--codex-root', roots.codex, '--backup-dir', backupDir, ...extra], { encoding: 'utf8' })
 
