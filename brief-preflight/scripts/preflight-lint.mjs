@@ -13,13 +13,14 @@
  * ancres fichier:ligne ; structure (sections non vides, lots avec Agent + commande +
  * DONE, étiquettes de lot uniques, TOC) ; Nice-to-have ≥ 5 ; message de commit du
  * lot de clôture ; section flotte (plage + « Dépend de ») ; règles dures :
- * clauses sans fin, Budget total, Chips, Fiche d'intention, Doublures de test.
+ * clauses sans fin, Budget total, Chips, Fiche d'intention (et, si elle existe,
+ * « Validée par : <nom> » / « Approved by: <name> »), Doublures de test.
  *
  * Sortie : ERREUR / AVERTISSEMENT, code retour 1 si ≥ 1 erreur, 2 sur erreur d'usage.
  */
 
 import { readFileSync, existsSync, statSync, readdirSync, realpathSync } from 'node:fs';
-import { join, isAbsolute, basename } from 'node:path';
+import { join, isAbsolute, basename, dirname } from 'node:path';
 import { stripComments, textOf, readFlotte } from './flotte-shared.mjs';
 
 /* Table unique des synonymes FR/EN. */
@@ -30,6 +31,9 @@ const T = {
   budget: /(?:budget total|total budget)\s*:\s*\D{0,60}?\d/i,
   chips: /chips\s*:\s*(?:autoris[ée]s|allowed|interdits|forbidden)/i,
   intent: /(?:fiche d'intention|intent sheet)\s*:\s*(?:[^\s]*[/\\][^\s]*|[^\s]+\.[a-z0-9]{1,5}\b)/i,
+  intentPath: /(?:fiche d'intention|intent sheet)\s*:\s*([^\s]*[/\\][^\s]*|[^\s]+\.[a-z0-9]{1,5}\b)/i,
+  approved: /(?:valid[ée]e par|approved by)\s*:([^\n]*)/i,
+  pending: /^\W*(?:en attente|pending)\b/i,
   doubles: /(?:doublures de test|test doubles)\s*:\s*(?:aucune|règle standard|none|standard rule)/i,
   depend: /(?:d[ée]pend de|depends on)\s*:\s*\S/i,
 };
@@ -262,6 +266,17 @@ if (!T.budget.test(visible)) soft.push('Budget total absent : « Budget total : 
 if (!T.chips.test(visible)) soft.push('Chips absent : « Chips : autorisés|interdits » (Chips: allowed|forbidden) (A2).' + legacyNote);
 if (!T.intent.test(visible)) soft.push("Fiche d'intention absente : « Fiche d'intention : <chemin> » (Intent sheet) (G)." + legacyNote);
 if (!T.doubles.test(visible)) soft.push('Doublures de test absent : « Doublures de test : aucune|règle standard » (Test doubles: none|standard rule).' + legacyNote);
+
+/* 11 — fiche d'intention existante : validée par un humain nommé (pas EN ATTENTE / PENDING / vide) */
+const sheetRef = visible.match(T.intentPath)?.[1]?.replace(/[.,;:)\]»]+$/, '');
+const sheetPath = sheetRef && [isAbsolute(sheetRef) ? sheetRef : join(repoRoot, sheetRef), join(dirname(planPath), sheetRef)].find((p) => existsSync(p) && statSync(p).isFile());
+if (sheetPath) {
+  const sheet = readFileSync(sheetPath, 'utf8').replace(/<[^>]*>/g, ' ').replace(/[*_`]/g, '');
+  const name = (sheet.match(T.approved)?.[1] ?? '').trim();
+  if (!/[\p{L}]/u.test(name) || T.pending.test(name)) {
+    soft.push(`Fiche d'intention ${sheetPath} non validée : « Validée par : <nom> » (Approved by: <name>) attendu, ni vide ni EN ATTENTE/PENDING (G).` + legacyNote);
+  }
+}
 
 /* Rapport */
 const say = (label, list) => {
