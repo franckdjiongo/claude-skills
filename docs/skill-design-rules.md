@@ -29,11 +29,12 @@ Tests: `node --test scripts/lint-skills.test.mjs` and `python3 scripts/sync-loca
 | CAT-DISABLED | error | A skill named in a catalog is switched off in `~/.claude/settings.json` `skillOverrides`, or its plugin is disabled. |
 | CODEX-PATH | error | A `.Codex/` path (capital C) survives in a skill or catalog. It is the signature of a blind runtime find-and-replace. |
 | RUNTIME-ONE-SIDE | error | A skill exists on one runtime only (`~/.claude/skills` or `~/.agents/skills`) and `scripts/lint-skills.allowlist.json` states no reason. |
-| SCRIPT-DIFF | error | A skill's `scripts/` differ between the two runtimes. |
+| SCRIPT-DIFF | error | A skill's `scripts/` differ between the two runtimes. Test files (`*.test.[cm]?[jt]s`) are ignored, because the Codex variant never ships them. A hand-written Codex variant is accepted when `scripts/install-skills.skip.json` states a reason under `codex:<skill>`. |
 | R1-LINES, R1-WORDS | error | SKILL.md is over 150 lines or 1,800 words and is not a named exception. |
 | R7-DESC | error | The frontmatter description is over 300 characters. |
 | REF-MISSING | error | SKILL.md references a file (`references/...`, `scripts/...`, a relative link) that does not exist. |
 | R9-OWNER | warning | A frontmatter owner, runtimes or last-review field is missing. |
+| DORMANT | info | A skill is dormant: switched off in `skillOverrides` and either disabled in `~/.codex/config.toml` (`[[skills.config]]`, `enabled = false`) or without a Codex user-scope copy. It is reported once and skipped for R1, R7, REF-MISSING and CODEX-PATH. A skill that is off on Claude but still loads on Codex is not dormant. Info lines never change the exit code. |
 
 Intentional exceptions live in `scripts/lint-skills.allowlist.json`, each with a written reason. An entry without a reason is itself an error.
 
