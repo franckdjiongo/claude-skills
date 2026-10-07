@@ -1,0 +1,30 @@
+# Rôle EXÉCUTANT — détails des étapes 4 et 5
+
+Complète `SKILL.md` § Exécuter un plan. Rien ici n'assouplit les règles dures.
+
+## Étape 4 — Lot par lot
+
+- Un lot se ferme par sa seule commande de vérification, puis commit `chantier(<slug-du-plan>): lot N —
+  <titre>` (jamais de Co-Authored-By) ; compte les lignes ajoutées. Le git log EST le suivi : ne modifie pas le
+  plan HTML.
+- Fichier hors liste, ou vérification rouge à cause de doublures de test : « règle standard » de
+  `auteur-details.md` si le plan la déclare ; sinon arrêt et question au hub.
+- Lot sous gate humain : run local, laisse-le staged ; run cloud éphémère, préfixe `[GATE-HELD]`
+  (`commits-et-cloud.md`).
+
+## Étape 5 — Clôture (A3, ne bloque jamais)
+
+1. Vérifications globales du plan. UI : navigateur clair + sombre, serveur dev du repo CIBLE lancé en Bash,
+   jamais par l'outil de prévisualisation intégré du harnais.
+2. Revue : `adversarial-pr-review` (Mode A), 2 rounds. Après chaque round, appelle le gardien (moment 1)
+   AVANT tout correctif : fiche, chemin absolu du dépôt, diff complet base...HEAD, remarques nouvelles. Round 2
+   seulement si le round 1 a commité un correctif. Un seul correcteur par round, qui n'écrit que dans ce dépôt
+   et seulement les remarques CORRIGER (« correctif minimal couvrant toute la famille du défaut, aucune
+   validation hors du chemin modifié »). Un vérificateur frais est obligatoire pour chaque correctif du
+   round 2. Sans fiche : gardien sauté, le rapport le dit.
+3. Avant la PR : gardien moment 2 (mêmes entrées).
+4. Dernier lot : `git rm` la fiche, commit `chantier(<slug>): lot N — Clôture…`. La sentinelle de revue se
+   pose sur ce HEAD final par le flow légitime du skill de revue, jamais à la main, même sans remote.
+5. Push. Revue convergée : PR vers la branche prévue, remarques ouvertes listées. Sinon, ou sans remote : la
+   branche locale est le livrable, corps de PR dans le rapport. Aucun merge par l'exécutant.
+6. Hygiène : libère le verrou night-run seulement si ce run l'a pris ; arrête tout serveur dev lancé.

@@ -1,5 +1,5 @@
 {
-  "description": "Standard for autonomous-execution work plans (\"plans de chantier\"). Three roles: AUTHOR a plan (an HTML plan that a lesser model or a future session can execute with zero memory of the current conversation), EXECUTE a plan (lot by lot, with verification gates), ORCHESTRATE a fleet (turn a batch of chips into file-disjoint chantiers executed in parallel in git worktrees, then merge/deploy/clean up). Use whenever the user asks to write/découper a \"plan de chantier\", \"brief-chantier\", \"plan de finition\", \"liste de finition\", a plan for \"runs nocturnes\" / \"run autonome\" / \"exécution autonome\", or to EXECUTE such a plan (\"exécute le plan docs/plans/….html\"). ALSO use — role ORCHESTRATEUR — to execute a BATCH of chips/tasks as chantiers (\"exécute les 12 chips de tel projet\", \"chantiers parallèles\", \"exécute ça dans les worktrees\") or to merge/close a finished parallel run. Also use when another skill says a development plan must follow \"le standard brief-chantier\". Development plans only: one-shot documents are out of scope.",
+  "description": "Standard for autonomous-execution work plans (\"plans de chantier\"): AUTHOR a plan, EXECUTE it lot by lot, or ORCHESTRATE a batch of chips as parallel worktree chantiers. Use for \"plan de chantier\", \"brief-chantier\", \"exécute le plan\", \"chantiers parallèles\", run autonome/nocturne. Dev plans only.",
   "replace": [
     {
       "from": "`.claude/agents/`)",
@@ -7,18 +7,8 @@
       "count": 1
     },
     {
-      "from": "jamais par `preview_*`",
-      "to": "jamais par un outil de prévisualisation du harnais",
-      "count": 1
-    },
-    {
       "from": "si l'outil `spawn_task` est disponible",
       "to": "si l'outil workstation `chip_create` est disponible",
-      "count": 1
-    },
-    {
-      "from": "node ~/.claude/skills/brief-preflight/scripts/preflight-flotte.mjs",
-      "to": "node ~/.agents/skills/brief-preflight/scripts/preflight-flotte.mjs",
       "count": 1
     },
     {
@@ -33,7 +23,7 @@
     },
     {
       "from": "`docs/plans/`) ; session review honnête.",
-      "to": "`docs/plans/`), suppression du heartbeat `surveillance-<vague>` s'il existe encore (`automation_update` avec `mode:\"delete\"` et `id` = l'`automationId` noté dans le fichier de surveillance ; déjà supprimé = rien à faire ; refus de l'outil = signale-le à l'utilisateur). Puis session review honnête (rounds, écarts, temps par chantier, lus dans le journal du fichier de surveillance) et capture brain/frictions ; en tout dernier, suppression du fichier `<repo-cible>/.worktrees/.surveillance-<vague>.md`.",
+      "to": "`docs/plans/`), suppression du heartbeat de surveillance s'il existe encore (`references/watchdog-codex.md` § Fin de run) ; session review honnête et capture brain/frictions, puis suppression du fichier de surveillance.",
       "count": 1
     }
   ],
@@ -99,7 +89,6 @@
   "slotSources": {
     "preflight-invoke": "616a2eb7b03bc999",
     "wait-subagents": "56de2a9734b50a47",
-    "watchdog-tick": "c635a8b8cbb2f9a8",
-    "watchdog-relance": "f6c9135dec290b0f"
+    "watchdog": "16a24bf2d5fccc61"
   }
 }

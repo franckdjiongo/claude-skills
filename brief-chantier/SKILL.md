@@ -1,17 +1,9 @@
 ---
 name: brief-chantier
-description: |
-  Standard for autonomous-execution work plans ("plans de chantier"). Three roles: AUTHOR a plan
-  (an HTML plan that a lesser model or a future session can execute with zero memory of the current
-  conversation), EXECUTE a plan (lot by lot, with verification gates), ORCHESTRATE a fleet (turn a
-  batch of chips into file-disjoint chantiers executed in parallel in git worktrees, then
-  merge/deploy/clean up). Use whenever the user asks to write/découper a "plan de chantier",
-  "brief-chantier", "plan de finition", "liste de finition", a plan for "runs nocturnes" / "run
-  autonome" / "exécution autonome", or to EXECUTE such a plan ("exécute le plan docs/plans/….html").
-  ALSO use — role ORCHESTRATEUR — to execute a BATCH of chips/tasks as chantiers ("exécute les 12
-  chips de tel projet", "chantiers parallèles", "exécute ça dans les worktrees") or to merge/close a
-  finished parallel run. Also use when another skill says a development plan must follow "le
-  standard brief-chantier". Development plans only: one-shot documents are out of scope.
+description: >-
+  Standard for autonomous-execution work plans ("plans de chantier"): AUTHOR a plan, EXECUTE it lot by
+  lot, or ORCHESTRATE a batch of chips as parallel worktree chantiers. Use for "plan de chantier",
+  "brief-chantier", "exécute le plan", "chantiers parallèles", run autonome/nocturne. Dev plans only.
 ---
 
 # Brief-chantier — plans d'exécution autonome
@@ -19,8 +11,8 @@ description: |
 Un plan remplace la mémoire de la session qui l'a conçu : un modèle moindre doit pouvoir l'exécuter sans
 personne pour répondre. Détermine ton rôle :
 
-- **AUTEUR** : on te demande d'écrire/découper un plan → § Écrire un plan.
-- **EXÉCUTANT** : on te donne un plan à exécuter → § Exécuter un plan.
+- **AUTEUR** : écrire/découper un plan → § Écrire un plan.
+- **EXÉCUTANT** : exécuter un plan donné → § Exécuter un plan.
 - **ORCHESTRATEUR** : exécuter un LOT de chips « en chantiers » / « en parallèle », ou clôturer un run
   parallèle → § Orchestrer une flotte.
 
@@ -50,43 +42,38 @@ personne pour répondre. Détermine ton rôle :
 
 Exigences : **contexte 100 % autonome** (zéro « cette session », chemins absolus, état du repo décrit,
 hypothèses explicites) ; **lots ≤ 2 h**, vérifiables en une passe, repo vert, DONE testable en une phrase ;
-**commande de vérification par lot** et de fin de run exactes ; **coûts Convex déclarés** ou « aucun ». Le
-plan ne contient que le propre du chantier : texte figé = renvoi d'une ligne au skill, section sans objet =
-« aucun », jamais vide. Détails : `references/auteur-details.md`.
+**commande de vérification par lot** et de fin de run exactes ; **coûts Convex déclarés** ou « aucun ». Texte
+figé = renvoi d'une ligne au skill, section sans objet = « aucun ». Détails par étape : `references/auteur-details.md`.
 
 0. **Brain d'abord.** `bun run --cwd ~/Desktop/my-projets/second-brain cli/index.ts search "<sujet + projet>"` ;
    cite les leçons dans « Leçons du brain », ou « aucune leçon applicable ».
 1. **Fiche d'intention (G) AVEC l'humain**, sous `.chantier/<slug>/intention.md` (hors `docs/`), validée avant
-   le plan. Tant qu'elle ne porte pas `Validée par : <nom>, <date>`, livre la fiche seule et arrête-toi.
-   Pour un chantier technique, « Après » nomme ses consommateurs et ce qu'ils appellent.
-2. **Explore le repo sur disque** : chaque fait vérifié et cité par référence, gate
-   d'état en fichiers touchés, jamais en SHA. **Baseline verte** avant d'écrire. Points de contrôle humains
-   en début de run.
+   le plan. Sans `Validée par : <nom>, <date>`, livre la fiche seule et arrête-toi. Chantier technique :
+   « Après » nomme ses consommateurs et ce qu'ils appellent.
+2. **Explore le repo sur disque** : chaque fait vérifié et cité par référence, gate d'état en fichiers
+   touchés (jamais en SHA), **baseline verte** avant d'écrire, points de contrôle humains en début de run.
 3. **Copie `assets/template.html`** vers `<repo>/docs/plans/<AAAA-MM-JJ>-<sujet>.html`, remplis TOUS les
-   `{{…}}`, garde le TOC fixe. Lignes de règles lues par le lint, FR ou EN : `Budget total : <cible> /
-   <plafond>` | `Total budget:` ; `Chips : autorisés|interdits` | `Chips: allowed|forbidden` ;
-   `Fiche d'intention : <chemin>` | `Intent sheet:` ; `Doublures de test : aucune|règle standard` |
-   `Test doubles: none|standard rule` ; `Dépend de : <slug>|aucun` | `Depends on:` (vague).
-   `s-nice` finit avec ≥ 5 idées adjacentes NON incluses ; un must-have va dans les lots.
-4. **Bloc Intention** en 3 à 5 phrases. Chaque garantie de ce bloc et de la fiche cite la phrase de la demande
-   humaine qui l'exige et nomme le test qui échoue si elle casse ; sans citation, elle va en nice-to-have.
-   Retirer un usage existant (README, CLI) est une décision de l'humain dans la fiche, jamais du tri.
+   `{{…}}`, garde le TOC fixe. Lignes de règles lues par le lint (FR ou EN) : `references/auteur-details.md`
+   § Étape 3. `s-nice` finit avec ≥ 5 idées adjacentes NON incluses ; un must-have va dans les lots.
+4. **Bloc Intention** en 3 à 5 phrases. Chaque garantie du bloc et de la fiche cite la phrase de la demande
+   humaine qui l'exige et nomme le test qui échoue si elle casse ; sans citation, nice-to-have. Retirer un
+   usage existant (README, CLI) est une décision de l'humain dans la fiche, jamais du tri.
 5. **Lots** : le lot 1 livre la tranche verticale minimale que la preuve de la fiche exécute ; chaque lot
-   suivant ajoute une garantie en gardant cette preuve verte. Par lot : estimation en heures, fichiers touchés (hors liste = arrêt),
-   agent, vérification, DONE, ligne « Commit du lot » `chantier(<slug>): lot N — <titre>`, DERNIER lot de processus
-   compris (lint check 8).
+   suivant ajoute une garantie en gardant cette preuve verte. Par lot : estimation en heures, fichiers touchés
+   (hors liste = arrêt), agent, vérification, DONE, « Commit du lot » `chantier(<slug>): lot N — <titre>`,
+   DERNIER lot de processus compris (lint check 8).
 6. **Un agent par lot**, jamais `general-purpose` par défaut si le projet a des agents dédiés (`.claude/agents/`) ;
    clôture/PR/merge : « aucun — reste chez l'orchestrateur ».
 7. **Galley** : `html_review_register` (chemin absolu), termine par `http://localhost:5179/html-review/<docId>` ;
    jamais le bloc `ws-review-state`.
-8. **Approbation** : la fiche signée « Validée par » fait foi ; hub disponible : convo `approval` avec lien
-   Galley (`bun run --cwd ~/Desktop/my-projets/workstation convo create <slug-projet> -`).
+8. **Approbation** : la fiche signée fait foi ; hub disponible : convo `approval` avec lien Galley
+   (`bun run --cwd ~/Desktop/my-projets/workstation convo create <slug-projet> -`).
 9. **Relis en candide** ; corrige à la décision, puis propage aux lots.
 <!-- runtime-slot:preflight-invoke -->
 10. **Préflight obligatoire.** Invoque le skill `brief-preflight` EN PASSANT les arguments
     `<chemin-absolu-du-plan.html> <repo-cible>` (ils déclenchent le lint automatique) : lint déterministe
 <!-- /runtime-slot:preflight-invoke -->
-    revue (rounds comptés en commits ; plafond ≤ 200 : lint seul, ≤ 600 : un round). Plan non préflighté = non livrable.
+    puis revue (rounds comptés en commits ; plafond ≤ 200 : lint seul, ≤ 600 : un round). Plan non préflighté = non livrable.
 
 ## Exécuter un plan (rôle EXÉCUTANT)
 
@@ -106,30 +93,15 @@ Chaque étape est un gate.
    ou un `ListAgents` dans le même tour est du polling (le hook `schedule-wakeup-guard` bloque tout
    ré-armement à moins de 30 s). Jamais d'attente nue sans wakeup armé. Ne laisse pas le subagent committer :
 <!-- /runtime-slot:wait-subagents -->
-   relis son diff et le verdict de la vérification toi-même. Le code réel fait foi sur le plan : consigne
-   l'écart et suis le code.
-   - Un lot se ferme par sa seule commande de vérification, puis commit `chantier(<slug-du-plan>): lot N —
-     <titre>` (jamais de Co-Authored-By) ; compte les lignes ajoutées. Le git log EST le suivi : ne modifie
-     pas le plan HTML.
-   - Fichier hors liste, ou vérification rouge à cause de doublures de test : « règle standard » de
-     `references/auteur-details.md` si le plan la déclare ; sinon arrêt et question au hub.
-   - Lot sous gate humain : run local, laisse-le staged ; run cloud éphémère, préfixe `[GATE-HELD]`
-     (`references/commits-et-cloud.md`).
-5. **Clôture (A3, ne bloque jamais).** Dans l'ordre :
-   1. Vérifications globales du plan. UI : navigateur clair + sombre, serveur dev du repo CIBLE lancé en
-      Bash, jamais par `preview_*`.
-   2. Revue : `adversarial-pr-review` (Mode A), 2 rounds. Après chaque round, appelle le gardien (moment 1)
-      AVANT tout correctif : fiche, chemin absolu du dépôt, diff complet base...HEAD, remarques nouvelles. Round 2
-      seulement si le round 1 a commité un correctif. Un seul correcteur par round,
-      qui n'écrit que dans ce dépôt et seulement les remarques CORRIGER (« correctif minimal couvrant toute la
-      famille du défaut, aucune validation hors du chemin modifié »). Un vérificateur frais est obligatoire pour
-      chaque correctif du round 2. Sans fiche : gardien sauté, le rapport le dit.
-   3. Avant la PR : gardien moment 2 (mêmes entrées).
-   4. Dernier lot : `git rm` la fiche, commit `chantier(<slug>): lot N — Clôture…`. La sentinelle de revue se
-      pose sur ce HEAD final par le flow légitime du skill de revue, jamais à la main, même sans remote.
-   5. Push. Revue convergée : PR vers la branche prévue, remarques ouvertes listées. Sinon, ou sans remote :
-      la branche locale est le livrable, corps de PR dans le rapport. Aucun merge par l'exécutant.
-   6. Hygiène : libère le verrou night-run seulement si ce run l'a pris ; arrête tout serveur dev lancé.
+   relis son diff et le verdict de la vérification toi-même ; le code réel fait foi sur le plan, consigne
+   l'écart. Un lot se ferme par sa seule commande de vérification, puis commit `chantier(<slug-du-plan>): lot N —
+   <titre>` (jamais de Co-Authored-By). Le git log EST le suivi : ne modifie pas le plan HTML. Fichier hors
+   liste, doublures de test, gate humain, run cloud : `references/executant-details.md`.
+5. **Clôture (A3, ne bloque jamais)**, dans l'ordre : vérifications globales ; `adversarial-pr-review`
+   (Mode A), 2 rounds, gardien (moment 1) après chaque round AVANT tout correctif, vérificateur frais pour
+   tout correctif du round 2 ; gardien (moment 2) avant la PR ; dernier lot : `git rm` la fiche, commit `chantier(<slug>): lot N — Clôture…` (la sentinelle de revue
+   se pose par le flow légitime du skill de revue, jamais à la main) ; push et PR, aucun merge par l'exécutant ;
+   hygiène (verrou night-run libéré seulement si ce run l'a pris, serveur dev arrêté). Détail : `references/executant-details.md` § Étape 5.
 6. **Rapporte** dans la conversation hub du plan : lots et commits, tests et lignes REMESURÉS à la clôture,
    décisions A2, verdicts du gardien, tout usage existant cassé comme décision humaine. Un test rouge se montre.
 
@@ -137,57 +109,40 @@ Chaque étape est un gate.
 
 Un échec de CODE arrête le run. Un échec d'INFRA pré-existant (reproductible sans les modifications du
 chantier) ouvre le chip mais laisse finir les vérifications ; dans le doute, c'est du code. Jamais de
-contournement improvisé.
-
-1. Arrête-toi au lot en échec, ne commite pas le lot raté, laisse le diff en l'état.
-2. Ouvre un chip : si l'outil `spawn_task` est disponible, utilise-le ; sinon `cd ~/Desktop/my-projets/workstation && echo '<JSON>' |
-   bun run chips add -` avec `{"title","prompt","tldr","cwd"}` (plan, lot, commande, extrait d'erreur de 3-10
-   lignes, état laissé, comment reprendre). Plan `Chips : interdits` : consigne l'échec dans le rapport.
-3. Note l'échec dans la conversation hub du plan, puis termine (rapport honnête).
-
-Tests verts mais fonctionnalité inopérante avec des données réelles : `references/impossibilite-decouverte.md`.
+contournement improvisé. Arrête-toi au lot en échec : pas de commit du lot raté, diff laissé en l'état.
+Ouvre un chip : si l'outil `spawn_task` est disponible, utilise-le ; sinon `cd ~/Desktop/my-projets/workstation && echo '<JSON>' |
+bun run chips add -` avec `{"title","prompt","tldr","cwd"}` (plan, lot, commande, extrait d'erreur de 3-10
+lignes, état laissé, reprise). Plan `Chips : interdits` : consigne l'échec dans le rapport. Note l'échec dans
+la conversation hub du plan, puis termine (rapport honnête). Tests verts mais fonctionnalité inopérante avec
+des données réelles : `references/impossibilite-decouverte.md`.
 
 ## Orchestrer une flotte de chantiers (rôle ORCHESTRATEUR)
 
-Détails, goal prompts et clôture : `references/orchestration.md`. Lancer un plan à heure fixe (session locale programmée, routine cloud) : `references/nuits-planifiees.md`.
+Phases, goal prompts, clôture : `references/orchestration.md`. Lancer un plan à heure fixe (session locale programmée, routine cloud) : `references/nuits-planifiees.md`.
 
 **Phase 1 — Inventaire.** `bun run chips list` + `chips read <id>` pour CHAQUE chip du périmètre. Regroupe
-en 3 à 5 chantiers FILE-DISJOINTS (surface d'ÉDITION vérifiée par grep), ~4 sessions parallèles au plus par
-machine. Chaque chantier déclare `Dépend de` et ses « Fichiers touchés ».
+en 3 à 5 chantiers FILE-DISJOINTS (surface d'ÉDITION vérifiée par grep), ~4 sessions parallèles au plus ;
+chacun déclare `Dépend de` et ses « Fichiers touchés ».
 
 **Phase 2 — Briefs.** Baseline verte UNE fois, citée dans les N plans ; rôle AUTEUR complet pour chacun,
-UNE fiche d'intention par chantier. L'orchestrateur possède les fichiers partagés (README, index).
-4bis. **Lint de vague avant tout dispatch** : décommente `s-flotte` dans chaque plan (nom de vague, chantiers
-   frères, plage d'identifiants réservée), puis
-   `node ~/.claude/skills/brief-preflight/scripts/preflight-flotte.mjs <répertoire-des-plans> [--depuis <N>]`
-   (plages disjointes ET fichiers touchés disjoints ; FAIL = corrige avant de lancer).
-5. Worktree `.worktrees/<slug>` sur la branche `<type>/<slug>` ; une vague a sa branche `integration/<thème>`.
-   Dérogation au verrou night-run et ordre de merge dans chaque plan.
-5bis. **Pré-vol des hooks bloquants** depuis un worktree jetable avant tout dispatch.
+UNE fiche d'intention par chantier. 4bis : lint de vague avant tout dispatch (`preflight-flotte.mjs` de
+`brief-preflight`, FAIL = corrige). 5 : worktree `.worktrees/<slug>` sur `<type>/<slug>`, une vague a sa branche
+`integration/<thème>`. 5bis : pré-vol des hooks bloquants depuis un worktree jetable.
 
 **Phase 3 — Goal prompts.** UN bloc par chantier, collable dans une session neuve : objectif + condition
-d'arrêt vérifiable, jamais une méthode ; plus modèle, worktree, branche, plan. Il reprend verbatim les deux
-clauses de sécurité de `references/orchestration.md`.
+d'arrêt vérifiable, jamais une méthode. Il reprend verbatim les deux clauses de sécurité de
+`references/orchestration.md`.
 
-**Phase 3bis — Watchdog (obligatoire).** Le silence ne prouve pas la progression :
-une session d'arrière-plan peut mourir sans rien émettre.
-<!-- runtime-slot:watchdog-tick -->
-1. **Tick périodique (30-45 min)**, armé tant qu'un chantier n'a pas livré sa PR (ScheduleWakeup ou Monitor).
-   À chaque tick, pour CHAQUE chantier : vérité disque du worktree (`git -C <worktree> log --oneline -1` +
-   mtime des fichiers récents) comparée au dernier point connu, et présence dans `ListAgents`. Écris la
-   consigne COMPLÈTE de surveillance dans le `prompt` du ScheduleWakeup : il est réinjecté à chaque réveil
-   et survit à la compaction, contrairement au présent skill.
-<!-- /runtime-slot:watchdog-tick -->
-<!-- runtime-slot:watchdog-relance -->
-2. **Disque immobile + absent de ListAgents = mort.** Relance par SendMessage avec l'état exact vérifié sur
-   disque (commits, travail non commité, verdicts de revue reçus), jamais « reprends » à vide.
-<!-- /runtime-slot:watchdog-relance -->
-3. **Vérification post-relance (≤ 10 min)** : une réponse « resumed » ne prouve rien, le disque doit bouger ;
-   sinon re-relance ou escalade à l'utilisateur.
-4. **Journal** : une ligne par chantier et par tick (dernier commit, âge du dernier mtime).
+**Phase 3bis — Watchdog (obligatoire).** Le silence ne prouve pas la progression. Disque immobile + agent
+absent = mort : relance avec l'état exact vérifié sur disque, jamais « reprends » à vide. Règles et journal :
+`references/watchdog.md`.
+<!-- runtime-slot:watchdog -->
+Tick de 30-45 min, armé tant qu'un chantier n'a pas livré sa PR (ScheduleWakeup ou Monitor), avec la consigne
+COMPLÈTE de surveillance dans le `prompt` du ScheduleWakeup (réinjecté à chaque réveil, il survit à la
+compaction). Agent vivant : `ListAgents` ; relance : `SendMessage`.
+<!-- /runtime-slot:watchdog -->
 
-**Phase 4 — Clôture (nouvelle session, après les PRs).** Baseline verte avant le premier merge ; relis rapports
-et PR ; merge `--no-ff` dans l'ordre documenté, typecheck après chaque merge ; gates COMPLETS sur l'intégré
-AVANT de pousser ; redéploiement si le code serveur a bougé, puis vérifie que le nouveau code est servi ;
+**Phase 4 — Clôture (nouvelle session, après les PRs).** Baseline verte avant le premier merge ; merge
+`--no-ff` dans l'ordre documenté, gates COMPLETS sur l'intégré AVANT de pousser, redéploiement vérifié ;
 nettoyage garanti (worktrees, branches locales ET distantes, plans HTML commités dans
 `docs/plans/`) ; session review honnête.

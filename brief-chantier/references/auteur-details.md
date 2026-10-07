@@ -21,8 +21,10 @@ Complète les étapes 0 à 10 de `SKILL.md` § Écrire un plan. Rien ici n'assou
 
 ## Étape 3 — Gabarit
 
-- Le lint lit les lignes de règles (check 10), en FR ou en EN : budget total, chips, fiche d'intention,
-  doublures de test, `Dépend de` (vague). La ligne « Revue » est informative.
+- Lignes de règles lues par le lint (check 10), FR ou EN : `Budget total : <cible> / <plafond>` |
+  `Total budget:` ; `Chips : autorisés|interdits` | `Chips: allowed|forbidden` ; `Fiche d'intention : <chemin>` |
+  `Intent sheet:` ; `Doublures de test : aucune|règle standard` | `Test doubles: none|standard rule` ;
+  `Dépend de : <slug>|aucun` | `Depends on:` (vague). La ligne « Revue » est informative.
 - Frontière nice-to-have / must-have : un must-have (la fonctionnalité est incomplète sans lui) va dans les
   LOTS, jamais dans `s-nice`. L'exécutant n'implémente rien de `s-nice` ; l'utilisateur arbitre à
   l'approbation.
