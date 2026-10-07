@@ -209,20 +209,25 @@ wrapped in `<!-- runtime-slot:NAME -->` … `<!-- /runtime-slot:NAME -->` and ge
 `node scripts/build-runtime-variant.mjs --skill <skill> --runtime codex --out <dir>` builds the Codex
 folder (exit 3 = not declared, 1 = validation failed). `runtimes/codex.json` pins the Claude text of
 each slot (`slotSources`): when a slot's Claude text changes, the Codex build fails until the Codex
-text is updated and re-stamped with `--skill <skill> --stamp` (a human step, never automatic). The
-workstation rail (`bun run evals apply`) installs the built variant into `~/.agents/skills` once its
-Codex target is merged (workstation branch `feat/rail-cible-codex`) and
-`WORKSTATION_CODEX_SKILLS_INSTALL_ROOT=/Users/elmabi/.agents/skills` is set; until then, and for a
-first install, copy the same build there by hand. Never hand-edit `~/.agents/skills/<skill>` and never
-run a free-text "Claude → Codex" rewrite (it left 37 broken `.Codex/` paths in 2026).
+text is updated and re-stamped with `--skill <skill> --stamp` (a human step, never automatic).
+Installing is `node scripts/install-skills.mjs` (run `--dry-run` first). For each skill this repo
+owns that is already installed in `~/.claude/skills` (built with `--runtime claude`) or
+`~/.agents/skills` (`--runtime codex`), it builds the variant in a temp dir and replaces the installed
+copy only when the content differs (the old copy goes to
+`~/.local/state/claude-skills-install/backups/`), then writes `.ws-install-sha.json` with the repo HEAD.
+It never installs a skill that is not installed yet, leaves symlinks, git clones, skills with no Codex
+declaration and the entries of `scripts/install-skills.skip.json` alone, and refuses a repo that is
+not on `main` or has uncommitted changes. The claude-skills-sync LaunchAgent (Tuesday and Friday 9:00)
+runs it from `run.sh` right after `git pull`, so a merge reaches both runtimes on the next run.
+Never hand-edit an installed copy and never run a free-text "Claude → Codex" rewrite (it left 37 broken `.Codex/` paths in 2026).
 A source with `disable-model-invocation: true` (Claude only) gets `agents/openai.yaml` with
 `policy.allow_implicit_invocation: false` in its Codex build, Codex's documented equivalent.
 Codex sub-agent models are never written in a skill: they are resolved at use time from
 `.codex/model-routing.json` / `~/.codex/model-routing.json` (see
 `adversarial-pr-review/scripts/resolve-codex-models.mjs`). Deliberately outside the generator: `brain-capture`,
 `meta-govern` has a hand-written Codex-only rewrite kept elsewhere (no
-`runtimes/codex.json`, so the build exits 3 for it and the rail never touches it).
-Tests: `bun test scripts adversarial-pr-review/scripts`.
+`runtimes/codex.json`, so the build exits 3 for it and the installer skips it, also by name in the skip file).
+Tests: `bun test scripts adversarial-pr-review/scripts` (installer: `scripts/install-skills.test.mjs`).
 
 ## Multi-Repository Skills Registry
 
