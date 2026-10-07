@@ -333,3 +333,4 @@ When modifying skills:
 - Reference paths in SKILL.md are relative to the skill directory
 - Python scripts should be self-contained or use standard library only
 - Keep reference materials focused - link to external docs rather than duplicating
+- Design rules R1 to R12 (size, description, parity, catalogs) live in `docs/skill-design-rules.md`. Check them with `node scripts/lint-skills.mjs` before opening a PR
