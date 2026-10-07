@@ -455,7 +455,8 @@ def main():
         return
     if stale:
         log(f"Stale catalog lines to remove ({len(stale)}): {', '.join(stale)}")
-    log(f"New skills to sync ({len(missing)}): {', '.join(missing)}")
+    if missing:
+        log(f"New skills to sync ({len(missing)}): {', '.join(missing)}")
 
     # 1) copy directories (strip nested .git / cruft)
     ignore = shutil.ignore_patterns(".git", ".DS_Store", "__pycache__", "node_modules")
