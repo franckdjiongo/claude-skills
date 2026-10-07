@@ -3,7 +3,17 @@
 # Use `python scripts/registry-manager.py` to manage and search the registry.
 
 version: "1.0"
-last_updated: "2026-09-04"
+last_updated: "2026-10-07"
+
+# Skills switched off (setting) whose folders stay in the repo. They are not
+# catalogued below; `registry-manager.py scan` ignores them.
+switched_off:
+  - claude-hook-creator
+  - create-subagent
+  - building-production-macos-apps
+  - i18n-web-localizer
+  - screenshot-context-builder
+  - chatgpt-image-prompt-architect
 
 # =============================================================================
 # REPOSITORIES
@@ -235,35 +245,11 @@ categories:
         description: Generate a full documentation package for new feature work including PRD, task breakdown, roadmap, and documentation workflow
         tags: [documentation, prd, planning, workflow, templates]
 
-      - name: schedule-plan-execution
-        repository: claude-skills
-        path: schedule-plan-execution/SKILL.md
-        description: Schedule autonomous Claude Code sessions to execute implementation plans at specific times on specific branches
-        tags: [scheduling, automation, claude-code, plans, overnight]
-
-      - name: screenshot-context-builder
-        repository: claude-skills
-        path: screenshot-context-builder/SKILL.md
-        description: Rename batches of generic screenshots into descriptive names and embed accurate image references in prompts
-        tags: [screenshots, context, prompting, images, rename]
-
       - name: session-review
         repository: claude-skills
         path: session-review/SKILL.md
         description: Generate an honest, evidence-grounded retrospective of the current Claude Code session
         tags: [retrospective, review, meta, quality, session]
-
-      - name: claude-hook-creator
-        repository: claude-skills
-        path: claude-hook-creator/SKILL.md
-        description: Create or revise Claude Code hooks in settings.json or subagent frontmatter
-        tags: [claude-code, hooks, settings, automation]
-
-      - name: create-subagent
-        repository: claude-skills
-        path: create-subagent/SKILL.md
-        description: Scaffold a well-formed Claude Code subagent (.claude/agents/<name>.md)
-        tags: [claude-code, subagents, agents, scaffolding]
 
       - name: meta-govern
         repository: claude-skills
@@ -282,18 +268,6 @@ categories:
         path: loop-autonomy/SKILL.md
         description: Run an autonomous work loop over a backlog using subscription-included mechanisms
         tags: [automation, loop, backlog, autonomous, claude-code]
-
-      - name: cloud-night-shift
-        repository: claude-skills
-        path: cloud-night-shift/SKILL.md
-        description: Orchestrate chained autonomous overnight cloud runs via claude.ai routines
-        tags: [automation, cloud, overnight, claude-ai, scheduling]
-
-      - name: pipeline-audit
-        repository: claude-skills
-        path: pipeline-audit/SKILL.md
-        description: Reverse-engineer and grade a project's brainstorm-to-implementation skill pipeline
-        tags: [audit, pipeline, skills, quality, workflow]
 
       - name: handoff
         repository: claude-skills
@@ -348,12 +322,6 @@ categories:
         path: ship-pr/SKILL.md
         description: "Merge one or more explicitly-named pull requests and land the result safely: verify each PR is mergeable and its required checks are green, merge it…"
         tags: [claude-code]
-
-      - name: building-production-macos-apps
-        repository: claude-skills
-        path: building-production-macos-apps/SKILL.md
-        description: "Builds, debugs, refactors, tests, profiles, secures, polishes, and prepares production macOS apps using Swift, SwiftUI, AppKit, and Xcode."
-        tags: [claude-code, ui]
 
   # ---------------------------------------------------------------------------
   # CONVEX DATABASE
@@ -655,12 +623,6 @@ categories:
         description: Firebase Firestore patterns and best practices
         tags: [firebase, firestore, nosql]
 
-      - name: i18n-web-localizer
-        repository: claude-skills
-        path: i18n-web-localizer/SKILL.md
-        description: Web internationalization (React, Next.js)
-        tags: [i18n, localization, react, nextjs]
-
       - name: api-test-script-generator
         repository: claude-skills
         path: api-test-script-generator/SKILL.md
@@ -745,12 +707,6 @@ categories:
         description: "Part of the design-studio plugin. Automate a full brand package (verified name, slogans, logo concepts, palette, typography) producing docs/branding/brand-package.md + brand-tokens.css that hand off into the design pipeline; for a logo image or image prompt on an existing name use chatgpt-image-prompt-architect instead"
         tags: [branding, naming, slogans, logo, brand-package, handoff, design-studio]
 
-      - name: seo-visibility
-        repository: claude-skills
-        path: seo-visibility/SKILL.md
-        description: Comprehensive SEO and AI discoverability workflow for React and TypeScript websites
-        tags: [seo, discoverability, schema, llms-txt, marketing]
-
       - name: domain-driven-design
         repository: claude-skills
         path: domain-driven-design/SKILL.md
@@ -762,12 +718,6 @@ categories:
         path: mac-uninstall/SKILL.md
         description: Completely or partially uninstall macOS applications — removes app bundle and all associated files
         tags: [macos, uninstall, cleanup, apps, disk-space]
-
-      - name: chatgpt-image-prompt-architect
-        repository: claude-skills
-        path: chatgpt-image-prompt-architect/SKILL.md
-        description: Turn a vague visual request into a premium, ready-to-paste ChatGPT image prompt (gpt-image-2) for logos, flyers, ads, mockups, and more — with automatic AutoMintech branding on marketing assets
-        tags: [image-generation, prompting, chatgpt, gpt-image-2, branding, marketing, logos, premium]
 
       - name: design-forge
         repository: claude-skills
@@ -2054,7 +2004,6 @@ skill_index:
   bun-migration: { repo: claude-skills, category: development }
   vite-react-ts-setup: { repo: claude-skills, category: development }
   firestore-mastery: { repo: claude-skills, category: development }
-  i18n-web-localizer: { repo: claude-skills, category: development }
   api-test-script-generator: { repo: claude-skills, category: development }
   github-issue-creator: { repo: claude-skills, category: development }
   frontend-design: { repo: claude-skills, category: development }
@@ -2068,24 +2017,16 @@ skill_index:
   brand-forge: { repo: claude-skills, category: specialized }
   design-forge: { repo: claude-skills, category: specialized }
   design-studio: { repo: claude-skills, category: specialized, plugin: true }
-  seo-visibility: { repo: claude-skills, category: specialized }
   domain-driven-design: { repo: claude-skills, category: specialized }
   mac-uninstall: { repo: claude-skills, category: specialized }
   renommer-fichiers-rencontre: { repo: claude-skills, category: meetings }
-  schedule-plan-execution: { repo: claude-skills, category: claude-code }
-  screenshot-context-builder: { repo: claude-skills, category: claude-code }
   session-review: { repo: claude-skills, category: claude-code }
-  chatgpt-image-prompt-architect: { repo: claude-skills, category: specialized }
   add-dataverse: { repo: claude-skills, category: power-platform }
   pp-solution-sync: { repo: claude-skills, category: power-platform }
   secure-pa-http-trigger: { repo: claude-skills, category: power-platform }
-  claude-hook-creator: { repo: claude-skills, category: claude-code }
-  create-subagent: { repo: claude-skills, category: claude-code }
   meta-govern: { repo: claude-skills, category: claude-code }
   setup-insights: { repo: claude-skills, category: claude-code }
   loop-autonomy: { repo: claude-skills, category: claude-code }
-  cloud-night-shift: { repo: claude-skills, category: claude-code }
-  pipeline-audit: { repo: claude-skills, category: claude-code }
   handoff: { repo: claude-skills, category: claude-code }
   supacode-cli: { repo: claude-skills, category: development }
   galley: { repo: claude-skills, category: specialized }
@@ -2108,7 +2049,6 @@ skill_index:
   brief-preflight: { repo: claude-skills, category: specialized }
   commit-session-work: { repo: claude-skills, category: claude-code }
   ship-pr: { repo: claude-skills, category: claude-code }
-  building-production-macos-apps: { repo: claude-skills, category: claude-code }
   # External skills (superpowers)
   test-driven-development: { repo: superpowers, category: superpowers-testing }
   systematic-debugging: { repo: superpowers, category: superpowers-testing }

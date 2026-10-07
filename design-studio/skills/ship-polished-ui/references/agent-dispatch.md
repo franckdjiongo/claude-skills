@@ -75,7 +75,7 @@ Return the Verification Ledger:
 - Post it under a "VERIFICATION LEDGER — ..." heading (exact marker string).
 - Per-cell rows (surface × viewport × state, incl. 320/360) + transverse rows
   (contrast, reduced-motion, perf, Design-Spec conformance).
-- A real screenshot ID in every PASS cell — REQUIRED, not just on FAILs, for
+- A screenshot file path (`qa-shots/<name>.png`) that exists on disk in every PASS cell — REQUIRED, not just on FAILs, for
   the critical cells: every mobile (320/360/375) cell and every
   interaction-reached cell. A "PASS" with no proof is a not-evidenced, not a PASS.
 - not-evidenced (never PASS) for any cell you could not actually render;
@@ -117,8 +117,8 @@ Return format — your deliverable is the Verification Ledger, posted in full
 - Build the scope matrix first (surfaces × viewports 320/360/375/768/desktop ×
   states), then fill one row per cell you actually rendered, plus transverse
   rows (contrast, reduced-motion, perf, Design-Spec conformance).
-- Every PASS cell carries a real proof (screenshot ID + measured value where it
-  applies). A screenshot ID is REQUIRED even on PASS for the critical cells:
+- Every PASS cell carries a real proof (screenshot file path that exists + measured value where it
+  applies). A screenshot file path is REQUIRED even on PASS for the critical cells:
   all mobile (320/360/375) cells and all interaction-reached cells.
 - A cell you could not render is "not-evidenced", never PASS. A device class
   never rendered makes the whole verdict INVALID.

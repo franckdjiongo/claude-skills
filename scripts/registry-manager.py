@@ -243,10 +243,12 @@ def cmd_scan(args, registry: dict) -> None:
             if skill.get('repository') == 'claude-skills':
                 existing_skills.add(skill['name'])
 
+    switched_off = set(registry.get('switched_off') or [])
+
     new_skills = []
     for skill_file in skill_files:
         skill_name = skill_file.parent.name
-        if skill_name not in existing_skills:
+        if skill_name not in existing_skills and skill_name not in switched_off:
             new_skills.append(skill_name)
 
     if new_skills:

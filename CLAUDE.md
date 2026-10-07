@@ -66,16 +66,10 @@ The `description` field is critical - it determines when Claude Code should invo
 - `prompt-engineer` - Claude prompting best practices
 - `docs-workflow-generator` - Generate PRD, task breakdown, roadmap, and documentation workflow
 - `ralph-prompt-generator` - Generate auto-compact-resilient Ralph Wiggum loop prompts
-- `schedule-plan-execution` - Schedule autonomous Claude Code sessions to execute implementation plans at specific times
-- `screenshot-context-builder` - Rename batches of generic screenshots and embed image references in prompts
 - `session-review` - Generate an honest retrospective of the current Claude Code session
-- `claude-hook-creator` - Create or revise Claude Code hooks in settings.json or subagent frontmatter
-- `create-subagent` - Scaffold a well-formed Claude Code subagent (.claude/agents/<name>.md)
 - `meta-govern` - Master governance skill: bootstrap, audit, migrate, and evolve Claude Code project workflows
 - `setup-insights` - Bootstrap the Insight Coaching System (coaching hooks, logging, quality gates) in a project
 - `loop-autonomy` - Run an autonomous work loop over a backlog using subscription-included mechanisms
-- `cloud-night-shift` - Orchestrate chained autonomous overnight cloud runs via claude.ai routines
-- `pipeline-audit` - Reverse-engineer and grade a project's brainstorm→plan→implementation skill pipeline
 - `handoff` - Compact the current conversation into a handoff document for another agent to pick up
 - `adversarial-pr-review` - Run an ultracode multi-agent ADVERSARIAL review of the working diff BEFORE its pull request is opened (Mode A), and resolve code-review bot comments in one bounded pass (Mode B), 2 rounds max…
 - `update-dev-tools` - Autonomously update this macOS machine's local developer toolchain — Python (current stable) + its doc libraries and Node (LTS), both via mise, plus…
@@ -85,7 +79,6 @@ The `description` field is critical - it determines when Claude Code should invo
 - `workos` - Use when the user asks for a WorkOS docs URL, term, or dashboard field (Sign-in endpoint, initiate_login_uri, Redirect URI, `WORKOS_*` env vars), or…
 - `commit-session-work` - Finish Git work safely at the end of a Claude Code session: commit, and — depending on the mode — integrate, push, and clean up.
 - `ship-pr` - Merge one or more explicitly-named pull requests and land the result safely: verify each PR is mergeable and its required checks are green, merge it…
-- `building-production-macos-apps` - Builds, debugs, refactors, tests, profiles, secures, polishes, and prepares production macOS apps using Swift, SwiftUI, AppKit, and Xcode.
 
 **Convex Database**
 - `convex-queries` - Convex query patterns and best practices
@@ -140,7 +133,6 @@ The `description` field is critical - it determines when Claude Code should invo
 - `bun-migration` - Migrate Node.js projects to Bun
 - `vite-react-ts-setup` - Vite + React + TypeScript project setup
 - `firestore-mastery` - Firebase Firestore patterns
-- `i18n-web-localizer` - Web internationalization
 - `api-test-script-generator` - Generate API test scripts
 - `github-issue-creator` - Create GitHub issues programmatically
 - `avoid-feature-creep` - Prevent feature creep when building software and AI-powered products
@@ -152,13 +144,10 @@ The `description` field is critical - it determines when Claude Code should invo
 - `google-forms-builder` - Generate Google Forms via Apps Script
 - `obsidian-vault-architect` - Design Obsidian vault structures
 - `dtsx-workflow-analyzer` - Analyze SSIS DTSX packages
-- `design-elevation` - Apply professional design thinking to documentary artifacts (presentations, plans HTML, reports, dashboards, PDFs, data viz); shipped websites and app UIs route to ship-polished-ui instead (part of `design-studio` plugin)
 - `app-blueprint` - Reverse-engineer a codebase into a comprehensive Application Blueprint (EN/FR)
 - `brand-forge` - Automate a full brand package (verified name, slogans, logo concepts, palette, typography) producing brand-package.md + brand-tokens.css that hand off into the design pipeline; a logo/image prompt on an existing name routes to chatgpt-image-prompt-architect (part of `design-studio` plugin)
-- `seo-visibility` - Implement SEO, structured data, AI discoverability, and marketing visibility improvements
 - `domain-driven-design` - Expert advisor for DDD: strategic design, tactical design, architecture, anti-patterns, and migration
 - `mac-uninstall` - Completely or partially uninstall macOS applications removing all associated files
-- `chatgpt-image-prompt-architect` - Turn a vague visual request into a premium, ready-to-paste ChatGPT image prompt (gpt-image-2) for logos, flyers, ads, mockups, and more, with automatic AutoMintech branding on marketing assets
 - `design-forge` - UX/UI Quality Analyst and Design Brief Architect with three modes: AUDIT (analyze screenshots/video for defects and AI slop, emit a scored report with paste-ready correction prompts), TEST (actively drive a live app with computer-use tools), and BRIEF (turn a non-designer's idea into a premium design prompt); includes a brief→build→verify pipeline
 - `galley` - POINTEUR — absorbé par le skill unifié `workstation` (source de vérité : repo workstation, references/galley.md) ; revue d'artefacts HTML via les outils MCP html_review_* ou la CLI `bun run review`
 - `ship-polished-ui` - Single entry point for all client websites and app UIs (create or improve); runs a non-negotiable real-browser visual QA loop and posts a Verification Ledger before done; documentary artifacts route to design-elevation (part of `design-studio` plugin)
@@ -231,9 +220,9 @@ A source with `disable-model-invocation: true` (Claude only) gets `agents/openai
 Codex sub-agent models are never written in a skill: they are resolved at use time from
 `.codex/model-routing.json` / `~/.codex/model-routing.json` (see
 `adversarial-pr-review/scripts/resolve-codex-models.mjs`). Deliberately outside the generator: `brain-capture`,
-`meta-govern` and `pipeline-audit` have hand-written Codex-only rewrites kept elsewhere (no
-`runtimes/codex.json`, so the build exits 3 for them and the rail never touches them), and
-`claude-hook-creator` is intentionally not installed for Codex. Tests: `bun test scripts adversarial-pr-review/scripts`.
+`meta-govern` has a hand-written Codex-only rewrite kept elsewhere (no
+`runtimes/codex.json`, so the build exits 3 for it and the rail never touches it).
+Tests: `bun test scripts adversarial-pr-review/scripts`.
 
 ## Multi-Repository Skills Registry
 

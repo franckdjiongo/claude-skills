@@ -32,7 +32,7 @@ The ledger carries two kinds of rows, and the honesty rule (below) applies to **
 ### 1d — The honesty rule (governs every cell)
 
 - **A cell that was not actually rendered is `not-evidenced`, never PASS.** Silence is not a pass.
-- **A PASS requires a real proof:** a screenshot ID that resolves to a real file, plus the measured value where applicable (`scrollWidth/clientWidth`, contrast ratio, touch-target px).
+- **A PASS requires a real proof:** every check row, per-cell or transverse, names in its Preuve column a screenshot FILE path (`qa-shots/<name>.png`) that exists on disk — `ls` each path before posting; a row whose file is missing is `not-evidenced`. Add the measured value where applicable (`scrollWidth/clientWidth`, contrast ratio, touch-target px). A numeric-only row (contrast, LCP) cites the screenshot of the page or tool output it was read from.
 - **Settle before every capture:** scroll to rest and wait for in-flight transitions/animations to finish before the screenshot — mid-animation frames are a confirmed source of false positives. A capture taken before the surface settles does not evidence a cell.
 
 ### 1e — The ledger format
@@ -42,17 +42,17 @@ The completed ledger is posted in Section 12 under a heading containing the exac
 ```
 | Surface        | Viewport | État          | Verdict        | Preuve                        |
 |----------------|----------|---------------|----------------|-------------------------------|
-| hero           | 320      | initial       | PASS           | shot_a3f2 · scrollW 320=320   |
-| hero           | 320      | menu ouvert   | PASS           | shot_b81c                     |
-| pricing modal  | 768      | ouvert        | FAIL→fix→PASS  | shot_c4d9 → shot_e2a1         |
+| hero           | 320      | initial       | PASS           | qa-shots/a3f2.png · scrollW 320=320   |
+| hero           | 320      | menu ouvert   | PASS           | qa-shots/b81c.png                     |
+| pricing modal  | 768      | ouvert        | FAIL→fix→PASS  | qa-shots/c4d9.png → qa-shots/e2a1.png         |
 | footer         | 1440     | —             | not-evidenced  | (viewport non re-rendu après fix — à couvrir) |
 | contraste corps| —        | palette       | PASS 7.2:1     | contrast-check.mjs            |
-| focus clavier  | —        | tab sweep     | PASS           | shot_d5e6 (ring visible, no trap)|
-| reduced-motion | —        | OS activé     | PASS           | shot_f7b3 (fades, site complet)|
+| focus clavier  | —        | tab sweep     | PASS           | qa-shots/d5e6.png (ring visible, no trap)|
+| reduced-motion | —        | OS activé     | PASS           | qa-shots/f7b3.png (fades, site complet)|
 | LCP mobile     | —        | load          | PASS 1.9s      | lighthouse mobile / web-vitals |
 | CLS            | —        | load          | PASS 0.02      | idem                          |
 | INP            | —        | interactions  | not-evidenced  | (outil indisponible ce run)   |
-| WebKit hero    | —        | livraison     | PASS           | shot_g8h9 (playwright webkit) |
+| WebKit hero    | —        | livraison     | PASS           | qa-shots/g8h9.png (playwright webkit) |
 | Design Spec §1 | —        | typo nommée   | PASS           | @font-face chargé, grep       |
 ```
 
@@ -197,7 +197,7 @@ A real Chrome window driven by `mcp__claude-in-chrome__*` **cannot be resized be
 - **Unauthenticated page / dev server / deployed URL** — use the in-app preview browser instead: `mcp__Claude_Browser__resize_window` with `preset: "mobile"` (375×812) or a `width`/`height` pair for 320/360. It emulates the viewport properly (media queries, touch points, the works) and needs no dev-server restart.
 - **Authenticated / host-shell / SSO session that must stay in the real Chrome window** — resizing the window is not an option, so fake the viewport instead: open (or reuse) a **same-origin** blank tab, then use `javascript_tool` to inject an `<iframe>` pointed at the app's own origin (e.g. `src="/current/path"`) with `style="width:320px;height:<tall>px;border:0"`. Because the iframe shares the app's origin — unlike the cross-origin host-shell case in `iframe-and-host-shells.md` — `iframe.contentDocument` and `@media` queries both resolve against the iframe's own box, so it behaves exactly like a narrow real device: fully inspectable DOM, real breakpoint evaluation, real `scrollWidth` checks. This is the practical workaround, not a compromise — it's how the 320/360/375 classes actually got measured when the window floor made direct resize impossible.
 
-Record which method you used in the ledger's evidence column (e.g. `shot_a1 (Claude_Browser resize)` vs `shot_b2 (same-origin iframe 320)`) — a reviewer needs to know the width was real, not eyeballed from a wider render.
+Record which method you used in the ledger's evidence column (e.g. `qa-shots/a1.png (Claude_Browser resize)` vs `qa-shots/b2.png (same-origin iframe 320)`) — a reviewer needs to know the width was real, not eyeballed from a wider render.
 
 ---
 
@@ -286,7 +286,7 @@ The three gates below (accessibility, performance, WebKit) are **transverse gate
 - **Blocking thresholds (WCAG AA):** **≥ 4.5:1** for body text, **≥ 3:1** for large text (≥ 24px, or ≥ 19px bold). Below the applicable threshold **fails the gate** — it is not a soft preference. Record the calculated ratio in a transverse row (`contraste corps · PASS 7.2:1 · contrast-check.mjs`).
 - **APCA is the complementary compass, not the gate.** For dark palettes and fine type, WCAG 2.x under-predicts real legibility; **APCA Lc ≥ 75 for body text** is the perceptual target worth aiming at. But **WCAG AA (the ratio above) remains the blocking gate** — APCA guides palette choices, it does not override the numeric gate.
 - **Keyboard focus.** Tab through **every** interactive element on the surface: each must show a **visible focus ring** (not clipped by an `overflow:hidden` ancestor — see Section 5), and there must be **no keyboard trap** (Tab always escapes; focus order is sane). A control reachable only by mouse fails.
-- **`prefers-reduced-motion` — test it once before delivery.** Enable the emulation (DevTools rendering panel, `preview_resize` colorScheme's motion sibling, or the OS setting) **one time before you ship** and reload. The site must stay **complete and usable**: parallax / scroll-zoom / auto-play replaced by plain fades or held stills — never content that vanishes or a layout that collapses. Screenshot it and record `reduced-motion · OS activé · PASS · shot_… (fades, site complet)`.
+- **`prefers-reduced-motion` — test it once before delivery.** Enable the emulation (DevTools rendering panel, `preview_resize` colorScheme's motion sibling, or the OS setting) **one time before you ship** and reload. The site must stay **complete and usable**: parallax / scroll-zoom / auto-play replaced by plain fades or held stills — never content that vanishes or a layout that collapses. Screenshot it and record `reduced-motion · OS activé · PASS · qa-shots/….png (fades, site complet)`.
 
 ### 12b — Performance budget — Web Vitals thresholds are non-conditional
 
@@ -314,7 +314,7 @@ Before **any client delivery**, run a WebKit pass on the **key surfaces** — be
   1. **Playwright WebKit headless** — `npx playwright screenshot --browser=webkit <url> shot.png` (or a short Playwright script driving `webkit` for interaction states).
   2. **Safari via computer-use** if Playwright's WebKit is unavailable.
   3. Else **`not-evidenced`** consigned in the ledger — never a declarative "works in Safari."
-- Record a transverse row per key surface checked (`hero · WebKit · PASS · shot_…` or `not-evidenced`).
+- Record a transverse row per key surface checked (`hero · WebKit · PASS · qa-shots/….png` or `not-evidenced`).
 
 **For unauthenticated pages (dev server, deployed URL, static gallery/showcase export — no SSO, no logged-in session), the reliable setup observed in practice is `playwright-core` (not the full `playwright` package — lighter install, same API) driving a **cached** Chromium and WebKit binary:**
 
@@ -384,10 +384,10 @@ Run all five. Each maps to a transverse ledger row.
 Motion verdicts are **transverse rows** (Section 1c — `Viewport = —`), because they span the surface rather than sitting in one `surface × viewport × state` cell. Add these rows, each with a real proof or `not-evidenced` (never a declarative PASS):
 
 ```
-| scroll reveal §hero | — | 3 positions | PASS           | shot_a1 · shot_a2 · shot_a3    |
-| pins after resize   | — | resize@bottom| PASS          | shot_b4 (pins held)           |
+| scroll reveal §hero | — | 3 positions | PASS           | qa-shots/a1.png · qa-shots/a2.png · qa-shots/a3.png    |
+| pins after resize   | — | resize@bottom| PASS          | qa-shots/b4.png (pins held)           |
 | ScrollTrigger leak  | — | nav aller-retour | PASS 12=12 | getAll().length before/after  |
-| reduced-motion      | — | OS activé    | PASS           | shot_c7 (fades, video pausée) |
+| reduced-motion      | — | OS activé    | PASS           | qa-shots/c7.png (fades, video pausée) |
 | StrictMode double   | — | dev mount    | PASS           | (no duplicate trigger/reveal) |
 | jank / compositor   | — | scroll trace | PASS           | trace_d2 (no purple Layout)   |
 ```
