@@ -1,21 +1,23 @@
 # Intent sheet — <chantier title>
 
-Approved by: <human, date>. Disposable: removed by the last lot. Location: `.chantier/<slug>/intention.md`, outside `docs/`. One page.
+Approved by: <name>, <date>. Disposable (removed at the last lot), `.chantier/<slug>/intention.md`.
 
 ## Why
 
-<The real problem in 3 to 5 lines: current situation, cost, who suffers it.>
+<The real problem in 3 to 5 lines: cost, who suffers it.>
+
+Human request (exact quote): "<sentence>". Every guarantee cites the sentence that requires it, else nice-to-have.
 
 ## The user's (or script's) day before / after
 
-Before: <what the person or script does today, steps and irritants.>
+Before: <what the person or script does today.>
 
 After: <the same day once delivered, observable. Technical chantier with no visible effect: its consumers and what they call.>
 
 ## What this chantier is NOT
 
 - <A tempting neighbour that is excluded: refactor, new feature, hardening.>
-- <One line per Nice-to-have and per forbidden item of the plan. The guardian judges fixes against this list.>
+- <One line per nice-to-have and forbidden item of the plan: the guardian judges fixes against it.>
 
 ## What proves delivery
 
@@ -25,4 +27,3 @@ After: <the same day once delivered, observable. Technical chantier with no visi
 
 - Total budget: <target> / <ceiling> lines added (code + tests + scripts).
 - Chips: allowed | forbidden.
-- Review: 2 rounds at most.

@@ -4,8 +4,7 @@ Complète les étapes 0 à 10 de `SKILL.md` § Écrire un plan. Rien ici n'assou
 
 ## Étape 2 — Explorer, baseline, points de contrôle humains
 
-- L'état du repo se constate sur disque, jamais de mémoire ; ce qui est écrit dans « État du repo » est vrai
-  à la minute de l'écriture.
+- L'état du repo se constate sur disque, jamais de mémoire.
 - Vérifie chaque fait INDIVIDUELLEMENT : un grep groupé (`a\|b\|c`) dit qu'au moins une cible matche, pas
   que chacune matche.
 - Ne recopie jamais une énumération ou une valeur du code : cite sa référence (`SYMBOLE`, `fichier:ligne`).
@@ -31,10 +30,11 @@ Complète les étapes 0 à 10 de `SKILL.md` § Écrire un plan. Rien ici n'assou
 
 ## Étape 5 — Lots
 
-- Chaque lot laisse un état livrable si le run s'arrête là : les plus sûrs d'abord, les risqués en fin.
+- Lot 1 = tranche verticale minimale que la preuve de la fiche exécute ; chaque lot suivant ajoute une garantie
+  en gardant cette preuve verte.
 - Un mécanisme central non trivial (effets, concurrence, machine à états) se spécifie en INVARIANTS testables
   plus un sketch ; envisage 30 minutes de prototype avant de figer.
-- L'estimation en heures donne la part du plafond de lignes de chaque lot (disjoncteur A5).
+- L'estimation en heures donne l'estimation en lignes de chaque lot, dont le double déclenche le disjoncteur A5.
 - **Dernier lot de PROCESSUS.** Écris en toutes lettres son message de commit (`chantier(<slug>): lot N —
   Clôture…`), jamais un message libre : le run suivant d'une chaîne le cherche par `git log --grep`. Forme
   contrôlée (lint check 8) : `<code class="commit-msg">` portant `lot N`, ou `<pre class="cmd">` avec
@@ -57,6 +57,6 @@ dédiés.
 ## Étape 9 — Relecture en candide
 
 Cherche « cette session », « comme convenu », un chemin relatif, un lot sans vérification ni agent, une
-hypothèse implicite. Chaque occurrence est un défaut. Relis le document ENTIER après chaque lot de
+hypothèse implicite : chaque occurrence est un défaut. Relis le document ENTIER après chaque lot de
 correctifs, préflight compris. Corrige d'abord la DÉCISION (architecture ou décisions), puis propage aux lots :
 un patch local dans un seul lot crée les contradictions que le round suivant remontera.
