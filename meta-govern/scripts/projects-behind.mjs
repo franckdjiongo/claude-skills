@@ -19,6 +19,7 @@
 //
 // Exit codes: 0 nothing flagged / 1 at least one flagged / 2 error.
 // Standalone on purpose (node:* only) so the Claude and Codex copies are identical.
+// Current version: version.json sourceCanon.version when present (Codex build), else version.json version.
 
 import fs from 'node:fs';
 import os from 'node:os';
@@ -130,7 +131,10 @@ function main(argv) {
   }
 
   const skillDir = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-  const current = readJson(path.join(skillDir, 'version.json'))?.version;
+  // A Codex build carries its own version and names the Claude canon it mirrors in
+  // sourceCanon.version. Projects record the canon version, so compare against that.
+  const versionFile = readJson(path.join(skillDir, 'version.json'));
+  const current = versionFile?.sourceCanon?.version ?? versionFile?.version;
   if (!parseSemver(current)) { process.stderr.write(`Cannot read meta-govern version from ${skillDir}/version.json\n`); return 2; }
 
   const dirs = collectProjectDirs({ root, excludes, explicit });

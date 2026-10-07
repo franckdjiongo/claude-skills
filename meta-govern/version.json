@@ -1,6 +1,6 @@
 {
   "name": "meta-govern",
-  "version": "1.19.0",
+  "version": "1.19.1",
   "released": "2026-10-07",
   "bornFrom": {
     "projects": [
@@ -41,6 +41,16 @@
     ]
   },
   "changelog": [
+    {
+      "version": "1.19.1",
+      "date": "2026-10-07",
+      "summary": "Patch : projects-behind.mjs lit sourceCanon.version de version.json quand il existe, sinon version. Permet de publier le même script dans la copie Codex (dont la version propre est 2.x et dont sourceCanon.version nomme le canon Claude suivi). Test ajouté.",
+      "breakingChanges": [],
+      "features": [
+        "scripts/projects-behind.mjs — version courante = sourceCanon.version ?? version",
+        "scripts/meta-govern.test.mjs — cas d'un version.json de type Codex"
+      ]
+    },
     {
       "version": "1.19.0",
       "date": "2026-10-07",
