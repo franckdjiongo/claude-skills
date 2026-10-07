@@ -37,7 +37,7 @@ const FAIL_CASES = [
   ['commande consigne « run the tests »', swap('node scripts/check.mjs</code></li>\n        <li data-check="1.2"', 'run the tests</code></li>\n        <li data-check="1.2"'), /check « 1\.1 » : « run … » est une consigne/],
   ['phrase sans commande', swap('npm test</code>', 'ouvrir la page et regarder</code>'), /phrase, pas une commande/],
   ['commande vide', swap('npm test</code>', '</code>'), /commande vide/],
-  ['placeholder', swap('npm test</code>', 'node &lt;script&gt;</code>'), /placeholder non rempli/],
+  ['placeholder', swap('npm test</code>', 'node &lt;fichier&gt;</code>'), /placeholder non rempli/],
   ['code retour masqué', swap('npm test</code>', 'npm test || true</code>'), /masque le code retour/],
   ['script de repo absent', swap('node scripts/check.mjs</code></li>\n        <li data-check="1.2"', 'node scripts/absent.mjs</code></li>\n        <li data-check="1.2"'), /« scripts\/absent\.mjs » introuvable/],
   ['fichier créé par un lot SUIVANT', swap('<code>scripts/new.mjs</code>, <code>scripts/new.test.mjs</code>', 'rien').replace('chantier(fixture)', 'x</p><p><strong>Fichiers touchés</strong> : scripts/new.test.mjs</p><p>chantier(fixture)'), /new\.test\.mjs » introuvable/],
@@ -113,6 +113,19 @@ test('unités : missingRefs suit cd, ignore redirections, globs, guillemets et c
   assert.deepEqual(missingRefs('node /opt/elsewhere/x.mjs', REPO, o), []);
   assert.equal(missingRefs('node gone.mjs && ./nope.sh', REPO, o).length, 2);
   assert.equal(missingRefs('node gone.mjs', REPO, { ...o, touched: 'gone.mjs' }).length, 0);
+});
+
+test('unités : faux positifs corrigés (HTML cité, outil inconnu, budget cité deux fois, npm après cd)', () => {
+  assert.equal(vagueReason('grep -q "<section id=\\"s-x\\">" a.html'), null);
+  assert.equal(vagueReason('docker compose up'), null);
+  assert.equal(vagueReason('kubectl get pods'), null);
+  assert.notEqual(vagueReason('ouvrir la page et regarder'), null);
+  assert.notEqual(vagueReason('node <fichier>'), null);
+  assert.deepEqual(checkBudget('Budget total : voir plus bas. Budget total : 300 / 600 lignes', /budget total\s*:/i), { cible: 300, plafond: 600, error: null });
+  // après `cd`, `npm test` se juge sur le package.json du dossier courant (ici le fixture : script « test » présent, « start » absent)
+  const root = join(REPO, '..');
+  assert.deepEqual(missingRefs('cd repo && npm test', root, { scripts: {} }), []);
+  assert.equal(missingRefs('cd repo && npm start', root, { scripts: { start: 'x' } }).length, 1);
 });
 
 test('unités : checkBudget et parseChecks', () => {

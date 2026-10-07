@@ -7,7 +7,7 @@
  * Le check passe quand la commande sort 0 : un id unique et la commande exacte.
  */
 
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { isAbsolute, join, relative, resolve } from 'node:path';
 
 export const BUDGET_MAX = 1000; // A1 : plafond ≤ 1 000 lignes
@@ -17,9 +17,19 @@ const KNOWN = new Set(
   'bun bunx npm npx pnpm yarn node deno tsx python python3 pytest uv pip git gh grep egrep rg test make cargo go dotnet pac tsc vitest jest sh bash zsh cat ls diff cmp jq curl wc find sed awk head tail sort stat echo printf cd env time xargs'.split(' '),
 );
 const FILE_EXT = /\.(?:mjs|cjs|js|ts|tsx|jsx|py|sh|json)$/;
+const STOPWORD = /^(?:the|an?|and|or|to|of|that|this|is|are|every|un|une|des|du|de|et|ou|que|qui|toutes?|passe[nst]?|works?|ok|sans|avec|with|without|should|doit|doivent|no|not|pas)$/i;
+const HTML_TAG = /^<\/?(?:html|head|body|title|div|span|section|nav|p|a|ul|ol|li|h[1-6]|code|pre|strong|em|script|style|table|tr|td|th|input|button|form|img|br|hr)\b/i;
 const NEW_MARK = /\((?:nouveau|nouveaux|new|to be created)\)|à créer|to be created/i;
 const NUM = String.raw`(\d{1,3}(?:[  ,.'’]\d{3})+|\d+)`;
 const BUDGET = new RegExp(String.raw`^[^\d/]{0,14}${NUM}[^\d/]{0,14}\/[^\d/]{0,14}${NUM}`);
+
+const scriptsIn = (dir) => {
+  try {
+    return JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).scripts ?? {};
+  } catch {
+    return {};
+  }
+};
 
 /** Les checks d'un bloc de lot : { present, items: [{ id, codes, raw }] }. */
 export function parseChecks(block) {
@@ -46,13 +56,13 @@ function segments(cmd) {
 /** Message d'erreur si la commande est vague ou ne peut pas échouer, sinon null. */
 export function vagueReason(cmd) {
   if (!cmd.trim()) return 'commande vide';
-  if (/<[A-Za-zÀ-ÿ][^<>\n]{0,40}>/.test(cmd)) return 'placeholder non rempli dans la commande';
+  if ([...cmd.matchAll(/<[A-Za-zÀ-ÿ][^<>\n]{0,40}>/g)].some((m) => !HTML_TAG.test(m[0]))) return 'placeholder non rempli dans la commande';
   if (/(?:\|\||;)\s*(?:true|:|exit\s+0)\s*$/.test(cmd.trim())) return '« || true » masque le code retour : le check ne pourrait pas échouer';
   const words = (segments(cmd)[0] ?? []).map((w) => w.text);
   const first = words[0] ?? '';
   if (VAGUE_LEAD.test(first)) return `« ${first} … » est une consigne, pas une commande`;
   const pathLike = /[/\\]/.test(first) || first.startsWith('.');
-  if (!pathLike && !KNOWN.has(first) && words.length >= 3 && !/[/\\.=|&;<>$()"'`:-]/.test(words.join(' '))) {
+  if (!pathLike && !KNOWN.has(first) && words.length >= 3 && words.some((w) => STOPWORD.test(w)) && !/[/\\.=|&;<>$()"'`:-]/.test(words.join(' '))) {
     return 'phrase, pas une commande lançable telle quelle';
   }
   return null;
@@ -62,7 +72,7 @@ export function vagueReason(cmd) {
  * Références du check absentes du repo cible : retourne la liste des messages.
  * `touched` = texte des « Fichiers touchés » du lot et des lots précédents (fichiers que le plan crée).
  */
-export function missingRefs(cmd, repoRoot, { touched = '', allowNew = false, scripts = {} } = {}) {
+export function missingRefs(cmd, repoRoot, { touched = '', allowNew = false, scripts: rootScripts = {} } = {}) {
   const errs = [];
   const base = (p) => p.replace(/^\.\//, '');
   let cwd = repoRoot;
@@ -73,6 +83,7 @@ export function missingRefs(cmd, repoRoot, { touched = '', allowNew = false, scr
       continue;
     }
     if (head.text === 'npm' && /^(?:test|t|start|stop|restart)$/.test(rest[0]?.text ?? '')) {
+      const scripts = cwd === repoRoot ? rootScripts : scriptsIn(cwd);
       const name = rest[0].text === 't' ? 'test' : rest[0].text;
       if (Object.keys(scripts).length && !(name in scripts)) errs.push(`« npm ${rest[0].text} » : script « ${name} » absent de package.json`);
     }
@@ -95,12 +106,20 @@ export const isNewMarked = (raw) => NEW_MARK.test(raw.replace(/<code\b[\s\S]*?<\
 
 /** Valeur de « Budget total : <cible> / <plafond> » : { error } ou { cible, plafond }. Absent : error null. */
 export function checkBudget(visible, labelRe) {
-  const m = visible.match(labelRe);
-  if (!m) return { error: null };
-  const nums = visible.slice(m.index + m[0].length, m.index + m[0].length + 60).match(BUDGET);
-  if (!nums) return { error: 'Budget total : forme attendue « <cible> / <plafond> » avec deux nombres (A1).' };
-  const [cible, plafond] = [nums[1], nums[2]].map((n) => Number(n.replace(/\D/g, '')));
-  if (plafond > BUDGET_MAX) return { error: `Budget total : plafond ${plafond} > ${BUDGET_MAX} lignes (A1) : découper le chantier.` };
-  if (cible < 1 || cible > plafond) return { error: `Budget total : cible ${cible} hors de 1..plafond ${plafond} (A1).` };
-  return { cible, plafond, error: null };
+  const g = new RegExp(labelRe.source, 'gi');
+  let first = null;
+  for (const m of visible.matchAll(g)) {
+    const nums = visible.slice(m.index + m[0].length, m.index + m[0].length + 60).match(BUDGET);
+    const [cible, plafond] = nums ? [nums[1], nums[2]].map((n) => Number(n.replace(/\D/g, ''))) : [];
+    const error = !nums
+      ? 'Budget total : forme attendue « <cible> / <plafond> » avec deux nombres (A1).'
+      : plafond > BUDGET_MAX
+        ? `Budget total : plafond ${plafond} > ${BUDGET_MAX} lignes (A1) : découper le chantier.`
+        : cible < 1 || cible > plafond
+          ? `Budget total : cible ${cible} hors de 1..plafond ${plafond} (A1).`
+          : null;
+    if (!error) return { cible, plafond, error: null };
+    first ??= error;
+  }
+  return { error: first };
 }
