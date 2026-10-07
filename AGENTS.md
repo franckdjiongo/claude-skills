@@ -53,7 +53,6 @@ The `description` field is critical - it determines when Claude Code should invo
 - `teams-message-polisher` - Polish messages for Microsoft Teams
 - `add-dataverse` - Add Dataverse tables to a Power Apps code app with generated TypeScript models and services
 - `pp-solution-sync` - Sync Power Platform solution exports from ~/Downloads into local project folders
-- `secure-pa-http-trigger` - Secure a Power Automate HTTP-trigger flow with Entra ID auth and rewire every caller
 - `sync-to-azure` - Syncs the current Power Apps Code App to the Fernand Gilbert Ltée Azure DevOps repository under code-apps/<app-name>/.
 
 **Claude Code Extensibility**
@@ -68,7 +67,6 @@ The `description` field is critical - it determines when Claude Code should invo
 - `loop-autonomy` - Run an autonomous work loop over a backlog using subscription-included mechanisms
 - `handoff` - Compact the current conversation into a handoff document for another agent to pick up
 - `adversarial-pr-review` - Run an ultracode multi-agent ADVERSARIAL review over the working diff so a change is bulletproof and "compliant" BEFORE its pull request is opened,…
-- `update-dev-tools` - Autonomously update this macOS machine's local developer toolchain — Python (current stable) + its doc libraries and Node (LTS), both via mise, plus…
 - `brain-capture` - Extract 0-3 candidate memories (facts/decisions/preferences/lessons/routines/ conventions worth remembering long-term) from the session that is about…
 - `workstation-friction-capture` - Triage the workstation-tool frictions logged during the session that is about to end and report genuine structural defects as chips/notes to the hub (source de vérité : repo workstation, copie conforme ici)
 - `brief-chantier` - Standard for autonomous-execution work plans ("plans de chantier").
@@ -85,13 +83,11 @@ The `description` field is critical - it determines when Claude Code should invo
 - `convex-agents-debugging` - Debugging techniques for Convex agents
 - `convex-agents-context` - Customize LLM context with RAG injection and cross-thread search
 - `convex-agents-fundamentals` - Core setup and configuration for Convex agents
-- `convex-agents-human-agents` - Human-in-the-loop integration for hybrid workflows
 - `convex-agents-messages` - Message handling and UIMessages for conversation display
 - `convex-agents-rag` - Retrieval-Augmented Generation patterns for knowledge bases
 - `convex-agents-streaming` - Real-time response streaming for chat UIs
 - `convex-agents-threads` - Conversation thread management
 - `convex-agents-tools` - Tool definitions for external APIs and database operations
-- `convex-agents-usage-tracking` - Token consumption tracking for billing
 - `convex-agents-workflows` - Durable multi-step agent workflows
 - `convex-remote-mcp` - Build a production-ready REMOTE MCP server (Streamable HTTP) hosted INSIDE an EXISTING Convex backend — exposing your Convex functions as…
 
@@ -115,8 +111,6 @@ The `description` field is critical - it determines when Claude Code should invo
 - `firestore-mastery` - Firebase Firestore patterns
 - `api-test-script-generator` - Generate API test scripts
 - `github-issue-creator` - Create GitHub issues programmatically
-- `supacode-cli` - Control Supacode from the terminal (worktrees, tabs, and surfaces)
-- `workos-widgets` - Use when the user is implementing, embedding, or debugging a WorkOS Widget — specifically the User Management, User Profile, Admin Portal SSO…
 
 **Specialized Workflows**
 - `bpmn-creator` - Create BPMN 2.0 process diagrams
@@ -131,10 +125,7 @@ The `description` field is critical - it determines when Claude Code should invo
 
 **Email (Resend)**
 - `resend` - Resend email platform umbrella that routes to send, inbound, agent inbox, and template sub-skills
-- `resend-send-email` - Send transactional, notification, and bulk emails via the Resend API
 - `resend-templates` - Create, update, publish, and manage Resend email templates via the API
-- `resend-inbound` - Receive emails with Resend: inbound domains, webhooks, and content/attachment retrieval
-- `resend-agent-email-inbox` - Set up a secure email inbox for an AI agent with content safety measures
 
 ## Creating New Skills
 
