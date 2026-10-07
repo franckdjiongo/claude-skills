@@ -78,7 +78,7 @@ plan ne contient que le propre du chantier : texte figé = renvoi d'une ligne au
    clôture/PR/merge : « aucun — reste chez l'orchestrateur ».
 7. **Galley** : `html_review_register` (chemin absolu), termine par `http://localhost:5179/html-review/<docId>` ;
    jamais le bloc `ws-review-state`.
-8. **Approbation** : la fiche signée « Validée par » fait foi ; hub disponible : convo `approval` avec le lien
+8. **Approbation** : la fiche signée « Validée par » fait foi ; hub disponible : convo `approval` avec lien
    Galley (`bun run --cwd ~/Desktop/my-projets/workstation convo create <slug-projet> -`).
 9. **Relis en candide** ; corrige à la décision, puis propage aux lots.
 <!-- runtime-slot:preflight-invoke -->
