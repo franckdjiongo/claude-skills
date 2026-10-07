@@ -26,10 +26,10 @@ Un brief-chantier s'exécute sans personne à qui poser une question : une ambig
 
 ## Règles dures
 
-1. **Revue de jugement : 2 rounds au plus**, non contournable par un plan. Round 1 complet, round 2 sur le DELTA corrigé seulement ; les findings restants sont listés ouverts.
-2. **Une décision par finding** : CORRIGER (bloquant ou majeur qui sert l'intention), NICE-TO-HAVE, NE PAS CORRIGER (une ligne de raison), INVALIDE.
+1. **2 rounds au plus par plan**, comptés dans les commits du plan (message contenant « preflight round N »), non contournable. Un appelant qui en trouve 2 ne relance que le lint.
+2. **Une décision par finding** : CORRIGER (bloquant ou majeur qui sert l'intention), NICE-TO-HAVE, NE PAS CORRIGER (une ligne de raison), INVALIDE. Un mineur n'est JAMAIS CORRIGER.
 3. **Le plan respecte A1-A5 et G.** Le lint impose la forme, la lentille « Règles & process » le fond.
-4. **Déterminisme d'abord** : jamais un round (~600 k tokens) sur ce qu'un script attrape gratuitement.
+4. **Déterminisme d'abord** : aucun round sur ce qu'un script attrape.
 5. **Plafond du plan ≤ 200 lignes : le lint suffit**, pas de rounds de jugement.
 
 ## Étape 0 — Lint déterministe (auto-exécuté à l'invocation)
@@ -46,7 +46,7 @@ node ${CLAUDE_SKILL_DIR}/scripts/preflight-lint.mjs <chemin-absolu-du-plan.html>
 ```
 <!-- /runtime-slot:etape0-run -->
 
-Le lint accepte les plans FR et EN. Il vérifie, sans jugement : placeholders, `undefined`, phrases interdites ; chemins absolus, scripts `bun|npm run`, ancres `fichier:ligne` ; structure (sections non vides, lots avec Agent + commande + DONE, étiquettes de lot uniques, TOC) ; Nice-to-have ≥ 5 ; commit du lot de clôture étiqueté `lot N` ; section flotte si présente (plage et `Dépend de`) ; règles dures : aucune clause de revue sans fin, `Budget total`, `Chips`, `Fiche d'intention`, `Doublures de test`.
+Le lint accepte les plans FR et EN. Il vérifie, sans jugement : placeholders, `undefined`, phrases interdites ; chemins absolus, scripts `bun|npm run`, ancres `fichier:ligne` ; structure (sections non vides, lots avec Agent + commande + DONE, étiquettes de lot uniques, TOC) ; Nice-to-have ≥ 5 ; commit du lot de clôture étiqueté `lot N` ; section flotte si présente (plage et `Dépend de`) ; règles dures : aucune clause de revue sans fin, `Budget total`, `Chips`, `Fiche d'intention` (validée : « Validée par : <nom> »), `Doublures de test`.
 
 `--legacy` rétrograde en avertissement les conventions récentes, jamais les clauses sans fin ni la section flotte. VERDICT FAIL = corrige TOUTES les erreurs avant le moindre round, puis relance le lint après chaque lot de correctifs.
 
@@ -80,7 +80,7 @@ Quatre lentilles :
 
 1. **Candide** : exécuter le plan ce soir sans personne. Chaque commande lançable telle quelle, chaque DONE testable ? Où faudrait-il deviner ? Deux sections se contredisent-elles ?
 2. **Fact-check** : chaque affirmation technique (fichier:ligne, noms d'état, scripts, clés, valeurs recopiées) confrontée au code réel.
-3. **Mécanique du domaine** : le design tient-il ? Où le plan est silencieux sur un comportement runtime réel (double-invocation, courses, ordre d'initialisation, écrivains concurrents) ? Tout artefact NEUF hérite des invariants de l'existant.
+3. **Mécanique du domaine** : le design tient-il ? Ne juge que les comportements que la fiche demande : chaque garantie cite la demande de l'humain, sinon NICE-TO-HAVE. Tout artefact NEUF hérite des invariants de l'existant.
 4. **Règles & process** : A1-A5 et G. Budget réaliste, chips cohérents, fiche d'intention PERTINENTE (le plan sert son « pourquoi » et reste hors de son « ce que ce n'est pas »), preuve réelle avant tout test simulé, aucune clause de revue sans fin. Puis cohérence avec CLAUDE.md : lots ≤ 2 h à état vert, gates complets.
 
 Sur demande seulement, pour alimenter le nice-to-have : **Personas** (rôles, langues, thème sombre, mobile, accessibilité, états vides) et **Futur** (volume, deuxième consommateur, migration).
@@ -91,10 +91,10 @@ Sur demande seulement, pour alimenter le nice-to-have : **Personas** (rôles, la
 - **NICE-TO-HAVE** : ne gonfle PAS les lots ; ajoute l'item à « Nice-to-have » (≥ 5), l'utilisateur arbitre.
 - **NE PAS CORRIGER** (style, hors périmètre, hors fiche) : une ligne de raison dans ta sortie, pas dans le plan. **INVALIDE** (faux) : rejette.
 
-Après les correctifs : relecture CANDIDE du plan entier (les incohérences inter-sections sont le mode d'échec n° 1 des corrections), puis relance du lint.
+Après les correctifs : relecture CANDIDE du plan entier, puis relance du lint.
 
 ## Étape 3 — Round 2 (delta seulement), arrêt, sortie
 
-Si le round 1 a produit une correction, UN round 2 : les lentilles concernées relisent les passages modifiés et ce qui en dépend. Même triage, relance du lint, puis **STOP**. Un bloquant encore présent se signale à l'utilisateur, jamais par un round 3.
+Si le round 1 a corrigé, UN round 2 : les lentilles concernées relisent les passages modifiés et ce qui en dépend. Même triage, relance du lint, puis **STOP**. Un bloquant restant se signale à l'utilisateur, jamais par un round 3.
 
-Rends compte : rounds (≤ 2), findings par décision, bloquants tués, findings ouverts, verdict final du lint, et « le plan est prêt pour exécution » ou ce qui l'en empêche.
+Rends compte : rounds, findings par décision, bloquants tués ou ouverts, verdict du lint, et « le plan est prêt pour exécution » ou ce qui l'en empêche.

@@ -34,8 +34,8 @@ Mode A runs before opening a PR, Mode B on bot comments.
    `~/.claude/skills/brief-chantier/references/gardien-intention.md` (in a cloud clone:
    `.claude/skills/brief-chantier/references/gardien-intention.md`), which also gives what each verdict
    changes. Moment 1: after each round, before any fix. Moment 2: before the PR. Pass it the sheet path, the
-   ABSOLUTE repo path, the `git diff --stat <base>...HEAD` output and the remarks (id, severity, summary,
-   proposed fix). No sheet: skip it and say so in the report, never block.
+   ABSOLUTE repo path, the FULL `git diff <base>...HEAD` (never `--stat` alone) and the remarks (id, severity,
+   summary, proposed fix). No sheet: skip it and say so in the report, never block.
 4. **Closure never blocks an autonomous run.** After the cap, commit and push, then:
    - converged (no open P1/P2 with disposition FIX): record the sentinel, open the PR, list the open findings
      with their dispositions in its body;
@@ -152,16 +152,13 @@ it yourself with `checksPerformed` in the thread. No PASS while open.
 
 ### 5. Disposition and minimal fix
 
-Disposition every confirmed finding (rule 2), run the guardian (rule 3), fix only the FIX items. Every fixer
-prompt imposes: minimal fix covering the whole family of the defect, no validation outside the modified path.
+Disposition every confirmed finding (rule 2), run the guardian (rule 3), then launch ONE fixer per round. It
+writes only in the chantier's repo (absolute path in its prompt) and only the FIX remarks; if the files those
+remarks cite are not in the diff, it stops without writing. Its prompt imposes: minimal fix covering the whole
+family of the defect, no validation outside the modified path.
 For each FIX sweep its class across the ENTIRE diff: literal twins (same signature, grep it) and structural
 twins (the same invariant at another integration point, the same function's other code paths). Emit the enumeration table yourself: every grep hit with a disposition (swept,
 has-guard, not-in-class and why).
-
-**Parallel fixers on a shared tree.** Use worktree isolation (each fixer gets `isolation: 'worktree'`, merged
-back at round close-out), or put this clause verbatim in every fixer prompt: *"The working tree is SHARED with
-other fixers running now. Never run `git reset`, `git stash`, `git checkout --`, `git clean`, or any command
-that reverts files you did not edit. Edit only your assigned files."*
 
 <!-- runtime-slot:agent-deaths -->
 **Agents dying mid-run (rate limits).** Do not restart the round or respawn agents one by one. Relaunch the

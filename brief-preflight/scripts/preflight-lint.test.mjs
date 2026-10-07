@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -153,6 +153,34 @@ test('chemin absolu sous le dépôt cible introuvable : FAIL ; npm run inconnu :
     assert.doesNotMatch(r.stdout, /neuf\.mjs/);
     assert.match(r.stdout, /npm run nope/);
     assert.doesNotMatch(r.stdout, /npm run test/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('fiche d\'intention existante : « Validée par : <nom> » exigé, avertissement sous --legacy', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'preflight-'));
+  try {
+    const file = join(dir, 'plan.html');
+    writeFileSync(file, plan());
+    const run = (...flags) => spawnSync('node', [LINT, file, dir, ...flags], { encoding: 'utf8' });
+    mkdirSync(join(dir, '.chantier'));
+    const sheet = (line) => writeFileSync(join(dir, '.chantier', 'intention.md'), `# Intention\n\n${line}\n`);
+    for (const line of ['**Validée par :** EN ATTENTE', 'Validée par :', 'Approved by: PENDING', 'Validée par : <nom>', 'Validée par : <nom>, <date>. Jetable (supprimée au dernier lot).', 'Validée par : Franck', 'aucune ligne de validation']) {
+      sheet(line);
+      const r = run();
+      assert.equal(r.status, 1, line);
+      assert.match(r.stdout, /non validée/);
+      const l = run('--legacy');
+      assert.equal(l.status, 0, line);
+      assert.match(l.stdout, /non validée/);
+    }
+    for (const line of ['Validée par : Franck, 2026-10-06', '**Approved by:** Franck Djiongo, 2026-10-07']) {
+      sheet(line);
+      const r = run();
+      assert.equal(r.status, 0, r.stdout);
+      assert.doesNotMatch(r.stdout, /non validée/);
+    }
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

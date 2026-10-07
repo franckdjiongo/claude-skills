@@ -12,11 +12,6 @@
       "count": 1
     },
     {
-      "from": "`isolation: 'worktree'`",
-      "to": "its own `git worktree add <dir> -b <branch>`, named in its prompt",
-      "count": 1
-    },
-    {
       "from": "**The hand-launched fan-out drops the Workflow tool, never a phase.**",
       "to": "**The hand-run fan-out drops no phase.**",
       "count": 1
