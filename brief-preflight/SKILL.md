@@ -30,7 +30,7 @@ Un brief-chantier s'exécute sans personne à qui poser une question : une ambig
 2. **Une décision par finding** : CORRIGER (bloquant ou majeur qui sert l'intention), NICE-TO-HAVE, NE PAS CORRIGER (une ligne de raison), INVALIDE. Un mineur n'est JAMAIS CORRIGER.
 3. **Le plan respecte A1-A5 et G.** Le lint impose la forme, la lentille « Règles & process » le fond.
 4. **Déterminisme d'abord** : aucun round sur ce qu'un script attrape.
-5. **Plafond du plan ≤ 200 lignes : le lint suffit**, pas de rounds de jugement.
+5. **Plafond ≤ 200 lignes : lint seul ; ≤ 600 : un seul round.**
 
 ## Étape 0 — Lint déterministe (auto-exécuté à l'invocation)
 
@@ -95,6 +95,6 @@ Après les correctifs : relecture CANDIDE du plan entier, puis relance du lint.
 
 ## Étape 3 — Round 2 (delta seulement), arrêt, sortie
 
-Si le round 1 a corrigé, UN round 2 : les lentilles concernées relisent les passages modifiés et ce qui en dépend. Même triage, relance du lint, puis **STOP**. Un bloquant restant se signale à l'utilisateur, jamais par un round 3.
+Plafond > 600, round 1 corrigé : UN round 2 : les lentilles concernées relisent les passages modifiés et ce qui en dépend. Même triage, relance du lint, puis **STOP**. Un bloquant restant se signale à l'utilisateur, jamais par un round 3.
 
 Rends compte : rounds, findings par décision, bloquants tués ou ouverts, verdict du lint, et « le plan est prêt pour exécution » ou ce qui l'en empêche.

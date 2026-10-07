@@ -2,8 +2,8 @@
   "description": "Run a multi-agent ADVERSARIAL review (parallel spawn_agent hunters, then one verifier per finding) of the working diff BEFORE its pull request is opened (Mode A), and resolve code-review bot comments (Codex, CodeRabbit, Greptile...) in one bounded pass (Mode B). Use it whenever you are about to create or open a PR (\"create a PR\", \"open a PR\", \"tu peux créer la PR\", \"ouvre la PR\", push a branch for review) or when a bot comments on a PR. On Codex the guard hook (~/.codex/hooks/adversarial-pr-guard.mjs, effective on codex-cli 0.160.0 and later) blocks `gh pr create` until this skill has validated the current HEAD, so reach for it proactively. Two rounds at most, one disposition per finding, then it finishes.",
   "replace": [
     {
-      "from": "create it with `spawn_task`)",
-      "to": "create it with the workstation `chip_create` tool)",
+      "from": "allows chips; `spawn_task`)",
+      "to": "allows chips; workstation `chip_create`)",
       "count": 1
     },
     {

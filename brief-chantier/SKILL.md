@@ -33,7 +33,7 @@ personne pour répondre. Détermine ton rôle :
   remarque (CORRIGER, CHIP si autorisés, NE PAS CORRIGER, INVALIDE) selon la règle 2 de
   `adversarial-pr-review` ; jamais « tout corriger, y compris les mineurs ».
 - **A3 Revue à la clôture seulement, 2 rounds au plus**, aucune relecture par lot, non contournable par un
-  plan. Round 2 = delta. Après, le chantier TERMINE (étape Clôture). Le run ne s'arrête jamais pour attendre.
+  plan. Round 2 = delta. Après, le chantier TERMINE (étape Clôture).
 - **A4 Un comportement se teste une fois**, au niveau le plus proche de l'utilisateur ou du consommateur,
   après exécution réelle de la preuve de la fiche (dry-run, sandbox, app en local). Un socle sans effet
   visible se prouve avec un consommateur jetable, de bout en bout.
@@ -69,11 +69,12 @@ plan ne contient que le propre du chantier : texte figé = renvoi d'une ligne au
    `Test doubles: none|standard rule` ; `Dépend de : <slug>|aucun` | `Depends on:` (vague).
    `s-nice` finit avec ≥ 5 idées adjacentes NON incluses ; un must-have va dans les lots.
 4. **Bloc Intention** en 3 à 5 phrases. Chaque garantie de ce bloc et de la fiche cite la phrase de la demande
-   humaine qui l'exige ; sans citation, elle va en nice-to-have et aucune lentille ni revue ne la durcit.
+   humaine qui l'exige et nomme le test qui échoue si elle casse ; sans citation, elle va en nice-to-have.
+   Retirer un usage existant (README, CLI) est une décision de l'humain dans la fiche, jamais du tri.
 5. **Lots** : le lot 1 livre la tranche verticale minimale que la preuve de la fiche exécute ; chaque lot
    suivant ajoute une garantie en gardant cette preuve verte. Par lot : estimation en heures, fichiers touchés (hors liste = arrêt),
    agent, vérification, DONE, ligne « Commit du lot » `chantier(<slug>): lot N — <titre>`, DERNIER lot de processus
-   compris (lint check 8). Mécanisme central non trivial = invariants testables.
+   compris (lint check 8).
 6. **Un agent par lot**, jamais `general-purpose` par défaut si le projet a des agents dédiés (`.claude/agents/`) ;
    clôture/PR/merge : « aucun — reste chez l'orchestrateur ».
 7. **Galley** : `html_review_register` (chemin absolu), termine par `http://localhost:5179/html-review/<docId>` ;
@@ -85,7 +86,7 @@ plan ne contient que le propre du chantier : texte figé = renvoi d'une ligne au
 10. **Préflight obligatoire.** Invoque le skill `brief-preflight` EN PASSANT les arguments
     `<chemin-absolu-du-plan.html> <repo-cible>` (ils déclenchent le lint automatique) : lint déterministe
 <!-- /runtime-slot:preflight-invoke -->
-    revue (2 rounds comptés en commits ; lint seul si plafond ≤ 200). Plan non préflighté = non livrable.
+    revue (rounds comptés en commits ; plafond ≤ 200 : lint seul, ≤ 600 : un round). Plan non préflighté = non livrable.
 
 ## Exécuter un plan (rôle EXÉCUTANT)
 
@@ -116,10 +117,10 @@ Chaque étape est un gate.
      (`references/commits-et-cloud.md`).
 5. **Clôture (A3, ne bloque jamais).** Dans l'ordre :
    1. Vérifications globales du plan. UI : navigateur clair + sombre, serveur dev du repo CIBLE lancé en
-      Bash (les outils `preview_*` du harnais sont liés à la racine de la session, pas au repo cible).
+      Bash, jamais par `preview_*`.
    2. Revue : `adversarial-pr-review` (Mode A), 2 rounds. Après chaque round, appelle le gardien (moment 1)
-      AVANT tout correctif : fiche, chemin absolu du dépôt, diff complet base...HEAD, remarques. Si les fichiers
-      cités par les remarques ne sont pas dans ce diff, tout s'arrête sans écrire. Un seul correcteur par round,
+      AVANT tout correctif : fiche, chemin absolu du dépôt, diff complet base...HEAD, remarques nouvelles. Round 2
+      seulement si le round 1 a commité un correctif. Un seul correcteur par round,
       qui n'écrit que dans ce dépôt et seulement les remarques CORRIGER (« correctif minimal couvrant toute la
       famille du défaut, aucune validation hors du chemin modifié »). Un vérificateur frais est obligatoire pour
       chaque correctif du round 2. Sans fiche : gardien sauté, le rapport le dit.
@@ -128,9 +129,9 @@ Chaque étape est un gate.
       pose sur ce HEAD final par le flow légitime du skill de revue, jamais à la main, même sans remote.
    5. Push. Revue convergée : PR vers la branche prévue, remarques ouvertes listées. Sinon, ou sans remote :
       la branche locale est le livrable, corps de PR dans le rapport. Aucun merge par l'exécutant.
-   6. Hygiène : `sh ~/.claude/scripts/night-run-lock.sh release`, arrête tout serveur dev lancé.
-6. **Rapporte** dans la conversation hub du plan : lots et commits, verdict exact des vérifications, budget
-   (lignes, ratio), décisions A2, verdicts du gardien. Un lot sauté se dit, un test rouge se montre.
+   6. Hygiène : libère le verrou night-run seulement si ce run l'a pris ; arrête tout serveur dev lancé.
+6. **Rapporte** dans la conversation hub du plan : lots et commits, tests et lignes REMESURÉS à la clôture,
+   décisions A2, verdicts du gardien, tout usage existant cassé comme décision humaine. Un test rouge se montre.
 
 ## Protocole arrêt-et-chip (sur tout échec)
 
