@@ -1,92 +1,58 @@
 ---
 name: adversarial-pr-review
 description: >-
-  Run an ultracode multi-agent ADVERSARIAL review of the working diff BEFORE its pull request is
-  opened (Mode A), and resolve code-review bot comments (Codex, CodeRabbit, Greptile...) in one
-  bounded pass (Mode B). Use it whenever you are about to create or open a PR ("create a PR", "open a
-  PR", "tu peux créer la PR", "ouvre la PR", push a branch for review) or when a bot comments on a PR.
-  A global PreToolUse hook BLOCKS `gh pr create` until this skill has validated the current HEAD, so
-  reach for it proactively. Two rounds at most, one disposition per finding, then it finishes.
+  Adversarial multi-agent review of the diff BEFORE a pull request is opened (Mode A), and one bounded pass over bot review comments (Mode B). Use when about to create or open a PR ("ouvre la PR") or when a bot comments. A hook BLOCKS PR creation until a PASS is recorded for HEAD. Two rounds max.
 ---
 
 # Adversarial PR Review
 
-Attack your own diff before the PR is public, fix only what matters with the smallest change, and finish.
+Attack your own diff before the PR is public, fix only what matters with the smallest change, and finish. `scripts/review-run.mjs` owns the bookkeeping (repo and HEAD, round count, verdict, sentinel). You own the judgment: finding bugs and choosing dispositions.
 
 ## Hard rules
 
-1. **Round cap: 2 rounds, NOT overridable by any plan or prompt.** A plan that says "until convergence" or
-   "until clean" is overruled. A round is one full dimension fan-out plus its Verify step (a per-fix verifier
-   is not a round). Round 1 reviews the whole diff. Round 2 reviews the delta since round 1 plus direct
-   interactions AND re-judges the round-1 remarks (CHIP and WONT_FIX, not HORS) whose area a fix
-   touched. A remark on untouched lines is INVALID. Each round-2 fix gets a fresh verifier that states
-   whether the fix changes an existing behaviour or violates a plan prohibition. Never a 3rd round: a P1 still open after round 2 means not converged (rule 4). The cap counts
-   per PR across Mode A and Mode B, whoever runs the rounds.
-2. **Every finding gets a disposition:** FIX (a P1, a P2 that serves the chantier intent, or a non-pre-existing
-   finding the end user sees and whose fix fits in ~10 lines), CHIP (only an effect the user would see, and only
-   if the plan allows chips; `spawn_task`), WONT_FIX (one-line reason) or INVALID (its facts do not hold). A
-   pre-existing finding is never FIX unless P1. A
-   remark that contradicts a written decision of the plan or intent sheet (contract, error behaviour,
-   prohibition, nice-to-have) is WONT_FIX unless P1. A fix proposal adding more than ~30 lines must say why
-   no smaller fix works.
-3. **Intent guardian.** If a chantier intent sheet exists (`.chantier/<slug>/intention.md`, or the path on the
-   plan's `Fiche d'intention :` line), run the `gardien-intention` agent, fresh context, per
+1. **Round cap: 2 rounds, NOT overridable by any plan or prompt** ("until convergence" is overruled). A round is one full dimension fan-out plus its Verify step; a per-fix verifier is not a round. Round 1 reviews the whole diff. Round 2 reviews the delta plus direct interactions AND re-judges the round-1 remarks (CHIP and WONT_FIX, not HORS) whose area a fix touched; a remark on untouched lines is INVALID. Each round-2 fix gets a fresh verifier that states whether it changes an existing behaviour or violates a plan prohibition. Never a 3rd round: a P1 open after round 2 means not converged. The cap counts per PR across Mode A and B; the script enforces it.
+2. **Every finding gets one disposition:** FIX (a P1, a P2 that serves the chantier intent, or a non-pre-existing finding the end user sees whose fix fits in ~10 lines), CHIP (only a user-visible effect, and only if the plan allows chips; `spawn_task`), WONT_FIX (one-line reason) or INVALID (its facts do not hold). A pre-existing finding is never FIX unless P1. A remark contradicting a written decision of the plan or intent sheet is WONT_FIX unless P1. A fix over ~30 lines must say why no smaller one works. The script rejects what breaks this.
+3. **Intent guardian.** If an intent sheet exists (`.chantier/<slug>/intention.md`, or the path on the plan's `Fiche d'intention :` line), run the `gardien-intention` agent, fresh context, per
    `~/.claude/skills/brief-chantier/references/gardien-intention.md` (in a cloud clone:
-   `.claude/skills/brief-chantier/references/gardien-intention.md`), which also gives what each verdict
-   changes. Moment 1: after each round, before any fix, on new remarks only (guardian verdicts are never re-judged).
-   Moment 2: before the PR. Pass it the sheet path, the
-   ABSOLUTE repo path, the FULL `git diff <base>...HEAD` (never `--stat` alone) and the remarks (id, severity,
-   summary, proposed fix). No sheet: skip it and say so in the report, never block.
-4. **Closure never blocks an autonomous run.** After the cap, commit and push, then:
-   - converged (no open P1/P2 with disposition FIX): record the sentinel, open the PR, list the open findings
-     with their dispositions in its body;
-   - not converged: no sentinel, no PR (the guard hook blocks `gh pr create`, even `--draft`). Save the PR
-     body, open findings included, to a file and put it in the final report: the human opens the PR.
-   No remote: the local branch is the deliverable and the PR body goes in the report; the sentinel is still
-   recorded by the legitimate flow when converged. Never wait for a human, never run past the cap, never
-   forge the sentinel.
-5. **Prefer real execution evidence to more mocked tests.** Prove a finding and a fix by running the real
-   thing before adding a simulated test.
-6. **Every verification claim names a check actually run, and the check must be capable of proving the
-   claim.** "Typecheck clean" needs an unfiltered run (a `| grep` pipe proves only the absence of the grepped
-   text). Write the command and its observed output, or "not run". Never ship a behavioral claim the code
-   does not structurally guarantee ("updates at midnight"). Report regressions you caused.
+   `.claude/skills/brief-chantier/references/gardien-intention.md`), which gives what each verdict
+   changes. Moment 1: after each round, before any fix, on new remarks only. Moment 2: before the PR. Pass it the sheet path, the ABSOLUTE repo path, the FULL `git diff <base>...HEAD` and the remarks. `finalize` refuses a PASS while a sheet exists without `--guardian aligned|drift`. No sheet: say so, never block.
+4. **Closure never blocks an autonomous run.** After the cap, commit, push, `finalize`. PASS: open the PR with the open findings and their dispositions in its body. FAIL: no sentinel, so no PR (the guard hook blocks it, even `--draft`): save the PR body, open findings included, to a file and put it in the final report, the human opens the PR. Never wait for a human, run past the cap or forge the sentinel.
+5. **Prefer real execution evidence to more mocked tests.**
+6. **Every verification claim names a check actually run that can prove it.** "Typecheck clean" needs an unfiltered run (a `| grep` pipe proves only the absence of the grepped text). Write the command and its observed output, or "not run".
 
-## Mode A — Preflight (before opening a PR)
+## The script
 
-1. Scope the diff (base, `git diff --stat <base>...HEAD`, uncommitted work that will ship), then run the
-   local quality gate. Fix red before spending agents.
-2. **Round 1** on the whole diff. Disposition every finding, run the guardian (rule 3), commit the FIX items,
-   re-run the gate.
-3. **Round 2** (rule 1), only if round 1 committed a fix. Same dispositions and guardian, then fixes.
-4. Guardian moment 2, commit the reviewed state, record the sentinel if converged ("Sentinel"), push, open the
-   PR. The body states the review's coverage, the gate result, the guardian block and the open findings with
-   dispositions.
-5. **Read the bot's first pass before any merge** (yours, `ship-pr`'s, or a handover as "ready"): `gh pr view
-   <n> --json comments,reviews` and `gh api repos/<owner>/<repo>/pulls/<n>/comments`. Review findings go to
-   Mode B. Never merge over an unread comment.
+`node <this skill's folder>/scripts/review-run.mjs <command>`, from the reviewed checkout or with `--repo <absolute path>`. It resolves repo, worktree and HEAD itself (no hand-typed `cd`).
 
-## Mode B — Bot review comments (one pass, not ping-pong)
+| Command | Does |
+|---|---|
+| `start [--base <ref>]` | Prints HEAD, base, `newFiles` (the inventory), `newFilesSinceLastRound`, intent sheets, rounds left, the round-file shape. |
+| `round <file> [--triage]` | Records a round from a JSON file (its shape is printed by `start`). `--triage` records bot-comment dispositions once the cap is spent. |
+| `fix <id...>` | Marks FIX findings fixed, after the fix commit and its fresh verifier. |
+| `cross [--author claude\|codex]` | Billed read-only review by the other model family, once per HEAD (`--author` is your own runtime). Findings get ids `X<n>`, each needing a disposition. |
+| `finalize --gate <cmd>` | Runs the gate, checks convergence, writes `verdict.json`, and the sentinel only on PASS for HEAD. Also `--guardian`, `--delta-ok "<note>"`, `--trivial`, `--no-gate "<reason>"` (recorded, never a pass). Exit 0 PASS, 1 FAIL. |
+| `check [--head <sha>]` | Exit 0 only for a PASS on that HEAD; 3 means absent or stale. |
 
-1. Collect ALL open comments at once and read every one before touching code.
-2. Triage each against "What a hunter may report", verify its facts (bots have false positives), give it a
-   disposition (rule 2), run the guardian when a sheet exists.
-3. Fix the FIX batch together, with the class sweep of engine step 5.
-4. Same cap: if a round remains, review the delta (rule 1), otherwise each fix gets a fresh verifier on its
-   fix diff, never another full fan-out. Re-run the gate.
-5. Commit, record the sentinel if converged, push once, reply on each addressed thread in one line and
-   resolve it. A bot 👍 or silence ends it.
+Your report cites `verdict.json`, not your own words.
+
+## Mode A: before opening a PR
+
+1. `start`. Run the local quality gate; fix red before spending agents.
+2. **Round 1** on the whole diff: disposition, guardian, `round`, commit the FIX items, `fix`, re-run the gate.
+3. **Round 2**, only if round 1 committed a fix: same steps on the delta.
+4. Guardian moment 2, commit, `finalize --gate '<the gate>'`, push, open the PR. The body states the coverage, the gate result, the guardian block and the open findings with dispositions.
+5. **Read the bot's first pass before any merge**: `gh pr view <n> --json comments,reviews` and the PR's review comments via `gh api`. Its findings go to Mode B.
+
+## Mode B: bot review comments (one pass, not ping-pong)
+
+1. Read ALL open comments before touching code. Triage each against that `CONTEXT` block, verify its facts (bots have false positives), give it a disposition, run the guardian when a sheet exists.
+2. Fix the FIX batch together, with the class sweep of engine step 5.
+3. If `start` shows a round left, review the delta as round 2. Otherwise each fix gets a fresh verifier, never another fan-out, and dispositions go in with `round --triage`.
+4. Commit, `fix`, `finalize`, push once, reply on each addressed thread in one line and resolve it. A bot 👍 or silence ends it.
 
 ## The review engine
 
-**What a hunter may report.** Every remark names the REAL input that triggers it today (existing data, call
-or consumer) and its ORIGIN proven base against HEAD: introduced, aggravated or pre-existing. No real input:
-P3. Classes: correctness; convention (cite the sibling `file:line`); scale or platform limit (unbounded read,
-N+1, over-fetch, external hard limit), judged on the data and callers that exist today; enforcement code adds
-wiring (never fires on the repo's real paths, or not called at every integration point) and state-safety
-(satisfiable without the protected work, or can block forever). Severity: P1 harms users, data or security,
-or breaks a hard limit; P2 is a real defect or idiom/scale violation with a bounded blast radius; P3 is
-cosmetic, hypothetical input, or taste.
+**What a hunter may report** (trigger, origin proven base against HEAD, classes, P1-P3 severity) is the `CONTEXT` block of `references/workflow-template.js`. Read it before any triage, Mode B included.
 
 ### 1. Inventory
 
@@ -97,22 +63,9 @@ Locally, in auto mode, the Workflow tool launches without a dialog. A cloud rout
 and nobody can click: use the hand-launched fan-out there.
 <!-- /runtime-slot:engine-intro -->
 
-Group the paths of `git diff --stat <base>...HEAD` by what they ARE and give each category present at least
-one dimension: application code (`correctness`, `scalability`, `platform-limits`), enforcement or tooling code
-(`tooling-effectiveness`: a silent bug in a hook, lint or validator disables protection), docs and agent
-instructions (`wiring-and-contract`), schema or contract surfaces (`contracts`, `blast-radius`). The PR
-headline never picks the dimensions. A new enforcement category makes the diff Large/risky.
+Give each category of the diff at least one dimension: application code (`correctness`, `scalability`, `platform-limits`), enforcement or tooling code (`tooling-effectiveness`), docs and agent instructions (`wiring-and-contract`), schema or contract surfaces (`contracts`, `blast-radius`). The PR headline never picks them. New enforcement code makes the diff Large/risky.
 
-Fill `NEW_FILES` with the deduped paths from these two NUL-delimited commands (merge-base sha of the PR base
-and HEAD): committed, staged and unstaged additions, then untracked files meant for the PR. Include tests and
-fixtures, refresh after each fix round (round 2: only files added since `ROUND1_SHA`), exclude a path only
-with a stated reason. If either command fails, preflight is `INCOMPLETE`: diagnose first, never infer an
-empty inventory.
-
-```bash
-git -C '<absolute repo path>' diff --diff-filter=A --no-renames --name-only -z '<merge-base-sha>' --
-git -C '<absolute repo path>' ls-files --others --exclude-standard -z
-```
+`NEW_FILES` is the `newFiles` list from `start` (round 2: `newFilesSinceLastRound`). If `start` fails, preflight is `INCOMPLETE`: never infer an empty inventory.
 
 ### 2. Hunt
 
@@ -121,10 +74,7 @@ The Workflow template is `references/workflow-template.js`. Fill `REPO`, `NEW_FI
 `ROUND` (and `ROUND1_SHA` for round 2) and trim `DIMENSIONS` to the inventory.
 <!-- /runtime-slot:template-intro -->
 
-Each wholly-new file is a named target of one dimension. Hunters return `findings` (each with its `trigger`
-and `origin`), `sweeps` (per class or named target: sites actually checked, verdict `clean`, `finding-filed`
-+ `findingRef`, or `not-examined` with no sites) and `residualRisk`. Anything investigated but not written
-there counts as not done.
+Each wholly-new file is a named target of one dimension. Hunters return `findings`, `sweeps` (per class or target: sites checked, verdict `clean`, `finding-filed` + `findingRef`, or `not-examined`) and `residualRisk`. What is not written there counts as not done.
 
 <!-- runtime-slot:model-policy -->
 **Model policy: no Opus subagents.** Hunters run `model:'sonnet', effort:'medium'`, verifiers `model:'sonnet',
@@ -135,30 +85,17 @@ tier. The Verify step is not optional.
 
 ### 3. Verify adversarially
 
-One independent verifier per finding tries to refute it: it checks the facts, the trigger and the origin
-(base against HEAD), sets `mustFix`, cites the repo idiom or limit for a non-correctness finding and lists
-`checksPerformed` as "command → observed output". Dedupe confirmed findings by file and overlapping line.
+One independent verifier per finding tries to refute it: it checks the facts, the trigger and the origin, sets `mustFix`, cites the repo idiom or limit for a non-correctness finding and lists `checksPerformed` as "command → observed output". Dedupe confirmed findings by file and line.
 
-**The hand-launched fan-out drops the Workflow tool, never a phase.** Agents return the same `findings`,
-`sweeps`, `residualRisk` and `checksPerformed`; a report without them is not done. Apply the EVIDENCE FORM,
-SHARED MACHINE and SHELL clauses of the template's hunt prompt, use the two inventory commands above (tests
-and fixtures included), name every wholly-new file as a target, run one verifier agent per finding. Your own
-re-read counts only with its `checksPerformed` printed in the thread. Reconcile by hand as the template does.
+**The hand-launched fan-out drops the Workflow tool, never a phase.** Agents return the same `findings`, `sweeps`, `residualRisk` and `checksPerformed`. Apply the EVIDENCE FORM, SHARED MACHINE and SHELL clauses of the template's hunt prompt, use the `newFiles` list from `start`, run one verifier agent per finding. Your own re-read counts only with its `checksPerformed` in the thread.
 
 ### 4. Read the results
 
-Read `notExaminedSweeps`, `uncoveredTargets` (a named target no sweep quoted: silence, not a pass),
-`inconsistentSweeps` and `residualRisks` every round. Each is an open question: re-ask that agent or examine
-it yourself with `checksPerformed` in the thread. No PASS while open.
+Read `notExaminedSweeps`, `uncoveredTargets` (silence, not a pass), `inconsistentSweeps` and `residualRisks` every round; re-ask or examine each. What stays open goes in `openQuestions`: no PASS while any remains.
 
 ### 5. Disposition and minimal fix
 
-Disposition every confirmed finding (rule 2), run the guardian (rule 3), then launch ONE fixer per round. It
-writes only in the chantier's repo (absolute path in its prompt) and only the FIX remarks. Its prompt imposes: minimal fix covering the whole
-family of the defect, no validation outside the modified path.
-For each FIX sweep its class across the ENTIRE diff: literal twins (same signature, grep it) and structural
-twins (the same invariant at another integration point, the same function's other code paths). Emit the enumeration table yourself: every grep hit with a disposition (swept,
-has-guard, not-in-class and why).
+Disposition every confirmed finding, run the guardian, `round`, then launch ONE fixer per round. It writes only in the chantier's repo (absolute path in its prompt), only the FIX remarks, minimal and covering the whole family of the defect. For each FIX sweep its class across the ENTIRE diff: literal twins (grep the signature) and structural twins (same invariant, another integration point). Emit the table yourself: every grep hit with a disposition (swept, has-guard, not-in-class and why).
 
 <!-- runtime-slot:agent-deaths -->
 **Agents dying mid-run (rate limits).** Do not restart the round or respawn agents one by one. Relaunch the
@@ -168,50 +105,14 @@ re-run. A dead fixer is continued with `SendMessage` using its agentId, context 
 
 ## Sentinel
 
-The global hook `adversarial-pr-guard.mjs` blocks `gh pr create`, `gh pr ready` and MCP pull-request creation tools unless the **current HEAD** (with `--head <branch>`: that branch's tip) is recorded as reviewed.
+The global hook `adversarial-pr-guard.mjs` blocks `gh pr create`, `gh pr ready` and MCP pull-request creation tools unless the **current HEAD** (with `--head <branch>`: that branch's tip) is recorded as reviewed. It reads `<git-dir>/.adversarial-review-passed`. Only `finalize` writes it, only on PASS: never by hand, never to skip a review (a security incident). A later commit makes it stale. If the hook blocks despite a PASS, stop and report an infra failure.
 
-Contract: the file `<git-dir>/.adversarial-review-passed`, `<git-dir>` being the output of
-`git rev-parse --absolute-git-dir` in the reviewed checkout (for a worktree `.git/worktrees/<name>/`, never
-the shared `.git`), whose first token is the reviewed commit sha. Record it at the end of EVERY converged
-review (Mode A, Mode B, the Trivial tier, a review run outside this engine), never for one that did not
-converge. Use a standalone Bash command with an explicit `cd` into the reviewed repo or worktree root, never
-chained with the PR command or a push:
+**After the last round the cap allows**, `finalize --delta-ok "<note>"` re-records without a new round only if `git diff <last-reviewed-sha>..HEAD` holds nothing but (a) fixes of confirmed findings, each with its own fresh verifier, (b) quality-gate repairs changing no reviewed behavior, (c) a conflict-free base merge (`git show --remerge-diff <merge>` prints no hunk), (d) the removal of the intent sheet. A fresh verifier classifies every hunk; an unclassifiable one means not converged.
 
-```bash
-cd <absolute-root-of-the-reviewed-repo-or-worktree> && git rev-parse HEAD > "$(git rev-parse --absolute-git-dir)/.adversarial-review-passed"
-```
-
-The `cd` is not optional: from the wrong cwd the command forges a pass for a diff nobody validated. Confirm
-the sha equals the HEAD you reviewed and, in Mode A, cite it in the PR body. A later commit makes the
-sentinel stale and the hook re-blocks. Never write it into a `.git` that is not the reviewed checkout's own,
-never write it to skip the review (a security incident). If the hook blocks despite a genuine completed
-review, stop and report an infra failure.
-
-**After the last round the cap allows**, re-record without a new round only if
-`git diff <last-reviewed-sha>..HEAD` holds nothing but (a) fixes of confirmed findings, each with its own
-fresh verifier, (b) quality-gate repairs changing no reviewed behavior, (c) a conflict-free base merge
-(`git show --remerge-diff <merge>` prints no hunk), (d) the removal of the chantier intent sheet
-(`.chantier/<slug>/intention.md`). A fresh verifier classifies every hunk into exactly one of these; an
-unclassifiable hunk means not converged.
-
-**An external pass** (a `codex exec` review) is an input to a round, not a round. It counts only if it
-reviewed the whole diff against the PR base (cite its output file and HEAD sha), you read its full output,
-each finding got a disposition with its own fresh verifier, and you emitted your own class-sweep table and
-`checksPerformed`.
+**An external pass** (`cross`, or a `codex exec` review) is an input to a round, not a round. It counts only if it reviewed the whole diff against the PR base and each finding got a disposition with its own fresh verifier.
 
 ## Scaling & cost
 
-Trivial (typo, comment, one line, config): no fan-out, read the diff, run the gate, record the sentinel.
-Small (a few files): 2-3 dimensions, single-vote verify. Medium (feature, several files): 4-5 dimensions.
-Large/risky (auth, schema, public API, shared dispatch, migration): all dimensions, 3-vote verify.
+Trivial (typo, comment, one line, config): no fan-out, read the diff, `finalize --trivial`. Small: 2-3 dimensions, single-vote verify. Medium: 4-5. Large/risky (auth, schema, public API, shared dispatch, migration): all dimensions, 3-vote verify, one `cross` run.
 
-**Converged** means: round 1 confirmed no FIX (no round 2), or round 2 confirmed nothing FIX, or the last
-round the cap allows confirmed FIX items and each is fixed, passed its own fresh verifier on the fix diff, and
-the gate is green, or the Trivial tier read the diff in full with a
-green gate. No open `notExaminedSweeps`, `inconsistentSweeps` or `uncoveredTargets`: close it in a round
-already owed, or by examining it yourself.
-
-A verifier that rejects a fix, or finds a regression in it, buys one more fix and one fresh verifier for that
-finding. If that fails too, or a P1/P2 FIX stays unfixed, the review has NOT converged: no sentinel, and rule
-4 applies. Always report the residual risk: what was swept, what the last round still surfaced, what was not
-re-verified.
+`finalize` computes **converged**: every FIX fixed, no open P1 or question, every cross finding dispositioned, a green gate, no HEAD movement after the last round without `--delta-ok`. A verifier that rejects a fix buys one more fix and one fresh verifier; if that fails too, FAIL (rule 4). Always report the residual risk: what was swept, what still surfaced, what was not re-verified.

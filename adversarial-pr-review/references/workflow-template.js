@@ -117,12 +117,12 @@ const DIMENSIONS = [
 // wholly-new test + __fixtures__ files (one excluded them from its own `git diff` with ':!*.test.ts');
 // on job 12c1e9cc no hunter opened the new taskAlerter.test.ts, a second new test file was read only
 // to line 60, three more were run but never read — and `uncoveredTargets` stayed empty both times
-// because no dimension NAMED them. Fill NEW_FILES from
-// the two NUL-delimited inventory commands above — tests and fixtures INCLUDED,
+// because no dimension NAMED them. Fill NEW_FILES from the `newFiles` list that
+// `review-run.mjs start` prints — tests and fixtures INCLUDED,
 // nothing filtered out — and each file is assigned round-robin to a dimension as a named target, so
 // silence on any of them surfaces in `uncoveredTargets` instead of reading as a pass.
-const INVENTORY_COMPLETE = false // Set true only after both inventory commands succeed and paths are reconciled.
-const NEW_FILES = [/* unique PR paths from both inventory commands above */]
+const INVENTORY_COMPLETE = false // Set true only after `review-run.mjs start` succeeds and paths are reconciled.
+const NEW_FILES = [/* unique PR paths: the newFiles list from `review-run.mjs start` */]
 if (!INVENTORY_COMPLETE) throw new Error('INCOMPLETE: populate and validate the new-file inventory first')
 if (NEW_FILES.length && !DIMENSIONS.length) throw new Error('New files require a hunt dimension')
 NEW_FILES.forEach((f, i) => {

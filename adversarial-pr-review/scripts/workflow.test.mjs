@@ -1,7 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { readFileSync } from 'node:fs'
 
 const skill = readFileSync(new URL('../SKILL.md', import.meta.url), 'utf8')
 const template = readFileSync(new URL('../references/workflow-template.js', import.meta.url), 'utf8')
@@ -15,7 +13,7 @@ async function runWorkflow({ files = [], review = emptyReview, verdict, source =
   const calls = []
   source = source.replace('export const meta', 'const meta')
     .replace('const INVENTORY_COMPLETE = false', `const INVENTORY_COMPLETE = ${inventoryComplete}`).replace(
-    'const NEW_FILES = [/* unique PR paths from both inventory commands above */]',
+    'const NEW_FILES = [/* unique PR paths: the newFiles list from `review-run.mjs start` */]',
     `const NEW_FILES = ${JSON.stringify(files)}`,
   )
   const run = new AsyncFunction('phase', 'pipeline', 'parallel', 'agent', source)
@@ -144,49 +142,6 @@ describe('documented adversarial Workflow', () => {
     }
     const fallback = skill.split('**The hand-launched fan-out drops the Workflow tool, never a phase.**')[1].split('### 4.')[0].replace(/\s+/g, ' ')
     expect(fallback).toContain('Apply the EVIDENCE FORM, SHARED MACHINE and SHELL')
-    expect(fallback).toContain('two inventory commands above')
-    expect(fallback).toContain('tests and fixtures included')
+    expect(fallback).toContain('the `newFiles` list from `start`')
   })
-})
-
-test('documented inventory includes committed, staged, unstaged, and untracked paths without rename/glob exclusions', () => {
-  const repo = mkdtempSync(join(tmpdir(), 'adversarial-inventory-'))
-  const git = (args) => {
-    const result = Bun.spawnSync(['git', '-C', repo, ...args], { stdout: 'pipe', stderr: 'pipe' })
-    expect(result.exitCode, new TextDecoder().decode(result.stderr)).toBe(0)
-    return new TextDecoder().decode(result.stdout)
-  }
-  const put = (file, contents = 'test content') => {
-    mkdirSync(join(repo, file, '..'), { recursive: true })
-    writeFileSync(join(repo, file), contents)
-  }
-  const commit = () => git(['-c', 'user.name=Regression', '-c', 'user.email=regression@example.invalid', 'commit', '-qm', 'fixture'])
-  try {
-    git(['init', '-q'])
-    put('existing.ts')
-    git(['add', '.'])
-    commit()
-    const base = git(['rev-parse', 'HEAD']).trim()
-    put('committed.test.ts')
-    git(['add', '.'])
-    commit()
-    put('staged.test.ts')
-    git(['add', 'staged.test.ts'])
-    put('unstaged.test.ts')
-    git(['add', '-N', 'unstaged.test.ts'])
-    put('__fixtures__/with [glob]\nand newline.json')
-    git(['mv', 'existing.ts', 'renamed.ts'])
-
-    const commands = skill.match(/```bash\n(git -C '<absolute repo path>' diff[\s\S]*?)\n```/)[1].split('\n')
-    const inventory = commands.flatMap((command) => {
-      const args = [...command.matchAll(/'([^']*)'|(\S+)/g)].map((m) => m[1] ?? m[2])
-      expect(args.splice(0, 3)).toEqual(['git', '-C', '<absolute repo path>'])
-      return git(args.map((arg) => arg === '<merge-base-sha>' ? base : arg)).split('\0').filter(Boolean)
-    })
-    expect([...new Set(inventory)].sort()).toEqual([
-      '__fixtures__/with [glob]\nand newline.json', 'committed.test.ts', 'renamed.ts', 'staged.test.ts', 'unstaged.test.ts',
-    ])
-  } finally {
-    rmSync(repo, { recursive: true, force: true })
-  }
 })
