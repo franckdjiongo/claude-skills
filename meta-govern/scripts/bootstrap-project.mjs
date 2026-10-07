@@ -32,8 +32,8 @@ const SKILL_DIR = path.dirname(path.dirname(new URL(import.meta.url).pathname));
 // aux 6 agents coeur installés plus bas, vérifié contre leur frontmatter réel
 // (implementer/codebase-reality-check = sonnet/medium ; ui-implementer/
 // spec-reviewer/code-quality-reviewer/persona-simulator = sonnet/high). Un plan
-// d'architect fourni via --plan doit porter SA PROPRE variable MODEL_ROUTING_AGENTS
-// (agents/architect.md § Step 6) — ce défaut ne s'applique qu'au chemin sans plan.
+// fourni via --plan doit porter SA PROPRE variable MODEL_ROUTING_AGENTS
+// (references/maintainer-modes.html § Step 5) — ce défaut ne s'applique qu'au chemin sans plan.
 // Déclaré tôt (avant tout appel à buildDefaultPlan plus bas dans ce fichier) :
 // c'est un `const` module-scope, pas une function declaration — pas de hoisting.
 const DEFAULT_MODEL_ROUTING_AGENTS = JSON.stringify({
@@ -115,7 +115,7 @@ for (const file of files) {
     }
     // Post-render leak detection — surface template-variable leaks, unstripped
     // conditionals, missing variables, and frontmatter-not-at-line-1 issues at
-    // scaffold time so the architect's intent is honored end-to-end.
+    // scaffold time so the plan's intent is honored end-to-end.
     if (result.content) {
       const findings = detectRenderLeaks(result.content, { targetPath: to });
       if (findings.length > 0) {
@@ -149,11 +149,11 @@ if (!dryRun) {
 
   // Post-install (best-effort, jamais en dry-run, jamais sur rendu en erreur):
   //   1. additionalSteps du plan (package-json-script + gitignore-add) — appliqués
-  //      ICI de façon déterministe (l'agent scaffolder n'a plus à s'en souvenir).
+  //      ICI de façon déterministe (le plan n'a plus à s'en souvenir).
   //   2. docs-html: scripts npm gouvernance + docs + dossiers d'artefacts + hub.
   //   3. payload lint-ignore JS/TS (.prettierignore + global-ignores eslint).
   // Ordre: additionalSteps AVANT runPostInstall pour que les valeurs explicites
-  // de l'architect (ex. validate stack-spécifique) priment sur les défauts génériques.
+  // du plan (ex. validate stack-spécifique) priment sur les défauts génériques.
   if (report.errors.length === 0) {
     report.additionalSteps = applyAdditionalSteps(projectDir, plan);
     report.postInstall = runPostInstall(projectDir, variables, detection);
@@ -219,7 +219,7 @@ function readModelDefaults() {
 
 function buildDefaultPlan(projectDir) {
   // Default palier-1 plan: full BOOTSTRAP scaffold.
-  // Caller (architect agent) provides a richer plan with stack-specific variables.
+  // Caller provides a richer plan with stack-specific variables.
   // This default is what runs when invoked without --plan; produces a working baseline.
   const projectName = path.basename(projectDir);
   // Détection légère pour les choix conditionnels (ex. la règle ui-components Svelte).
@@ -321,7 +321,7 @@ function buildDefaultPlan(projectDir) {
       { from: 'templates/settings.json.tpl', to: '.claude/settings.json' },
       { from: 'templates/HANDOFF.md.tpl', to: 'HANDOFF.md' },
 
-      // Source-of-truth docs HTML (squelettes; remplis via source-of-truth-scaffolder agent)
+      // Source-of-truth docs HTML (squelettes; remplis par l'interview de la session parent)
       { from: 'templates/docs/spec.html.tpl', to: `docs/${projectName}-spec.html` },
       { from: 'templates/docs/data-model.html.tpl', to: 'docs/data-model.html' },
       { from: 'templates/docs/catalogue-composants.html.tpl', to: 'docs/composants/catalogue-composants.html' },
@@ -541,7 +541,7 @@ function runPostInstall(projectDir, variables = {}, detection = null) {
       // gouvernance sont référencés par CLAUDE.md (COMMAND_VALIDATE/QUALITY) et par
       // les hooks ; quality:check + size-guard pointent vers des scripts que le
       // bootstrap installe toujours. validate/validate:fast/test ne sont posés que
-      // si l'architect ne les a pas déjà fournis via additionalSteps (appliqués avant).
+      // si le plan ne les a pas déjà fournis via additionalSteps (appliqués avant).
       const voulus = {
         // Registre de routage des modèles — le gate le moins cher de la chaîne
         // (mode 'warn' au bootstrap, canon #13) : ne peut pas faire échouer
@@ -712,7 +712,7 @@ function pmRun(pm) {
 // Applique les additionalSteps du plan que bootstrap-project.mjs sait exécuter
 // de façon déterministe: package-json-script (clé ajoutée si absente) et
 // gitignore-add (lignes appendées si absentes). Les autres types (husky-pre-commit,
-// manual-merge…) restent à la charge de l'agent scaffolder.
+// manual-merge…) restent à la charge de la session parent.
 function applyAdditionalSteps(projectDir, plan) {
   const steps = Array.isArray(plan.additionalSteps) ? plan.additionalSteps : [];
   const result = { packageJsonScripts: [], gitignore: [], skipped: [] };

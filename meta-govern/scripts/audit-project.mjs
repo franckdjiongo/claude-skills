@@ -3,7 +3,11 @@
 // Read-only audit of a project's .claude/ setup against meta-govern standards.
 //
 // Usage:
-//   node audit-project.mjs <project-path> [--json] [--fail-level critical|high|medium|all]
+//   node audit-project.mjs <project-path> [--json] [--fail-level critical|high|medium|all] [--stamp]
+//
+// --stamp is the only write: after the audit it records lastAudit, lastAuditVersion
+// and auditChecks in <project>/.claude/.meta-govern.json (file must exist, else exit 2).
+// The projects-behind report reads these fields.
 //
 // Exit codes: 0 (clean) / 1 (findings at fail-level) / 2 (script error).
 
@@ -49,6 +53,8 @@ const MODEL_ROUTING_WAIVER = 'model-routing:allow';
 const args = process.argv.slice(2);
 const target = args.find(a => !a.startsWith('--')) || process.cwd();
 const asJson = args.includes('--json');
+const stamp = args.includes('--stamp');
+const SKILL_DIR = path.dirname(path.dirname(new URL(import.meta.url).pathname));
 const failLevelArg = args.find(a => a.startsWith('--fail-level='))?.slice('--fail-level='.length)
   || (args.includes('--fail-level') ? args[args.indexOf('--fail-level') + 1] : 'high');
 const failLevel = FAIL_LEVEL_MAP[failLevelArg] ?? 3;
@@ -934,6 +940,8 @@ if (fs.existsSync(hooksDir)) {
 
 findings.sort((a, b) => SEVERITY_RANK[b.severity] - SEVERITY_RANK[a.severity]);
 
+if (stamp) stampAudit();
+
 if (asJson) {
   process.stdout.write(JSON.stringify({ projectDir, palier: detection.palier, findings }, null, 2) + '\n');
 } else {
@@ -993,4 +1001,29 @@ function extractDeclaredHookCommands(settings) {
     }
   }
   return out;
+}
+
+/** Record this audit in the project's state file: lastAudit, lastAuditVersion, auditChecks.
+ *  The Convex cost checks (convex-frugality) are recorded only for a Convex project.
+ *  Nothing else in the file changes. Exits 2 when the state file is missing or unreadable. */
+function stampAudit() {
+  const stateFile = path.join(projectDir, '.claude/.meta-govern.json');
+  let state;
+  try {
+    state = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+  } catch {
+    process.stderr.write(`--stamp: ${stateFile} is missing or unreadable; nothing written.\n`);
+    process.exit(2);
+  }
+  const version = JSON.parse(fs.readFileSync(path.join(SKILL_DIR, 'version.json'), 'utf8')).version;
+  const checks = new Set(Array.isArray(state.auditChecks) ? state.auditChecks : []);
+  checks.add('core');
+  if (detection.stack.isConvex) checks.add('convex-frugality');
+  state.lastAudit = new Date().toISOString().slice(0, 10);
+  state.lastAuditVersion = version;
+  state.auditChecks = [...checks];
+  const tmp = `${stateFile}.tmp-${process.pid}`;
+  fs.writeFileSync(tmp, JSON.stringify(state, null, 2) + '\n');
+  fs.renameSync(tmp, stateFile);
+  process.stderr.write(`--stamp: recorded lastAudit ${state.lastAudit}, version ${version}, checks [${state.auditChecks.join(', ')}] in ${stateFile}\n`);
 }

@@ -11,8 +11,7 @@ description: |
   Returns: structured report; pass means run is verified; findings means
   follow-up needed.
   Verdict: PASS | FINDINGS | BLOCKED.
-  Distinct from `workflow-validator` (post-BOOTSTRAP-checklist) — this agent
-  is broader: verifies coherence across ANY mode + ANY artifact relationship.
+  Verifies coherence across ANY mode + ANY artifact relationship.
 tools: Read, Grep, Glob, Bash
 model: opus
 effort: xhigh
@@ -156,7 +155,7 @@ PASS — run is coherent
 - If audit-project.mjs has --fail-level critical findings → BLOCKED. Don't whitewash.
 - For BOOTSTRAP, expect ~30 files installed. If <20 installed → likely incomplete; investigate.
 - For MIGRATE, the OLD palier's artifacts may be deprecated but not removed. Don't flag them as orphans during the migration window; flag in next AUDIT.
-- Don't propose fixes (that's governance-auditor's job in AUDIT mode). Just report.
+- Don't propose fixes (the AUDIT report proposes them). Just report.
 - The coherence check is the LAST step. After this, the user reviews and commits.
 - When the dispatch prompt lists known pre-existing findings as informational, confirm each in ONE line (its id + « pre-existing, unchanged ») rather than re-describing it in full; reserve full description for NEW or CHANGED findings. Across a multi-dispatch session the same pre-flagged findings otherwise get re-explained on every run, adding noise without signal.
 - An agent `skills:` value that has no match under `~/.claude/skills/` or `<project>/.claude/skills/` is NOT automatically dangling — it may resolve to a PLUGIN skill (e.g. `ship-polished-ui` from the `design-studio` plugin) via the enterprise > personal > project > plugin cascade. Check `~/.claude/plugins/` before flagging a `skills:` ref; the bare name is the correct, working form. See `references/subagent-canonical-structure.html`. (This is what produced the false `ui-implementer.md:21 skills: ship-polished-ui` dangling-ref flag.)

@@ -1,7 +1,7 @@
 {
   "name": "meta-govern",
-  "version": "1.18.0",
-  "released": "2026-08-17",
+  "version": "1.19.0",
+  "released": "2026-10-07",
   "bornFrom": {
     "projects": [
       "temps-chantier-code-app (Groupe Gilbert)",
@@ -41,6 +41,24 @@
     ]
   },
   "changelog": [
+    {
+      "version": "1.19.0",
+      "date": "2026-10-07",
+      "summary": "Allègement de la surface : meta-govern ne garde que deux commandes, « audit this project » et « which projects are behind ». Décision de Franck du 2026-10-07 après l'audit du portefeuille de skills (question Q4) : 9 usages Claude et 70 lectures Codex en 90 jours, 3 projets sur 12 à la dernière version, 7 des 9 sous-agents quasi inutilisés. Les contrôles de coût Convex de l'audit (crons sans justification, tests contre un déploiement réel) sont conservés. Le rapport « behind » signale les projets Convex dont aucun audit n'a enregistré ces contrôles.",
+      "breakingChanges": [
+        "BOOTSTRAP, MIGRATE, EVOLVE et ADVISE ne sont plus des commandes routées par SKILL.md : leur procédure vit dans references/maintainer-modes.html, exécutée par la session parent depuis les scripts (bootstrap-project.mjs, migrate-project.mjs inchangés).",
+        "7 sous-agents maîtres retirés : architect, project-analyzer, source-of-truth-scaffolder, hook-generator, scaffolder, workflow-validator, governance-auditor. Restent evolution-orchestrator et coherence-validator. Les liens ~/.claude/agents/ des sept sont archivés ; install-agent-symlinks.mjs --repair retire un lien résiduel."
+      ],
+      "features": [
+        "SKILL.md réduit à 102 lignes / environ 900 mots (règle de conception R1 : 150 lignes, 1800 mots) ; description de 264 caractères (R7 : 300). Procédure déplacée vers references/audit-procedure.html, references/canon-principles.html (les 13 principes et la doctrine docs HTML, repris tels quels) et references/maintainer-modes.html.",
+        "NOUVEAU scripts/projects-behind.mjs — rapport « quels projets sont en retard », lecture seule, sans dépendance. Quatre raisons : version-behind, never-audited, audit-stale (plus de 28 jours, projets parked exemptés), convex-cost-checks-missing (projet Convex sans `convex-frugality` dans auditChecks ni dans docs/audits/). Option --exclude pour ne jamais ouvrir un projet. Test co-localisé projects-behind.test.mjs.",
+        "scripts/audit-project.mjs --stamp — seul mode en écriture : enregistre lastAudit, lastAuditVersion et auditChecks dans .claude/.meta-govern.json (convex-frugality pour un projet Convex). Le fichier doit exister, sinon exit 2.",
+        "scripts/self-audit.mjs — budget SKILL.md aligné sur R1 (HIGH au-delà de 150 lignes ou 1800 mots), projects-behind.mjs attendu, les sept agents retirés ajoutés à retiredArtifacts, détection d'un lien résiduel dans ~/.claude/agents/.",
+        "scripts/install-agent-symlinks.mjs — ne gère plus que les deux agents conservés ; RETIRED_AGENTS signalés par --check et retirés par --repair.",
+        "templates/skills/govern-claude.SKILL.md.tpl et scripts/migrate-project.mjs — plus aucune mention du skill create-subagent : un nouvel agent s'écrit depuis references/subagent-canonical-structure.html.",
+        "USER-GUIDE.html, BUILD-SUMMARY.html, references/workflow-blueprint.html, agents/evolution-orchestrator.md, agents/coherence-validator.md — références aux agents retirés et à create-subagent supprimées."
+      ]
+    },
     {
       "version": "1.18.0",
       "date": "2026-08-17",

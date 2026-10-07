@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Canon — Architectural Principles · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Canon — Architectural Principles">
+  <meta name="doc-source" content="references/canon-principles.html">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Les 13 principes canon que l&#x27;AUDIT applique à chaque projet, plus la doctrine docs HTML.">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#principes">The 13 principles</a></li><li class="lvl-2"><a href="#doctrine-docs-html">Doctrine docs HTML</a></li><li class="lvl-2"><a href="#voir-aussi">Voir aussi</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">canon-principles</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Canon — Architectural Principles</h1>
+          <p class="docs-blurb">Les 13 principes canon que l'AUDIT applique à chaque projet, plus la doctrine docs HTML.</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/canon-principles.html</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h2 id="principes"><a class="header-anchor" href="#principes" aria-hidden="true">#</a> The 13 principles</h2>
+<p>The principles the AUDIT enforces on every project. Synthesis of 5 research documents and 2 production projects. Always grounded; never hallucinate.</p>
+<ol>
+<li><strong>Progressive disclosure is the dominant pattern.</strong> Tiny always-loaded <code>CLAUDE.md</code> (≤120 lines) → path-scoped <code>.claude/rules/*.md</code> (≤50 lines each, <code>paths:</code> frontmatter) → skills (~50 token metadata, body lazy) → subagents (zero main-context cost) → hooks (zero context cost, deterministic).</li>
+<li><strong>Determinism &gt; prose for critical rules.</strong> Hooks enforce; skills teach. Critical conventions need hooks because skills auto-invoke at 50–84% reliability — and a rule that lives only in context can be <em>reasoned past</em> rather than merely forgotten: given a system reminder that deletions require confirmation in the current turn, the model privately treated an earlier vague "clean up the batch" as authorization, deleted 120 jobs without re-asking, and never surfaced the override (Opus 5 System Card, p.93); an unambiguous "do NOT use <code>curl</code>" was reinterpreted as "absurd read literally", violated, and the violation not disclosed (p.82–83). Irreversible operations get deterministic gating, and hard tool restrictions get zero-ambiguity scope.</li>
+<li><strong>Capacity is not budget.</strong> 1M context = capacity, not permission. Keep standing context small. (The "~2% quality loss per 100K tokens / 93% at 256K → 76% at 1M" figure comes from the pre-Claude-5 research corpus and has <strong>not</strong> been re-measured on Opus 5, whose sources state the opposite for that model — instruction following, tool calling and reasoning stay consistent across its 1M window, and ProgramBench pass rate <em>improves</em> 83% → 93% across episodes on fresh budgets up to 1M (p.149, p.156). The discipline stands on its other legs: cost, latency, and signal-to-noise.)</li>
+<li><strong>Current Claude models follow instructions literally (Claude 4.7+ / Claude 5 family).</strong> Defensive scaffolding in standing context backfires (see <code>references/anti-pattern-catalog.html</code> for the forbidden-token list). Aggressive markers belong in skill descriptions (frontmatter) for activation, not in skill bodies.</li>
+<li><strong>Right primitive for the job.</strong> See <code>references/seven-primitives.html</code> and <code>references/decision-trees.html</code>.</li>
+<li><strong>Composability + isolation as twin principles.</strong> Skills compose; subagents isolate.</li>
+<li><strong>Living documents.</strong> Every artifact must be auditable, prunable, version-stamped. Built-in cadence: every 2–4 weeks.</li>
+<li><strong>Always grounded.</strong> Never invent skills/agents/hooks. Read existing siblings first; reuse patterns. "Inventories rot, grep stays fresh."</li>
+<li><strong>Layout follows the framework; features own their slices.</strong> Default = framework-native shell + feature-first. See <code>references/architecture-patterns.html</code>. Archetype shapes initial scaffold depth (<code>references/project-archetypes.html</code>).</li>
+<li><strong>Observable acceptance criteria are the contract spine.</strong> A design states per-behavior pass/fail conditions (not a test <em>strategy</em>); the plan renders them as executable checkboxes; execution gates on them; TDD proves a test fails if each is removed. Vagueness at the design stage propagates downstream as rework, not as wrong output.</li>
+<li><strong>Test the real boundary, not the idealized mock.</strong> Green unit/jsdom tests can coexist with broken reality (the real datastore, the rendered UI). Integration and visual verification are first-class gates, not optional polish — a UI group is not "done" until its render is verified.</li>
+<li><strong>Autonomous-execution plans follow the brief-chantier standard.</strong> Any HTML plan meant for autonomous execution (night runs, lesser-model runs, future sessions) must: (1) be 100% self-contained — no reference to "this session", absolute paths everywhere, repo state described, assumptions explicit; (2) be cut into lots of ≤ 2 h each; (3) define testable DONE criteria plus the exact end-of-run verification commands (<code>bun run typecheck &amp;&amp; bun run build &amp;&amp; bun test</code>, or the project's equivalent) with stop-and-chip on failure — a failing run halts and opens a chip, never improvises around the failure; (4) declare the Convex egress/write estimate when the run touches Convex, with unpaginated reads forbidden. The user-scope skill <code>brief-chantier</code> (<code>~/.claude/skills/brief-chantier/</code>) is the canonical implementation — delegate plan authoring/execution to it rather than restating the rules.</li>
+<li><strong>Verification infrastructure is production code.</strong> Hooks, gate scripts, and multi-runtime mirrors get the same discipline they impose on <code>src/</code>: each guard ships a co-located test with a positive case (blocks the forbidden) and a negative case (passes the legitimate); a hook that lands on no vector its callers actually take is dead until proven live; a wall that covers only <code>Write|Edit|MultiEdit</code> leaves the Bash door open (heredoc, <code>sed -i</code>, <code>tee</code>, <code>node -e</code>) and a coverage number no one measured is a hope, not a guarantee. Detection power is a proven invariant — coverage + diff-coverage in the gate from bootstrap, mutation testing as a ritual past ~1000 cases, property-based checks on pure calculation, golden/approval on complex business output, and mock fidelity tested against the boundary manifest — so "the tests run" becomes "the tests catch". A guarding rule reads in the language its project speaks, and a blocking rule ships in shadow mode before it enforces. <strong>The boundary against over-verification:</strong> deterministic infrastructure (hooks, gates, coverage) and independent adversarial review against a spec (a reviewer reading a diff it did not write) are production code and stay — they run outside the model, or with a different brief. What goes is <em>prose asking the model to re-inspect its own output</em>; current models already do it, and the instruction produces self-built verification pipelines that consume the budget before results land (p.26). See <code>references/hook-canonical-patterns.html</code> and <code>templates/rules/testing.md.tpl</code>.</li>
+</ol>
+<h2 id="doctrine-docs-html"><a class="header-anchor" href="#doctrine-docs-html" aria-hidden="true">#</a> Doctrine docs HTML</h2>
+<ul>
+<li>Every human-readable document under <code>docs/**</code> is <strong>HTML</strong> (premium theme, TOC, per-type badge, <code>docs/docs-map.json</code> registry, generated <code>docs/index.html</code> hub). Only Claude runtime instruction files stay Markdown (CLAUDE.md, <code>.claude/rules/*.md</code>, SKILL.md, agents).</li>
+<li>BOOTSTRAP installs the full docs-html payload: toolkit <code>.claude/scripts/docs-html/</code> (scaffold, make-index, verify, no-markdown-guard, convert…), hooks <code>block-docs-markdown</code> + <code>docs-index-refresh</code>, assets <code>docs/assets/**</code>, <code>docs/docs-map.json</code>, and the canonical docs rendered as <code>.html</code>.</li>
+<li>The BOOTSTRAP interview collects the docs parameters (BRAND_PRIMARY, BRAND_ACCENT, LANG, DOCS_ROOT, HUB_TITLE) BEFORE any doc is scaffolded.</li>
+<li>New docs are created via <code>node .claude/scripts/docs-html/scaffold.mjs &lt;type&gt; &lt;chemin&gt;.html "&lt;Titre&gt;"</code> — never a <code>.md</code> under <code>docs/</code> (the hook blocks it).</li>
+<li>AUDIT detects markdown drift (<code>.md</code> files under <code>docs/</code> → HIGH <code>markdown-docs-drift</code>); MIGRATE <code>--target=html-docs</code> converts legacy projects (inventory → convert → verify → rewrite-refs → no-markdown-guard → make-index).</li>
+</ul>
+<h2 id="voir-aussi"><a class="header-anchor" href="#voir-aussi" aria-hidden="true">#</a> Voir aussi</h2>
+<ul><li><a href="audit-procedure.html">audit-procedure.html</a></li><li><a href="anti-pattern-catalog.html">anti-pattern-catalog.html</a></li><li><a href="seven-primitives.html">seven-primitives.html</a></li><li><a href="decision-trees.html">decision-trees.html</a></li></ul>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/canon-principles.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

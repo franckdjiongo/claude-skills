@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr" data-doc-type="reference">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Audit and Behind Report — Procedure · meta-govern</title>
+  <meta name="doc-type" content="reference">
+  <meta name="doc-type-label" content="Référence">
+  <meta name="doc-title" content="Audit and Behind Report — Procedure">
+  <meta name="doc-source" content="references/audit-procedure.html">
+  <meta name="generator" content="meta-govern docs-html">
+  <meta name="description" content="Structure du rapport d&#x27;audit, contrôles de coût Convex, enregistrement d&#x27;un audit et règles du rapport « quels projets sont en retard ».">
+  <link rel="stylesheet" href="../assets/css/docs-theme.css">
+  <style>:root{--doc-accent:#6D28D9;--doc-glyph:"▤";}</style>
+  <script>(function(){try{var t=localStorage.getItem('mg-docs-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body data-doc-type="reference">
+  <div class="docs-progress" aria-hidden="true"></div>
+  <div class="docs-controls">
+    <a class="docs-iconbtn docs-home" href="../index.html" aria-label="Accueil — index de la documentation" title="Accueil de la documentation">⌂</a>
+    <button class="docs-iconbtn docs-theme-toggle" type="button" aria-label="Basculer le thème">◐</button>
+    <button class="docs-iconbtn docs-top" type="button" aria-label="Revenir en haut">↑</button>
+  </div>
+  <div class="docs-shell">
+    <aside class="docs-toc" id="docs-toc">
+      <p class="docs-toc__label">Sur cette page</p>
+      <nav aria-label="Sommaire du document"><ul><li class="lvl-2"><a href="#structure-du-rapport">AUDIT report structure</a></li><li class="lvl-2"><a href="#convex-cost-checks">Convex cost checks</a></li><li class="lvl-2"><a href="#stamp">Recording an audit</a></li><li class="lvl-2"><a href="#behind">BEHIND report</a></li><li class="lvl-2"><a href="#voir-aussi">Voir aussi</a></li></ul></nav>
+    </aside>
+    <div class="docs-main">
+      <button class="docs-toc-toggle" type="button" aria-controls="docs-toc">☰ Sommaire</button>
+      <article class="docs-article">
+        <header class="docs-header">
+          <nav class="docs-breadcrumb" aria-label="Fil d'Ariane"><a href="../index.html">meta-govern</a><span class="sep">›</span><a href="../index.html#reference">references</a><span class="sep">›</span><span aria-current="page">audit-procedure</span></nav>
+          <span class="docs-badge"><span class="ico" aria-hidden="true">▤</span>Référence</span>
+          <h1 class="docs-title">Audit and Behind Report — Procedure</h1>
+          <p class="docs-blurb">Structure du rapport d'audit, contrôles de coût Convex, enregistrement d'un audit et règles du rapport « quels projets sont en retard ».</p>
+          <div class="docs-meta">
+            <span><b>Type</b> · Référence</span>
+            <span><b>Source</b> · <code>references/audit-procedure.html</code></span>
+            <span><b>Projet</b> · meta-govern</span>
+          </div>
+        </header>
+        <div class="docs-content">
+<h2 id="structure-du-rapport"><a class="header-anchor" href="#structure-du-rapport" aria-hidden="true">#</a> AUDIT report structure</h2>
+<p>After <code>audit-project.mjs</code> runs, build the report from these six parts. Output: <code>docs/audits/YYYY-MM-DD-meta-govern-audit.html</code>, severity-tiered findings with proposed diffs. Do not auto-apply.</p>
+<ol>
+<li><strong>Inventory</strong> — skills/agents/hooks/rules count, line totals, oversized files, orphans (no references, no triggers).</li>
+<li><strong>Drift</strong> — files past file-size-budget, defensive scaffolding patterns in standing context (see <code>references/anti-pattern-catalog.html</code>), markdown-docs drift (<code>.md</code> files under <code>docs/</code>, missing docs-html toolkit/hook/docs-map/index), versions de modèle figées dans la prose gouvernée (<code>.claude/rules</code>, <code>.claude/skills</code>, <code>.claude/agents</code> — jamais CLAUDE.md ni docs/).</li>
+<li><strong>Wiring</strong> — hooks declared in settings.json but missing on disk; skills referenced but absent; agents referencing non-existent skills.</li>
+<li><strong>Source-of-truth alignment</strong> — does CLAUDE.md still point at canonical docs? Has the user added docs not in the router?</li>
+<li><strong>Palier</strong> — current evolution stage per <code>references/evolution-roadmap.html</code>. Triggers met for next palier? Palier 4 is "release-ready": server CI is an option with a documented local compensation (see <code>ciPolicy</code>), not a hard requirement — don't flag its absence as a gap when <code>ciPolicy</code> is <code>local-compensation</code>.</li>
+<li><strong>Anti-patterns</strong> — DDD anti-patterns (anemic, IRepository&lt;T&gt;, primitives where VOs exist) AND Claude-Code anti-patterns (oversized files, missing path-scoping, defensive scaffolding, <code>@</code>-imports).</li>
+</ol>
+<h2 id="convex-cost-checks"><a class="header-anchor" href="#convex-cost-checks" aria-hidden="true">#</a> Convex cost checks</h2>
+<p>Enforced by <code>audit-project.mjs</code> when the project is Convex (<code>convex</code> in dependencies, or <code>convex/schema.ts</code>, or <code>convex/_generated</code>). Contract: <code>stack-convex.html#frugality-contract</code>.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Finding</th><th>Severity</th><th>Trigger</th></tr></thead>
+<tbody>
+<tr><td><code>convex-frugality</code></td><td>MEDIUM</td><td>A <code>crons.cron/interval/hourly/daily/weekly/monthly(...)</code> registration in <code>convex/crons.ts</code> with no <code>cost-justified</code> marker on its line or in the contiguous comment block above it</td></tr>
+<tr><td><code>convex-frugality</code></td><td>HIGH</td><td>A `*.test</td><td>spec.[cm]?[jt]sx?<code> file that imports </code>ConvexHttpClient<code> from </code>convex/browser<code>, or holds a real deployment URL (</code>&lt;token&gt;-&lt;token&gt;-&lt;digits&gt;.convex.cloud</td><td>site<code>) next to a </code>fetch(<code>, and does not use </code>convex-test`</td></tr>
+<tr><td><code>convex-mutation-casts</code></td><td>HIGH</td><td><code>as never/any/unknown</code> on the arguments of a <code>useMutation</code>/<code>useAction</code> call</td></tr>
+</tbody>
+</table></div>
+<p>Placeholder hosts such as <code>example.convex.site</code> do not match. Suites on <code>convex-test</code> (in-memory) conform by definition.</p>
+<h2 id="stamp"><a class="header-anchor" href="#stamp" aria-hidden="true">#</a> Recording an audit</h2>
+<p><code>node scripts/audit-project.mjs &lt;project-path&gt; --stamp</code> writes three fields into <code>&lt;project&gt;/.claude/.meta-govern.json</code> and changes nothing else: <code>lastAudit</code> (today, ISO date), <code>lastAuditVersion</code> (meta-govern <code>version.json</code>), and <code>auditChecks</code> (the check families that ran, merged with earlier values; <code>convex-frugality</code> for a Convex project). The file must already exist. Without it the script exits 2.</p>
+<p>Stamp only after the user accepts the audit. BEHIND reads these fields.</p>
+<h2 id="behind"><a class="header-anchor" href="#behind" aria-hidden="true">#</a> BEHIND report</h2>
+<p><code>node scripts/projects-behind.mjs [--root &lt;dir&gt;] [--exclude &lt;name&gt;]... [--json] [&lt;project-path&gt;...]</code>. Read-only. Projects come from the explicit paths, or from every immediate child of the root (default <code>~/Desktop/my-projets</code>) that has <code>.claude/.meta-govern.json</code>.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Reason</th><th>Rule</th></tr></thead>
+<tbody>
+<tr><td><code>version-behind</code></td><td><code>metaGovernVersion</code> older than this skill's <code>version.json</code>, or missing</td></tr>
+<tr><td><code>never-audited</code></td><td><code>lastAudit</code> null or missing</td></tr>
+<tr><td><code>audit-stale</code></td><td><code>lastAudit</code> more than 28 days old (cadence: every 2 to 4 weeks). Projects with <code>parked: true</code> are exempt</td></tr>
+<tr><td><code>convex-cost-checks-missing</code></td><td>Convex project where <code>auditChecks</code> lacks <code>convex-frugality</code> and no file under <code>docs/audits/</code> mentions <code>convex-frugality</code></td></tr>
+</tbody>
+</table></div>
+<p>The Convex rule is evidence-based, not date-based. It flags a Convex project audited before the checks shipped (v1.7.1, 2026-07-02) and one whose audit never recorded them. It clears when the project is audited and stamped.</p>
+<p>Exit codes: 0 no project flagged, 1 at least one flagged, 2 error. <code>--json</code> prints <code>{ current, projects: [{ name, path, version, lastAudit, palier, convex, reasons }] }</code>.</p>
+<h2 id="voir-aussi"><a class="header-anchor" href="#voir-aussi" aria-hidden="true">#</a> Voir aussi</h2>
+<ul><li><a href="stack-convex.html#frugality-contract">stack-convex.html</a></li><li><a href="canon-principles.html">canon-principles.html</a></li><li><a href="governance-cadence.html">governance-cadence.html</a></li><li><a href="maintainer-modes.html">maintainer-modes.html</a></li></ul>
+
+        </div>
+      </article>
+      <footer class="docs-footer">
+        <span class="brand">meta-govern — Documentation</span>
+        <span>Référence · <code>references/audit-procedure.html</code></span>
+      </footer>
+    </div>
+  </div>
+  <script src="../assets/js/docs-toc.js" defer></script>
+</body>
+</html>

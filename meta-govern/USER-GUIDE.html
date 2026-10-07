@@ -46,8 +46,8 @@
 <p>User-facing guide. Not loaded by Claude. Read this whenever you need a refresher on what meta-govern does and how to invoke it.</p>
 </blockquote>
 <h2 id="tl%3Bdr" tabindex="-1"><a class="header-anchor" href="#tl%3Bdr" aria-hidden="true">#</a> TL;DR</h2>
-<p>meta-govern is your <strong>global Claude Code governor</strong>. One skill. Lives at <code>~/.claude/skills/meta-govern/</code>. Works in any project on your machine. Replaces the manual &quot;remember to set up CLAUDE.md, hooks, skills, agents, source of truth, govern-claude&quot; ritual you do every time you start a new project.</p>
-<p>It does NOT replace <code>skill-creator</code>, <code>create-subagent</code>, <code>session-review</code>, <code>domain-driven-design</code>, or your project-level <code>govern-claude</code>. It <strong>orchestrates</strong> them.</p>
+<p>meta-govern is your <strong>global Claude Code governor</strong>. One skill. Lives at <code>~/.claude/skills/meta-govern/</code>. Works in any project on your machine. It answers two questions: is this project's Claude setup sound, and which of my projects are behind.</p>
+<p>It does NOT replace <code>skill-creator</code>, <code>session-review</code>, <code>domain-driven-design</code>, or your project-level <code>govern-claude</code>.</p>
 <h2 id="how-to-invoke" tabindex="-1"><a class="header-anchor" href="#how-to-invoke" aria-hidden="true">#</a> How to invoke</h2>
 <p>Just describe what you need. Claude will trigger meta-govern via its description matching:</p>
 <div class="table-wrap"><table>
@@ -59,24 +59,16 @@
 </thead>
 <tbody>
 <tr>
-<td>&quot;Set up Claude for this project&quot;</td>
-<td><strong>BOOTSTRAP</strong> — full workflow install</td>
+<td>&quot;Audit this project&quot; / &quot;drift check&quot; / &quot;what's missing&quot;</td>
+<td><strong>AUDIT</strong> — read-only inventory + findings, including the Convex cost checks; <code>--stamp</code> records the audit</td>
 </tr>
 <tr>
-<td>&quot;Audit my Claude setup&quot; / &quot;drift check&quot; / &quot;what's missing&quot;</td>
-<td><strong>AUDIT</strong> — read-only inventory + findings</td>
+<td>&quot;Which projects are behind&quot;</td>
+<td><strong>BEHIND</strong> — read-only report: older meta-govern version, stale or missing audit, Convex projects audited before the cost checks existed</td>
 </tr>
 <tr>
-<td>&quot;Upgrade my workflow to v2&quot; / &quot;migrate to new palier&quot;</td>
-<td><strong>MIGRATE</strong> — incremental update</td>
-</tr>
-<tr>
-<td>&quot;Update meta-govern with this new research doc&quot;</td>
-<td><strong>EVOLVE</strong> — meta-govern self-update</td>
-</tr>
-<tr>
-<td>&quot;What palier am I at&quot; / &quot;should I add X&quot;</td>
-<td><strong>ADVISE</strong> — read-only recommendation</td>
+<td>Bootstrap, migrate, evolve, advise</td>
+<td>Maintainer procedures in <code>references/maintainer-modes.html</code>, not commands</td>
 </tr>
 </tbody>
 </table></div>
@@ -177,7 +169,7 @@
 ├── references/           # 18+ knowledge docs (lazy-loaded)
 ├── templates/            # File scaffolds (rendered by scripts)
 ├── scripts/              # Master skill scripts (analyze, bootstrap, audit, migrate, etc.)
-└── agents/               # 9 sub-agents the skill orchestrates
+└── agents/               # 2 sub-agents the skill dispatches
 </code></pre>
 <h2 id="maintenance-cadence-(you-run-these)" tabindex="-1"><a class="header-anchor" href="#maintenance-cadence-(you-run-these)" aria-hidden="true">#</a> Maintenance cadence (you run these)</h2>
 <ul>

@@ -25,6 +25,13 @@ const checkOnly = args.includes('--check');
 const repair = args.includes('--repair');
 
 const MASTER_AGENTS = [
+  'evolution-orchestrator',
+  'coherence-validator',
+];
+
+// Retired master sub-agents (v1.19.0). Their sources are gone from agents/, so a
+// symlink still in ~/.claude/agents/ is dangling. --check reports it, --repair removes it.
+const RETIRED_AGENTS = [
   'architect',
   'project-analyzer',
   'source-of-truth-scaffolder',
@@ -32,8 +39,6 @@ const MASTER_AGENTS = [
   'scaffolder',
   'workflow-validator',
   'governance-auditor',
-  'evolution-orchestrator',
-  'coherence-validator',
 ];
 
 if (!fs.existsSync(SKILL_AGENTS)) {
@@ -44,7 +49,21 @@ if (!fs.existsSync(USER_AGENTS)) {
   fs.mkdirSync(USER_AGENTS, { recursive: true });
 }
 
-const results = { ok: [], missing: [], broken: [], created: [], removed: [] };
+const results = { ok: [], missing: [], broken: [], created: [], removed: [], retired: [] };
+
+for (const name of RETIRED_AGENTS) {
+  const link = path.join(USER_AGENTS, `${name}.md`);
+  let target;
+  try { target = fs.readlinkSync(link); } catch { continue; }
+  // Only a link into this skill's agents/ directory is ours to touch.
+  if (!path.resolve(path.dirname(link), target).startsWith(SKILL_AGENTS + path.sep)) continue;
+  if (repair) {
+    fs.unlinkSync(link);
+    results.removed.push({ name, oldTarget: target });
+  } else {
+    results.retired.push({ name });
+  }
+}
 
 for (const name of MASTER_AGENTS) {
   const source = path.join(SKILL_AGENTS, `${name}.md`);
@@ -95,7 +114,7 @@ for (const name of MASTER_AGENTS) {
   }
 }
 
-const problems = results.missing.length + results.broken.length;
+const problems = results.missing.length + results.broken.length + results.retired.length;
 
 process.stdout.write(`# meta-govern agent symlinks\n`);
 process.stdout.write(`User agents dir:  ${USER_AGENTS}\n`);
@@ -104,7 +123,8 @@ process.stdout.write(`OK:       ${results.ok.length}\n`);
 process.stdout.write(`Created:  ${results.created.length}\n`);
 process.stdout.write(`Removed:  ${results.removed.length}\n`);
 process.stdout.write(`Missing:  ${results.missing.length}\n`);
-process.stdout.write(`Broken:   ${results.broken.length}\n\n`);
+process.stdout.write(`Broken:   ${results.broken.length}\n`);
+process.stdout.write(`Retired:  ${results.retired.length}\n\n`);
 
 if (results.created.length) {
   process.stdout.write(`Created symlinks:\n`);
@@ -119,6 +139,12 @@ if (results.missing.length) {
 if (results.broken.length) {
   process.stdout.write(`Broken:\n`);
   for (const r of results.broken) process.stdout.write(`  ! ${r.name}.md  (${r.reason})\n`);
+  process.stdout.write(`\n`);
+}
+
+if (results.retired.length) {
+  process.stdout.write(`Retired agents still linked (run with --repair to remove):\n`);
+  for (const r of results.retired) process.stdout.write(`  ! ${r.name}.md\n`);
   process.stdout.write(`\n`);
 }
 

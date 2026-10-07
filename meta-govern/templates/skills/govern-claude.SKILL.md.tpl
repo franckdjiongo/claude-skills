@@ -16,7 +16,7 @@ description: |
   (Claude 4.7+/5-family), broken wires (hook not registered, rule with invalid
   `paths:`, script without wrapper), violations of the source-of-truth delta
   protocol. NEVER creates skills/agents/hooks itself — delegates to
-  `skill-creator` / `create-subagent`, or follows the meta-govern authoring canon
+  `skill-creator`, or follows the meta-govern authoring canon
   (`~/.claude/skills/meta-govern/references/skill-canonical-structure.html`,
   `subagent-canonical-structure.html`, `hook-canonical-patterns.html`) for direct
   edits to rules / hooks / `CLAUDE.md` / baseline. Use whenever the user
@@ -104,7 +104,7 @@ For each addition:
 Observed trigger: <indicator + threshold>
 Type: skill | subagent | rule | hook
 Delegation: see the meta-govern authoring canon (skill → skill-creator,
-            subagent → create-subagent, rule/hook → manual edit per playbook)
+            subagent/rule/hook → manual edit per the canonical-structure playbook)
 Effort frontmatter (if subagent): low | medium | high | xhigh
 CLAUDE.md / baseline.md edits: <line to add>
 ```
@@ -149,7 +149,7 @@ Scale: <small | medium | large>
 Ask: `Apply 1, 2, 3? (y / numbers / n)`.
 
 - New skill → invoke `Skill: skill-creator`.
-- New subagent → invoke `Skill: create-subagent`.
+- New subagent → write it from `~/.claude/skills/meta-govern/references/subagent-canonical-structure.html`, then re-run inventory.
 - Edit rule / hook / `CLAUDE.md` / baseline → direct edit, then re-run inventory.
 
 ## Cross-references
@@ -159,7 +159,6 @@ Ask: `Apply 1, 2, 3? (y / numbers / n)`.
 - `~/.claude/skills/meta-govern/references/skill-canonical-structure.html` + `subagent-canonical-structure.html` + `hook-canonical-patterns.html` + `macos-hook-conventions.html` — rule / hook / skill / agent authoring + delegation.
 - `~/.claude/skills/meta-govern/references/lessons-log.html` — failure modes journal.
 - `skill-creator` skill — owns skill authoring (this skill never authors skills directly).
-- `create-subagent` skill — owns agent authoring.
 - `meta-govern` skill (user-level) — audits multiple projects + bumps the master baseline.
 
 ## Gotchas
@@ -169,6 +168,6 @@ Ask: `Apply 1, 2, 3? (y / numbers / n)`.
 - Touching the source-of-truth docs (`{{SPEC_DOC}}`, `{{DATA_MODEL_DOC}}`, `{{CATALOG_DOC}}`). Those flow through the delta protocol only, never through this skill.
 - Bloating `CLAUDE.md` because "the 1M context allows it". The cap exists because every loaded line steals from working budget.
 - Suggesting all the roadmap evolutions at once. Limit to 1–3 NOW. Bigger sweeps fragment user attention and create half-shipped primitives.
-- Authoring a new skill / agent inline. This skill delegates to `skill-creator` / `create-subagent`. Inline authoring drifts from the canonical structure and creates the failure modes journaled in `~/.claude/skills/meta-govern/references/lessons-log.html`.
+- Authoring a new skill / agent inline. This skill delegates skill authoring to `skill-creator` and writes agents from `subagent-canonical-structure.html`. Inline authoring drifts from the canonical structure and creates the failure modes journaled in `~/.claude/skills/meta-govern/references/lessons-log.html`.
 - Caching code state in a document. Inventories rot silently with each rename. The right fix for "Claude forgot to grep" is to tighten the grep discipline in skills, not pre-compute the inventory.
 - Placing compaction-recovery instructions inside skill files. Those are lost on compaction. Only `CLAUDE.md` (re-read from disk) and `SessionStart` hooks (matcher: `compact`) survive — `PostCompact` itself is side-effects-only and does not consume `additionalContext`.

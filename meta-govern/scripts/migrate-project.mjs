@@ -356,7 +356,7 @@ function buildPalierPromotionPlan(detection, currentPalier, targetPalier) {
       plan.push({
         action: 'manual',
         title: 'Palier 3: split spec-reviewer agent + add subagent-plan-edit-guard hook',
-        message: 'Use create-subagent to scaffold spec-reviewer.md (split from reviewer). Add subagent-plan-edit-guard.mjs hook (modeled from Temps Chantier).',
+        message: 'Write spec-reviewer.md (split from reviewer) from references/subagent-canonical-structure.html. Add subagent-plan-edit-guard.mjs hook (modeled from Temps Chantier).',
       });
     } else if (p === 4) {
       // Leçon 7 (v1.15.0): la CI GitHub Actions + branch protection ne sont plus un
