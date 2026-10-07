@@ -135,6 +135,18 @@ describe('projects-behind CLI', () => {
     expect(JSON.parse(r.stdout).skipped).toEqual([dir])
   })
 
+  test('a Codex-style version.json compares against sourceCanon.version, not its own version', () => {
+    const skill = tmp()
+    mkdirSync(join(skill, 'scripts'), { recursive: true })
+    writeFileSync(join(skill, 'scripts/projects-behind.mjs'), readFileSync(BEHIND, 'utf8'))
+    writeFileSync(join(skill, 'version.json'), JSON.stringify({ version: '2.0.0', runtime: 'codex', sourceCanon: { runtime: 'claude', version: '1.19.0' } }))
+    const root = tmp()
+    project(root, 'at-canon', { state: { metaGovernVersion: '1.19.0', lastAudit: new Date().toISOString().slice(0, 10) } })
+    const r = run(join(skill, 'scripts/projects-behind.mjs'), ['--root', root, '--json'])
+    expect(r.status).toBe(0)
+    expect(JSON.parse(r.stdout).current).toBe('1.19.0')
+  })
+
   test('exit 2 on an unknown option', () => {
     expect(run(BEHIND, ['--nope']).status).toBe(2)
   })
