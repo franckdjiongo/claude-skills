@@ -80,8 +80,7 @@ plan ne contient que le propre du chantier : texte figé = renvoi d'une ligne au
    jamais le bloc `ws-review-state`.
 8. **Approbation** : la fiche signée « Validée par » fait foi ; hub disponible : convo `approval` avec le lien
    Galley (`bun run --cwd ~/Desktop/my-projets/workstation convo create <slug-projet> -`).
-9. **Relis en candide** (« cette session », chemin relatif, lot sans vérification) ; corrige à la décision,
-   puis propage aux lots.
+9. **Relis en candide** ; corrige à la décision, puis propage aux lots.
 <!-- runtime-slot:preflight-invoke -->
 10. **Préflight obligatoire.** Invoque le skill `brief-preflight` EN PASSANT les arguments
     `<chemin-absolu-du-plan.html> <repo-cible>` (ils déclenchent le lint automatique) : lint déterministe
