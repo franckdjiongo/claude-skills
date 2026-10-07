@@ -88,7 +88,7 @@ export function parseArgs(argv) {
 // ---------- schema + validation ----------
 
 // Model-facing schema. Strict-mode friendly (all keys required, no extras) so
-// it also works as the codex --output-schema.
+// it also works as the codex --output-schema. No numeric/length keywords: validateFindings enforces ranges.
 export const REVIEW_OUTPUT_SCHEMA = {
   type: 'object',
   additionalProperties: false,
@@ -102,7 +102,7 @@ export const REVIEW_OUTPUT_SCHEMA = {
         required: ['file', 'line', 'severity', 'claim', 'proof'],
         properties: {
           file: { type: 'string' },
-          line: { type: 'integer', minimum: 0 },
+          line: { type: 'integer' },
           severity: { type: 'string', enum: SEVERITIES },
           claim: { type: 'string' },
           proof: { type: 'string' },
