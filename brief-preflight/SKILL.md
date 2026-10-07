@@ -95,6 +95,6 @@ Après les correctifs : relecture CANDIDE du plan entier, puis relance du lint.
 
 ## Étape 3 — Round 2 (delta seulement), arrêt, sortie
 
-Si le round 1 a corrigé, UN round 2 : les lentilles concernées relisent les passages modifiés et ce qui en dépend. Même triage, relance du lint, puis **STOP**. Un bloquant restant se signale à l'utilisateur, jamais par un round 3.
+Plafond > 600, round 1 corrigé : UN round 2 : les lentilles concernées relisent les passages modifiés et ce qui en dépend. Même triage, relance du lint, puis **STOP**. Un bloquant restant se signale à l'utilisateur, jamais par un round 3.
 
 Rends compte : rounds, findings par décision, bloquants tués ou ouverts, verdict du lint, et « le plan est prêt pour exécution » ou ce qui l'en empêche.

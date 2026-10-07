@@ -49,6 +49,6 @@ Sous-agent `gardien-intention` (Claude Code ou Codex) ; sans agents globaux (run
 généraliste qui lit ce fichier.
 
 - `SERT` : la décision A2 (règle 2 de la revue) reste.
-- `HORS` : NE PAS CORRIGER, raison du gardien au rapport (CHIP seulement si l'utilisateur en verrait l'effet).
+- `HORS` : NE PAS CORRIGER, raison du gardien au rapport (CHIP : effet visible ET chips autorisés).
 - `DÉRIVE` : retirer les parties listées, ou les justifier une à une dans la PR.
 - `PAS DE FICHE` (aucune fiche à l'adresse) : rien n'est jugé, le rapport le dit, le run continue.
