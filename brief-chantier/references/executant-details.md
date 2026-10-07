@@ -4,7 +4,7 @@ Complète `SKILL.md` § Exécuter un plan. Rien ici n'assouplit les règles dure
 
 ## Étape 4 — Lot par lot
 
-- Un lot se ferme par sa seule commande de vérification, puis commit `chantier(<slug-du-plan>): lot N —
+- Un lot se ferme quand tous ses checks (`<li data-check>` de sa liste `checks`) sortent 0, puis commit `chantier(<slug-du-plan>): lot N —
   <titre>` (jamais de Co-Authored-By) ; compte les lignes ajoutées. Le git log EST le suivi : ne modifie pas le
   plan HTML.
 - Fichier hors liste, ou vérification rouge à cause de doublures de test : « règle standard » de

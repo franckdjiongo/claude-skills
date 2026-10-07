@@ -16,7 +16,7 @@ Cloud (routine cloud via `RemoteTrigger`, machine éteinte possible) : section C
 - Les exigences périphériques (gitignore, docs, redeploy) vont dans la liste d'acceptation du lot, pas en prose :
   la prose se fait sauter.
 - `fireAt` en ISO 8601 avec décalage horaire. Budget de durée : estimation du contenu x 1,5, pas 5 h par défaut.
-- Un lot partiel exécute la vérification par lot du plan ; la clôture complète (`typecheck && build && test…`)
+- Un lot partiel exécute les checks du lot ; la clôture complète (`typecheck && build && test…`)
   appartient au DERNIER lot. Le prompt écrit laquelle est REQUISE.
 - Anti-chevauchement DANS le prompt, jamais seulement dans les horaires : au rattrapage après sommeil de la
   machine, toutes les tâches en retard partent ensemble. Démarrage : `sh ~/.claude/scripts/night-run-reaper.sh`
