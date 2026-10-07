@@ -85,7 +85,7 @@ plan ne contient que le propre du chantier : texte figé = renvoi d'une ligne au
 10. **Préflight obligatoire.** Invoque le skill `brief-preflight` EN PASSANT les arguments
     `<chemin-absolu-du-plan.html> <repo-cible>` (ils déclenchent le lint automatique) : lint déterministe
 <!-- /runtime-slot:preflight-invoke -->
-    puis revue (2 rounds comptés en commits ; lint seul si plafond ≤ 200). Plan non préflighté = non livrable.
+    revue (2 rounds comptés en commits ; lint seul si plafond ≤ 200). Plan non préflighté = non livrable.
 
 ## Exécuter un plan (rôle EXÉCUTANT)
 
