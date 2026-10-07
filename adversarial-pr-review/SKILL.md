@@ -30,8 +30,8 @@ Attack your own diff before the PR is public, fix only what matters with the sma
 | `round <file> [--triage]` | Records a round from a JSON file (its shape is printed by `start`). `--triage` records bot-comment dispositions once the cap is spent. |
 | `fix <id...>` | Marks FIX findings fixed, after the fix commit and its fresh verifier. |
 | `cross [--author claude\|codex]` | Billed read-only review by the other model family, once per HEAD (`--author` is your own runtime). Findings get ids `X<n>`, each needing a disposition. |
-| `finalize --gate <cmd>` | Runs the gate, checks convergence, writes `verdict.json`, and the sentinel only on PASS for HEAD. Also `--guardian`, `--delta-ok "<note>"`, `--trivial`, `--no-gate "<reason>"` (recorded as skipped, never as a gate pass). Exit 0 PASS, 1 FAIL. |
-| `check [--head <sha>]` | Exit 0 only for a PASS on that HEAD; 3 means absent or stale. |
+| `finalize --gate <cmd>` | Runs the gate, writes `verdict.json`, and the sentinel only on PASS for HEAD. Also `--guardian`, `--delta-ok "<note>"`, `--trivial`, `--no-gate "<reason>"` (recorded as skipped, never as a gate pass). Exit 0 only on PASS. |
+| `check [--head <sha>]` | Exit 0 only for a PASS on that HEAD. 1 FAIL, 3 absent or stale, 4 voided by later findings. |
 
 Your report cites `verdict.json`, not your own words.
 
@@ -40,7 +40,7 @@ Your report cites `verdict.json`, not your own words.
 1. `start`. Run the local quality gate; fix red before spending agents.
 2. **Round 1** on the whole diff: disposition, guardian, `round`, commit the FIX items, `fix`, re-run the gate.
 3. **Round 2**, only if round 1 committed a fix: same steps on the delta.
-4. Guardian moment 2, commit, `finalize --gate '<the gate>'`, push, open the PR. The body states the coverage, the gate result, the guardian block and the open findings with dispositions.
+4. Guardian moment 2, commit, `finalize --gate '<the gate>'`, push, open the PR. The body states coverage, gate result, guardian block and open findings with dispositions.
 5. **Read the bot's first pass before any merge**: `gh pr view <n> --json comments,reviews` and the PR's review comments via `gh api`. Its findings go to Mode B.
 
 ## Mode B: bot review comments (one pass, not ping-pong)
@@ -52,7 +52,7 @@ Your report cites `verdict.json`, not your own words.
 
 ## The review engine
 
-**What a hunter may report** (trigger, origin proven base against HEAD, classes, P1-P3 severity) is the `CONTEXT` block of `references/workflow-template.js`. Read it before any triage, Mode B included.
+**What a hunter may report** (trigger, origin proven base against HEAD, classes, P1-P3 severity) is the `CONTEXT` block of `references/workflow-template.js`. Read it before any triage.
 
 ### 1. Inventory
 

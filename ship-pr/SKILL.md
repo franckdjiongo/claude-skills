@@ -29,7 +29,7 @@ For every target, `gh pr view <n> --json state,isDraft,mergeable,mergeStateStatu
 
 These are hard blockers the same way `commit-session-work` treats a red validation gate: real, not negotiable by this skill on its own. If a check is red because of a known flake, that's the user's call to force through (`gh pr merge --admin` or similar) — never yours by default, and only if they say so explicitly for that PR.
 
-If the PR's branch has a worktree, run `node <adversarial-pr-review folder>/scripts/review-run.mjs check --repo <worktree> --head <headRefOid>`: exit 1 is a FAIL verdict, so stop unless the user says to merge anyway. Exit 3 (no verdict, or one for another head) is not a pass: say so in the report and continue.
+If the PR's branch has a worktree, run `node <adversarial-pr-review folder>/scripts/review-run.mjs check --repo <worktree> --head <headRefOid>`: exit 1 (FAIL) and 4 (a later finding voided the PASS) mean stop unless the user says to merge anyway. Exit 3 (no verdict, or one for another head) is not a pass: say so in the report and continue.
 
 Confirm `baseRefName` is the repo's actual primary branch (see `PRIMARY_BRANCH` resolution below) — merging into the wrong base is a mistake worth catching before it happens, not after.
 

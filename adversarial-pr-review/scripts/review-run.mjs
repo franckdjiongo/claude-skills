@@ -11,11 +11,11 @@
 //   fix      <id...>                                 mark FIX findings fixed (after the fix commit + fresh verifier)
 //   cross    [--author claude|codex] [--model m]     billed other-family review of base...HEAD, once per HEAD
 //   finalize --gate <cmd> | --no-gate <reason> [--guardian aligned|drift|none] [--sheet p] [--trivial] [--delta-ok <note>]
-//   check    [--head sha]                            exit 0 PASS for that HEAD, 1 FAIL, 3 no verdict for it
+//   check    [--head sha]                            exit 0 PASS for that HEAD, 1 FAIL, 3 no verdict for it, 4 PASS voided by later findings
 //
 // Round file: {"findings":[{"id","severity":"P1|P2|P3","origin":"introduced|aggravated|pre-existing",
 //   "summary","disposition":"FIX|CHIP|WONT_FIX|INVALID","reason"}],"openQuestions":[],"residualRisk":""}
-// Exit codes: 0 ok / PASS, 1 FAIL, 2 usage or state error, 3 (check) no verdict for the HEAD.
+// Exit codes: 0 ok / PASS, 1 FAIL, 2 usage or state error, 3 (check) no verdict for the HEAD, 4 (check) PASS voided.
 
 import { execFileSync, spawnSync } from 'node:child_process'
 import { readFileSync, writeFileSync, renameSync, mkdirSync, existsSync, readdirSync, rmSync } from 'node:fs'
@@ -260,9 +260,10 @@ export function finalize(c, flags, state) {
 
   let delta = null
   const ancestor = (a, b) => { try { git(c.repo, ['merge-base', '--is-ancestor', a, b]); return true } catch { return false } }
-  if (last && !ancestor(last.head, c.head)) reasons.push(`history rewritten: the reviewed commit ${last.head.slice(0, 8)} is not an ancestor of HEAD, review again`)
-  else if (last && c.head !== last.head) {
-    delta = { from: last.head, to: c.head, files: git(c.repo, ['diff', '--name-only', last.head, c.head]).split('\n').filter(Boolean), note: flags['delta-ok'] ?? '' }
+  const lastFull = full.at(-1) // a triage record never moves the reviewed commit
+  if (lastFull && !ancestor(lastFull.head, c.head)) reasons.push(`history rewritten: the reviewed commit ${lastFull.head.slice(0, 8)} is not an ancestor of HEAD, review again`)
+  else if (lastFull && c.head !== lastFull.head) {
+    delta = { from: lastFull.head, to: c.head, files: git(c.repo, ['diff', '--name-only', lastFull.head, c.head]).split('\n').filter(Boolean), note: flags['delta-ok'] ?? '' }
     if (!delta.note) reasons.push('HEAD moved since the last round: pass --delta-ok "<a fresh verifier classified every hunk as fix, gate repair, clean base merge or sheet removal>"')
   }
 
@@ -307,7 +308,7 @@ function cmdCheck(c, flags, out) {
   if (!v || v.schema !== VERDICT_SCHEMA) { out(`no verdict for ${want.slice(0, 8)} (absent, not a pass)\n`); return 3 }
   if (v.head !== want) { out(`stale verdict: reviewed ${v.head.slice(0, 8)}, asked ${want.slice(0, 8)} (not a pass)\n`); return 3 }
   if (v.verdict === 'PASS' && (v.stateDigest !== digest(readJson(join(c.dir, 'state.json'))) || sentinelHead(c) !== v.head)) {
-    out(`stale verdict: the review state changed after the PASS for ${v.head.slice(0, 8)}, finalize again (not a pass)\n`); return 3
+    out(`voided: findings were recorded after the PASS for ${v.head.slice(0, 8)}, finalize again (not a pass)\n`); return 4
   }
   out(`${v.verdict} ${v.head.slice(0, 8)}${v.verdict === 'FAIL' ? `: ${v.reasons.join(' | ')}` : ''}\n`)
   return v.verdict === 'PASS' ? 0 : 1

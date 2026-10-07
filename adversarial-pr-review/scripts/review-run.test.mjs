@@ -181,7 +181,7 @@ describe('finalize', () => {
     assert.equal((await run(d, 'check')).code, 0)
     await run(d, 'round', roundFile(d, [finding({ id: 'Z', severity: 'P1' })]))
     assert.equal(sentinel(d), null)
-    assert.equal((await run(d, 'check')).code, 3)
+    assert.equal((await run(d, 'check')).code, 4)
     assert.equal((await run(d, 'finalize', '--gate', 'true')).code, 1)
     assert.equal(sentinel(d), null)
   })
@@ -192,7 +192,7 @@ describe('finalize', () => {
     const f = join(gitDirOf(d), 'adversarial-review/state.json')
     const st = JSON.parse(readFileSync(f, 'utf8')); st.rounds[0].findings.push({ id: 'Q', severity: 'P1', disposition: 'FIX', fixed: false }); writeFileSync(f, JSON.stringify(st))
     const r = await run(d, 'check')
-    assert.equal(r.code, 3); assert.match(r.out, /state changed/)
+    assert.equal(r.code, 4); assert.match(r.out, /voided/)
   })
   test('FAIL when the gate dirties the tree or the reviewed commit is no longer an ancestor', async () => {
     const d = makeRepo(); await started(d)
@@ -212,6 +212,18 @@ describe('finalize', () => {
     assert.equal(no.code, 1); assert.match(no.out, /guardian/)
     assert.equal((await run(d, 'finalize', '--gate', 'true', '--guardian', 'aligned')).code, 0)
     assert.equal(verdictOf(d).guardian, 'aligned')
+  })
+})
+
+describe('triage and the reviewed commit', () => {
+  test('a triage record cannot move the reviewed commit and wave through unreviewed commits', async () => {
+    const d = makeRepo(); await started(d)
+    await run(d, 'round', roundFile(d)); await run(d, 'round', roundFile(d))
+    commit(d) // unreviewed work after both rounds
+    await run(d, 'round', roundFile(d, [finding({ id: 'B1', disposition: 'INVALID', reason: 'bot is wrong' })]), '--triage')
+    const r = await run(d, 'finalize', '--gate', 'true')
+    assert.equal(r.code, 1); assert.match(r.out, /HEAD moved since the last round/); assert.equal(sentinel(d), null)
+    assert.equal((await run(d, 'finalize', '--gate', 'true', '--delta-ok', 'verifier classified every hunk')).code, 0)
   })
 })
 
