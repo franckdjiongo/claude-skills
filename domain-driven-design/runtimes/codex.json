@@ -1,0 +1,10 @@
+{
+  "description": "Expert advisor for Domain-Driven Design, greenfield and brownfield: bounded contexts, aggregates, value objects, ubiquitous language, EventStorming, context maps, CQRS, event sourcing, anemic model, strangler fig. Use for DDD, \"entity or value object?\", modeling a complex domain.",
+  "forbid": [
+    "CLAUDE_SKILL_DIR",
+    "AskUserQuestion",
+    "TodoWrite",
+    "spawn_task"
+  ],
+  "slotSources": {}
+}

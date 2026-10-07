@@ -1,0 +1,20 @@
+{
+  "description": "Evidence-grounded retrospective of a Codex or Claude Code session, or an explicit group of sessions. Use for /session-review, retrospective, rétrospective, post-mortem, retour d'expérience, or an assessment of how a session went. Inspects real traces. Not a code review or design review.",
+  "forbid": [
+    "CLAUDE_SKILL_DIR",
+    "AskUserQuestion",
+    "TodoWrite",
+    "spawn_task"
+  ],
+  "allow": {
+    "claude-home": {
+      "match": [
+        "~/.claude/",
+        "`.claude/",
+        ".claude/"
+      ],
+      "reason": "The skill reviews Claude Code sessions too, so the Codex text, evals and analyzer must name where Claude Code keeps its transcripts (~/.claude/projects/), subagent definitions (.claude/agents/) and rules (.claude/rules/)."
+    }
+  },
+  "slotSources": {}
+}

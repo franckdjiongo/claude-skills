@@ -1,0 +1,10 @@
+{
+  "description": "Use when implementing, embedding or debugging a WorkOS Widget (User Management, User Profile, Admin Portal SSO Connection or Domain Verification): detects the frontend, generates tokens via the backend SDK, wires the component per the bundled OpenAPI spec. Also on @workos-inc/widgets imports.",
+  "forbid": [
+    "CLAUDE_SKILL_DIR",
+    "AskUserQuestion",
+    "TodoWrite",
+    "spawn_task"
+  ],
+  "slotSources": {}
+}

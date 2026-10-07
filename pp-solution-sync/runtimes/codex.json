@@ -1,0 +1,10 @@
+{
+  "description": "Exporte une solution Power Platform unmanaged avec PAC CLI (ou utilise un artefact local), synchronise sa représentation dans le projet, exécute les générateurs déclarés par le projet et prépare la validation Git. Utiliser pour actualiser une solution depuis un environnement ou Downloads.",
+  "forbid": [
+    "CLAUDE_SKILL_DIR",
+    "AskUserQuestion",
+    "TodoWrite",
+    "spawn_task"
+  ],
+  "slotSources": {}
+}

@@ -1,7 +1,7 @@
 ---
 name: commit-session-work
 description: >-
-  Finish Git work at the end of a session: commit, then by mode land on the primary branch, push, clean up. No argument: this session's work only. local/commit/commit-only: local commit, no push. all/tout/clean: whole tree. Triggers: "commit this session", "committe ce qu'on vient de faire".
+  Finish Git work at session end: commit, land on main, push, clean up. Default: this session. local: no push. all/tout/clean: whole tree. Triggers: "committe ce qu'on vient de faire", "fais juste un commit local", "ne pousse pas", "mets ça dans main", "commit everything", "rends la branche clean".
 ---
 
 # Commit Session Work

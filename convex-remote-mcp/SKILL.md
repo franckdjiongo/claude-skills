@@ -1,10 +1,7 @@
 ---
 name: convex-remote-mcp
 description: >-
-  Build a remote MCP server (Streamable HTTP) hosted inside an existing Convex backend,
-  secured by WorkOS AuthKit OAuth, with an anti-leak projection layer and prod rollout.
-  Use for "un MCP pour ce projet Convex", "connecteur MCP distant Convex", `convex-mcp-
-  gateway`. NOT for non-Convex/stdio MCPs.
+  Remote MCP server in an existing Convex backend, WorkOS AuthKit OAuth, anti-leak projections, prod rollout. Use for `convex-mcp-gateway`, "MCP gateway Convex", "un MCP pour ce projet Convex", "expose mes fonctions Convex à Claude", clock tool stale or off by timezone (getCurrentDate/isOverdue).
 ---
 
 # Convex Remote MCP — production-ready, repeatable
