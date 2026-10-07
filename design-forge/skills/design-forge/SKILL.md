@@ -1,6 +1,6 @@
 ---
 name: design-forge
-description: UX/UI quality analyst and design brief architect. AUDIT reviews screenshots or a running app into a scored report with paste-ready fix prompts. TEST drives a live app. BRIEF turns an app idea into a premium design brief. Triggers: "design forge", "audit my UI", "is this AI slop", "design brief for".
+description: "UX/UI quality analyst and design brief architect. AUDIT reviews screenshots or a running app into a scored report with paste-ready fix prompts. TEST drives a live app. BRIEF turns an app idea into a premium design brief. Triggers: \"design forge\", \"audit my UI\", \"is this AI slop\", \"design brief for\"."
 ---
 
 # Design Forge

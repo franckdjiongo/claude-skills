@@ -1,6 +1,6 @@
 ---
 name: firestore-mastery
-description: Firebase/Firestore guidance: project setup, security rules, data modeling, indexes, query performance, cost, auth, real-time listeners, migrations. Use for Firebase, Firestore, security rules, NoSQL schema design or Firebase Authentication.
+description: "Firebase/Firestore guidance: project setup, security rules, data modeling, indexes, query performance, cost, auth, real-time listeners, migrations. Use for Firebase, Firestore, security rules, NoSQL schema design or Firebase Authentication."
 ---
 
 # Firestore Mastery

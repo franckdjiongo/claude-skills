@@ -1,6 +1,6 @@
 ---
 name: ship-polished-ui
-description: Create or improve premium, production-grade web UI (site, landing page, app screen, component). Triggers: "crée un site", "make this premium", "améliore l'UI", "polish the page", UI bugs, "vérifie que ça marche". Always runs real-browser QA and a Verification Ledger. Documents: use design-elevation.
+description: "Create or improve premium, production-grade web UI (site, landing page, app screen, component). Triggers: \"crée un site\", \"make this premium\", \"améliore l'UI\", \"polish the page\", UI bugs, \"vérifie que ça marche\". Always runs real-browser QA and a Verification Ledger. Documents: use design-elevation."
 ---
 
 # ship-polished-ui — Premium frontend craft, browser-verified

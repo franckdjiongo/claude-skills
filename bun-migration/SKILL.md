@@ -1,6 +1,6 @@
 ---
 name: bun-migration
-description: Migrate Node.js projects to Bun 1.3.x: package manager, bunfig.toml, Jest to bun test, Bun-native APIs (bun:sqlite, Bun.serve, Bun.file, Bun.password). Use for Node to Bun migration, npm/yarn to bun, Bun compatibility questions.
+description: "Migrate Node.js projects to Bun 1.3.x: package manager, bunfig.toml, Jest to bun test, Bun-native APIs (bun:sqlite, Bun.serve, Bun.file, Bun.password). Use for Node to Bun migration, npm/yarn to bun, Bun compatibility questions."
 ---
 
 # Bun Migration Skill

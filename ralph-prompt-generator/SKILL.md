@@ -1,6 +1,6 @@
 ---
 name: ralph-prompt-generator
-description: Generate auto-compact-resilient Ralph Wiggum loop prompts for Claude Code, with a PRD and progress file for large features. Triggers: ralph, ralph wiggum, ralph loop, loop until done, autonomous loop, keep going until complete.
+description: "Generate auto-compact-resilient Ralph Wiggum loop prompts for Claude Code, with a PRD and progress file for large features. Triggers: ralph, ralph wiggum, ralph loop, loop until done, autonomous loop, keep going until complete."
 ---
 
 # Ralph Wiggum Prompt Generator

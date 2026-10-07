@@ -1,6 +1,6 @@
 ---
 name: workos
-description: Use for WorkOS docs URLs, terms, dashboard fields (Sign-in endpoint, Redirect URI, `WORKOS_*`) and for implementing, debugging or migrating WorkOS: AuthKit, SSO, Directory Sync, RBAC, FGA, MFA, Vault, Audit Logs, Admin Portal, Pipes, Radar, `workos` CLI, Auth0/Clerk migration. Also @workos-inc/*.
+description: "Use for WorkOS docs URLs, terms, dashboard fields (Sign-in endpoint, Redirect URI, `WORKOS_*`) and for implementing, debugging or migrating WorkOS: AuthKit, SSO, Directory Sync, RBAC, FGA, MFA, Vault, Audit Logs, Admin Portal, Pipes, Radar, `workos` CLI, Auth0/Clerk migration. Also @workos-inc/*."
 ---
 
 # WorkOS Skill Router
