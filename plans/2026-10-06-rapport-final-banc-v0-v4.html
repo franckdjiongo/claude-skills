@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Banc final v0 contre v4</title>
+<style>
+  :root { --paper:#f5f0e6; --surface:#fdfaf2; --ink:#211b13; --soft:#5f5546; --line:#ddd2bd; --accent:#a35a2c; --ok:#3f5f37; --bad:#8c2f2f; --warn:#8a4a10; --mono:ui-monospace,'SF Mono',Menlo,monospace; }
+  @media (prefers-color-scheme: dark) { :root { --paper:#171310; --surface:#201a15; --ink:#ece3d3; --soft:#b3a793; --line:#3a3128; --accent:#d18d58; --ok:#8fae85; --bad:#d47f7f; --warn:#d8a05c; } }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--paper); color:var(--ink); font:16px/1.6 -apple-system,'Segoe UI',sans-serif; }
+  .layout { display:grid; grid-template-columns:230px 1fr; gap:40px; max-width:1160px; margin:0 auto; padding:48px 16px 96px; }
+  nav { position:sticky; top:24px; align-self:start; font-size:13.5px; }
+  nav a { display:flex; justify-content:space-between; gap:8px; color:var(--soft); text-decoration:none; padding:5px 0; border-bottom:1px solid var(--line); }
+  nav a:hover { color:var(--accent); }
+  .st { font-family:var(--mono); font-size:11px; text-transform:uppercase; }
+  .ok { color:var(--ok); } .bad { color:var(--bad); } .warn { color:var(--warn); }
+  h1 { font-size:clamp(26px,4vw,38px); line-height:1.15; margin-bottom:10px; }
+  .lede { color:var(--soft); max-width:70ch; }
+  section { margin-top:44px; } h2 { font-size:21px; border-bottom:2px solid var(--ink); padding-bottom:6px; margin-bottom:14px; }
+  h3 { font-size:16px; margin:16px 0 6px; }
+  p, li { max-width:76ch; } p { margin-bottom:10px; } ul, ol { padding-left:22px; margin-bottom:10px; } li { margin-bottom:6px; }
+  code { font-family:var(--mono); font-size:.88em; background:var(--surface); padding:1px 5px; border-radius:4px; }
+  main { min-width:0; } .tw { overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; font-size:14.5px; margin:10px 0 14px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-family:var(--mono); font-size:11.5px; text-transform:uppercase; color:var(--soft); }
+  td.n { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .score { font-size:44px; font-weight:800; line-height:1; }
+  .scores { display:flex; flex-wrap:wrap; gap:28px; margin:18px 0; }
+  .scores div span { display:block; font-size:13px; color:var(--soft); }
+  .box { background:var(--surface); border-left:3px solid var(--accent); padding:12px 16px; margin:12px 0; }
+  @media (max-width:820px) { .layout { grid-template-columns:1fr; } nav { position:static; } }
+  @media print { nav { display:none; } .layout { display:block; } body { background:#fff; color:#000; } }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav aria-label="Sommaire">
+  <a href="#notes">Notes <span class="st warn">14/20</span></a>
+  <a href="#resultats">Résultats <span class="st">2 rounds</span></a>
+  <a href="#criteres">Par critère <span class="st">6</span></a>
+  <a href="#seize">Pourquoi pas 16 <span class="st bad">3 causes</span></a>
+  <a href="#gardien">Le gardien <span class="st warn">à trancher</span></a>
+  <a href="#lecons">Leçons apprises <span class="st">L1-L6</span></a>
+  <a href="#limites">Limites <span class="st warn">H1-H4</span></a>
+  <a href="#etat">État livré <span class="st ok">fait</span></a>
+  <a href="#decisions">Décisions <span class="st warn">D1-D2</span></a>
+</nav>
+<main>
+  <p class="st">Système de chantiers autonomes · round final · 2026-10-06 · brief-chantier, brief-preflight, adversarial-pr-review, gardien d'intention</p>
+  <h1>Le nouveau système bat l'ancien, sans atteindre 16</h1>
+  <p class="lede">Deux matchs à l'aveugle de quatre projets chacun ont opposé l'ancien système (v0) au nouveau (v3, puis v4). Un juge Opus a rejoué lui-même chaque livraison. La v4 ne perd aucun projet et livre aussi bien avec 3 à 8 fois moins de code, mais elle plafonne à 14,6/20.</p>
+
+  <section id="notes"><h2>Notes</h2>
+    <div class="scores">
+      <div><b class="score">14,6</b><span>Juge, v4 (round final)</span></div>
+      <div><b class="score">13,5</b><span>Juge, v0 (round final)</span></div>
+      <div><b class="score warn">14</b><span>Ma note, v4</span></div>
+      <div><b class="score bad">16</b><span>Cible, non atteinte</span></div>
+    </div>
+    <p><b>Ma note est 14, pas 14,6.</b> Le gain de la v4 vient presque entièrement de la sobriété, que la grille récompense et que la v4 a été conçue pour améliorer. Avec une grille qui pèse davantage la revue et la sûreté, l'écart tombe à environ +0,6. La livraison, elle, a été rejouée par le juge sur chaque projet : c'est la partie la plus solide du résultat.</p>
+    <p><b>L'ancien système n'était pas meilleur.</b> Sur les 8 duels des deux rounds, le nouveau en gagne 5, en égalise 3 et n'en perd aucun. La v0 a aussi le seul run qui n'a rien livré (relances-factures, round 1).</p>
+  </section>
+
+  <section id="resultats"><h2>Résultats des deux rounds</h2>
+    <div class="tw"><table>
+      <tr><th>Projet</th><th>v0 round 1</th><th>v3 round 1</th><th>v0 final</th><th>v4 final</th><th>v4 − v0 final</th></tr>
+      <tr><td>relances-factures (FR)</td><td class="n bad">5,5 (rien livré)</td><td class="n">13,5</td><td class="n">13</td><td class="n">14,5</td><td class="n ok">+1,5</td></tr>
+      <tr><td>crew-portal (EN)</td><td class="n">15</td><td class="n">15</td><td class="n">15</td><td class="n">15,5</td><td class="n">+0,5</td></tr>
+      <tr><td>migration-heures (FR)</td><td class="n">13</td><td class="n">14</td><td class="n">12,5</td><td class="n">15</td><td class="n ok">+2,5</td></tr>
+      <tr><td>delivery-windows (EN, inédit)</td><td class="n">15</td><td class="n">15,5</td><td class="n">13,5</td><td class="n">13,5</td><td class="n">0</td></tr>
+      <tr><td><b>Moyenne</b></td><td class="n"><b>12,1</b></td><td class="n"><b>14,5</b></td><td class="n"><b>13,5</b></td><td class="n"><b>14,6</b></td><td class="n ok"><b>+1,1</b></td></tr>
+    </table></div>
+    <p><b>Bruit mesuré.</b> La même v0, rejouée, varie de 0 à 1,5 point par projet (hors son échec du round 1). Un écart de 1,5 point ou moins sur un seul projet n'est donc pas une preuve. Seul migration-heures (+2,5) dépasse clairement ce bruit.</p>
+    <p><b>v3 → v4 : +0,1, dans le bruit.</b> Les correctifs du dernier cycle n'ont pas fait progresser la moyenne. Sur delivery-windows, la v4 perd 2 points parce qu'un retour arrière pendant la revue a annulé deux correctifs valides.</p>
+  </section>
+
+  <section id="criteres"><h2>Par critère (moyenne sur 5, round final)</h2>
+    <div class="tw"><table>
+      <tr><th>Critère</th><th>v0</th><th>v4</th><th>Lecture</th></tr>
+      <tr><td>Livraison (compte double)</td><td class="n">4,1</td><td class="n">4,1</td><td>Même produit livré, rejoué par le juge.</td></tr>
+      <tr><td>Sobriété</td><td class="n bad">2,1</td><td class="n ok">4,0</td><td>v0 ajoute 1 600 à 1 800 lignes et des défenses contre des cas imaginaires ; v4 tient son budget sur les 4 projets.</td></tr>
+      <tr><td>Tests</td><td class="n">3,6</td><td class="n">3,6</td><td>Égalité.</td></tr>
+      <tr><td>Revue</td><td class="n">2,75</td><td class="n warn">2,5</td><td>La revue v4 défait parfois son propre travail.</td></tr>
+      <tr><td>Sûreté du run</td><td class="n">3,75</td><td class="n warn">3,4</td><td>Les clôtures v4 affirment parfois « convergé » sans l'avoir vérifié.</td></tr>
+      <tr><td>Plan</td><td class="n">3,1</td><td class="n ok">3,75</td><td>Plans v4 plus courts ; ceux de v0 font 96 à 108 Ko.</td></tr>
+    </table></div>
+  </section>
+
+  <section id="seize"><h2>Pourquoi la v4 n'atteint pas 16</h2>
+    <p>Il manque 2,4 points bruts sur 35. Trois causes, de la plus coûteuse à la moins coûteuse.</p>
+    <ol>
+      <li><b>C1. La revue défait son propre travail (3 projets sur 4).</b> Un correctif décidé au round 1 est retiré au round 2, ou un retour arrière complet emporte un correctif valide. Cause : la fiche signée, le plan et le gardien sont trois sources de vérité qui peuvent se contredire, et rien ne protège une décision prise.</li>
+      <li><b>C2. La clôture déclare sans vérifier.</b> Exemples : « aucune remarque ouverte », sentinelle posée alors que la convergence n'était pas établie. L'information se perd entre la revue et la clôture.</li>
+      <li><b>C3. Des questions triviales sont renvoyées à l'humain.</b> Un README qui se contredit, une aide incomplète, aucun compte admin dans les données livrées : un choix par défaut déclaré aurait suffi. Cela plafonne la livraison à 4 sur 5.</li>
+    </ol>
+    <p>Le juge final estime qu'en traitant ces trois causes, la v4 atteindrait environ 16. C'est une estimation, pas une mesure : je m'étais engagé à ne pas faire de troisième cycle, et je ne l'ai pas fait.</p>
+  </section>
+
+  <section id="gardien"><h2>Le gardien d'intention</h2>
+    <p>Sur les 8 runs du nouveau système, le gardien a aidé une fois de façon claire : sur crew-portal (round 1), il a écarté 6 remarques hors sujet et le correctif est resté à +23 lignes. Il a nui plusieurs fois :</p>
+    <ul>
+      <li>verdicts inversés d'un round à l'autre sur le même défaut (v3, deux projets) ;</li>
+      <li>un round entier annulé pour un défaut de forme (v3, migration-heures) ;</li>
+      <li>un verdict « dérive » qui a provoqué une régression, annulée au round suivant (v4, crew-portal) ;</li>
+      <li>14 remarques sur 15 classées hors sujet (v4, relances-factures), dont des défauts visibles.</li>
+    </ul>
+    <p>La règle « chaque garantie cite la phrase de ta demande » fait déjà le tri que le gardien devait faire. Mon avis : le gardien ne devrait plus décider pendant la revue. Je garderais seulement son contrôle final, en lecture seule : avant la PR, il compare le diff complet à ta fiche et signale ce qui dérive, sans rien retirer lui-même. C'est la décision D2.</p>
+  </section>
+
+  <section id="lecons"><h2>Leçons apprises</h2>
+    <ol>
+      <li><b>L1. Un banc doit être isolé de la machine.</b> Les sous-agents héritent de tes CLAUDE.md et des skills : au round A/B, ils ont créé 10 vrais chips dans ta file et libéré deux fois le verrou de nuit sans l'avoir pris. Le harnais final l'interdisait explicitement, et le round final n'a rien laissé sur la machine.</li>
+      <li><b>L2. Un agent ne signe jamais sous le nom d'une vraie personne.</b> Mon proxy signait « Franck (proxy du banc) » ; l'analyse de sécurité l'a signalé comme injection d'instructions. Le round final signait « Proxy du banc ».</li>
+      <li><b>L3. Un seul run par version est du bruit à ±1,5 point.</b> Une conclusion fiable demande plusieurs runs, ou un écart nettement plus grand.</li>
+      <li><b>L4. Le juge récompense ce que la grille mesure.</b> La v4 gagne surtout sur la sobriété, qui est ce qu'elle visait. Une grille doit être figée avant, et lue avec ce biais en tête.</li>
+      <li><b>L5. Le plus gros gain vient d'enlever, pas d'ajouter.</b> La v4 livre aussi bien que la v0 avec 3 à 8 fois moins de code, et ses skills ont moins de mots que ceux de la v3.</li>
+      <li><b>L6. Une étape de contrôle ajoutée crée sa propre boucle.</b> Chaque mécanisme ajouté (gardien par round, verrou à deux étages, round de relecture) a produit des défauts que le round suivant devait corriger.</li>
+    </ol>
+  </section>
+
+  <section id="limites"><h2>Limites du résultat</h2>
+    <ul>
+      <li><b>H1.</b> Quatre projets, un run par version et par round.</li>
+      <li><b>H2.</b> Le juge n'est pas vraiment à l'aveugle : la fiche signée et le gardien trahissent la version.</li>
+      <li><b>H3.</b> Les dépôts de test sont de petits projets Node. Ils ne ressemblent pas à Temps Chantier (Power Apps, Dataverse) : un résultat ici ne se transpose pas tel quel.</li>
+      <li><b>H4.</b> Le harnais a changé entre les deux rounds : les écarts d'un round à l'autre mêlent l'effet de la version, celui du harnais et le bruit du juge.</li>
+    </ul>
+  </section>
+
+  <section id="etat"><h2>État livré</h2>
+    <ul>
+      <li>v4 fusionnée sur claude-skills main (<code>e3fa629</code>), installée pour Claude Code, Codex et les agents ; navette cloud de Temps Chantier republiée.</li>
+      <li>Vérifications sur main : variantes Codex construites, 164 tests et 25 tests du préflight verts, compteurs du catalogue justes, copies installées identiques à main.</li>
+      <li>Les skills ne grossissent pas : 6 216 mots au total, contre 6 220 avant la v4.</li>
+      <li>Aucun reste sur ta machine : chips du banc retirés, aucun verrou posé, aucun processus résiduel.</li>
+    </ul>
+  </section>
+
+  <section id="decisions"><h2>Décisions à prendre</h2>
+    <div class="box">
+      <p><b>D1. Que faire de la v4 ?</b></p>
+      <ul>
+        <li><b>O1 (ma recommandation) :</b> garder la v4 telle quelle et l'utiliser sur un vrai chantier (par exemple R4 sur Temps Chantier). La prochaine mesure viendra d'un vrai projet, pas d'un banc fictif.</li>
+        <li><b>O2 :</b> appliquer d'abord les trois greffes proposées par le juge (un vérificateur frais qui confronte le rapport de clôture aux faits ; une correction décidée ne peut plus être retirée sans raison écrite ; l'auteur tranche par défaut les questions réversibles), puis l'utiliser sans nouveau banc.</li>
+        <li><b>O3 :</b> revenir à l'ancien système. Je ne le recommande pas : il perd ou égalise sur tous les projets, et c'est lui qui a produit le seul run sans livraison.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <p><b>D2. Le gardien d'intention</b></p>
+      <ul>
+        <li><b>O1 (ma recommandation) :</b> il ne décide plus pendant la revue ; il garde un contrôle final en lecture seule avant la PR.</li>
+        <li><b>O2 :</b> le garder tel qu'il est dans la v4.</li>
+        <li><b>O3 :</b> le retirer complètement ; la règle de citation de la demande fait le tri.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+</div>
+</body>
+</html>
