@@ -64,4 +64,4 @@ Output <promise>DONE</promise> when tsc --noEmit exits with code 0." --max-itera
 }
 ```
 
-**Generated prompt**: [Use large feature template above]
+**Generated prompt**: [Use assets/large-feature-prompt.txt]

@@ -1,7 +1,7 @@
 ---
 name: brand-forge
 description: >-
-  Full brand package for a project, product or startup. Verified name (RDAP, trademark, domain), slogans, logo concepts, image prompts, palette, brand-tokens.css. Triggers: "branding", "brand forge", "trouve-moi un nom", "identité de marque". Image prompt only: chatgpt-image-prompt-architect.
+  Full brand package for a project or startup: verified name, slogans, logo concepts, palette, brand-tokens.css. Triggers: "branding", "brand forge", "name my app", "I need a name for", slogan/tagline, "trouve-moi un nom", "identité de marque". Image prompt only: chatgpt-image-prompt-architect.
 ---
 
 # Brand Forge
