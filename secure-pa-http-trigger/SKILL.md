@@ -1,32 +1,17 @@
 ---
 name: secure-pa-http-trigger
-description: |
-  Secures a Power Automate "When an HTTP request is received" flow by migrating it
-  from the legacy "Anyone" setting to "Any user in my tenant" with Microsoft Entra
-  ID bearer-token auth, and rewires every caller (Dataverse C# plugin, PowerApps
-  Code App, Model-Driven app ribbon button or custom page, external service) to
-  send the right token. Use this skill whenever the user mentions: securing /
-  locking down / protecting a Power Automate HTTP trigger or HTTP-triggered flow,
-  switching off "Anyone" / SAS-only, getting DirectApiAuthorizationRequired or
-  MisMatchingOAuthClaims errors, calling a flow from a plugin / code app / ribbon
-  button / external API, or the audience https://service.flow.microsoft.com/.
-  Also triggers on phrases like "I built a flow with HTTP trigger, how do I
-  secure it", "make my flow auth-only", "my flow URL is exposed", "use Entra
-  token to call my Power Automate flow", "OAuth my Power Automate flow", or
-  "custom connector wrapper for a flow". The user describes the flow they built,
-  what they want to do with it, and how it will be called; the skill returns a
-  concrete recommendation, the exact migration steps, and customised, ready-to-use
-  scripts (C# plugin Pattern A or B, OpenAPI 2.0 custom-connector wrapper YAML,
-  TypeScript / JS samples for code apps and ribbon buttons, and Azure CLI /
-  PowerShell app-registration provisioning).
+description: >-
+  Secure a Power Automate "When an HTTP request is received" flow: migrate from "Anyone"
+  to "Any user in my tenant" with Entra bearer tokens and rewire callers (plugin, code
+  app, MDA button, external). Use for MisMatchingOAuthClaims,
+  DirectApiAuthorizationRequired, "secure my flow HTTP trigger".
 ---
 
 # Secure Power Automate HTTP-Triggered Flows
 
-This skill helps migrate a Power Automate `When an HTTP request is received`
-flow from the open `Anyone` setting to authenticated `Any user in my tenant`,
-and rewires the callers. It is grounded entirely in the brief stored under
-`references/`. Load only the sections you actually need.
+Migrates a Power Automate `When an HTTP request is received` flow from `Anyone`
+to authenticated `Any user in my tenant` and rewires the callers. Grounded in
+the brief under `references/`; load only the sections you need.
 
 ## Why this matters
 
@@ -37,13 +22,11 @@ modern `Any user in my tenant` setting forces every request to carry
 mandatory**; sovereign clouds differ — see §1 of
 `references/01-protocol-and-claims.md`).
 
-> **The trailing-slash trap (read §11 first).** Entra v2's token endpoint
-> silently strips the trailing slash from `https://service.flow.microsoft.com/`
-> when you request `.default`. The resulting token's `aud` is
-> `https://service.flow.microsoft.com` (no slash) and Power Automate rejects
-> with `403 MisMatchingOAuthClaims`. The fix is a **double slash** in the
-> scope: `https://service.flow.microsoft.com//.default`. This bites every
-> caller — every sample in this skill applies the doubling.
+> **The trailing-slash trap (read §11 first).** Entra v2 strips the trailing
+> slash from `https://service.flow.microsoft.com/` when you request `.default`,
+> so `aud` has no slash and Power Automate rejects with `403
+> MisMatchingOAuthClaims`. Fix: a **double slash** in the scope,
+> `https://service.flow.microsoft.com//.default`. Every sample applies it.
 
 Switching the setting **regenerates the URL** and **immediately invalidates
 every legacy caller**. There is no in-place coexistence. So the migration is
@@ -52,7 +35,7 @@ so callers swing in one flip.
 
 ## Intake — three questions
 
-Ask only those that are unclear; never re-ask what the user already gave you.
+Ask only what is unclear; never re-ask what the user already gave you.
 
 1. **What does the flow do?** — surfaces secure inputs/outputs and PII concerns.
 2. **What is the caller context?** — pick exactly one:
@@ -65,9 +48,8 @@ Ask only those that are unclear; never re-ask what the user already gave you.
 
 Do these in order. Read each reference only when it applies.
 
-1. **Always:** read `references/01-protocol-and-claims.md`. The protocol contract
-   is the same regardless of caller, and you cannot generate a working sample
-   without it.
+1. **Always:** read `references/01-protocol-and-claims.md` (the protocol contract,
+   same for every caller).
 2. **Always:** read `references/02-entra-prerequisites.md`. App A is always
    needed; App B (SPA) only when the user insists on direct-fetch from MDA
    ribbon JS — rare, and not the default recommendation.
@@ -84,12 +66,9 @@ Do these in order. Read each reference only when it applies.
 6. **Skim:** `references/09-troubleshooting.md` so you can pre-empt the errors
    they're most likely to hit.
 7. **Always:** read `references/11-known-bugs-and-workarounds.md` before
-   emitting any code that requests a Flow service token. The `aud` trailing-
-   slash bug (Entra v2 strips it → 403 `MisMatchingOAuthClaims`) bites every
-   caller and the workaround is non-obvious. Also covers the 502 `NoResponse`
-   gotcha (no `Response` action on the trigger), the empirical failure of
-   client_credentials on Self-Host Multitenant URLs, and the public-client
-   prerequisites for device code testing.
+   emitting any code that requests a Flow service token (trailing-slash `aud`
+   bug, 502 `NoResponse`, client_credentials failure on Self-Host Multitenant
+   URLs, device-code prerequisites).
 8. **Optional:** `references/10-recent-developments.md` for 2025-2026 platform
    changes and `[Inference]` flags.
 
@@ -116,41 +95,7 @@ Read the matching template from `assets/<context>/...`, fill in known values
 result inline. Anything still unknown stays as a clearly-named placeholder
 like `${TENANT_ID}` with a note on where to get it.
 
-Canonical assets per caller:
-
-- **dataverse-plugin** →
-  - `assets/plugin/InvokeFlowPlugin.cs` (Pattern A, default — Managed Identity
-    direct call, GA 2025-06-15)
-  - `assets/plugin/SecureFlowBrokerPlugin.cs` (Pattern B, conservative — broker
-    API, no `[Inference]`)
-  - `assets/plugin/PluginAssembly.csproj.snippet`
-- **code-app** →
-  - `assets/code-app/PowerProvider.tsx`
-  - `assets/code-app/InvokeFlowButton.tsx`
-  - `assets/code-app/flowToken-fallback.ts` (only when CSP allowlist is in place)
-- **mda-button** →
-  - `assets/mda/InvokeFlowPage.js` (recommended — opens custom page that calls
-    the connector)
-  - `assets/mda/InvokeFlowDirect.js` (community fallback — direct fetch)
-  - `assets/mda/blank.html` (companion redirect page for the fallback)
-- **external-service** →
-  - `assets/external/invokeFlow.ts` (Node 20+ MSAL ConfidentialClient — production)
-  - `assets/external/test-device-code.mjs` (Node 20+ MSAL PublicClient device
-    code — for end-to-end test of a secured flow before wiring production
-    callers; decodes the JWT, warns if `aud` is missing the trailing slash)
-
-The custom-connector wrapper:
-
-- `assets/connector/apiDefinition.swagger.yaml` (primary OpenAPI 2.0)
-- `assets/connector/apiDefinition.envvar.swagger.yaml` (env-parameterised
-  variant — preserves SAS query for legacy URL bridging)
-
-Entra app-registration provisioning:
-
-- `assets/provisioning/provision-app-a.sh` — Azure CLI
-- `assets/provisioning/provision-app-a.ps1` — Microsoft.Graph PowerShell
-- `assets/provisioning/managed-identity-record.http` — Dataverse REST POST for
-  the `managedidentities` record (Pattern A only)
+Canonical templates per caller (plugin, code-app, mda-button, external-service), the custom-connector wrapper and the Entra provisioning scripts are listed in `references/12-assets-catalog.md`; `assets/plugin/` also holds `PluginAssembly.csproj.snippet`.
 
 ## Decision shortcuts
 
@@ -188,22 +133,18 @@ The Flow Service first-party app id is
 
 ## What this skill does NOT do
 
-- It does **not** push the secured URL anywhere. The user updates their
-  Dataverse environment variable (recommend `pa_flowEndpoint`) themselves.
-- It does **not** provision Entra apps. It generates the CLI / PS the user runs.
-- It does **not** smoke-test the flow. It produces the four-probe test plan
-  (anonymous, valid same-tenant, wrong-tenant, wrong-audience) for the user.
-- It does **not** flip the trigger setting on a live flow. The user clones,
-  cuts, and disables per `references/03-migration-procedure.md`.
+- It does **not** push the secured URL anywhere: the user updates their
+  Dataverse environment variable (recommend `pa_flowEndpoint`).
+- It does **not** provision Entra apps (it generates the CLI / PS the user runs),
+  smoke-test the flow (it produces the four-probe plan: anonymous, valid
+  same-tenant, wrong-tenant, wrong-audience), or flip the trigger setting on a
+  live flow (the user clones, cuts, and disables per `references/03-migration-procedure.md`).
 
 ## Authority and freshness
 
 The brief was last verified **2026-05-05** against Microsoft Learn 2026-04-29.
-Empirical findings in `references/11-known-bugs-and-workarounds.md` were
-captured **2026-05-08** debugging a real flow on Self-Host Multitenant (the
-trailing-slash bug, the 502 NoResponse, the client-credentials regression).
-If the user is in a sovereign cloud whose audience is not in the table above,
-or working past a known platform shift (new Code Apps CSP defaults, an
-announced deprecation date for `Anyone`, a new Managed Identity rollout in
-their region), say so and direct them to verify against current Microsoft Learn
-before cutover.
+Findings in `references/11-known-bugs-and-workarounds.md` were captured
+**2026-05-08** on a real Self-Host Multitenant flow. For a sovereign cloud missing
+from the table above, or a later platform shift (new Code Apps CSP defaults, a
+deprecation date for `Anyone`, a new Managed Identity rollout), say so and direct
+the user to verify against current Microsoft Learn before cutover.

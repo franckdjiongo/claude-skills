@@ -1,0 +1,81 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/prompt-enhancer.cjs",
+            "timeout": 5
+          },
+          {
+            "type": "prompt",
+            "prompt": "You are a prompt quality coach for a developer who uses Claude Code heavily. You are analyzing their prompt BEFORE Claude processes it.\n\nUser prompt: $ARGUMENTS\n\nFIRST: Check if coaching should be skipped:\n- If the prompt starts with '!' (bypass flag) -> respond \"Bypass mode.\"\n- If the prompt starts with '/' (slash command) -> respond \"Slash command.\"\n- If the prompt is under 10 words and is clearly a simple directive (yes, no, continue, do it, looks good, etc.) -> respond \"Simple directive.\"\n- If the prompt is clearly an informational question (explain, what is, how does, why, compare) with no implementation request -> respond \"Informational query.\"\n\nOtherwise, evaluate prompt quality. Check for these known anti-patterns from the user's history:\n\n1. PLAN-VS-IMPLEMENT AMBIGUITY: Does the prompt clearly state whether it wants planning only, or planning + implementation? If ambiguous, flag it.\n2. MISSING VALIDATION GATE: For any code change request, does the prompt include a validation step (like 'run VALIDATE_CMD')? If not, suggest adding one.\n3. SINGLE-INSTANCE RISK: For UI/component changes, does the prompt specify applying to ALL instances? If it mentions a specific component without saying 'everywhere' or 'all instances', flag it.\n4. MISSING THEME CHECK: For visual/CSS/animation changes, does the prompt mention checking both dark and light mode? If not, flag it.\n5. SCOPE CREEP: Is the prompt trying to do too many unrelated things at once? If so, suggest splitting.\n6. MISSING ACCEPTANCE CRITERIA: For UI changes, are there concrete criteria for 'done'? If not, suggest adding them.\n\nRespond with JSON: {\\\"ok\\\": true, \\\"reason\\\": \\\"brief explanation\\\"}. If the prompt is good: {\\\"ok\\\": true, \\\"reason\\\": \\\"Well-structured prompt.\\\"}. If improvements are needed: {\\\"ok\\\": true, \\\"reason\\\": \\\"PROMPT COACH SUGGESTIONS: [suggestions]\\\"}. Never set ok to false -- always approve. Keep reason under 100 words.",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/precompact-inject.cjs",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/session-start.cjs",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/session-end.cjs",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/friction-logger.cjs",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/session-logger.cjs",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

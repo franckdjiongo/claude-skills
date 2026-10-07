@@ -1,6 +1,10 @@
 ---
 name: domain-driven-design
-description: Expert advisor for Domain-Driven Design (DDD) on both greenfield and brownfield projects — strategic design (bounded contexts, ubiquitous language, context mapping, subdomain classification, EventStorming, Core Domain Charts), tactical design (entities, value objects, aggregates, domain events, repositories, services, factories, specifications, process managers/sagas), architecture (hexagonal/onion/clean, CQRS, event sourcing, outbox/inbox, persistence strategies across RDBMS, document stores, Dataverse, event stores), anti-patterns (anemic model, god aggregate, generic repository, DDD-Lite, event sprawl, double-write), and migration (Strangler Fig, ACL, incremental extraction). Use this skill WHENEVER the user mentions DDD, bounded contexts, aggregates, value objects, entities, ubiquitous language, EventStorming, context maps, anti-corruption layers, CQRS, event sourcing, domain events vs integration events, hexagonal/onion/clean architecture, strangler fig, anemic model, saga, process manager, outbox pattern — OR whenever they are modeling a complex business domain, carving a monolith into services, designing aggregates and invariants, reviewing code for anemic drift, onboarding a team to DDD, or planning modernization of a legacy system. Also trigger when the user asks "should we use DDD here?", "what is a bounded context?", "how do I size an aggregate?", "is this an entity or a value object?", "domain vs integration events?", "how do I model this business rule?", or any variant. Grounded in Evans (Blue Book, 2003), Vernon (Red Book, 2013; Distilled, 2016), Khononov (Learning DDD, 2021), Brandolini (EventStorming, 2021), Tune (Core Domain Charts, Bounded Context Canvas v3, Architecture Modernization, 2024), Kaiser (Adaptive Systems, 2022–2024), and the 2021–2026 state of practice.
+description: >-
+  Expert advisor for Domain-Driven Design, greenfield and brownfield: bounded contexts,
+  aggregates, value objects, ubiquitous language, EventStorming, context maps, CQRS,
+  event sourcing, anemic model, strangler fig. Use for DDD, "entity or value object?",
+  modeling a complex domain.
 ---
 
 # Domain-Driven Design — Production Reference
@@ -118,50 +122,9 @@ Vernon's four rules (`references/02-tactical-design.md` has details):
 
 **One aggregate per transaction** is the single most important tactical constraint in DDD. Breaking it produces contention, deadlocks, unclear ownership.
 
-## How to intervene on an existing codebase (brownfield playbook)
+## Adoption, brownfield and review
 
-This skill is designed to help even where DDD was never introduced. The standard recipe — **Strangler Fig + ACL + incremental extraction** (Fowler, 2004):
-
-1. **Map current reality.** Context map of the legacy (often a Big Ball of Mud). Identify seams (Feathers).
-2. **Pick a thin slice with high business value** — use a Core Domain Chart to find a high-differentiation, high-complexity slice.
-3. **Wrap the legacy with an ACL.** New code talks only to the ACL; the ACL translates to the legacy's language.
-4. **Build the new context beside the old.** Dual-write via outbox; reconcile.
-5. **Flip traffic gradually.** Feature flags or routing rules.
-6. **Retire the old slice.** Delete legacy code once dark.
-7. **Repeat.**
-
-Supporting techniques: **Branch by Abstraction**, **expand/contract** for database changes, **feature toggles** for runtime switching.
-
-On legacy, EventStorm the **as-is** first (discover the undocumented process, surface hotspots), then storm the **to-be**. The delta is your modernization backlog (Tune, *Architecture Modernization*, 2024).
-
-Full details and anti-pattern diagnosis: `references/04-anti-patterns-adoption.md`.
-
-## How to greenfield a DDD project — minimum viable sequence
-
-First iteration focuses on **language and boundaries**, not ceremony.
-
-1. **Week 1.** Big-picture EventStorm with stakeholders. First-draft context map and glossary.
-2. **Week 2.** For the first 1–2 contexts: process-level EventStorm. Identify 2–4 aggregates.
-3. **Week 3.** Write value objects for every domain term with rules. Write the first aggregate with its invariants. In-memory repository. Application service. Test with Given/When/Then.
-4. **Week 4.** Choose persistence. Build mappers. Wire one end-to-end command + query through the real adapter.
-5. **Ongoing.** Keep glossary and context map next to the code; update both in every PR that changes language.
-
-**Defer**: event sourcing, full CQRS, process managers, sagas, broker, message bus — until a concrete need appears.
-
-## Code-review checklist — anemic drift signals
-
-Use this when reviewing PRs in any existing project. Any one of these is yellow; several are red:
-
-- [ ] No public setters on aggregates.
-- [ ] No primitive types where a VO exists.
-- [ ] Validation is inside constructors/behavior, not in controllers.
-- [ ] Commands are named by intent (`ShipOrder`), not by resource (`UpdateOrder`).
-- [ ] `*Service` classes do not contain invariant enforcement.
-- [ ] Collections exposed as read-only.
-- [ ] Events are past tense.
-- [ ] Tests exercise behavior, not property setters.
-- [ ] No ORM or framework types in the domain namespace.
-- [ ] No lazy-loaded navigation across aggregate boundaries.
+Greenfield minimum viable sequence, brownfield recipe (Strangler Fig + ACL + incremental extraction, EventStorm the as-is first), team onboarding and the code-review checklist for anemic drift (public setters, primitives where a VO exists, `*Service` enforcing invariants, ORM types in the domain): `references/04-anti-patterns-adoption.md`. Defer event sourcing, full CQRS, sagas and brokers until a concrete need appears.
 
 ## Response style
 
@@ -177,16 +140,7 @@ When answering a DDD question:
 
 ## Canonical lineage you can cite
 
-- **2003** — Evans, *Domain-Driven Design* (Blue Book). Foundational vocabulary and strategic distillation.
-- **2013** — Vernon, *Implementing Domain-Driven Design* (Red Book). Operational manual; the four rules of aggregate design.
-- **2016** — Vernon, *Domain-Driven Design Distilled*. Executive summary.
-- **2015** — Millett & Tune, *Patterns, Principles, and Practices of DDD*.
-- **2021** — Khononov, *Learning Domain-Driven Design* (O'Reilly). Modern reframing; microservices/EDA/data mesh.
-- **2021** — Brandolini, *Introducing EventStorming* (Leanpub).
-- **2021** — Hofer & Schwentner, *Domain Storytelling*.
-- **2019** — Skelton & Pais, *Team Topologies*.
-- **2022–2024** — Kaiser, *Adaptive Systems with DDD, Wardley Mapping, and Team Topologies*.
-- **2024** — Tune & Uludağ, *Architecture Modernization* (Manning).
+Evans (Blue Book, 2003), Vernon (Red Book, 2013; Distilled, 2016), Khononov (Learning DDD, 2021), Brandolini (EventStorming, 2021), Tune and Uludağ (Architecture Modernization, 2024), Kaiser (2022-2024). Full citations: `references/05-glossary-and-bibliography.md`.
 
 ---
 

@@ -1,20 +1,7 @@
 ---
 name: design-forge
 description: >-
-  UX/UI Quality Analyst and Design Brief Architect with three modes. AUDIT
-  analyzes screenshots, video, or a running app for typography, spacing, color,
-  alignment, responsive, state, accessibility, and AI-slop defects, then emits
-  a scored report with self-contained, paste-ready correction prompts for a
-  development LLM. TEST, when computer-use tools are available, actively drives
-  a live app (resize viewports, tab for keyboard a11y, inject edge cases,
-  trigger error states, inspect the DOM, run Lighthouse/axe) for deeper
-  evidence. BRIEF turns a non-designer's plain app description into a
-  design-enriched prompt that makes Claude Code, Codex, or Gemini generate
-  premium, distinctive UI. Use for any design/UX/UI review, audit, or QA of an
-  interface, to detect AI slop, to test a web app's responsiveness or
-  accessibility, to fix UI quality, or to write a design brief for building an
-  app. Triggers: design forge, audit my UI, is this AI slop, make my app look
-  premium, design brief for, test my site.
+  UX/UI quality analyst and design brief architect. AUDIT reviews screenshots or a running app into a scored report with paste-ready fix prompts. TEST drives a live app. BRIEF turns an app idea into a premium design brief. Triggers: "design forge", "audit my UI", "is this AI slop", "design brief for".
 ---
 
 # Design Forge

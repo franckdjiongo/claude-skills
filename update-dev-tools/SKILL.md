@@ -1,20 +1,10 @@
 ---
 name: update-dev-tools
 description: >-
-  Autonomously update this macOS machine's local developer toolchain —
-  Python (current stable) + its doc libraries and Node (LTS), both via mise,
-  plus your global npm CLIs, bun, Homebrew formulae & casks, and npm globals
-  — then verify everything works and report what needs your password. Use
-  whenever the user wants to update / upgrade / refresh / "bring current" /
-  "mettre à jour" their dev tools, toolchain, runtimes, or environment:
-  "update my tools", "mets à jour mes outils", "update python and node",
-  "upgrade everything", "refresh my dev environment", "update brew / npm /
-  bun / mise", or when they invoke it directly. Runs a resilient bundled
-  script encoding the gotchas (mise runtimes, per-version reinstall on a
-  version bump, npm self-update race, sudo-only .pkg casks). NOT for editing
-  Claude Code settings/permissions (use update-config), uninstalling an app
-  (mac-uninstall), or bumping a repo's own dependencies (package.json /
-  lockfiles / requirements.txt).
+  Autonomously update this Mac's dev toolchain (Python and Node via mise, global npm
+  CLIs, bun, Homebrew formulae and casks), verify it, report what needs a password. Use
+  for 'update my tools', 'mets à jour mes outils', 'upgrade everything'. NOT for
+  uninstalling apps or repo dependencies.
 disable-model-invocation: true
 ---
 

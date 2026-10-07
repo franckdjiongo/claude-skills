@@ -1,6 +1,6 @@
 ---
 name: power-platform-docs
-description: Generate professional IT documentation for Power Platform solutions following 2025 best practices. Use when creating user guides (for end users of Canvas/Model-driven apps), technical guides (for IT admins/developers), or any documentation for Power Apps, Power Automate flows, or Dataverse solutions. Triggers on requests for app documentation, user manuals, technical specs, deployment guides, flow documentation, or data model documentation. Applies Microsoft Writing Style Guide, Diátaxis framework, and C4 architecture model standards automatically.
+description: "Generate IT documentation for Power Platform solutions: user guides (Canvas/Model-driven app end users) and technical guides (admins, developers) for apps, flows, Dataverse. Triggers: app documentation, user manual, technical spec, deployment guide, flow or data model docs."
 ---
 
 # Power Platform Documentation Generator

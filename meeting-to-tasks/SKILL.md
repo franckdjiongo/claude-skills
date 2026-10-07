@@ -1,15 +1,6 @@
 ---
 name: meeting-to-tasks
-description: >
-  Reconciles a meeting synthesis or notes with the current state of a codebase
-  to produce a structured task tracking document. Use this skill whenever the
-  user provides a meeting summary, synthesis, or client notes AND asks to
-  cross-check with what's in the code — even if they just say "analyse la
-  synthèse", "qu'est-ce qui reste à faire", "compare the decisions with the
-  code", "what did we decide vs what's implemented", "generate a task file
-  from the meeting", or shows you a synthesis file and a codebase. Always
-  trigger this skill when the intent is to bridge meeting decisions with
-  implementation reality. Do NOT wait for the user to explicitly name the skill.
+description: "Reconcile a meeting synthesis or client notes with the codebase and produce a structured task tracking file. Use for \"analyse la synthèse\", \"qu'est-ce qui reste à faire\", \"compare the decisions with the code\", \"what did we decide vs what's implemented\"."
 ---
 
 # Mission

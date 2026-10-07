@@ -51,12 +51,10 @@ The `description` field is critical - it determines when Claude Code should invo
 - `governance-script-generator` - Generate PAC CLI and PowerShell governance scripts
 - `power-platform-docs` - Power Platform documentation standards
 - `teams-message-polisher` - Polish messages for Microsoft Teams
-- `code-app-create` - Create, scaffold, and initialize a new Power Apps code app from scratch
 - `code-app-connect` - Connect a Power Apps code app to data sources and implement CRUD operations
 - `code-app-deploy` - Deploy a Power Apps code app, manage ALM, configure security and monitoring
 - `add-dataverse` - Add Dataverse tables to a Power Apps code app with generated TypeScript models and services
 - `pp-solution-sync` - Sync Power Platform solution exports from ~/Downloads into local project folders
-- `secure-pa-http-trigger` - Secure a Power Automate HTTP-trigger flow with Entra ID auth and rewire every caller
 - `sync-to-azure` - Syncs the current Power Apps Code App to the Fernand Gilbert Ltée Azure DevOps repository under code-apps/<app-name>/.
 
 **Claude Code Extensibility**
@@ -72,7 +70,6 @@ The `description` field is critical - it determines when Claude Code should invo
 - `loop-autonomy` - Run an autonomous work loop over a backlog using subscription-included mechanisms
 - `handoff` - Compact the current conversation into a handoff document for another agent to pick up
 - `adversarial-pr-review` - Run an ultracode multi-agent ADVERSARIAL review of the working diff BEFORE its pull request is opened (Mode A), and resolve code-review bot comments in one bounded pass (Mode B), 2 rounds max…
-- `update-dev-tools` - Autonomously update this macOS machine's local developer toolchain — Python (current stable) + its doc libraries and Node (LTS), both via mise, plus…
 - `brain-capture` - Extract 0-3 candidate memories (facts/decisions/preferences/lessons/routines/ conventions worth remembering long-term) from the session that is about…
 - `workstation-friction-capture` - Triage the workstation-tool frictions logged during the session that is about to end and report genuine structural defects as chips/notes to the hub (source de vérité : repo workstation, copie conforme ici)
 - `brief-chantier` - Standard for autonomous-execution work plans ("plans de chantier").
@@ -89,27 +86,17 @@ The `description` field is critical - it determines when Claude Code should invo
 - `convex-agents-debugging` - Debugging techniques for Convex agents
 - `convex-agents-context` - Customize LLM context with RAG injection and cross-thread search
 - `convex-agents-fundamentals` - Core setup and configuration for Convex agents
-- `convex-agents-human-agents` - Human-in-the-loop integration for hybrid workflows
 - `convex-agents-messages` - Message handling and UIMessages for conversation display
 - `convex-agents-rag` - Retrieval-Augmented Generation patterns for knowledge bases
 - `convex-agents-streaming` - Real-time response streaming for chat UIs
 - `convex-agents-threads` - Conversation thread management
 - `convex-agents-tools` - Tool definitions for external APIs and database operations
-- `convex-agents-usage-tracking` - Token consumption tracking for billing
 - `convex-agents-workflows` - Durable multi-step agent workflows
 - `convex` - Umbrella skill for all Convex development patterns (routes to specific skills)
 - `convex-agents` - Building AI agents with thread management, tool integration, streaming, and workflows
 - `convex-best-practices` - Guidelines for production-ready Convex apps
-- `convex-component-authoring` - Create and publish self-contained Convex components
-- `convex-cron-jobs` - Scheduled function patterns for background tasks
-- `convex-file-storage` - File upload, serving, storage, and deletion
 - `convex-functions` - Writing queries, mutations, actions with validation and error handling
 - `convex-http-actions` - HTTP endpoint routing, webhooks, authentication, and CORS
-- `convex-migrations` - Schema migration strategies and zero-downtime patterns
-- `convex-realtime` - Reactive subscriptions, optimistic updates, and paginated queries
-- `convex-schema-validator` - Schema definition, typing, index configuration, and validation
-- `convex-security-audit` - Deep security review for authorization and data access boundaries
-- `convex-security-check` - Quick security audit checklist for Convex apps
 - `convex-remote-mcp` - Build a production-ready REMOTE MCP server (Streamable HTTP) hosted INSIDE an EXISTING Convex backend — exposing your Convex functions as…
 
 **Text & Document Processing**
@@ -136,8 +123,6 @@ The `description` field is critical - it determines when Claude Code should invo
 - `api-test-script-generator` - Generate API test scripts
 - `github-issue-creator` - Create GitHub issues programmatically
 - `avoid-feature-creep` - Prevent feature creep when building software and AI-powered products
-- `supacode-cli` - Control Supacode from the terminal (worktrees, tabs, and surfaces)
-- `workos-widgets` - Use when the user is implementing, embedding, or debugging a WorkOS Widget — specifically the User Management, User Profile, Admin Portal SSO…
 
 **Specialized Workflows**
 - `bpmn-creator` - Create BPMN 2.0 process diagrams
@@ -146,8 +131,6 @@ The `description` field is critical - it determines when Claude Code should invo
 - `dtsx-workflow-analyzer` - Analyze SSIS DTSX packages
 - `app-blueprint` - Reverse-engineer a codebase into a comprehensive Application Blueprint (EN/FR)
 - `brand-forge` - Automate a full brand package (verified name, slogans, logo concepts, palette, typography) producing brand-package.md + brand-tokens.css that hand off into the design pipeline; a logo/image prompt on an existing name routes to chatgpt-image-prompt-architect (part of `design-studio` plugin)
-- `domain-driven-design` - Expert advisor for DDD: strategic design, tactical design, architecture, anti-patterns, and migration
-- `mac-uninstall` - Completely or partially uninstall macOS applications removing all associated files
 - `design-forge` - UX/UI Quality Analyst and Design Brief Architect with three modes: AUDIT (analyze screenshots/video for defects and AI slop, emit a scored report with paste-ready correction prompts), TEST (actively drive a live app with computer-use tools), and BRIEF (turn a non-designer's idea into a premium design prompt); includes a brief→build→verify pipeline
 - `galley` - POINTEUR — absorbé par le skill unifié `workstation` (source de vérité : repo workstation, references/galley.md) ; revue d'artefacts HTML via les outils MCP html_review_* ou la CLI `bun run review`
 - `ship-polished-ui` - Single entry point for all client websites and app UIs (create or improve); runs a non-negotiable real-browser visual QA loop and posts a Verification Ledger before done; documentary artifacts route to design-elevation (part of `design-studio` plugin)
@@ -158,10 +141,7 @@ The `description` field is critical - it determines when Claude Code should invo
 
 **Email (Resend)**
 - `resend` - Resend email platform umbrella that routes to send, inbound, agent inbox, and template sub-skills
-- `resend-send-email` - Send transactional, notification, and bulk emails via the Resend API
 - `resend-templates` - Create, update, publish, and manage Resend email templates via the API
-- `resend-inbound` - Receive emails with Resend: inbound domains, webhooks, and content/attachment retrieval
-- `resend-agent-email-inbox` - Set up a secure email inbox for an AI agent with content safety measures
 
 ## Creating New Skills
 

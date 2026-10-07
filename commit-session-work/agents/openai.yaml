@@ -1,0 +1,4 @@
+interface:
+  display_name: "Commit Session Work"
+  short_description: "Commit locally or land and push session work"
+  default_prompt: "Use $commit-session-work to commit this session safely; add `local` to stay on the current branch without fetching, integrating, or pushing."

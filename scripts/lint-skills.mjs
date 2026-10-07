@@ -6,6 +6,11 @@
 //                [--home <dir>] [--repo <dir>] [--projects <dir>] [--allowlist <file>]
 // Exit:   0 = no error (warnings allowed), 1 = at least one error.
 //
+// Dormant skills: a skill switched off in ~/.claude/settings.json skillOverrides AND
+// (disabled in ~/.codex/config.toml [[skills.config]] OR without a Codex user-scope
+// copy) is reported once as an info line and skipped for R1, R7, REF-MISSING and
+// CODEX-PATH. A skill still loaded on one runtime is never dormant.
+//
 // Runtimes: Claude Code user scope = <home>/.claude/skills, Codex user scope =
 // <home>/.agents/skills. Project scope = <project>/.claude/skills and
 // <project>/.agents/skills. The hard-excluded repos (Gilbert, Temps Chantier) are
@@ -323,9 +328,13 @@ export function extractFileRefs(text) {
   return [...out]
 }
 
+/** Test files are never shipped to the Codex variant (build-runtime-variant.mjs), so they cannot count as drift. */
+export const TEST_FILE_RE = /\.test\.[cm]?[jt]s$/
+
 function treeHash(dir) {
   const out = new Map()
   for (const f of walkFiles(dir)) {
+    if (TEST_FILE_RE.test(basename(f))) continue
     try { out.set(relative(dir, f), sha(readFileSync(f))) } catch { /* unreadable */ }
   }
   return out
@@ -384,7 +393,7 @@ function codexPathFindings(dir, label) {
   return out
 }
 
-function compareRuntimes(claudeDir, agentsDir, scope, allow) {
+function compareRuntimes(claudeDir, agentsDir, scope, allow, skip = {}) {
   const findings = []
   const c = skillDirsIn(claudeDir)
   const a = skillDirsIn(agentsDir)
@@ -408,6 +417,7 @@ function compareRuntimes(claudeDir, agentsDir, scope, allow) {
     }
     const rc = safeReal(c.get(n)), ra = safeReal(a.get(n))
     if (rc && ra && rc === ra) continue
+    if (scope === 'user' && reasonOf(skip[`codex:${n}`])) continue // hand-written Codex variant, reason stated in install-skills.skip.json
     const sc = join(c.get(n), 'scripts'), sa = join(a.get(n), 'scripts')
     const hc = isDir(sc) ? treeHash(sc) : new Map()
     const ha = isDir(sa) ? treeHash(sa) : new Map()
@@ -456,6 +466,50 @@ export function defaultConfig(over = {}) {
   }
 }
 
+/** install-skills.skip.json: { "<runtime>:<skill>": "<reason>" }. Entries without a reason are returned as problems. */
+export function loadSkipReasons(repoRoot) {
+  const file = join(repoRoot, 'scripts', 'install-skills.skip.json')
+  const text = readText(file)
+  if (text == null) return { skip: {}, problems: [] }
+  let data
+  try { data = JSON.parse(text) } catch (e) { return { skip: {}, problems: [`install-skills.skip.json is not valid JSON: ${e.message}`] } }
+  const skip = {}
+  const problems = []
+  for (const [k, v] of Object.entries(data && typeof data === 'object' ? data : {})) {
+    if (typeof v === 'string' && v.trim()) skip[k] = v
+    else problems.push(`install-skills.skip.json "${k}" has no reason`)
+  }
+  return { skip, problems }
+}
+
+/** Skill names disabled in ~/.codex/config.toml ([[skills.config]] blocks with enabled = false). */
+export function codexDisabledSkills(home) {
+  const text = readText(join(home, '.codex', 'config.toml'))
+  const out = new Set()
+  if (text == null) return out
+  for (const block of text.split(/^\s*\[\[skills\.config\]\]\s*$/m).slice(1)) {
+    const body = block.split(/^\s*\[/m)[0]
+    const en = /^\s*enabled\s*=\s*(true|false)\s*$/m.exec(body)
+    const pm = /^\s*path\s*=\s*(?:'([^']*)'|"([^"]*)")\s*$/m.exec(body)
+    if (!en || en[1] !== 'false' || !pm) continue
+    const path = pm[1] ?? pm[2]
+    out.add(basename(basename(path) === 'SKILL.md' ? dirname(path) : path))
+  }
+  return out
+}
+
+/** Dormant = off on Claude AND (disabled on Codex OR no Codex user-scope copy). */
+export function dormantSkills(home, overrides) {
+  const codexOff = codexDisabledSkills(home)
+  const codexCopies = skillDirsIn(join(home, '.agents', 'skills'))
+  const out = new Set()
+  for (const [n, v] of Object.entries(overrides)) {
+    if (v !== 'off') continue
+    if (codexOff.has(n) || !codexCopies.has(n)) out.add(n)
+  }
+  return out
+}
+
 export function runLint(cfg) {
   const findings = []
   const notes = []
@@ -466,6 +520,9 @@ export function runLint(cfg) {
   const overrides = settings.skillOverrides && typeof settings.skillOverrides === 'object' ? settings.skillOverrides : {}
   const enabledPlugins = settings.enabledPlugins && typeof settings.enabledPlugins === 'object' ? settings.enabledPlugins : {}
   const universe = buildUniverse(cfg)
+  const dormant = dormantSkills(cfg.home, overrides)
+  const { skip, problems: skipProblems } = loadSkipReasons(cfg.repoRoot)
+  for (const p of skipProblems) findings.push({ rule: 'ALLOWLIST', severity: 'error', skill: '-', where: join(cfg.repoRoot, 'scripts', 'install-skills.skip.json'), message: p })
 
   // ---- catalogs
   const checkRefs = (refs, file, localNames, stats, installedOnly) => {
@@ -517,7 +574,7 @@ export function runLint(cfg) {
   }
 
   // ---- runtime parity
-  findings.push(...compareRuntimes(join(cfg.home, '.claude', 'skills'), join(cfg.home, '.agents', 'skills'), 'user', allow))
+  findings.push(...compareRuntimes(join(cfg.home, '.claude', 'skills'), join(cfg.home, '.agents', 'skills'), 'user', allow, skip))
   for (const p of projects) {
     const c = join(p, '.claude', 'skills'), a = join(p, '.agents', 'skills')
     if (isDir(c) || isDir(a)) findings.push(...compareRuntimes(c, a, `project:${basename(p)}`, allow))
@@ -537,6 +594,7 @@ export function runLint(cfg) {
   const seenReal = new Set()
   const seenDigest = new Map()
   const group = new Map()
+  const dormantSeen = new Map()
   let skillCount = 0
   for (const d of dirs) {
     const real = safeReal(d.p)
@@ -545,8 +603,14 @@ export function runLint(cfg) {
     skillCount++
     const text = readText(join(d.p, 'SKILL.md')) || ''
     const digestKey = `${basename(d.p)}:${sha(text)}`
-    const fs = lintSkillDir(d.p, d.label, allow, d.root)
+    let fs = lintSkillDir(d.p, d.label, allow, d.root)
     fs.push(...codexPathFindings(d.p, d.label))
+    if (dormant.has(basename(d.p))) {
+      // dormant: loaded on no runtime, so size, description, references and .Codex/ paths are not worth a finding
+      const skipped = new Set(['R1-LINES', 'R1-WORDS', 'R7-DESC', 'REF-MISSING', 'CODEX-PATH'])
+      fs = fs.filter((x) => !skipped.has(x.rule))
+      if (!dormantSeen.has(basename(d.p))) dormantSeen.set(basename(d.p), d.label)
+    }
     if (seenDigest.has(digestKey)) {
       // identical SKILL.md already linted: keep only the findings that depend on the directory
       const dirOnly = fs.filter((x) => x.rule === 'REF-MISSING' || x.rule === 'CODEX-PATH')
@@ -556,6 +620,9 @@ export function runLint(cfg) {
     seenDigest.set(digestKey, d.label)
     findings.push(...fs)
     group.set(digestKey, d.label)
+  }
+  for (const [n, label] of [...dormantSeen].sort()) {
+    findings.push({ rule: 'DORMANT', severity: 'info', skill: n, where: label, message: 'switched off on every runtime that carried it: skipped for R1, R7, REF-MISSING and CODEX-PATH' })
   }
   stats.skills = skillCount
   stats.projects = projects.length
@@ -568,9 +635,10 @@ export function formatReport(result, { verbose = false } = {}) {
   const { findings, stats } = result
   const errs = findings.filter((f) => f.severity === 'error')
   const warns = findings.filter((f) => f.severity === 'warning')
+  const infos = findings.filter((f) => f.severity === 'info')
   const out = []
   out.push(`lint-skills: ${stats.skills} skills, ${stats.catalogs} catalogs, ${stats.checked} catalog references checked, ${stats.projects} projects`)
-  const order = ['CAT-MISSING', 'CAT-DISABLED', 'CODEX-PATH', 'RUNTIME-ONE-SIDE', 'SCRIPT-DIFF', 'R1-LINES', 'R1-WORDS', 'R7-DESC', 'REF-MISSING', 'ALLOWLIST', 'R9-OWNER']
+  const order = ['CAT-MISSING', 'CAT-DISABLED', 'CODEX-PATH', 'RUNTIME-ONE-SIDE', 'SCRIPT-DIFF', 'R1-LINES', 'R1-WORDS', 'R7-DESC', 'REF-MISSING', 'ALLOWLIST', 'R9-OWNER', 'DORMANT']
   const byRule = new Map()
   for (const f of findings) { if (!byRule.has(f.rule)) byRule.set(f.rule, []); byRule.get(f.rule).push(f) }
   for (const rule of [...order, ...[...byRule.keys()].filter((r) => !order.includes(r))]) {
@@ -581,7 +649,7 @@ export function formatReport(result, { verbose = false } = {}) {
     if (rule === 'R9-OWNER' && !verbose) { out.push(`  ${list.length} skills lack owner/runtimes/last-review fields (use --verbose to list)`); continue }
     for (const f of list) out.push(`  ${f.skill} (${f.where}): ${f.message}`)
   }
-  out.push('', `${errs.length} error(s), ${warns.length} warning(s)`)
+  out.push('', `${errs.length} error(s), ${warns.length} warning(s)${infos.length ? `, ${infos.length} info` : ''}`)
   return out.join('\n')
 }
 

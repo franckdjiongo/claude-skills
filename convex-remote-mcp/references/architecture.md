@@ -19,6 +19,26 @@ manual `register` mutation). claude.ai authenticates via WorkOS AuthKit; the JWT
 verified **locally against the JWKS**; the email is resolved and checked against an
 **allowlist**.
 
+Request flow:
+
+```
+claude.ai
+   │  POST /mcp (anonymous) → 401 + WWW-Authenticate          (protocolVersion 2025-06-18)
+   ▼
+OAuth WorkOS AuthKit (DCR/CIMD, PKCE) → resource-bound JWT (aud = …/mcp)
+   │
+   ▼
+HTTP route /mcp  (httpAction, requireAuth:true)
+   │   resolveIdentity = LOCAL JWKS verify (RS256 + iss/aud/exp) → email → authorize (allowlist)
+   ▼
+gateway.handleMcpRequest  (convex-mcp-gateway)
+   │   fingerprint(tools) → reconcile registry   ·   dispatch VERBATIM
+   ▼
+internal Convex fn  (internalQuery / internalMutation / internalAction)
+   ▼
+PROJECTION (mcp/functions.ts) → whitelisted fields only → response to client
+```
+
 **Central security fact:** dispatch returns the handler value **VERBATIM** to the
 client. Any function pointing at a raw Convex doc leaks `_id`/PII → hence the mandatory
 **projection layer** (Phase 3).

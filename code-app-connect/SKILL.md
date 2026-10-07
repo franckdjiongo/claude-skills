@@ -1,14 +1,6 @@
 ---
 name: code-app-connect
-description: >
-  Connect a Power Apps code app to data sources, implement CRUD operations, and integrate
-  platform services. Covers Power Platform connectors (SQL, SharePoint, Office 365), Dataverse
-  tables, Copilot Studio agents, metadata retrieval, and runtime context. Use this skill whenever
-  the user wants to add a data source to a code app, connect to Dataverse, add a connector,
-  implement CRUD operations, integrate Copilot Studio, retrieve metadata, or use getContext().
-  Also triggers on: "pac code add-data-source", "connect my app to SQL", "add SharePoint data",
-  "how to query Dataverse from code app", "integrate AI agent", "get user context in code app",
-  or any question about data integration patterns in Power Apps code apps.
+description: "Connect a Power Apps code app to data sources (SQL, SharePoint, Office 365, Dataverse, Copilot Studio agents). Use for pac code add-data-source, CRUD operations, metadata retrieval, getContext(), or connecting a code app to Dataverse or SQL."
 ---
 
 # Power Apps Code App — Data Integration
@@ -74,74 +66,19 @@ import type { Accounts } from './generated/models/AccountsModel';
 
 ### Dataverse CRUD Pattern
 
-```typescript
-// Create
-const result = await AccountsService.create({ name: "Acme", statecode: 0 });
-
-// Read single
-const account = await AccountsService.get(accountId);
-
-// Read multiple with filtering
-const accounts = await AccountsService.getAll({
-  select: ['name', 'accountnumber'],
-  filter: "address1_country eq 'USA'",
-  orderBy: ['name asc'],
-  top: 50
-});
-
-// Update (partial)
-await AccountsService.update(accountId, { name: "New Name" });
-
-// Delete
-await AccountsService.delete(accountId);
-```
+Services expose `create`, `get`, `getAll({ select, filter, orderBy, top })`, `update` (partial) and `delete`. Full examples: references/data-integration-guide.md section 4.
 
 ### Copilot Studio Pattern
 
-Use `ExecuteCopilotAsyncV2` — the only action that returns synchronous responses:
-
-```typescript
-import { CopilotStudioService } from './generated/services/CopilotStudioService';
-
-const response = await CopilotStudioService.ExecuteCopilotAsyncV2({
-  message: "What is the status of my order?",
-  notificationUrl: "https://notificationurlplaceholder",  // Required but unused
-  agentName: "cr3e1_customerSupportAgent"                  // Case-sensitive, includes publisher prefix
-});
-```
+Call `CopilotStudioService.ExecuteCopilotAsyncV2({ message, notificationUrl, agentName })`. `notificationUrl` is required but unused (`https://notificationurlplaceholder`). `agentName` is case-sensitive and includes the publisher prefix. Details: references section 5.
 
 **Warning:** Do NOT use `ExecuteCopilot` (fire-and-forget) or `ExecuteCopilotAsync` (returns 502). Only `ExecuteCopilotAsyncV2` returns actual response data.
 
 ## Step 4 — Advanced Patterns
 
-### Runtime Context
-
-```typescript
-import { getContext } from '@microsoft/power-apps/app';
-
-const ctx = await getContext();
-// ctx.user.fullName, ctx.user.objectId, ctx.user.userPrincipalName
-// ctx.app.appId, ctx.app.environmentId, ctx.app.queryParams
-// ctx.host.sessionId
-```
-
-### Dataverse Metadata
-
-```typescript
-const { data } = await AccountsService.getMetadata({
-  schema: { columns: 'all', manyToOne: true }
-});
-// data.Attributes → column labels, types, required flags
-// data.ManyToOneRelationships → lookup relationships
-```
-
-Cache metadata at app startup — these calls are heavy.
-
-### Removing Data Sources
-
-```bash
-pac code delete-data-source -a <apiName> -ds <dataSourceName>
-```
+- Runtime context: `getContext()` from `@microsoft/power-apps/app` returns user, app and host info (references section 7).
+- Dataverse metadata: `Service.getMetadata({ schema: { columns: 'all', manyToOne: true } })` (references section 6). Cache at app startup, these calls are heavy.
+- Removing a data source: `pac code delete-data-source -a <apiName> -ds <dataSourceName>` (references section 8).
 
 ## Dataverse Capabilities
 

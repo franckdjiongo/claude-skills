@@ -1,11 +1,9 @@
 ---
 name: brief-preflight
 description: >-
-  Pré-analyse d'un plan brief-chantier AVANT exécution : lint déterministe
-  (script auto-exécuté à l'invocation, dont les règles dures budget total,
-  chips, fiche d'intention et revue bornée) puis au plus 2 rounds de revue
-  adversariale multi-agents, avec triage must-have / nice-to-have. Ne
-  s'applique qu'aux plans au standard brief-chantier, pas aux documents libres.
+  Pré-analyse d'un plan brief-chantier AVANT exécution : lint déterministe (script auto-exécuté à
+  l'invocation) puis au plus 2 rounds de revue adversariale multi-agents, triage must-have /
+  nice-to-have. Seulement pour les plans au standard brief-chantier, pas les documents libres.
 when_to_use: >-
   Use this skill whenever un brief-chantier vient d'être écrit ou corrigé et
   doit être validé avant de livrer le goal prompt — triggers : « préflight »,

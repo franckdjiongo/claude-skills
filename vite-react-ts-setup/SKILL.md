@@ -1,6 +1,7 @@
 ---
 name: vite-react-ts-setup
-description: setup, audit, harden, upgrade, and migrate vite + react + typescript repositories, with pnpm as the preferred default for new repos and support for existing npm, yarn, or bun projects. use when creating a new react app, reviewing an existing vite repo, deciding between raw vite and a react framework built on vite, migrating from create react app or older vite setups, adding or fixing eslint 9 flat config, typescript config, prettier, editorconfig, husky, lint-staged, vitest 4, github actions, tailwind css 4, monorepo support, react compiler, react router framework mode, tanstack router, vike, redwoodsdk, or react server components, or when diagnosing edge cases in these setups.
+description: >-
+  Set up, audit, harden, upgrade or migrate Vite + React + TypeScript repos (pnpm default; npm/yarn/bun supported): ESLint 9, Vitest, Tailwind 4, CRA migration, framework choice. Use for new React apps or reviewing Vite repos.
 ---
 
 # Vite + React + TypeScript Setup

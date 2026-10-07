@@ -1,0 +1,20 @@
+# Landing session work on the primary branch (push-enabled modes)
+
+Read this when the source is a session-created worktree, detached session checkout, or secondary branch attributable to the current task, and the mode is Scoped or Full-tree.
+
+## Prepare the primary branch
+
+Resolve the checkout that owns `PRIMARY_BRANCH` from `git worktree list --porcelain`. If no checkout owns it, create a temporary integration worktree in a narrowly scoped `mktemp -d` location and remove it after successful landing. If the local primary branch is missing but its verified remote-tracking branch exists, create the local tracking branch only in that integration worktree. Classify the source as primary checkout, session-created secondary worktree, session-created branch, detached session worktree, or ambiguous/user-owned checkout. Use conversation evidence for ownership; never infer ownership only from a branch name or filesystem path.
+
+## The ten steps
+
+1. **Audit both sides.** Record source status, target status, merge-base, source-only commits, untracked files, and exact Owned/Mixed/Unrelated paths. Fetch before deciding whether integration is fast-forwardable.
+2. **Validate at the source.** Run the repository-required gate and relevant targeted checks before materializing a transfer commit.
+3. **Materialize safely.** Stage only the selected scope in Scoped mode, or the full audited source tree in Full-tree mode. If detached, create a uniquely named temporary local session branch (prefix in `SKILL.md`) at `INITIAL_HEAD`; never commit while remaining detached. Commit the selected source work. Leave unrelated changes unstaged and do not remove that worktree while they remain.
+4. **Select exact commits.** Identify the commit or ordered commit series attributable to the session. Never integrate an unreviewed source-only commit merely because it is on the same branch.
+5. **Prepare the primary checkout.** Confirm it still owns `PRIMARY_BRANCH`, or create the temporary integration worktree described above. Fetch its upstream and inspect dirty paths. Non-overlapping unrelated changes may remain only when exact staging/integration can be proven safe; any overlap or ambiguity is a blocker. Never stash, reset, or discard another checkout's work to make integration easier.
+6. **Integrate.** Prefer `git merge --ff-only <source>` when the entire source-only history is attributable and the primary branch is its ancestor. Otherwise cherry-pick the exact attributable commits oldest-to-newest. Do not create a broad merge that imports unrelated commits.
+7. **Validate after landing.** Run the required repository gate in the primary checkout after integration. A green source gate does not replace this target gate.
+8. **Push the target.** Push `PRIMARY_BRANCH` normally to its configured upstream, then verify target `HEAD` equals the remote-tracking branch.
+9. **Prove retention.** Verify commit ancestry for a fast-forward/merge. For cherry-picked commits, compare stable patch IDs plus the selected file content because commit hashes and ancestry differ. Confirm every Owned file and untracked artifact selected for transfer is represented on the target.
+10. **Clean session artifacts.** Remove a session-created source or integration worktree only after retention proof and only when no unrelated or ambiguous content remains. Inventory tracked, untracked, and ignored files first. Prefer normal `git worktree remove`; use `--force` only when content comparison proves every remaining tracked change is an exact retained duplicate and every untracked/ignored artifact is known disposable or retained elsewhere. Run `git worktree prune`. Delete only a local temporary branch created by this skill after no worktree uses it and retention is proven: `git branch -d` after merge/fast-forward; after cherry-pick, `git branch -D` is permitted only for that exact temporary branch because patch-ID and content proof replace ancestry. Never force-delete a pre-existing/user branch, and never delete a remote branch without a separate explicit request.

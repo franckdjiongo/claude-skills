@@ -1,24 +1,10 @@
 ---
 name: convex-remote-mcp
 description: >-
-  Build a production-ready REMOTE MCP server (Streamable HTTP) hosted INSIDE an
-  EXISTING Convex backend — exposing your Convex functions as authenticated tools
-  to claude.ai / Claude Desktop / Claude Code, secured by OAuth (WorkOS AuthKit),
-  with a mandatory anti-leak projection layer, a gated test/verification
-  discipline, and a production rollout. Use this skill whenever the user wants to
-  create/build/set up an MCP server or custom connector on or for a Convex project,
-  expose Convex functions/tools to claude.ai or Claude, add a remote/distant MCP
-  connector backed by Convex, wire the `convex-mcp-gateway` component, add WorkOS
-  AuthKit OAuth to a Convex MCP, safely project a Convex document for an LLM tool,
-  harden a Convex MCP tool that reads the wall clock (e.g. a getCurrentDate / overdue
-  / isOverdue tool returning a stale date over midnight or off by a timezone offset),
-  or roll a Convex MCP server out to production — even if they only say "un MCP pour
-  ce projet Convex", "expose mes fonctions Convex à Claude", "connecteur MCP distant
-  Convex", "MCP gateway Convex", or mention `convex-mcp-gateway`. Project-agnostic
-  and parameterized. NOT for: a generic non-Convex MCP server (use mcp-builder); a
-  local stdio MCP; ordinary Convex app development or an in-app @convex-dev/agent
-  assistant; or app/user sign-in auth (e.g. WorkOS/AuthKit login for a web app) that
-  does not stand up an MCP server.
+  Build a remote MCP server (Streamable HTTP) hosted inside an existing Convex backend,
+  secured by WorkOS AuthKit OAuth, with an anti-leak projection layer and prod rollout.
+  Use for "un MCP pour ce projet Convex", "connecteur MCP distant Convex", `convex-mcp-
+  gateway`. NOT for non-Convex/stdio MCPs.
 ---
 
 # Convex Remote MCP — production-ready, repeatable
@@ -37,24 +23,6 @@ It is the distilled, reusable form of a real end-to-end build. The companion
 `~/.claude/skill-drafts/convex-mcp-production-playbook.md`. If that file is absent,
 tell the user and stop — do not guess its contents.
 
-```
-claude.ai
-   │  POST /mcp (anonymous) → 401 + WWW-Authenticate          (protocolVersion 2025-06-18)
-   ▼
-OAuth WorkOS AuthKit (DCR/CIMD, PKCE) → resource-bound JWT (aud = …/mcp)
-   │
-   ▼
-HTTP route /mcp  (httpAction, requireAuth:true)
-   │   resolveIdentity = LOCAL JWKS verify (RS256 + iss/aud/exp) → email → authorize (allowlist)
-   ▼
-gateway.handleMcpRequest  (convex-mcp-gateway)
-   │   fingerprint(tools) → reconcile registry   ·   dispatch VERBATIM
-   ▼
-internal Convex fn  (internalQuery / internalMutation / internalAction)
-   ▼
-PROJECTION (mcp/functions.ts) → whitelisted fields only → response to client
-```
-
 ## When to use / not use
 
 **Use** for: standing up a Convex-backed remote MCP connector, adding WorkOS OAuth
@@ -72,30 +40,14 @@ don't preload all five). Bundled templates and scripts do the repetitive parts.
 
 ### Phase 0 — Collect the project parameters
 
-Everything project-specific is a parameter. Fill this table **with the user** first;
-every template uses these as `<PLACEHOLDERS>`. Never hardcode the example values.
-
-| Parameter | Meaning | Example (real build) |
-|---|---|---|
-| `<SERVER_NAME>` | `serverInfo.name` (a slug for this MCP server) | `cobacam-communicator` |
-| `<DEPLOYMENT_DEV>` | dev `.convex.site` origin | `https://agile-hare-487.convex.site` |
-| `<DEPLOYMENT_PROD>` | prod `.convex.site` origin | `https://wonderful-shrimp-462.convex.site` |
-| `<DEPLOYMENT>` | the dev **or** prod origin for whichever you're targeting (used by deployment-agnostic commands/scripts) | one of the two above |
-| `<AUTHKIT_DOMAIN>` | WorkOS AuthKit domain = OIDC **issuer** | `https://premier-image-79-staging.authkit.app` |
-| `<ALLOWLIST_TABLE>` | Convex table gating access by email | `allowedUsers` |
-| `<ALLOWLIST_INDEX>` | index on the lowercased email | `by_email` |
-| `<TIMEZONE>` | IANA tz for any clock/date tool (if any) | `America/Montreal` |
-| `<MCP_PATH>` | mount path | `/mcp` |
-| `<SYSTEM_PROMPT_IMPORT>` | the in-app agent prompt to reuse verbatim (if any) | `COBACAM_SYSTEM_PROMPT` |
-| `<TOOL_CATALOG>` | *conceptual input* — the set of functions to expose, by READ/WRITE class; shapes the `tools` array in `gateway.ts`/`functions.ts`, not a literal substituted token | 30 tools |
-
-Also confirm the **one-time prerequisites** (playbook §1): a Convex account with
-**separate dev + prod** deployments, the `convex-mcp-gateway` npm package, a WorkOS
-AuthKit tenant, claude.ai custom-connector access, and `bunx convex` / `gh` / `curl`.
+Fill the parameter table in `references/parameters.md` **with the user** first (server name,
+dev/prod `.convex.site` origins, AuthKit domain, allowlist table/index, timezone, mount
+path, tool catalog). Every template uses them as `<PLACEHOLDERS>`; never hardcode the
+example values. Also confirm the one-time prerequisites listed there.
 
 ### Phase 1 — Architecture & wiring  →  read `references/architecture.md`
 
-Understand the topology and env-var contract, then install + wire the component:
+Understand the topology (request-flow diagram included) and env-var contract, then install + wire the component:
 `convex.config.ts` (`app.use(mcpGateway)`), instantiate the gateway, mount the HTTP
 route on **both `<MCP_PATH>` and `<MCP_PATH>/`**, and add the well-known routes.
 Templates: `assets/templates/convex.config.ts`, `http.ts`, `gateway.ts`. The single
@@ -145,23 +97,12 @@ inference sites, sentinel keyed on HEAD, multi-account git remotes).
 
 ## Bundled resources
 
-Read references *as you reach each phase* (don't preload). Copy templates into the
-target project and substitute the Phase-0 parameters. Run scripts to verify.
+Read references as you reach each phase (don't preload). Copy templates into the target
+project and substitute the Phase-0 parameters.
 
-| Resource | Use |
-|---|---|
-| `references/architecture.md` | Phase 1: topology, env-var table, wiring. |
-| `references/auth-workos.md` | Phase 2: full OAuth contract + pitfalls + bridge mode. |
-| `references/anti-leak-projections.md` | Phase 3: projection, clock-in-action, audit redaction. |
-| `references/tests-verification.md` | Phase 4: gate sequence + anti-bug checklist. |
-| `references/rollout-prod.md` | Phase 5: prod rollout + pitfalls. |
-| `assets/templates/convex.config.ts` | Component registration. |
-| `assets/templates/gateway.ts` | Gateway scaffold: catalog, authorize, resolveIdentity, JWKS verify, configureOAuth, initialize. |
-| `assets/templates/http.ts` | Route mounting + well-known. |
-| `assets/templates/mcp-functions.ts` | Projection wrappers + helpers + `isEmailAllowed`. |
-| `assets/templates/timezone.ts` | Clock helper with ICU-24 + date round-trip guards (drop if no date tools). |
-| `scripts/mcp-smoke-test.sh` | End-to-end auth+protocol smoke test (parameterized). |
-| `scripts/verify-gates.sh` | Runs the verification gate sequence in order. |
+- Templates in `assets/templates/`: `convex.config.ts`, `gateway.ts`, `http.ts`,
+  `mcp-functions.ts`, `timezone.ts` (ICU-24 and date round-trip guards, drop if no date tools).
+- Scripts: `scripts/mcp-smoke-test.sh` (auth + protocol smoke test), `scripts/verify-gates.sh`.
 
 ## Non-negotiables (the hard-won lessons)
 
@@ -202,8 +143,7 @@ Each links to where the detail lives. Internalize them — they're *why* the ski
 ## Critical reminders
 
 - **Read the playbook in full first.** It is the source of truth; this SKILL.md is the
-  index over it.
-- **Parameterize, don't copy COBACAM.** The example values above are illustrations.
+  index over it. Parameterize, don't copy the COBACAM example values.
 - **dev ≠ prod.** Separate DB and env store — re-seed the allowlist, re-run
   `configureOAuth --prod`, re-add WorkOS resource indicators, re-probe with `--prod`.
 - **`configureOAuth` must run** (per deployment) or `/.well-known/oauth-protected-resource<MCP_PATH>`

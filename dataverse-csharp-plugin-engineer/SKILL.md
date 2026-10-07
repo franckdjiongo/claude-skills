@@ -1,6 +1,6 @@
 ---
 name: dataverse-csharp-plugin-engineer
-description: Use when building, debugging, hardening, testing, or deploying Dataverse/Power Platform C# plug-ins end-to-end. Trigger on requests for plugin scaffolding, pipeline-stage decisions, step registration, Custom API handlers, FakeXrmEasy tests, performance and security improvements, CI/CD setup, or production plugin incident triage.
+description: "Use when building, debugging, hardening, testing or deploying Dataverse C# plug-ins end-to-end. Triggers: plugin scaffolding, pipeline-stage decisions, step registration, Custom API handlers, FakeXrmEasy tests, CI/CD, performance and security, plugin incidents."
 ---
 
 # Dataverse C# Plugin Engineer

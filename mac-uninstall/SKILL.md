@@ -1,15 +1,10 @@
 ---
 name: mac-uninstall
 description: >-
-  Completely or partially uninstall macOS applications — removing the app
-  bundle plus all associated files (preferences, caches, logs, app support
-  data, group containers, etc.). Use this skill whenever the user says
-  anything like "uninstall X", "remove X app", "delete X application",
-  "disinstall X", "get rid of X", "clean up X app", "wipe X", "remove all
-  traces of X", or just "I want to delete an app". Also trigger when the user
-  asks to "clean" an app (partial mode: keep the app, remove only
-  caches/logs). If no app name is given, ask the user which app they want to
-  remove. Always ask for confirmation before deleting anything.
+  Fully or partially uninstall a macOS app: bundle plus preferences, caches, logs, app
+  support, group containers. Use for 'uninstall X', 'remove X app', 'get rid of X',
+  'remove all traces of X', or 'clean' an app (keep it, remove caches/logs). Ask which
+  app if none is named, confirm before deleting.
 disable-model-invocation: true
 ---
 

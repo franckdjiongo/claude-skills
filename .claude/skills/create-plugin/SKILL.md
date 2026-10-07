@@ -1,19 +1,6 @@
 ---
 name: create-plugin
-description: >-
-  Create or package an installable Claude Code + Codex plugin in this
-  claude-skills repo. Use whenever the user wants to make a new plugin, turn an
-  existing skill/agent/MCP/hook/command into a distributable plugin, "package as
-  a plugin", "create a plugin for X", scaffold a plugin, add a plugin to the
-  marketplace, or fix a plugin that isn't loading (skill not showing, agents
-  only, Codex not finding it). Handles all component types both runtimes
-  support — skills, agents, hooks, MCP servers, slash commands, LSP (Claude
-  Code) and skills, MCP servers, apps, hooks (Codex) — the canonical nested
-  skills directory layout, both manifests, the plugin-root path variable for
-  cross-references,
-  both marketplace catalogs, a README, the repo's registry/app bookkeeping, and
-  validation. Triggers: create plugin, new plugin, package plugin, plugin
-  marketplace, plugin not loading.
+description: "Create or package an installable Claude Code + Codex plugin in this repo: scaffold, manifests, marketplace catalogs, validation. Triggers: create plugin, new plugin, package as a plugin, plugin marketplace, plugin not loading (skill not showing, Codex not finding it)."
 ---
 
 # Create Plugin

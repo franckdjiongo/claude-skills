@@ -1,6 +1,10 @@
 ---
 name: workos-widgets
-description: Use when the user is implementing, embedding, or debugging a WorkOS Widget — specifically the User Management, User Profile, Admin Portal SSO Connection, or Admin Portal Domain Verification widgets. Handles the full stack — detecting the frontend (Next.js, React, React Router, TanStack Start, Vite, SvelteKit), generating access tokens via the backend SDK in use (Node, Python, Go, Ruby, PHP, Java, .NET), and wiring up the widget component correctly per the bundled OpenAPI spec. Also use when code imports from @workos-inc/widgets or the user pastes <UserManagement /> or <UserProfile /> JSX.
+description: >-
+  Use when implementing, embedding or debugging a WorkOS Widget (User Management, User
+  Profile, Admin Portal SSO Connection or Domain Verification): detects the frontend,
+  generates tokens via the backend SDK, wires the component per the bundled OpenAPI
+  spec. Also on @workos-inc/widgets imports.
 ---
 
 # WorkOS Widgets

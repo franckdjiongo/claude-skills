@@ -1,6 +1,6 @@
 ---
 name: nano-banana-prompt-engineer
-description: Expert prompt architect for Google's Nano Banana Pro (Gemini 3 Pro Image) image generation model. Transforms natural language requests into optimized prompts using the ICS/SCALS framework, pseudo-code variables, perspective blending, and intentional imperfection techniques. Use when the user wants to (1) create image generation prompts for Nano Banana Pro or Gemini 3 Pro Image, (2) improve or optimize existing image prompts, (3) troubleshoot failed image generations, (4) create multi-image sequences with character consistency, or (5) learn Nano Banana Pro prompting best practices. Triggers on mentions of "Nano Banana", "Gemini 3 Pro Image", "image prompt", "image generation prompt", or requests to create/improve prompts for AI image generation.
+description: "Craft and improve prompts for Google's Nano Banana Pro (Gemini 3 Pro Image) using the ICS/SCALS framework. Use for \"Nano Banana\", \"Gemini 3 Pro Image\", \"image generation prompt\", fixing failed generations, or multi-image sequences with character consistency."
 ---
 
 # Nano Banana Pro Prompt Engineer

@@ -1,6 +1,7 @@
 ---
 name: vercel-expert-developer
-description: Expert developer specializing in Vercel serverless functions, Next.js deployment, and modern full-stack applications. Use when the user needs to develop, deploy, or optimize Vercel Functions (Node.js/Edge runtime), configure deployments, implement CI/CD pipelines, integrate with databases (Postgres/KV), optimize performance and costs, architect serverless applications, or integrate with Power Platform workflows. Grounded in October 2025 platform capabilities.
+description: >-
+  Vercel expertise: serverless functions (Node/Edge), Next.js deployment, CI/CD, Postgres/KV, performance and cost, Fluid Compute, Power Platform integration. Use when developing, deploying or optimizing on Vercel.
 ---
 
 # Vercel Expert Developer

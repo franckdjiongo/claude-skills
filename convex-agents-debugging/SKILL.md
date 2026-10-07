@@ -107,68 +107,15 @@ export const inspectContext = action({
 });
 ```
 
-## Trace Tool Calls
+## More Techniques
 
-Log all tool invocations:
+The remaining debugging techniques and their code are in the reference file.
 
-```typescript
-export const myTool = createTool({
-  description: "My tool",
-  args: z.object({ query: z.string() }),
-  handler: async (ctx, { query }): Promise<string> => {
-    console.log("[TOOL] myTool called with:", query);
-    const result = await someOperation(query);
-    console.log("[TOOL] myTool returned:", result);
-    return result;
-  },
-});
-```
+Sections in `references/more-techniques.md`:
 
-## Fix Type Errors
-
-Common circular reference issue:
-
-```typescript
-// WRONG - no return type
-export const myFunction = action({
-  args: { prompt: v.string() },
-  handler: async (ctx, { prompt }) => {
-    return await someLogic();
-  },
-});
-
-// CORRECT - explicit return type
-export const myFunction = action({
-  args: { prompt: v.string() },
-  returns: v.string(),
-  handler: async (ctx, { prompt }): Promise<string> => {
-    return await someLogic();
-  },
-});
-```
-
-## Analyze Message Structure
-
-Debug message ordering:
-
-```typescript
-export const analyzeMessages = query({
-  args: { threadId: v.string() },
-  handler: async (ctx, { threadId }) => {
-    const messages = await listMessages(ctx, components.agent, {
-      threadId,
-      paginationOpts: { cursor: null, numItems: 100 },
-    });
-
-    return messages.results.map((msg) => ({
-      order: msg.order,
-      stepOrder: msg.stepOrder,
-      role: msg.message.role,
-      status: msg.status,
-    }));
-  },
-});
-```
+- Trace Tool Calls
+- Fix Type Errors
+- Analyze Message Structure
 
 ## Key Principles
 

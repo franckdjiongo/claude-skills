@@ -1,6 +1,7 @@
 ---
 name: design-elevation
-description: Apply professional design thinking to documentary visual artifacts — presentations, plans HTML, rapports, dashboards, spreadsheets, PDFs, data visualizations. Automatically interrogates design choices, applies best practices from Stripe/Linear/Apple, and pushes for polished, hand-crafted results rather than generic template output. Triggers on requests for slides, decks, presentations ("présentation", "slides"), plans HTML ("plan HTML"), reports ("rapport"), dashboards, styled documents, or any documentary deliverable where appearance matters. For client websites and application UIs — anything shipped and browser-verified — use ship-polished-ui instead; that skill owns the site pipeline and its non-negotiable visual QA loop.
+description: >-
+  Design polish for documentary artifacts: slides, decks, plans HTML, rapports, dashboards, PDFs, data viz, styled documents. Triggers: "présentation", "slides", "plan HTML", "rapport". Client websites and app UIs: use ship-polished-ui instead.
 ---
 
 # Design Elevation Skill

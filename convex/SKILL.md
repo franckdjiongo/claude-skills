@@ -1,7 +1,7 @@
 ---
 name: convex
 displayName: Convex Development
-description: Umbrella skill for all Convex development patterns. Routes to specific skills like convex-functions, convex-realtime, convex-agents, etc.
+description: Umbrella skill for Convex development patterns. Routes to specific skills like convex-functions, convex-http-actions, convex-agents, etc.
 version: 1.0.0
 author: Convex
 tags: [convex, backend, database, realtime]
@@ -16,31 +16,16 @@ This is an index skill for Convex development. Use specific skills for detailed 
 | Skill | Command | Use When |
 |-------|---------|----------|
 | Functions | `/convex-functions` | Writing queries, mutations, actions |
-| Schema | `/convex-schema-validator` | Defining database schemas and validators |
-| Realtime | `/convex-realtime` | Building reactive subscriptions |
+| Actions | `/convex-actions-general` | Calling external APIs and Node.js code from actions |
 | HTTP Actions | `/convex-http-actions` | Webhooks and HTTP endpoints |
 
-## Data & Storage
-
-| Skill | Command | Use When |
-|-------|---------|----------|
-| File Storage | `/convex-file-storage` | File uploads, serving, storage |
-| Migrations | `/convex-migrations` | Schema evolution, data backfills |
-
-## Advanced Patterns
+## Agents
 
 | Skill | Command | Use When |
 |-------|---------|----------|
 | Agents | `/convex-agents` | Building AI agents with tools |
-| Cron Jobs | `/convex-cron-jobs` | Scheduled background tasks |
-| Components | `/convex-component-authoring` | Reusable Convex packages |
-
-## Security
-
-| Skill | Command | Use When |
-|-------|---------|----------|
-| Security Check | `/convex-security-check` | Quick security audit checklist |
-| Security Audit | `/convex-security-audit` | Deep security review |
+| Debugging | `/convex-agents-debugging` | Diagnosing agent problems |
+| Rate limiting | `/convex-agents-rate-limiting` | Limiting agent usage |
 
 ## Guidelines
 
@@ -53,8 +38,7 @@ This is an index skill for Convex development. Use specific skills for detailed 
 For most tasks:
 1. Start with `/convex-best-practices` for general patterns
 2. Use `/convex-functions` for writing backend logic
-3. Use `/convex-schema-validator` for data modeling
-4. Use specific skills as needed for your use case
+3. Use specific skills as needed for your use case
 
 ## Documentation
 

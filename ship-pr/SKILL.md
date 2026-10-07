@@ -1,12 +1,15 @@
 ---
 name: ship-pr
-description: >
-  Merge one or more explicitly-named pull requests and land the result safely: verify each PR is mergeable and its required checks are green, merge it with `gh pr merge`, sync the local primary branch (handling divergence without rewriting history), run the repo's validation gate, redeploy if the repo defines one and the merge touched deploy-relevant paths, verify post-deploy health when a health signal is discoverable, and clean up merged branches/worktrees. Works across any repo on this machine — detects the remote's SSH account alias (perso/automintech/cobacam), the repo's package.json scripts, and its own merge/redeploy conventions, so it never assumes workstation's. Use this skill whenever the user says "merge this PR", "merge these PRs", "ship this PR", "j'ai fini la revue, merge et redeploie", "merge le chantier X", gives one or more PR numbers/branch names/URLs to land, or asks to close out a chantier/branch whose PR is ready — including right after an `adversarial-pr-review` pass or a `brief-chantier` run that opened a PR. Never triggers on its own for a PR the user hasn't named — it does not scan for or merge PRs it wasn't explicitly pointed at. Distinct from `commit-session-work` (which commits/pushes uncommitted work, never merges a PR) and `adversarial-pr-review` (which reviews and opens a PR, never merges one).
+description: >-
+  Merge explicitly named pull requests and land them: check mergeable and green checks, gh pr
+  merge, sync the primary branch, run the validation gate, redeploy if defined, clean up. Use for
+  "merge this PR", "ship this PR", "merge le chantier X", PR numbers or URLs. Never for an unnamed
+  PR.
 ---
 
 # Ship PR
 
-Land one or more already-open pull requests: merge, sync, validate, redeploy, verify, clean up. This is the second half of the chantier lifecycle — `adversarial-pr-review` (or `brief-chantier`'s closing lot) gets a PR *open and reviewed*; this skill gets it *merged and live*, the exact sequence a human would otherwise run by hand after clicking merge on GitHub.
+Land one or more already-open pull requests: merge, sync, validate, redeploy, verify, clean up. `adversarial-pr-review` (or `brief-chantier`'s closing lot) gets a PR open and reviewed; this skill gets it merged and live. Distinct from `commit-session-work`, which commits and pushes but never merges a PR.
 
 Invoking this skill authorizes merging the PR(s) the user names, syncing and pushing the resolved primary branch, running the repo's own redeploy script when relevant, and deleting the branches/worktrees/locks that merge made obsolete. It does **not** authorize merging a PR the user didn't name, bypassing a failing or pending required check, force-pushing, rewriting history, or touching branch-protection settings.
 
@@ -14,7 +17,7 @@ Invoking this skill authorizes merging the PR(s) the user names, syncing and pus
 
 The user must name what to merge: a PR number (`36`), a branch name (`chantier/mcp-distant-connecteur-claude-ai`), a PR URL, a chantier slug you can match to a branch, or a list of any of these. If they say "merge the PRs for the X and Y chantiers" without numbers, resolve each via `gh pr list --head <branch>` — but if resolution is ambiguous (no match, or more than one open PR touches the name), stop and ask rather than picking one.
 
-Do not call `gh pr list` with no filter to go looking for mergeable PRs on your own initiative — that scope was explicitly declined when this skill was designed. A PR the user didn't name stays untouched, no matter how ready it looks.
+Never call `gh pr list` unfiltered to hunt for mergeable PRs. A PR the user didn't name stays untouched, however ready it looks.
 
 If the user names several PRs, keep them in the order given (or ask if the order matters and isn't obvious — e.g. one PR's branch was created off another's).
 
@@ -25,7 +28,7 @@ For every target, `gh pr view <n> --json state,isDraft,mergeable,mergeStateStatu
 - `state` is already `MERGED` (skip it with a note, not an error) or `CLOSED` (report, stop for that PR).
 - `isDraft` is true.
 - `mergeable` is `CONFLICTING`, or `mergeStateStatus` shows a block (e.g. `BLOCKED`, `BEHIND` on a repo that requires being up to date).
-- Any entry in `statusCheckRollup` is failing, or still pending and the user hasn't said to wait — a pending check is not the same as a green one; don't merge through it.
+- Any entry in `statusCheckRollup` is failing, or still pending and the user hasn't said to wait — a pending check is not a green one.
 
 These are hard blockers the same way `commit-session-work` treats a red validation gate: real, not negotiable by this skill on its own. If a check is red because of a known flake, that's the user's call to force through (`gh pr merge --admin` or similar) — never yours by default, and only if they say so explicitly for that PR.
 
@@ -45,7 +48,7 @@ Default to `--merge` (an ordinary merge commit) unless the repo's own recent his
 
 `--delete-branch` removes the remote branch as part of the same call; that's the normal, expected cleanup for a feature branch and doesn't need separate authorization.
 
-Record the merge commit SHA `gh pr merge` reports (or read it back via `gh pr view <n> --json mergeCommit`) — you'll need it for the report and for attributing any regression that shows up next.
+Record the merge commit SHA (`gh pr view <n> --json mergeCommit`) for the report and for attributing any regression.
 
 **Multiple PRs, one at a time with a checkpoint between them.** After each individual merge, sync the primary checkout (step 4) and run at least the repo's fastest gate (typically `typecheck`) before merging the next one. This is what lets you say *which* PR broke something if one does — merge all three first and you're debugging a pile, not a diff. Stop the sequence at the first PR whose post-merge gate goes red; report it plainly, and don't merge the remaining PRs on top of a checkout you already know is broken.
 
@@ -71,7 +74,7 @@ Look for a deploy/redeploy convention the repo itself declares — a `redeploy` 
 
 ## 7. Verify health, best-effort
 
-If the repo's own docs or rules name a health endpoint or a way to prove new code is live (workstation: `curl` the deployed URL and check for a response only the new code would produce, not just a 200), use it. If nothing like that is discoverable, don't fabricate a health check — say plainly that you redeployed but have no repo-defined way to confirm the new code is actually being served, rather than claiming a verification you didn't really do.
+If the repo's docs or rules name a health endpoint or a way to prove new code is live (workstation: `curl` the deployed URL and check for a response only the new code would produce, not just a 200), use it. Otherwise don't fabricate a check: say you redeployed but have no repo-defined way to confirm the new code is served.
 
 ## 8. Clean up
 

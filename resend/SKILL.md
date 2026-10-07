@@ -1,6 +1,6 @@
 ---
 name: resend
-description: Use when working with Resend email platform - routes to specific sub-skills for sending emails, receiving emails, setting up AI agent inboxes, or managing email templates.
+description: Use when working with Resend email platform - routes to the template-management sub-skill and points to the Resend docs for sending and receiving emails.
 ---
 
 # Resend
@@ -13,9 +13,6 @@ Resend is an email platform for developers. This skill routes to feature-specifi
 
 | Feature | Skill | Use When |
 |---------|-------|----------|
-| **Sending emails** | `resend-send-email` | Transactional emails, notifications, batch sends |
-| **Receiving emails** | `resend-inbound` | Processing inbound emails, webhooks for received mail, attachments |
-| **AI Agent inbox** | `resend-agent-email-inbox` | Setting up email for AI agents, or any system where untrusted email content triggers actions — includes input validation and content safety measures |
 | **Email templates** | `resend-templates` | Creating, updating, publishing, and managing reusable email templates via API |
 
 ## Quick Routing
@@ -25,46 +22,21 @@ Resend is an email platform for developers. This skill routes to feature-specifi
 - Variable syntax, constraints, reserved names
 - Draft vs published state, version history
 
-**Need to send emails?** Use `resend-send-email` skill
-- Single or batch transactional emails
-- Attachments, scheduling, templates
-- Delivery webhooks (bounced, delivered, opened)
-
-**Need to receive emails?** Use `resend-inbound` skill
-- Setting up inbound domain (MX records)
-- Processing `email.received` webhooks
-- Retrieving email content and attachments
-- Forwarding received emails
-
-**Setting up an AI agent inbox?** Use `resend-agent-email-inbox` skill
-- Configuring email for Moltbot/Clawdbot or similar AI agents
-- Webhook setup with ngrok/tunneling for local development
-- Security levels for safe handling of untrusted input
-- Trusted sender allowlists and content filtering
-
-**Automated system processes untrusted email content and takes actions?** Use `resend-agent-email-inbox` skill
-- Even without AI/LLM involvement, any system that interprets freeform email content from external senders and triggers actions (refunds, database changes, forwarding) needs input validation. Untrusted input triggering actions requires careful handling.
-
-**Sending + receiving together?** You need both `resend-inbound` and `resend-send-email`
-- Auto-replies, email forwarding, or any receive-then-send workflow requires both skills
-- Set up inbound first, then sending
-- Note: batch sending does not support attachments or scheduling — use single sends when forwarding with attachments
+**Sending emails, receiving inbound emails, or an AI agent inbox?** No dedicated skill. Use the Resend docs:
+- Sending (single and batch): https://resend.com/docs/api-reference/emails/send-email
+- Receiving (inbound domain, `email.received` webhook): https://resend.com/docs/dashboard/receiving/introduction
+- Untrusted inbound content that triggers actions (refunds, database changes, forwarding) needs input validation and a trusted-sender allowlist before anything acts on it
+- Batch sending does not support attachments or scheduling, so use single sends when forwarding with attachments
 
 **Marketing emails or newsletters?** Use [Resend Broadcasts](https://resend.com/broadcasts)
-- The sub-skills above are for transactional email. Marketing campaigns to large subscriber lists with unsubscribe links and engagement tracking should use Resend Broadcasts, not batch sending.
+- Marketing campaigns to large subscriber lists with unsubscribe links and engagement tracking should use Resend Broadcasts, not batch sending.
 
 ## Common Setup
 
-### API Key
-
-Store in environment variable:
+Store the API key in an environment variable:
 ```bash
 export RESEND_API_KEY=re_xxxxxxxxx
 ```
-
-### SDK Installation
-
-See `resend-send-email` skill for installation instructions across all supported languages.
 
 ## Resources
 

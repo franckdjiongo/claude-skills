@@ -1,0 +1,25 @@
+{
+  "description": "Extraire 0 à 3 mémoires durables de la session Codex qui se termine sous ~/Desktop/my-projets, les soumettre au Second Brain avec un scope déterministe, puis journaliser la passe même à zéro candidat. Uniquement sur demande du hook Stop Codex brain-capture-stop, jamais en milieu de session.",
+  "renameHeadings": {
+    "## Step 1 — Decide if there's anything worth capturing": "## 1. Extraire 0 à 3 candidats",
+    "## Step 2 — Resolve scope deterministically (never invent, never widen)": "## 2. Résoudre le scope",
+    "## Step 3 — Submit each candidate via the CLI": "## 3. Soumettre",
+    "## Step 4 — Log the run (mandatory, even at 0 candidates)": "## 4. Journaliser, même à zéro",
+    "## Step 5 — Stop normally": "## 5. Terminer normalement"
+  },
+  "forbid": [
+    "Claude Code",
+    "~/.claude",
+    "claude-code",
+    "CLAUDE_SKILL_DIR",
+    "AskUserQuestion"
+  ],
+  "slotSources": {
+    "intro": "d1cf9ff9759a7953",
+    "step1": "e8fba534ee3ffd29",
+    "step2": "96b9803ad7647e79",
+    "step3": "11300d2540f35e8d",
+    "step4": "3431433da99ba656",
+    "step5": "548361a991dd8565"
+  }
+}

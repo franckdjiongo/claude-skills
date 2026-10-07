@@ -1,7 +1,10 @@
 ---
 name: pp-solution-sync
-description: >
-  Exporte une solution Power Platform unmanaged avec PAC CLI ou utilise un artefact local, synchronise sa représentation dans le projet, exécute les générateurs déclarés par le projet et prépare une validation Git. Utiliser lorsqu'une solution Power Platform doit être actualisée localement depuis un environnement ou depuis Downloads.
+description: >-
+  Exporte une solution Power Platform unmanaged avec PAC CLI (ou utilise un artefact local),
+  synchronise sa représentation dans le projet, exécute les générateurs déclarés par le projet et
+  prépare la validation Git. Utiliser pour actualiser une solution depuis un environnement ou
+  Downloads.
 ---
 
 # Synchroniser une solution Power Platform

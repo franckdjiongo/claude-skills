@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
-import { runLint, defaultConfig, extractSkillRefs, extractCatalogBullets, extractFileRefs, parseFrontmatter, isExcludedPath, loadAllowlist, formatReport } from './lint-skills.mjs'
+import { runLint, defaultConfig, extractSkillRefs, extractCatalogBullets, extractFileRefs, parseFrontmatter, isExcludedPath, loadAllowlist, formatReport, codexDisabledSkills, loadSkipReasons } from './lint-skills.mjs'
 
 const SCRIPT = join(dirname(fileURLToPath(import.meta.url)), 'lint-skills.mjs')
 const roots = []
@@ -271,6 +271,142 @@ describe('referenced files and owner fields', () => {
     const md = '---\nname: alpha\ndescription: short\nmetadata:\n  owner: x\n  runtimes: both\n  last-review: 2026-10-07\n---\nbody\n'
     const res = runLint(world({ files: { 'home/.claude/skills/alpha/SKILL.md': md, 'home/.agents/skills/alpha/SKILL.md': md } }).cfg)
     assert.ok(!res.findings.some((f) => f.rule === 'R9-OWNER'))
+  })
+})
+
+describe('dormant skills (L1)', () => {
+  // A skill that would raise R1, R7, REF-MISSING and CODEX-PATH if it were live.
+  const BAD = `---\nname: dorm\ndescription: ${'d'.repeat(320)}\nowner: o\nruntimes: r\nlast-review: x\n---\nRead \`references/gone.md\`.\n${Array.from({ length: 160 }, (_, i) => `line ${i}`).join('\n')}\n`
+  const CODEX_OFF = "[[skills.config]]\nenabled = false\npath = '%HOME%/.agents/skills/dorm/SKILL.md'\n"
+  const live = ['R1-LINES', 'R1-WORDS', 'R7-DESC', 'REF-MISSING', 'CODEX-PATH']
+  const dormRules = (res) => res.findings.filter((f) => f.skill === 'dorm').map((f) => f.rule)
+  const codexOff = (w) => CODEX_OFF.replace('%HOME%', w.home)
+  const allowSolo = { runtimeOnly: { dorm: 'Claude-only copy for the test' } }
+
+  test('off on Claude and no Codex copy: skipped for R1, R7, REF-MISSING and CODEX-PATH, reported once as info', () => {
+    const files = { 'home/.claude/skills/dorm/SKILL.md': BAD, 'home/.claude/skills/dorm/references/x.md': 'cp .Codex/a here' }
+    const res = runLint(world({ overrides: { dorm: 'off' }, allowlist: allowSolo, files }).cfg)
+    assert.deepEqual(dormRules(res), ['DORMANT'])
+    assert.equal(res.findings.find((f) => f.rule === 'DORMANT').severity, 'info')
+    assert.equal(errors(res).length, 0)
+  })
+
+  test('off on Claude and disabled in config.toml on Codex: dormant, one info line for both copies and the repo copy', () => {
+    const w = world({ overrides: { dorm: 'off' } })
+    for (const rel of ['home/.claude/skills/dorm/SKILL.md', 'home/.agents/skills/dorm/SKILL.md', 'projects/claude-skills/dorm/SKILL.md']) put(w.base, rel, BAD)
+    put(w.base, 'home/.codex/config.toml', codexOff(w))
+    const res = runLint(w.cfg)
+    assert.equal(dormRules(res).filter((r) => r === 'DORMANT').length, 1)
+    assert.ok(!dormRules(res).some((r) => live.includes(r)))
+  })
+
+  test('off on Claude only, still enabled on Codex: not dormant, findings stay', () => {
+    const w = world({ overrides: { dorm: 'off' } })
+    for (const rel of ['home/.claude/skills/dorm/SKILL.md', 'home/.agents/skills/dorm/SKILL.md']) put(w.base, rel, BAD)
+    put(w.base, 'home/.codex/config.toml', '[[skills.config]]\nenabled = false\npath = \'/elsewhere/other/SKILL.md\'\n')
+    const rs = dormRules(runLint(w.cfg))
+    assert.ok(!rs.includes('DORMANT'))
+    for (const r of ['R1-LINES', 'R7-DESC', 'REF-MISSING']) assert.ok(rs.includes(r), r)
+  })
+
+  test('not switched off on Claude: never dormant, even without a Codex copy', () => {
+    const files = { 'home/.claude/skills/dorm/SKILL.md': BAD }
+    const rs = dormRules(runLint(world({ allowlist: allowSolo, files }).cfg))
+    assert.ok(!rs.includes('DORMANT'))
+    assert.ok(rs.includes('R7-DESC'))
+  })
+
+  test('a Codex entry with enabled = true does not make the skill dormant', () => {
+    const w = world({ overrides: { dorm: 'off' } })
+    for (const rel of ['home/.claude/skills/dorm/SKILL.md', 'home/.agents/skills/dorm/SKILL.md']) put(w.base, rel, BAD)
+    put(w.base, 'home/.codex/config.toml', codexOff(w).replace('false', 'true'))
+    assert.ok(!dormRules(runLint(w.cfg)).includes('DORMANT'))
+  })
+
+  test('codexDisabledSkills reads single and double quoted paths and ignores enabled blocks', () => {
+    const w = world()
+    put(w.base, 'home/.codex/config.toml', '[tui]\nx = 1\n\n[[skills.config]]\nenabled = false\npath = \'/h/.agents/skills/one/SKILL.md\'\n\n[[skills.config]]\nenabled = false\npath = "/h/.agents/skills/two/SKILL.md"\n\n[[skills.config]]\nenabled = true\npath = \'/h/.agents/skills/three/SKILL.md\'\n')
+    assert.deepEqual([...codexDisabledSkills(w.home)].sort(), ['one', 'two'])
+    assert.equal(codexDisabledSkills('/nonexistent/home').size, 0)
+  })
+
+  test('info lines never fail the run and are summarised', () => {
+    const files = { 'home/.claude/skills/dorm/SKILL.md': BAD }
+    const w = world({ overrides: { dorm: 'off' }, allowlist: allowSolo, files })
+    const res = runLint(w.cfg)
+    assert.match(formatReport(res), /DORMANT \[INFO\] x1[\s\S]*0 error\(s\), 0 warning\(s\), 1 info/)
+    const args = [SCRIPT, '--home', w.home, '--repo', w.repo, '--projects', w.projects, '--allowlist', w.cfg.allowlistPath]
+    assert.equal(spawnSync('node', args, { encoding: 'utf8' }).status, 0)
+  })
+})
+
+describe('script drift rules (L2, L3)', () => {
+  const diffs = (res) => res.findings.filter((f) => f.rule === 'SCRIPT-DIFF')
+
+  test('L2: test files present on one side only never count as drift', () => {
+    const files = {
+      'home/.claude/skills/alpha/scripts/run.mjs': 'x',
+      'home/.agents/skills/alpha/scripts/run.mjs': 'x',
+      'home/.claude/skills/alpha/scripts/run.test.mjs': 'claude only test',
+      'home/.claude/skills/alpha/scripts/a.test.js': 't',
+      'home/.claude/skills/alpha/scripts/b.test.cjs': 't',
+      'home/.claude/skills/alpha/scripts/c.test.ts': 't',
+      'home/.claude/skills/alpha/scripts/lib/d.test.mts': 't',
+    }
+    assert.equal(diffs(runLint(world({ files }).cfg)).length, 0)
+  })
+
+  test('L2: a test file that differs between the runtimes is ignored too', () => {
+    const files = { 'home/.claude/skills/alpha/scripts/run.test.mjs': '1', 'home/.agents/skills/alpha/scripts/run.test.mjs': '2' }
+    assert.equal(diffs(runLint(world({ files }).cfg)).length, 0)
+  })
+
+  test('L2: non-test scripts and look-alike names still count', () => {
+    const files = {
+      'home/.claude/skills/alpha/scripts/testing.mjs': 'x',
+      'home/.claude/skills/alpha/scripts/run.test.mjs.bak': 'x',
+      'home/.claude/skills/alpha/scripts/notes.test.md': 'x',
+    }
+    const f = diffs(runLint(world({ files }).cfg))[0]
+    assert.ok(f)
+    for (const n of ['testing.mjs', 'run.test.mjs.bak', 'notes.test.md']) assert.ok(f.message.includes(`${n} (Claude only)`), n)
+  })
+
+  test('L3: a stated reason in install-skills.skip.json for codex:<skill> silences SCRIPT-DIFF', () => {
+    const files = {
+      'home/.claude/skills/alpha/scripts/run.sh': 'echo 1',
+      'home/.agents/skills/alpha/scripts/run.sh': 'echo 2',
+      'projects/claude-skills/scripts/install-skills.skip.json': JSON.stringify({ 'codex:alpha': 'hand-written Codex rewrite' }),
+    }
+    assert.equal(diffs(runLint(world({ files }).cfg)).length, 0)
+  })
+
+  test('L3: only the codex:<skill> key of the same skill counts', () => {
+    const files = {
+      'home/.claude/skills/alpha/scripts/run.sh': 'echo 1',
+      'home/.agents/skills/alpha/scripts/run.sh': 'echo 2',
+      'projects/claude-skills/scripts/install-skills.skip.json': JSON.stringify({ 'claude:alpha': 'wrong runtime', 'codex:beta': 'wrong skill' }),
+    }
+    assert.equal(diffs(runLint(world({ files }).cfg)).length, 1)
+  })
+
+  test('L3: an entry without a reason does not silence the drift and is an ALLOWLIST error', () => {
+    const files = {
+      'home/.claude/skills/alpha/scripts/run.sh': 'echo 1',
+      'home/.agents/skills/alpha/scripts/run.sh': 'echo 2',
+      'projects/claude-skills/scripts/install-skills.skip.json': JSON.stringify({ 'codex:alpha': '  ' }),
+    }
+    const res = runLint(world({ files }).cfg)
+    assert.equal(diffs(res).length, 1)
+    assert.ok(res.findings.some((f) => f.rule === 'ALLOWLIST' && /codex:alpha/.test(f.message)))
+  })
+
+  test('L3: loadSkipReasons tolerates a missing or broken file', () => {
+    assert.deepEqual(loadSkipReasons('/nonexistent/repo'), { skip: {}, problems: [] })
+    const w = world({ files: { 'projects/claude-skills/scripts/install-skills.skip.json': '{nope' } })
+    const r = loadSkipReasons(w.repo)
+    assert.deepEqual(r.skip, {})
+    assert.equal(r.problems.length, 1)
   })
 })
 
