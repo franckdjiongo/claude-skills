@@ -30,7 +30,7 @@ Un brief-chantier s'exécute sans personne à qui poser une question : une ambig
 2. **Une décision par finding** : CORRIGER (bloquant ou majeur qui sert l'intention), NICE-TO-HAVE, NE PAS CORRIGER (une ligne de raison), INVALIDE. Un mineur n'est JAMAIS CORRIGER.
 3. **Le plan respecte A1-A5 et G.** Le lint impose la forme, la lentille « Règles & process » le fond.
 4. **Déterminisme d'abord** : aucun round sur ce qu'un script attrape.
-5. **Plafond du plan ≤ 200 lignes : le lint suffit**, pas de rounds de jugement.
+5. **Plafond ≤ 200 lignes : lint seul ; ≤ 600 : un seul round.**
 
 ## Étape 0 — Lint déterministe (auto-exécuté à l'invocation)
 

@@ -7,8 +7,8 @@
       "count": 1
     },
     {
-      "from": "(les outils `preview_*` du harnais sont liés à la racine de la session, pas au repo cible)",
-      "to": "(un outil de prévisualisation du harnais, lié à la racine de la session et non au repo cible, démarrerait le mauvais serveur)",
+      "from": "jamais par `preview_*`",
+      "to": "jamais par un outil de prévisualisation du harnais",
       "count": 1
     },
     {
@@ -67,11 +67,10 @@
   "allow": {
     "claude-home": {
       "match": [
-        "~/.claude/scripts/night-run-lock.sh",
         "<code>.claude/agents/</code> / <code>.codex/agents/</code>",
         "~/.claude/skills/brief-chantier/references/gardien-intention.md"
       ],
-      "reason": "night-run-lock.sh is one shared machine script that lives at this real path and serves every runtime, so the Codex text must name it. The plan template also names both agent directories on purpose, as a dual-runtime skeleton. The Claude wrapper agents/gardien-intention.md ships in the Codex build too (its sibling .toml is the Codex one) and names its own runtime's install path."
+      "reason": "The plan template also names both agent directories on purpose, as a dual-runtime skeleton. The Claude wrapper agents/gardien-intention.md ships in the Codex build too (its sibling .toml is the Codex one) and names its own runtime's install path."
     },
     "spawn-task": {
       "match": [

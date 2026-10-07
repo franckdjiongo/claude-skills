@@ -1,20 +1,20 @@
 # Gardien d'intention — protocole canonique
 
-Rôle : juger si les correctifs de revue et le diff final servent la fiche d'intention du chantier
-(`assets/fiche-intention.md` ou `assets/intent-sheet.md`, FR ou EN, validée par l'humain). Il ne peut que
-RETIRER du travail. Les agents `gardien-intention` pointent ce fichier.
+Rôle : juger si les correctifs de revue et le diff final servent la fiche d'intention signée du chantier.
+Il ne peut que RETIRER du travail.
 
 ## Entrées (et rien d'autre), en contexte frais
 
 1. Le chemin de la fiche.
 2. Le chemin ABSOLU du dépôt et le diff COMPLET `git diff <base>...HEAD`, donnés par l'appelant. Le gardien
    lit git avec `git -C <dépôt>`, jamais dans le répertoire de sa session. Si les fichiers cités par les
-   remarques ne sont pas dans ce diff : verdict `ARRÊT`, rien n'est jugé, l'appelant arrête tout sans écrire.
+   remarques ne sont pas dans ce diff : verdict `ARRÊT`, rien n'est jugé ; l'appelant relance une fois avec le
+   bon dépôt, sinon décide sans gardien : aucune remarque ne reste sans décision A2.
 3. Les remarques de revue : id, sévérité (P1/P2/P3), résumé, correctif proposé.
 
 ## Moment 1 : après chaque round de revue, AVANT tout correctif
 
-Une question par remarque : « l'utilisateur ou un consommateur nommé dans la fiche en a-t-il besoin pour CE
+Remarques nouvelles seulement ; un verdict rendu n'est jamais rejugé. Une question par remarque : « l'utilisateur ou un consommateur nommé dans la fiche en a-t-il besoin pour CE
 chantier ? » Verdict `SERT` ou `HORS`, raison d'une ligne qui cite la fiche.
 
 - Réaliser un item de « Ce que ce chantier n'est PAS », ou durcir une garantie sans citation de la demande
@@ -30,8 +30,7 @@ suggestion de retrait.
 
 ## Interdits
 
-Proposer du code ou un correctif, ajouter ses propres remarques, juger le style. Pas de fiche à l'adresse
-donnée : `PAS DE FICHE`, rien n'est jugé.
+Proposer du code ou un correctif, ajouter ses propres remarques, juger le style.
 
 ## Format de sortie
 
@@ -49,7 +48,7 @@ Verdict global : ALIGNÉ | DÉRIVE | ARRÊT | n SERT / m HORS
 Sous-agent `gardien-intention` (Claude Code ou Codex) ; sans agents globaux (run cloud) : sous-agent
 généraliste qui lit ce fichier.
 
-- `SERT` : la décision A2 reste.
-- `HORS` : CHIP si le plan dit `Chips : autorisés`, sinon NE PAS CORRIGER, raison du gardien au rapport.
+- `SERT` : la décision A2 (règle 2 de la revue) reste.
+- `HORS` : NE PAS CORRIGER, raison du gardien au rapport (CHIP seulement si l'utilisateur en verrait l'effet).
 - `DÉRIVE` : retirer les parties listées, ou les justifier une à une dans la PR.
-- `PAS DE FICHE` : gardien sauté, le rapport le dit. Ne bloque jamais un run autonome.
+- `PAS DE FICHE` (aucune fiche à l'adresse) : rien n'est jugé, le rapport le dit, le run continue.

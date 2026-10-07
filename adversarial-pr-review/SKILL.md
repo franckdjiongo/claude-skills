@@ -12,7 +12,6 @@ description: >-
 # Adversarial PR Review
 
 Attack your own diff before the PR is public, fix only what matters with the smallest change, and finish.
-Mode A runs before opening a PR, Mode B on bot comments.
 
 ## Hard rules
 
@@ -23,9 +22,10 @@ Mode A runs before opening a PR, Mode B on bot comments.
    touched. A remark on untouched lines is INVALID. Each round-2 fix gets a fresh verifier that states
    whether the fix changes an existing behaviour or violates a plan prohibition. Never a 3rd round: a P1 still open after round 2 means not converged (rule 4). The cap counts
    per PR across Mode A and Mode B, whoever runs the rounds.
-2. **Every finding gets a disposition:** FIX (a P1, or a P2 that serves the chantier intent), CHIP (only if
-   the plan says chips are allowed; create it with `spawn_task`), WONT_FIX (one-line reason) or INVALID (its
-   facts do not hold). P3 defaults to WONT_FIX or CHIP. A pre-existing finding is never FIX unless P1. A
+2. **Every finding gets a disposition:** FIX (a P1, a P2 that serves the chantier intent, or any finding whose
+   effect the end user sees and whose fix fits in ~10 lines), CHIP (only an effect the user would see, and only
+   if the plan allows chips; `spawn_task`), WONT_FIX (one-line reason) or INVALID (its facts do not hold). A
+   pre-existing finding is never FIX unless P1. A
    remark that contradicts a written decision of the plan or intent sheet (contract, error behaviour,
    prohibition, nice-to-have) is WONT_FIX unless P1. A fix proposal adding more than ~30 lines must say why
    no smaller fix works.
@@ -33,7 +33,8 @@ Mode A runs before opening a PR, Mode B on bot comments.
    plan's `Fiche d'intention :` line), run the `gardien-intention` agent, fresh context, per
    `~/.claude/skills/brief-chantier/references/gardien-intention.md` (in a cloud clone:
    `.claude/skills/brief-chantier/references/gardien-intention.md`), which also gives what each verdict
-   changes. Moment 1: after each round, before any fix. Moment 2: before the PR. Pass it the sheet path, the
+   changes. Moment 1: after each round, before any fix, on new remarks only (a verdict is never re-judged).
+   Moment 2: before the PR. Pass it the sheet path, the
    ABSOLUTE repo path, the FULL `git diff <base>...HEAD` (never `--stat` alone) and the remarks (id, severity,
    summary, proposed fix). No sheet: skip it and say so in the report, never block.
 4. **Closure never blocks an autonomous run.** After the cap, commit and push, then:
@@ -153,8 +154,7 @@ it yourself with `checksPerformed` in the thread. No PASS while open.
 ### 5. Disposition and minimal fix
 
 Disposition every confirmed finding (rule 2), run the guardian (rule 3), then launch ONE fixer per round. It
-writes only in the chantier's repo (absolute path in its prompt) and only the FIX remarks; if the files those
-remarks cite are not in the diff, it stops without writing. Its prompt imposes: minimal fix covering the whole
+writes only in the chantier's repo (absolute path in its prompt) and only the FIX remarks. Its prompt imposes: minimal fix covering the whole
 family of the defect, no validation outside the modified path.
 For each FIX sweep its class across the ENTIRE diff: literal twins (same signature, grep it) and structural
 twins (the same invariant at another integration point, the same function's other code paths). Emit the enumeration table yourself: every grep hit with a disposition (swept,
