@@ -11,6 +11,8 @@ Runs unattended (via a launchd LaunchAgent, twice a week). On each run it:
        - skills-registry.yaml         (category block + skill_index)
        - skills-app/src/data/skills.ts (skill object + category/all/repo counts)
        - CLAUDE.md / AGENTS.md         (Skill Categories bullet)
+  3b. Removes the CLAUDE.md / AGENTS.md Skill Categories bullets of skills that no
+      longer exist in this repo (rule R12: catalogs are generated, never stale).
   4. VALIDATES before committing (YAML parses, `registry-manager scan` reports
      "up to date", skills.ts delimiters balance). On ANY failure it discards all
      changes (git reset --hard + clean) and notifies — it never pushes broken data.
@@ -353,6 +355,42 @@ def doc_add_bullet(text, catid, skid, desc):
     return "\n".join(lines[:last + 1] + [bullet] + lines[last + 1:]), True
 
 
+def repo_has_skill(name):
+    """True when REPO/<name> is a skill dir or a plugin container holding SKILL.md files."""
+    base = os.path.join(REPO, name)
+    if os.path.isfile(os.path.join(base, "SKILL.md")):
+        return True
+    if os.path.isfile(os.path.join(REPO, ".claude", "skills", name, "SKILL.md")):
+        return True  # repo-local authoring skill
+    if not os.path.isdir(base):
+        return False
+    for root, dirs, files in os.walk(base):
+        dirs[:] = [d for d in dirs if d not in ("node_modules", ".git")]
+        if root[len(base):].count(os.sep) > 3:
+            dirs[:] = []
+        if "SKILL.md" in files:
+            return True
+    return False
+
+
+DOC_BULLET = re.compile(r"^- `([^`]+)` [-\u2013\u2014:]")
+
+
+def doc_prune_missing(text, exists=None):
+    """Drop Skill Categories bullets whose skill no longer exists. Returns (text, [names])."""
+    exists = exists or repo_has_skill
+    out, removed, in_section = [], [], False
+    for line in text.split("\n"):
+        if line.startswith("## "):
+            in_section = line.startswith("## Skill Categories")
+        m = DOC_BULLET.match(line) if in_section else None
+        if m and not exists(m.group(1)):
+            removed.append(m.group(1))
+            continue
+        out.append(line)
+    return "\n".join(out), removed
+
+
 def update_registry_date(text):
     return re.sub(r'^last_updated:\s*".*"$',
                   f'last_updated: "{datetime.now():%Y-%m-%d}"',
@@ -410,9 +448,13 @@ def main():
     src = list_skill_dirs(SRC)
     dst = list_skill_dirs(REPO)
     missing = sorted(set(src) - set(dst))
-    if not missing:
-        log("No new skills to sync.")
+    stale = sorted(set(doc_prune_missing(open(CLAUDE_MD, encoding="utf-8").read())[1])
+                   | set(doc_prune_missing(open(AGENTS_MD, encoding="utf-8").read())[1]))
+    if not missing and not stale:
+        log("No new skills to sync and no stale catalog lines.")
         return
+    if stale:
+        log(f"Stale catalog lines to remove ({len(stale)}): {', '.join(stale)}")
     log(f"New skills to sync ({len(missing)}): {', '.join(missing)}")
 
     # 1) copy directories (strip nested .git / cruft)
@@ -451,6 +493,10 @@ def main():
             agm, _ = doc_add_bullet(agm, catid, name, desc)
         log(f"  registered {name} -> {catid}")
 
+    # 3a) remove catalog lines of skills that no longer exist (R12)
+    cmd_, _ = doc_prune_missing(cmd_)
+    agm, _ = doc_prune_missing(agm)
+
     # 3) bump skills.ts counts
     total_new = sum(per_cat.values())
     if total_new:
@@ -487,21 +533,28 @@ def main():
 
     # 6) commit + push
     run(["git", "add", "-A"])
-    title = ("Sync %d skill%s from ~/.claude/skills"
-             % (len(missing), "" if len(missing) == 1 else "s"))
-    body = "Auto-synced by sync-local-skills.py.\n\nAdded: " + ", ".join(missing)
+    if missing:
+        title = ("Sync %d skill%s from ~/.claude/skills"
+                 % (len(missing), "" if len(missing) == 1 else "s"))
+    else:
+        title = "Prune %d stale catalog line%s" % (len(stale), "" if len(stale) == 1 else "s")
+    body = "Auto-synced by sync-local-skills.py."
+    if missing:
+        body += "\n\nAdded: " + ", ".join(missing)
+    if stale:
+        body += "\n\nRemoved catalog lines: " + ", ".join(stale)
     c = run(["git", "commit", "-m", title, "-m", body])
     if c.returncode != 0:
         abort("git commit failed:\n" + (c.stdout + c.stderr)[-500:])
     p = run(["git", "push", "origin", "main"])
     if p.returncode != 0:
         notify("claude-skills synced (push failed)",
-               f"Committed {len(missing)} skill(s) locally but push failed (offline?).")
+               f"Committed {len(missing)} added / {len(stale)} pruned locally but push failed (offline?).")
         log("Push FAILED (committed locally). " + (p.stdout + p.stderr)[-300:])
         return
-    log(f"Pushed {len(missing)} new skill(s).")
+    log(f"Pushed {len(missing)} new skill(s), {len(stale)} stale catalog line(s) removed.")
     notify("claude-skills synced",
-           f"Added {len(missing)}: {', '.join(missing)[:150]}")
+           f"Added {len(missing)}: {', '.join(missing)[:100]}; pruned {len(stale)}")
 
 
 if __name__ == "__main__":

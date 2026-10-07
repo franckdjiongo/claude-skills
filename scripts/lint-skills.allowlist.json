@@ -1,0 +1,26 @@
+{
+  "sizeExceptions": {
+    "session-review": {
+      "maxLines": 193,
+      "reason": "R1 named exception: its scripts and schemas carry the procedure"
+    },
+    "power-platform-architect": {
+      "maxLines": 236,
+      "reason": "R1 named exception: a router over schemas and scripts, the model skill for R2"
+    }
+  },
+  "runtimeOnly": {
+    "project:claude-skills": "repo-local authoring tooling for this library; .agents/ holds only the plugin marketplace manifest and no skills",
+    "project:workstation/govern-claude": "audits the Claude Code surfaces (.claude/) of the project, so it has no Codex twin by design",
+    "project:workstation/govern-codex": "audits the Codex surfaces (.agents/, .codex/) of the project, so it has no Claude twin by design",
+    "project:second-brain/govern-codex": "audits the Codex surfaces of the project, so it has no Claude twin by design"
+  },
+  "ignoreCodexPath": {
+    "CLAUDE.md": "documents the historical blind find-and-replace bug, so the string is quoted on purpose",
+    "AGENTS.md": "documents the historical blind find-and-replace bug, so the string is quoted on purpose"
+  },
+  "ignoreRefs": {
+    "skill-creator/*": "vendored upstream skill: its documentation cites example file names that are not shipped"
+  },
+  "ignoreCatalogRefs": {}
+}
