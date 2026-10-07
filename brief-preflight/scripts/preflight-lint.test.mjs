@@ -166,7 +166,7 @@ test('fiche d\'intention existante : « Validée par : <nom> » exigé, avertiss
     const run = (...flags) => spawnSync('node', [LINT, file, dir, ...flags], { encoding: 'utf8' });
     mkdirSync(join(dir, '.chantier'));
     const sheet = (line) => writeFileSync(join(dir, '.chantier', 'intention.md'), `# Intention\n\n${line}\n`);
-    for (const line of ['**Validée par :** EN ATTENTE', 'Validée par :', 'Approved by: PENDING', 'Validée par : <nom>', 'aucune ligne de validation']) {
+    for (const line of ['**Validée par :** EN ATTENTE', 'Validée par :', 'Approved by: PENDING', 'Validée par : <nom>', 'Validée par : <nom>, <date>. Jetable (supprimée au dernier lot).', 'Validée par : Franck', 'aucune ligne de validation']) {
       sheet(line);
       const r = run();
       assert.equal(r.status, 1, line);
@@ -175,7 +175,7 @@ test('fiche d\'intention existante : « Validée par : <nom> » exigé, avertiss
       assert.equal(l.status, 0, line);
       assert.match(l.stdout, /non validée/);
     }
-    for (const line of ['Validée par : Franck, 2026-10-06', '**Approved by:** Franck Djiongo']) {
+    for (const line of ['Validée par : Franck, 2026-10-06', '**Approved by:** Franck Djiongo, 2026-10-07']) {
       sheet(line);
       const r = run();
       assert.equal(r.status, 0, r.stdout);

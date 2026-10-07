@@ -32,7 +32,7 @@ const T = {
   chips: /chips\s*:\s*(?:autoris[ée]s|allowed|interdits|forbidden)/i,
   intent: /(?:fiche d'intention|intent sheet)\s*:\s*(?:[^\s]*[/\\][^\s]*|[^\s]+\.[a-z0-9]{1,5}\b)/i,
   intentPath: /(?:fiche d'intention|intent sheet)\s*:\s*([^\s]*[/\\][^\s]*|[^\s]+\.[a-z0-9]{1,5}\b)/i,
-  approved: /(?:valid[ée]e par|approved by)\s*:([^\n]*)/i,
+  approved: /(?:valid[ée]e par|approved by)\s*:\s*([^,.\n<]+),\s*\d{4}-\d{2}-\d{2}/i,
   pending: /^\W*(?:en attente|pending)\b/i,
   doubles: /(?:doublures de test|test doubles)\s*:\s*(?:aucune|règle standard|none|standard rule)/i,
   depend: /(?:d[ée]pend de|depends on)\s*:\s*\S/i,
@@ -274,7 +274,7 @@ if (sheetPath) {
   const sheet = readFileSync(sheetPath, 'utf8').replace(/<[^>]*>/g, ' ').replace(/[*_`]/g, '');
   const name = (sheet.match(T.approved)?.[1] ?? '').trim();
   if (!/[\p{L}]/u.test(name) || T.pending.test(name)) {
-    soft.push(`Fiche d'intention ${sheetPath} non validée : « Validée par : <nom> » (Approved by: <name>) attendu, ni vide ni EN ATTENTE/PENDING (G).` + legacyNote);
+    soft.push(`Fiche d'intention ${sheetPath} non validée : « Validée par : <nom>, <AAAA-MM-JJ> » (Approved by: <name>, <date>) attendu, ni vide ni EN ATTENTE/PENDING (G).` + legacyNote);
   }
 }
 

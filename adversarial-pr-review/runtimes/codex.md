@@ -62,6 +62,6 @@ independent verify), not from the model tier. The Verify step is not optional.
   thread are the cache: never re-run an agent whose reply you hold.
 - **A fixer died or stalled** → if your session exposes a tool to message a running agent, send it
   the next step; otherwise spawn a fresh fixer whose message carries the finding, the files the dead
-  fixer already edited (`git status` / `git diff` in its worktree) and the instruction to continue
+  fixer already edited (`git status` / `git diff` in the repo) and the instruction to continue
   from that state, so it neither re-pays the whole context ramp blindly nor double-edits.
 <!-- /slot:agent-deaths -->
