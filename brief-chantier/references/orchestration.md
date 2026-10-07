@@ -49,6 +49,10 @@ SOUS-AGENTS parallèles. Chaque goal prompt contient verbatim ces deux clauses :
 - **Heartbeat.** À chaque fin de lot, envoie un statut à l'orchestrateur par l'outil de message de ta
   session : un chantier silencieux est indistinguable d'un chantier mort.
 
+## Phase 3bis — Watchdog
+
+Règles communes : `watchdog.md`. Mécanique Codex (heartbeat, fichier de surveillance, relance) : `watchdog-codex.md`.
+
 ## Phase 4 — Clôture
 
 - **Revue avant merge.** Baseline verte avant le premier merge. Lis les rapports hub et chaque PR : sentinelle
