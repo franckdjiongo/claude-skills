@@ -1,6 +1,7 @@
 ---
 name: subagent-architect
-description: "Design, review and improve Claude Code sub-agents: generates .claude/agents definitions with YAML frontmatter, checks existing ones, and judges whether a project benefits from sub-agents. Use for sub-agent creation or improvement, multi-agent systems and automation design."
+description: >-
+  Design, review and improve Claude Code sub-agents: generates .claude/agents definitions with YAML frontmatter, checks existing ones, and judges whether a project benefits from sub-agents. Use for sub-agent creation or improvement, multi-agent systems and automation design.
 ---
 
 # Claude Code Sub-Agent Architect

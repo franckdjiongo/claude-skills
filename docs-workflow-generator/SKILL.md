@@ -1,6 +1,7 @@
 ---
 name: docs-workflow-generator
-description: "Generate a documentation package for new feature work: PRD, task breakdown with skill assignments, roadmap and execution prompt under docs/<initiative>/. Use when asked to create or update the PRD, tasks, roadmap or a planning/docs workflow."
+description: >-
+  Generate a documentation package for new feature work: PRD, task breakdown with skill assignments, roadmap and execution prompt under docs/<initiative>/. Use when asked to create or update the PRD, tasks, roadmap or a planning/docs workflow.
 ---
 
 # Docs Workflow Generator

@@ -1,6 +1,7 @@
 ---
 name: design-elevation
-description: "Design polish for documentary artifacts: slides, decks, plans HTML, rapports, dashboards, PDFs, data viz, styled documents. Triggers: \"présentation\", \"slides\", \"plan HTML\", \"rapport\". Client websites and app UIs: use ship-polished-ui instead."
+description: >-
+  Design polish for documentary artifacts: slides, decks, plans HTML, rapports, dashboards, PDFs, data viz, styled documents. Triggers: "présentation", "slides", "plan HTML", "rapport". Client websites and app UIs: use ship-polished-ui instead.
 ---
 
 # Design Elevation Skill

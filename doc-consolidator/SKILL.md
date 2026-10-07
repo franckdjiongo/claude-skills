@@ -1,6 +1,7 @@
 ---
 name: doc-consolidator
-description: "Consolidate multiple related documents (markdown, technical references, guides, policies) into one unified reference, keeping all unique content and removing redundancy. Triggers: \"consolidate these docs\", \"merge these files into one\", \"combine these references\", \"unified documentation\"."
+description: >-
+  Consolidate multiple related documents (markdown, technical references, guides, policies) into one unified reference, keeping all unique content and removing redundancy. Triggers: "consolidate these docs", "merge these files into one", "combine these references", "unified documentation".
 ---
 
 # Document Consolidator

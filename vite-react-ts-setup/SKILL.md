@@ -1,6 +1,7 @@
 ---
 name: vite-react-ts-setup
-description: "Set up, audit, harden, upgrade or migrate Vite + React + TypeScript repos (pnpm default; npm/yarn/bun supported): ESLint 9, Vitest, Tailwind 4, CRA migration, framework choice. Use for new React apps or reviewing Vite repos."
+description: >-
+  Set up, audit, harden, upgrade or migrate Vite + React + TypeScript repos (pnpm default; npm/yarn/bun supported): ESLint 9, Vitest, Tailwind 4, CRA migration, framework choice. Use for new React apps or reviewing Vite repos.
 ---
 
 # Vite + React + TypeScript Setup
