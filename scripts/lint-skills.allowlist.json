@@ -1,8 +1,8 @@
 {
   "sizeExceptions": {
     "session-review": {
-      "maxLines": 193,
-      "reason": "R1 named exception: its scripts and schemas carry the procedure"
+      "maxLines": 195,
+      "reason": "R1 named exception: its scripts and schemas carry the procedure (195 = 193 in the source + 2 lines the Codex build adds by re-wrapping the description)"
     },
     "power-platform-architect": {
       "maxLines": 236,
