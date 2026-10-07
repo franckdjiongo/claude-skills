@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8"><title>Chantier · fixture</title></head>
+<body>
+<nav><a href="#lot-1">Lot 1</a> <a href="#lot-2">Lot 2</a></nav>
+<section id="s-intention"><p>Intention du plan de test.</p></section>
+<section id="s-contexte"><p>Contexte du plan de test.</p></section>
+<section id="s-approbation">
+  <ul class="list">
+    <li>Budget total : 300 / 600 lignes ajoutées (code + tests + scripts)</li>
+    <li>Chips : interdits</li>
+    <li>Fiche d'intention : .chantier/intention.md</li>
+    <li>Doublures de test : aucune</li>
+  </ul>
+</section>
+<section id="s-lots">
+  <div class="lot" id="lot-1">
+    <div class="lot-head"><span class="ln">LOT 1</span><span class="lt">Socle</span></div>
+    <div class="lot-body">
+      <p><strong>Agent</strong> : sonnet</p>
+      <p><strong>Fichiers touchés</strong> : <code>scripts/new.mjs</code>, <code>scripts/new.test.mjs</code></p>
+      <ol class="list checks">
+        <li data-check="1.1"><strong>1.1</strong> <code class="check-cmd">node scripts/check.mjs</code></li>
+        <li data-check="1.2"><strong>1.2</strong> <code class="check-cmd">npm run build &amp;&amp; node --test scripts/new.test.mjs</code></li>
+      </ol>
+      <div class="done"><span class="dk">DONE quand</span>les checks 1.1 et 1.2 sortent 0.</div>
+    </div>
+  </div>
+  <div class="lot" id="lot-2">
+    <div class="lot-head"><span class="ln">LOT 2</span><span class="lt">Clôture</span></div>
+    <div class="lot-body">
+      <p><strong>Agent</strong> : aucun</p>
+      <p><strong>Commit du lot</strong> : <code class="commit-msg">chantier(fixture): lot 2 — clôture</code></p>
+      <ol class="list checks">
+        <li data-check="2.1"><strong>2.1</strong> <code class="check-cmd">cd scripts &amp;&amp; node check.mjs</code></li>
+        <li data-check="2.2"><strong>2.2</strong> <code class="check-cmd">npm test</code></li>
+      </ol>
+      <div class="done"><span class="dk">DONE quand</span>les checks 2.1 et 2.2 sortent 0.</div>
+    </div>
+  </div>
+</section>
+<section id="s-verif"><p>Fin de run.</p></section>
+<section id="s-nice"><ul class="list"><li>a</li><li>b</li><li>c</li><li>d</li><li>e</li></ul></section>
+</body></html>

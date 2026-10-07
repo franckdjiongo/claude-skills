@@ -10,10 +10,10 @@
  * Plans FR ou EN : TOUS les contrôles textuels lisent la table `T` ci-dessous.
  * Contrôles : placeholders et `undefined` ; phrases interdites ; chemins absolus
  * (sous le dépôt cible, sous /Users/, ou existants) ; scripts `bun|npm run` ;
- * ancres fichier:ligne ; structure (sections non vides, lots avec Agent + commande +
- * DONE, étiquettes de lot uniques, TOC) ; Nice-to-have ≥ 5 ; message de commit du
+ * ancres fichier:ligne ; structure (sections non vides, lots avec Agent + liste de checks
+ * id + commande exacte (non vague, fichiers et scripts existants) + DONE, étiquettes de lot uniques, TOC) ; Nice-to-have ≥ 5 ; message de commit du
  * lot de clôture ; section flotte (plage + « Dépend de ») ; règles dures :
- * clauses sans fin, Budget total, Chips, Fiche d'intention (et, si elle existe,
+ * clauses sans fin, Budget total (« <cible> / <plafond> », plafond ≤ 1000), Chips, Fiche d'intention (et, si elle existe,
  * « Validée par : <nom> » / « Approved by: <name> »), Doublures de test.
  *
  * Sortie : ERREUR / AVERTISSEMENT, code retour 1 si ≥ 1 erreur, 2 sur erreur d'usage.
@@ -22,6 +22,7 @@
 import { readFileSync, existsSync, statSync, readdirSync, realpathSync } from 'node:fs';
 import { join, isAbsolute, basename, dirname } from 'node:path';
 import { stripComments, textOf, readFlotte } from './flotte-shared.mjs';
+import { parseChecks, vagueReason, missingRefs, isNewMarked, checkBudget } from './lot-checks.mjs';
 
 /* Table unique des synonymes FR/EN. */
 const T = {
@@ -29,6 +30,8 @@ const T = {
   endless: ["jusqu'à convergence", "jusqu'au critère de convergence", 'y compris les mineurs', 'until convergence', 'until clean', 'including minors', 'minor ones included'],
   isNew: /\((?:nouveau|nouveaux|new|to be created)\)|à créer|to be created/i,
   budget: /(?:budget total|total budget)\s*:\s*\D{0,60}?\d/i,
+  budgetLabel: /(?:budget total|total budget)\s*:/i,
+  touched: /(?:fichiers touch[ée]s|files touched)\s*<\/strong>\s*:?([\s\S]*?)<\/p>/i,
   chips: /chips\s*:\s*(?:autoris[ée]s|allowed|interdits|forbidden)/i,
   intent: /(?:fiche d'intention|intent sheet)\s*:\s*(?:[^\s]*[/\\][^\s]*|[^\s]+\.[a-z0-9]{1,5}\b)/i,
   intentPath: /(?:fiche d'intention|intent sheet)\s*:\s*([^\s]*[/\\][^\s]*|[^\s]+\.[a-z0-9]{1,5}\b)/i,
@@ -194,12 +197,32 @@ const lotIds = [...htmlLive.matchAll(/id="(lot-\d+)"/g)].map((m) => m[1]);
 if (lotIds.length === 0) errors.push('Aucun lot (id="lot-N") trouvé dans le plan');
 const lotBlocks = htmlLive.split(/(?=<div class="lot" )/).slice(1);
 const labels = new Map();
+const checkIds = new Set();
+let touched = ''; // « Fichiers touchés » du lot courant et des précédents : ce que le plan crée
 lotBlocks.forEach((block, i) => {
   const n = i + 1;
-  const end = block.indexOf('</div>\n  </div>');
-  const b = end === -1 ? block : block.slice(0, end + 20);
+  const b = block.split('</section>')[0];
+  touched += ` ${b.match(T.touched)?.[1] ?? ''}`;
   if (!/<strong>Agent<\/strong>/.test(b)) errors.push(`Lot ${n} : champ « Agent » absent`);
-  if (!/<pre class="cmd">/.test(b)) errors.push(`Lot ${n} : aucune commande de vérification (<pre class="cmd">)`);
+  const checks = parseChecks(b);
+  if (!checks.present && /<pre class="cmd">/.test(b)) {
+    soft.push(`Lot ${n} : commande en <pre class="cmd"> sans liste de checks. À AJOUTER : <ol class="list checks"><li data-check="${n}.1"><code class="check-cmd">&lt;commande exacte&gt;</code></li></ol>` + legacyNote);
+  } else if (!checks.items.length) {
+    errors.push(`Lot ${n} : aucun check (liste class="checks" : un <li data-check="id"> par check, avec la commande exacte, exit 0 = succès)`);
+  }
+  for (const item of checks.items) {
+    const at = `Lot ${n}, check « ${item.id || '?'} »`;
+    if (!item.id) errors.push(`Lot ${n} : un check n'a pas d'identifiant (data-check="…")`);
+    else if (checkIds.has(item.id)) errors.push(`${at} : identifiant déjà utilisé dans le plan`);
+    else checkIds.add(item.id);
+    if (item.codes.length !== 1) {
+      errors.push(`${at} : exactement une commande <code> attendue, ${item.codes.length} trouvée(s)`);
+      continue;
+    }
+    const why = vagueReason(item.codes[0]);
+    if (why) errors.push(`${at} : ${why}`);
+    else for (const miss of missingRefs(item.codes[0], repoRoot.replace(/\/+$/, ''), { touched, allowNew: isNewMarked(item.raw), scripts })) errors.push(`${at} : ${miss}`);
+  }
   if (!/class="done"/.test(b)) errors.push(`Lot ${n} : critère DONE absent (bloc class="done")`);
   const label = (b.match(/class="ln"[^>]*>([^<]+)</)?.[1] ?? b.match(/id="(lot-\d+)"/)?.[1] ?? '').toLowerCase().replace(/[\s-]+/g, ' ').trim();
   if (label) labels.set(label, [...(labels.get(label) ?? []), n]);
@@ -263,6 +286,10 @@ for (const phrase of T.endless) {
   }
 }
 if (!T.budget.test(visible)) soft.push('Budget total absent : « Budget total : <cible> / <plafond> » (Total budget), code + tests + scripts (A1).' + legacyNote);
+else {
+  const { error } = checkBudget(visible, T.budgetLabel);
+  if (error) soft.push(error + legacyNote);
+}
 if (!T.chips.test(visible)) soft.push('Chips absent : « Chips : autorisés|interdits » (Chips: allowed|forbidden) (A2).' + legacyNote);
 if (!T.intent.test(visible)) soft.push("Fiche d'intention absente : « Fiche d'intention : <chemin> » (Intent sheet) (G)." + legacyNote);
 if (!T.doubles.test(visible)) soft.push('Doublures de test absent : « Doublures de test : aucune|règle standard » (Test doubles: none|standard rule).' + legacyNote);

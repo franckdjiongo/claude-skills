@@ -62,6 +62,7 @@
   .lot-head .lh { font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint); white-space: nowrap; }
   .lot-body { padding: var(--sp-2) var(--sp-3) var(--sp-3); }
   .lot-body p { max-width: none; }
+  ol.checks code.check-cmd { white-space: pre-wrap; word-break: break-word; }
   .done { border: 1px dashed var(--line-strong); border-radius: 8px; padding: 10px 14px; font-size: 14px; margin: var(--sp-2) 0 0; background: var(--paper); }
   .done .dk { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ok); display: block; margin-bottom: 4px; }
   footer { margin-top: var(--sp-7); border-top: 2px solid var(--ink); padding-top: var(--sp-3); font-size: 13.5px; color: var(--ink-soft); }
@@ -182,8 +183,10 @@
       <ol class="list">
         {{ETAPES_LI}}
       </ol>
-      <pre class="cmd"># Vérification du lot
-{{COMMANDE_VERIF_LOT}}</pre>
+      <!-- Checks du lot, lus par le lint : un <li> par check, id unique dans le plan, UNE commande exacte (exit 0 = succès). -->
+      <ol class="list checks">
+        <li data-check="1.1"><strong>1.1</strong> <code class="check-cmd">{{COMMANDE_EXACTE_DU_CHECK}}</code></li>
+      </ol>
       <div class="done"><span class="dk">DONE quand</span>{{CRITERE_DONE_TESTABLE_UNE_PHRASE}}</div>
     </div>
   </div>
