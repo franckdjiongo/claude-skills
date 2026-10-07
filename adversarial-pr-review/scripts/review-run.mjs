@@ -21,6 +21,7 @@ import { execFileSync, spawnSync } from 'node:child_process'
 import { readFileSync, writeFileSync, renameSync, mkdirSync, existsSync, readdirSync, rmSync } from 'node:fs'
 import { join, resolve, dirname } from 'node:path'
 import { homedir } from 'node:os'
+import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 
 export const ROUND_CAP = 2
@@ -71,6 +72,11 @@ function writeAtomic(file, content) {
 }
 const readJson = (file) => { try { return JSON.parse(readFileSync(file, 'utf8')) } catch { return null } }
 const saveState = (c, s) => writeAtomic(join(c.dir, 'state.json'), JSON.stringify(s, null, 2) + '\n')
+const digest = (s) => createHash('sha256').update(JSON.stringify(s)).digest('hex').slice(0, 16)
+const sentinelPath = (c) => join(c.gitDir, '.adversarial-review-passed')
+const sentinelHead = (c) => existsSync(sentinelPath(c)) ? readFileSync(sentinelPath(c), 'utf8').trim().split(/\s+/)[0] : null
+// New findings after a PASS void it: the sentinel for this HEAD goes, and check sees a changed state.
+const voidPass = (c) => { if (sentinelHead(c) === c.head) rmSync(sentinelPath(c)) }
 function needState(c) {
   const s = readJson(join(c.dir, 'state.json'))
   if (!s) throw new UsageError(`no review state for ${c.repo} (branch ${c.branch}): run "review-run.mjs start" from this checkout first`)
@@ -153,6 +159,7 @@ function cmdStart(c, flags, out) {
 
 function cmdRound(c, pos, flags, out) {
   const state = needState(c)
+  if (flags.triage && used(state) < ROUND_CAP) throw new UsageError('a round remains: record this as a round, --triage is for after the cap')
   if (!flags.triage && used(state) >= ROUND_CAP) throw new UsageError(`round cap reached: ${ROUND_CAP} rounds already recorded for this PR (rule 1); bot-comment dispositions go in with --triage`)
   if (!pos[0]) throw new UsageError('round needs a findings file')
   const raw = readJson(resolve(pos[0]))
@@ -160,6 +167,7 @@ function cmdRound(c, pos, flags, out) {
   const round = { round: state.rounds.length + 1, triage: Boolean(flags.triage), head: c.head, at: new Date().toISOString(), ...validateRound(raw) }
   state.rounds.push(round)
   saveState(c, state)
+  voidPass(c)
   const l = latest(state)
   const fix = round.findings.filter((f) => f.disposition === 'FIX').map((f) => f.id)
   const crossOpen = state.cross.filter((x) => !l.has(x.id)).map((x) => x.id)
@@ -181,6 +189,7 @@ function cmdFix(c, pos, out) {
     f.fixedAt = c.head
   }
   saveState(c, state)
+  voidPass(c)
   out(`marked fixed at ${c.head.slice(0, 8)}: ${pos.join(', ')}\n`)
   return 0
 }
@@ -214,6 +223,7 @@ function cmdCross(c, flags, out, err) {
   state.cross.push(...added)
   state.crossRuns.push({ head: c.head, reviewer: review.reviewer, findings: added.length })
   saveState(c, state)
+  voidPass(c)
   out(JSON.stringify({ reviewer: review.reviewer, file, findings: added }, null, 2) + '\n')
   err('give every X<n> finding a disposition in a round file\n')
   return 0
@@ -235,9 +245,10 @@ export function finalize(c, flags, state) {
   const last = rounds.at(-1)
   const l = latest(state)
   const entries = [...l.values()]
-  const tier = rounds.length ? 'full' : 'trivial'
+  const full = rounds.filter((r) => !r.triage)
+  const tier = full.length ? 'full' : 'trivial'
 
-  if (!rounds.length && !flags.trivial) reasons.push('no round recorded (use --trivial only for a typo, comment or one-line change)')
+  if (!full.length && !flags.trivial) reasons.push('no round recorded (use --trivial only for a typo, comment or one-line change)')
   const unfixed = entries.filter((f) => f.disposition === 'FIX' && !f.fixed).map((f) => f.id)
   if (unfixed.length) reasons.push(`FIX not fixed and verified: ${unfixed.join(', ')}`)
   const p1 = entries.filter((f) => f.severity === 'P1' && (f.disposition === 'CHIP' || f.disposition === 'WONT_FIX')).map((f) => f.id)
@@ -245,7 +256,6 @@ export function finalize(c, flags, state) {
   const noDisp = state.cross.filter((x) => !l.has(x.id)).map((x) => x.id)
   if (noDisp.length) reasons.push(`cross-review findings without disposition: ${noDisp.join(', ')}`)
   if (last?.openQuestions.length) reasons.push(`open questions after the last round: ${last.openQuestions.join(' | ')}`)
-  const full = rounds.filter((r) => !r.triage)
   if (full.length === 1 && full[0].findings.some((f) => f.disposition === 'FIX') && c.head !== full[0].head) reasons.push('round 2 owed: round 1 committed a fix')
 
   let delta = null
@@ -275,20 +285,17 @@ export function finalize(c, flags, state) {
     rounds: rounds.map((r) => ({ round: r.round, triage: r.triage, head: r.head, findings: r.findings.length, openQuestions: r.openQuestions })),
     findings: entries, cross: state.cross, crossRuns: state.crossRuns, gate, guardian, delta,
     residualRisk: rounds.map((r) => r.residualRisk).filter(Boolean).join(' | '),
-    warnings, reasons, verdict: reasons.length ? 'FAIL' : 'PASS', at: new Date().toISOString(),
+    warnings, reasons, stateDigest: digest(state), verdict: reasons.length ? 'FAIL' : 'PASS', at: new Date().toISOString(),
   }
 }
 
 function cmdFinalize(c, flags, out) {
   const verdict = finalize(c, flags, needState(c))
   writeAtomic(join(c.dir, 'verdict.json'), JSON.stringify(verdict, null, 2) + '\n')
-  const sentinel = join(c.gitDir, '.adversarial-review-passed')
   if (verdict.verdict === 'PASS') {
-    writeAtomic(sentinel, `${c.head}\n`)
-    if (readFileSync(sentinel, 'utf8').trim() !== c.head) throw new Error('sentinel read-back mismatch')
-  } else if (existsSync(sentinel) && readFileSync(sentinel, 'utf8').trim().split(/\s+/)[0] === c.head) {
-    rmSync(sentinel) // a FAIL on this HEAD must not leave an older pass for it
-  }
+    writeAtomic(sentinelPath(c), `${c.head}\n`)
+    if (sentinelHead(c) !== c.head) throw new Error('sentinel read-back mismatch')
+  } else voidPass(c) // a FAIL on this HEAD must not leave an older pass for it
   out(`${verdict.verdict} ${c.head.slice(0, 8)} (${verdict.tier}, ${verdict.rounds.length} round(s)) -> ${join(c.dir, 'verdict.json')}\n` +
     [...verdict.reasons.map((r) => `  FAIL: ${r}`), ...verdict.warnings.map((w) => `  warn: ${w}`)].map((s) => s + '\n').join(''))
   return verdict.verdict === 'PASS' ? 0 : 1
@@ -299,6 +306,9 @@ function cmdCheck(c, flags, out) {
   const want = flags.head ?? c.head
   if (!v || v.schema !== VERDICT_SCHEMA) { out(`no verdict for ${want.slice(0, 8)} (absent, not a pass)\n`); return 3 }
   if (v.head !== want) { out(`stale verdict: reviewed ${v.head.slice(0, 8)}, asked ${want.slice(0, 8)} (not a pass)\n`); return 3 }
+  if (v.verdict === 'PASS' && (v.stateDigest !== digest(readJson(join(c.dir, 'state.json'))) || sentinelHead(c) !== v.head)) {
+    out(`stale verdict: the review state changed after the PASS for ${v.head.slice(0, 8)}, finalize again (not a pass)\n`); return 3
+  }
   out(`${v.verdict} ${v.head.slice(0, 8)}${v.verdict === 'FAIL' ? `: ${v.reasons.join(' | ')}` : ''}\n`)
   return v.verdict === 'PASS' ? 0 : 1
 }

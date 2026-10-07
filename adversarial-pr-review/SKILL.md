@@ -30,7 +30,7 @@ Attack your own diff before the PR is public, fix only what matters with the sma
 | `round <file> [--triage]` | Records a round from a JSON file (its shape is printed by `start`). `--triage` records bot-comment dispositions once the cap is spent. |
 | `fix <id...>` | Marks FIX findings fixed, after the fix commit and its fresh verifier. |
 | `cross [--author claude\|codex]` | Billed read-only review by the other model family, once per HEAD (`--author` is your own runtime). Findings get ids `X<n>`, each needing a disposition. |
-| `finalize --gate <cmd>` | Runs the gate, checks convergence, writes `verdict.json`, and the sentinel only on PASS for HEAD. Also `--guardian`, `--delta-ok "<note>"`, `--trivial`, `--no-gate "<reason>"` (recorded, never a pass). Exit 0 PASS, 1 FAIL. |
+| `finalize --gate <cmd>` | Runs the gate, checks convergence, writes `verdict.json`, and the sentinel only on PASS for HEAD. Also `--guardian`, `--delta-ok "<note>"`, `--trivial`, `--no-gate "<reason>"` (recorded as skipped, never as a gate pass). Exit 0 PASS, 1 FAIL. |
 | `check [--head <sha>]` | Exit 0 only for a PASS on that HEAD; 3 means absent or stale. |
 
 Your report cites `verdict.json`, not your own words.
