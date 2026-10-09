@@ -8,8 +8,11 @@
 //   start    [--repo p] [--base ref]                print state, inventory (newFiles), rounds left; rerun any time
 //   round    <findings.json> [--triage]              record a round (cap 2 per PR, Mode A + B); --triage records bot-comment
 //                                                    dispositions once the cap is spent (no fan-out, not counted)
-//   fix      <id...>                                 mark FIX findings fixed (after the fix commit + fresh verifier)
-//   cross    [--author claude|codex] [--model m]     billed other-family review of base...HEAD, once per HEAD
+//   fix      <id...> [--subtractive-tried <why>]     mark FIX findings fixed (after the fix commit + fresh verifier); refused
+//                                                    without <why> over 30 added lines per finding, or when the round grows a
+//                                                    PR of >= 200 reviewed lines by > 15 % (D2: try removing code first, or CHIP)
+//   cross    [--author claude|codex] [--model m]     billed other-family review of base...HEAD, once per HEAD;
+//                                                    round 1 only, alongside the hunters (D1)
 //   finalize --gate <cmd> | --no-gate <reason> [--guardian aligned|drift|none] [--sheet p] [--trivial] [--delta-ok <note>]
 //   check    [--head sha]                            exit 0 PASS for that HEAD, 1 FAIL, 3 no verdict for it, 4 PASS voided by later findings
 //
@@ -100,6 +103,23 @@ const sheets = (c, flags) => flags.sheet ? [flags.sheet]
   : (existsSync(join(c.repo, '.chantier')) ? readdirSync(join(c.repo, '.chantier')) : [])
     .map((d) => join('.chantier', d, 'intention.md')).filter((p) => existsSync(join(c.repo, p)))
 
+// Counted lines (D2): not docs, lockfiles or generated code. lineDelta sums numstat over the commits of
+// <range> that the base does not have (no merge commits; a --no-ff side branch counts, a base merge does not).
+const LOCKS = new Set(['package-lock.json', 'bun.lock', 'bun.lockb', 'yarn.lock', 'pnpm-lock.yaml'])
+export const COUNTED = (p) => !p.startsWith('docs/') && !p.startsWith('src/generated/') && !p.endsWith('.md') && !LOCKS.has(p.split('/').pop())
+export function lineDelta(c, range, baseRef) {
+  const t = git(c.repo, ['log', '--no-merges', '--numstat', '-z', '--format=', range, '--not', baseRef]).split('\0')
+  const d = { added: 0, removed: 0 }
+  for (let i = 0; i < t.length; i++) {
+    const m = /^(\d+|-)\t(\d+|-)\t(.*)$/s.exec(t[i].replace(/^\n+/, ''))
+    if (!m) continue
+    const path = m[3] === '' ? t[i += 2] : m[3] // rename: "a\tr\t\0old\0new\0", classed under the new path
+    if (m[1] !== '-' && COUNTED(path)) { d.added += +m[1]; d.removed += +m[2] }
+  }
+  return d
+}
+const isAncestor = (c, a, b) => { try { git(c.repo, ['merge-base', '--is-ancestor', a, b]); return true } catch { return false } }
+
 const used = (state) => state.rounds.filter((r) => !r.triage).length
 
 // Latest entry per finding id (a later round re-judging an id replaces the earlier one).
@@ -177,18 +197,32 @@ function cmdRound(c, pos, flags, out) {
   return 0
 }
 
-function cmdFix(c, pos, out) {
+function cmdFix(c, pos, flags, out) {
   const state = needState(c)
   if (!pos.length) throw new UsageError('fix needs finding ids')
-  for (const id of pos) {
+  const why = String(flags['subtractive-tried'] ?? '').trim(), measured = new Map()
+  const hits = pos.map((id) => {
     const round = [...state.rounds].reverse().find((r) => r.findings.some((f) => f.id === id))
     const f = round?.findings.find((x) => x.id === id)
     if (!f) throw new UsageError(`unknown finding ${id}`)
     if (f.disposition !== 'FIX') throw new UsageError(`${id} is ${f.disposition}, not FIX`)
     if (round.head === c.head) throw new UsageError(`${id}: HEAD is still the reviewed commit ${c.head.slice(0, 8)}: commit the fix first`)
-    f.fixed = true
-    f.fixedAt = c.head
+    return { round, f }
+  })
+  for (const round of new Set(hits.map((h) => h.round))) { // D2, measured per round
+    const n = hits.filter((h) => h.round === round).length
+    const from = round.findings.map((f) => f.fixedAt).filter((s) => s && isAncestor(c, s, c.head))
+      .reduce((a, b) => (isAncestor(c, a, b) ? b : a), round.head)
+    const fix = lineDelta(c, `${from}..HEAD`, state.baseRef).added
+    const g = lineDelta(c, `${round.head}..HEAD`, state.baseRef), growth = g.added - g.removed
+    const mb = tryGit(c.repo, ['merge-base', state.baseRef, round.head]) ?? round.head
+    const reviewed = lineDelta(c, `${mb}..${round.head}`, state.baseRef).added
+    const over = [fix > 30 * n && `fix of ${fix} lines > 30 per finding (${n} finding(s))`,
+      reviewed >= 200 && growth > 0.15 * reviewed && `round ${round.round} grows the PR by ${growth} lines, > 15% of the ${reviewed} reviewed lines`].filter(Boolean)
+    if (over.length && !why) throw new UsageError(`${over.join('; ')}: try a version that removes code first, then pass --subtractive-tried "<why>", or CHIP and open a draft PR (D2)`)
+    measured.set(round, fix)
   }
+  for (const { round, f } of hits) Object.assign(f, { fixed: true, fixedAt: c.head, fixLines: measured.get(round), ...(why ? { subtractiveTried: why } : {}) })
   saveState(c, state)
   voidPass(c)
   out(`marked fixed at ${c.head.slice(0, 8)}: ${pos.join(', ')}\n`)
@@ -204,6 +238,7 @@ export function findCrossScript(flags, env = process.env) {
 
 function cmdCross(c, flags, out, err) {
   const state = needState(c)
+  if (used(state) >= 1) throw new UsageError('cross runs only during round 1, alongside the hunters, before the round is recorded (D1)')
   const author = flags.author ?? 'claude'
   if (!['claude', 'codex'].includes(author)) throw new UsageError('--author must be claude or codex')
   if (state.crossRuns.some((r) => r.head === c.head)) throw new UsageError(`cross review already ran on ${c.head.slice(0, 8)} (billed call): read its findings in state.json`)
@@ -219,11 +254,12 @@ function cmdCross(c, flags, out, err) {
   if (!review || review.schema !== 'cross.review/1' || review.head !== c.head || !Array.isArray(review.findings)) {
     throw new UsageError('cross review wrote no valid review.json for this HEAD: not a pass')
   }
-  let n = state.cross.length
+  const fresh = needState(c) // a round recorded during the call must survive
+  let n = fresh.cross.length
   const added = review.findings.map((f) => ({ id: `X${++n}`, head: c.head, reviewer: review.reviewer, ...f }))
-  state.cross.push(...added)
-  state.crossRuns.push({ head: c.head, reviewer: review.reviewer, findings: added.length })
-  saveState(c, state)
+  fresh.cross.push(...added)
+  fresh.crossRuns.push({ head: c.head, reviewer: review.reviewer, findings: added.length })
+  saveState(c, fresh)
   voidPass(c)
   out(JSON.stringify({ reviewer: review.reviewer, file, findings: added }, null, 2) + '\n')
   err('give every X<n> finding a disposition in a round file\n')
@@ -260,7 +296,7 @@ export function finalize(c, flags, state) {
   if (full.length === 1 && full[0].findings.some((f) => f.disposition === 'FIX') && c.head !== full[0].head) reasons.push('round 2 owed: round 1 committed a fix')
 
   let delta = null
-  const ancestor = (a, b) => { try { git(c.repo, ['merge-base', '--is-ancestor', a, b]); return true } catch { return false } }
+  const ancestor = (a, b) => isAncestor(c, a, b)
   const lastFull = full.at(-1) // a triage record never moves the reviewed commit
   if (lastFull && !ancestor(lastFull.head, c.head)) reasons.push(`history rewritten: the reviewed commit ${lastFull.head.slice(0, 8)} is not an ancestor of HEAD, review again`)
   else if (lastFull && c.head !== lastFull.head) {
@@ -327,7 +363,7 @@ export async function main(argv, deps = {}) {
     const c = resolveCtx(flags, deps.cwd ?? process.cwd())
     if (cmd === 'start') return cmdStart(c, flags, out)
     if (cmd === 'round') return cmdRound(c, pos, flags, out)
-    if (cmd === 'fix') return cmdFix(c, pos, out)
+    if (cmd === 'fix') return cmdFix(c, pos, flags, out)
     if (cmd === 'cross') return cmdCross(c, flags, out, err)
     if (cmd === 'finalize') return cmdFinalize(c, flags, out)
     return cmdCheck(c, flags, out)
