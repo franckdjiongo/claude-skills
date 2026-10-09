@@ -44,7 +44,7 @@ node ${CLAUDE_SKILL_DIR}/scripts/preflight-lint.mjs <chemin-absolu-du-plan.html>
 ```
 <!-- /runtime-slot:etape0-run -->
 
-Le lint (plans FR et EN) vérifie sans jugement : placeholders, phrases interdites, chemins, scripts et ancres existants, structure et TOC, section flotte, règles dures (revue sans fin interdite, `Budget total : <cible> / <plafond>` avec cible ≤ plafond ≤ 1000, `Chips`, `Fiche d'intention` validée, `Doublures de test`).
+Le lint (plans FR et EN) vérifie sans jugement : placeholders, phrases interdites, chemins, scripts et ancres existants, structure et TOC, section flotte, règles dures (revue sans fin interdite, `Budget total : <cible> / <plafond>` avec cible ≤ plafond ≤ 1000, `Chips`, `Tranches`, `Fiche d'intention` validée, `Doublures de test`, « ≈ N code + M tests » par lot et leur somme sous le plafond).
 
 **Checks de lot.** Chaque lot liste ses checks en `<ol class="checks">` : un `<li data-check="id">` par check (id unique dans le plan), UNE commande exacte dans `<code>`, exit 0 = succès. Refusés : commande vague (consigne, phrase, placeholder, `|| true`), fichier ou script npm absent du repo cible, sauf fichier listé dans les « Fichiers touchés » du lot ou d'un lot précédent, ou check marqué `(nouveau)`.
 
@@ -78,10 +78,10 @@ Un Workflow lance EN PARALLÈLE un agent par lentille (findings structurés : ti
 
 Quatre lentilles :
 
-1. **Candide** : exécuter le plan ce soir sans personne. Chaque commande lançable telle quelle, chaque DONE testable ? Où faudrait-il deviner ? Deux sections se contredisent-elles ?
+1. **Candide** : exécuter le plan ce soir sans personne. Chaque commande lançable telle quelle, chaque DONE testable, chaque preuve en direct nomme la donnée qui existe aujourd'hui (C2) ? Où faudrait-il deviner ? Deux sections se contredisent-elles ?
 2. **Fact-check** : chaque affirmation technique (fichier:ligne, noms d'état, scripts, clés, valeurs recopiées) confrontée au code réel.
 3. **Mécanique du domaine** : le design tient-il ? Ne juge que les comportements que la fiche demande : chaque garantie cite la demande de l'humain, sinon NICE-TO-HAVE. Tout artefact NEUF hérite des invariants de l'existant.
-4. **Règles & process** : A1-A5 et G. Budget réaliste, chips cohérents, fiche d'intention PERTINENTE (le plan sert son « pourquoi » et reste hors de son « ce que ce n'est pas »), preuve réelle avant tout test simulé. Puis cohérence avec CLAUDE.md : lots ≤ 2 h à état vert, gates complets.
+4. **Règles & process** : A1-A5 et G. Budget : ton estimation l'emporte sur celle de l'auteur ; au-dessus du plafond, CORRIGER = découper, jamais NE PAS CORRIGER (D3). Chips cohérents, fiche d'intention PERTINENTE (le plan sert son « pourquoi » et reste hors de son « ce que ce n'est pas »), preuve réelle avant tout test simulé. Puis cohérence avec CLAUDE.md : lots ≤ 2 h à état vert, gates complets.
 
 Sur demande seulement, pour alimenter le nice-to-have : **Personas** (rôles, langues, thème sombre, mobile, accessibilité, états vides) et **Futur** (volume, deuxième consommateur, migration).
 

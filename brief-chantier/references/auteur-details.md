@@ -22,7 +22,7 @@ Complète les étapes 0 à 10 de `SKILL.md` § Écrire un plan. Rien ici n'assou
 ## Étape 3 — Gabarit
 
 - Lignes de règles lues par le lint (check 10), FR ou EN : `Budget total : <cible> / <plafond>` |
-  `Total budget:` ; `Chips : autorisés|interdits` | `Chips: allowed|forbidden` ; `Fiche d'intention : <chemin>` |
+  `Total budget:` ; `Chips : autorisés|interdits` | `Chips: allowed|forbidden` ; `Tranches : <PR, lots, base>` | `Slices:` ; `Fiche d'intention : <chemin>` |
   `Intent sheet:` ; `Doublures de test : aucune|règle standard` | `Test doubles: none|standard rule` ;
   `Dépend de : <slug>|aucun` | `Depends on:` (vague). La ligne « Revue » est informative.
 - Frontière nice-to-have / must-have : un must-have (la fonctionnalité est incomplète sans lui) va dans les
@@ -36,7 +36,11 @@ Complète les étapes 0 à 10 de `SKILL.md` § Écrire un plan. Rien ici n'assou
   en gardant cette preuve verte.
 - Un mécanisme central non trivial (effets, concurrence, machine à états) se spécifie en INVARIANTS testables
   plus un sketch ; envisage 30 minutes de prototype avant de figer.
-- L'estimation en heures donne l'estimation en lignes de chaque lot, dont le double déclenche le disjoncteur A5.
+- L'estimation en heures donne deux nombres par lot, « ≈ N code + M tests » (lus par le lint), dont le double
+  déclenche le disjoncteur A5 ; la somme des lots reste sous le plafond (D3). Un lot de clôture porte une
+  réserve de revue, jamais « ≈ 0 ».
+- **Tranches.** Une PR par tranche, avec ses lots et sa base (empilée ou depuis la branche par défaut), et un
+  point de coupe après chaque lot à effet visible (D4).
 - **Dernier lot de PROCESSUS.** Écris en toutes lettres son message de commit (`chantier(<slug>): lot N —
   Clôture…`), jamais un message libre : le run suivant d'une chaîne le cherche par `git log --grep`. Forme
   contrôlée (lint check 8) : `<code class="commit-msg">` portant `lot N`.

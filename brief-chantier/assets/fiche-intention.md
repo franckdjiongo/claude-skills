@@ -17,7 +17,7 @@ Après : <la même journée une fois livré, observable. Chantier technique sans
 ## Ce que ce chantier n'est PAS
 
 - <Un voisin tentant exclu : refonte, nouvelle fonction, durcissement.>
-- <Une ligne par nice-to-have et interdit du plan : le gardien juge les correctifs contre elle.>
+- <Une ligne par nice-to-have et interdit du plan : le simplificateur retire ce qu'elle n'exige pas.>
 
 ## Ce qui prouve la livraison
 

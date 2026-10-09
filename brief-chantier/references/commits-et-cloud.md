@@ -24,7 +24,7 @@
 - Stage par chemins explicites, jamais `git add -A` ni `git add .`.
 - Pas de question possible : applique la charte ou avorte avec un rapport.
 - La revue (A3) porte sur le PUSH FINAL, pas sur la PR : sans canal de PR, la branche poussée est le
-  livrable. Le rapport donne les rounds, le verdict du gardien et le HEAD poussé ; sur PASS, le SHA de la
+  livrable. Le rapport donne les rounds, les chiffres de finalize, les lignes retirées par le simplificateur et le HEAD poussé ; sur PASS, le SHA de la
   sentinelle coïncide avec ce HEAD ; sinon, il signale l'absence de sentinelle et les défauts ouverts.
 - Les sous-agents parallèles mènent la revue : un moteur qui redemande une confirmation humaine à chaque
   lancement bloque un run non supervisé.

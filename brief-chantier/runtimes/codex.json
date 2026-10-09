@@ -58,11 +58,11 @@
     "claude-home": {
       "match": [
         "<code>.claude/agents/</code> / <code>.codex/agents/</code>",
-        "~/.claude/skills/brief-chantier/references/gardien-intention.md",
+        "~/.claude/skills/brief-chantier/references/simplificateur.md",
         "`sh ~/.claude/scripts/night-run-reaper.sh`",
         "`~/.claude/scripts/night-run-lock.sh acquire <id>`"
       ],
-      "reason": "The night-run reaper and lock scripts live in ~/.claude/scripts and are shared by both runtimes (references/nuits-planifiees.md). The plan template also names both agent directories on purpose, as a dual-runtime skeleton. The Claude wrapper agents/gardien-intention.md ships in the Codex build too (its sibling .toml is the Codex one) and names its own runtime's install path."
+      "reason": "The night-run reaper and lock scripts live in ~/.claude/scripts and are shared by both runtimes (references/nuits-planifiees.md). The plan template also names both agent directories on purpose, as a dual-runtime skeleton. The Claude wrapper agents/simplificateur.md ships in the Codex build too (its sibling .toml is the Codex one) and names its own runtime's install path."
     },
     "spawn-task": {
       "match": [
@@ -75,15 +75,15 @@
         "(ex. <code>preview_*</code> sous Claude Code)",
         "<code>.claude/agents/</code> / <code>.codex/agents/</code>",
         "<code>spawn_task</code> (Claude Code) ou <code>chip_create</code> (Codex)",
-        "~/.claude/skills/brief-chantier/references/gardien-intention.md"
+        "~/.claude/skills/brief-chantier/references/simplificateur.md"
       ],
-      "reason": "assets/template.html is a dual-runtime plan skeleton that names both runtimes deliberately, so its three exact strings (preview_*, the two agent directories, spawn_task next to chip_create) are skipped; the fourth string is the install path written in the Claude wrapper agents/gardien-intention.md, shipped next to its Codex .toml."
+      "reason": "assets/template.html is a dual-runtime plan skeleton that names both runtimes deliberately, so its three exact strings (preview_*, the two agent directories, spawn_task next to chip_create) are skipped; the fourth string is the install path written in the Claude wrapper agents/simplificateur.md, shipped next to its Codex .toml."
     },
     "claude-model-alias": {
       "match": [
         "model: sonnet"
       ],
-      "reason": "agents/gardien-intention.md is the Claude Code wrapper agent (frontmatter model alias), shipped verbatim next to its Codex .toml, which carries no model."
+      "reason": "agents/simplificateur.md is the Claude Code wrapper agent (frontmatter model alias), shipped verbatim next to its Codex .toml, which carries no model."
     }
   },
   "slotSources": {

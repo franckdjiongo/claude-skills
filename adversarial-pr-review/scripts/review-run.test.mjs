@@ -5,7 +5,7 @@ import { mkdtempSync, writeFileSync, readFileSync, rmSync, existsSync, mkdirSync
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { execFileSync } from 'node:child_process'
-import { main, parseArgs, validateRound, findCrossScript, UsageError } from './review-run.mjs'
+import { main, parseArgs, validateRound, findCrossScript, UsageError, COUNTED } from './review-run.mjs'
 
 const dirs = []
 const tmp = () => { const d = realpathSync(mkdtempSync(join(tmpdir(), 'rr-test-'))); dirs.push(d); return d }
@@ -31,6 +31,7 @@ const sentinel = (d) => { const f = join(gitDirOf(d), '.adversarial-review-passe
 const verdictOf = (d) => JSON.parse(readFileSync(join(gitDirOf(d), 'adversarial-review/verdict.json'), 'utf8'))
 const finding = (o = {}) => ({ id: 'F1', severity: 'P2', origin: 'introduced', summary: 's', disposition: 'FIX', ...o })
 const roundFile = (d, findings = [], extra = {}) => { const f = join(tmp(), 'round.json'); writeFileSync(f, JSON.stringify({ findings, ...extra })); return f }
+const stateOf = (d) => JSON.parse(readFileSync(join(gitDirOf(d), 'adversarial-review/state.json'), 'utf8'))
 const started = async (d) => { const r = await run(d, 'start', '--base', 'main'); assert.equal(r.code, 0, r.err); return JSON.parse(r.out) }
 
 describe('start', () => {
@@ -212,14 +213,56 @@ describe('finalize', () => {
     const rewritten = await run(d, 'finalize', '--gate', 'true')
     assert.equal(rewritten.code, 1); assert.match(rewritten.out, /history rewritten/); assert.equal(sentinel(d), null)
   })
-  test('an intent sheet makes the guardian verdict mandatory', async () => {
+  test('an intent sheet makes --simplifier mandatory; none passes with a warning; --guardian is retired', async () => {
     const d = makeRepo()
     mkdirSync(join(d, '.chantier/x'), { recursive: true }); commit(d, '.chantier/x/intention.md', 'sheet')
     await started(d); await run(d, 'round', roundFile(d))
     const no = await run(d, 'finalize', '--gate', 'true')
-    assert.equal(no.code, 1); assert.match(no.out, /guardian/)
-    assert.equal((await run(d, 'finalize', '--gate', 'true', '--guardian', 'aligned')).code, 0)
-    assert.equal(verdictOf(d).guardian, 'aligned')
+    assert.equal(no.code, 1); assert.match(no.out, /--simplifier.*\(D5\)/)
+    const none = await run(d, 'finalize', '--gate', 'true', '--simplifier', 'none')
+    assert.equal(none.code, 0); assert.match(none.out, /warn: simplifier removed nothing/); assert.equal(verdictOf(d).simplifier, 'none')
+    const g = await run(d, 'finalize', '--gate', 'true', '--guardian', 'aligned')
+    assert.equal(g.code, 2); assert.match(g.err, /retired/)
+  })
+})
+
+describe('metrics and simplifier (D5, D6)', () => {
+  const lines = (n, tag = 'l') => Array.from({ length: n }, (_, i) => `${tag}${i}`).join('\n') + '\n'
+  test('every verdict prints code, tests, ratio and review growth; a ratio over 2 on >= 50 code lines warns', async () => {
+    const d = makeRepo() // b.txt: 1 code line
+    mkdirSync(join(d, 'tests')); commit(d, 'tests/t.js', lines(3))
+    await started(d); await run(d, 'round', roundFile(d, [finding()]))
+    commit(d, 'x.test.ts', lines(2))
+    const r = await run(d, 'finalize', '--gate', 'true')
+    assert.equal(r.code, 1); assert.match(r.out, /lines: code 1, tests 5, tests\/code 5, review added 2 \(33%\)\n {2}FAIL/)
+    assert.doesNotMatch(r.out, /A1:/) // under 50 code lines
+    const e = makeRepo(); commit(e, 'c.js', lines(50)); commit(e, 'c.spec.js', lines(108)) // 51 code lines with b.txt
+    await started(e); await run(e, 'round', roundFile(e))
+    const w = await run(e, 'finalize', '--gate', 'true')
+    assert.equal(w.code, 0); assert.match(w.out, /tests\/code 2\.1, review added 0 \(0%\)/); assert.match(w.out, /warn: A1: tests\/code 2\.1 > 2: justify in the PR body \(D6\)/)
+  })
+  test('a deleted sheet still needs a simplifier commit that removes more than it adds', async () => {
+    const d = makeRepo() // the sheet lands on the base, the closeout deletes it on the branch
+    sh(d, 'checkout', '-q', 'main'); mkdirSync(join(d, '.chantier/x'), { recursive: true }); commit(d, '.chantier/x/intention.md', 'sheet')
+    sh(d, 'checkout', '-q', 'work'); sh(d, 'merge', '-q', '--no-edit', 'main')
+    const before = commit(d, 'big.js', lines(10))
+    await started(d); await run(d, 'round', roundFile(d))
+    sh(d, 'commit', '-q', '--allow-empty', '-m', 'empty'); const empty = sh(d, 'rev-parse', 'HEAD')
+    sh(d, 'rm', '-q', '.chantier/x/intention.md'); sh(d, 'commit', '-qm', 'rm sheet'); const rmSheet = sh(d, 'rev-parse', 'HEAD')
+    const grows = commit(d, 'big.js', lines(8) + lines(3, 'n'))
+    const ok = commit(d, 'big.js', lines(6))
+    const fin = (...a) => run(d, 'finalize', '--gate', 'true', '--delta-ok', 'verified', ...a)
+    assert.match((await fin()).out, /--simplifier/)
+    for (const sha of [empty, rmSheet, grows, before, 'nope']) {
+      const r = await fin('--simplifier', sha); assert.equal(r.code, 1); assert.match(r.out, /FAIL: --simplifier .*\(D5\)/)
+    }
+    assert.equal((await fin('--simplifier', ok.slice(0, 10))).code, 0); assert.equal(verdictOf(d).simplifier, ok)
+  })
+  test('a sheet added and deleted on the branch also needs --simplifier', async () => {
+    const d = makeRepo(); mkdirSync(join(d, '.chantier/x'), { recursive: true }); commit(d, '.chantier/x/intention.md', 'sheet')
+    await started(d); await run(d, 'round', roundFile(d)); sh(d, 'rm', '-q', '.chantier/x/intention.md'); sh(d, 'commit', '-qm', 'rm sheet')
+    const r = await run(d, 'finalize', '--gate', 'true', '--delta-ok', 'sheet removal')
+    assert.equal(r.code, 1); assert.match(r.out, /intent sheet \(\.chantier\/x\/intention\.md\).*\(D5\)/)
   })
 })
 
@@ -281,11 +324,69 @@ describe('cross', () => {
     assert.match((await run(d, 'cross', '--script', liar)).err, /not a pass/)
     assert.equal(JSON.parse(readFileSync(join(gitDirOf(d), 'adversarial-review/state.json'), 'utf8')).crossRuns.length, 0)
   })
+  test('D1: a round recorded during the call survives; after a round, cross is refused without spawning', async () => {
+    const d = makeRepo(); await started(d)
+    const racer = stub(tmp(), `
+      import { execFileSync } from 'node:child_process'; import { readFileSync, writeFileSync } from 'node:fs'
+      const a = process.argv; const get = (k) => a[a.indexOf(k) + 1]
+      const g = (...x) => execFileSync('git', ['-C', get('--repo'), ...x], { encoding: 'utf8' }).trim()
+      const head = g('rev-parse', 'HEAD'), f = g('rev-parse', '--absolute-git-dir') + '/adversarial-review/state.json'
+      const s = JSON.parse(readFileSync(f, 'utf8')); s.rounds.push({ round: 1, triage: false, head, findings: [], openQuestions: [], residualRisk: '' })
+      writeFileSync(f, JSON.stringify(s))
+      writeFileSync(get('--out'), JSON.stringify({ schema: 'cross.review/1', head, reviewer: 'codex', findings: ${JSON.stringify([xf])} }))`)
+    assert.equal((await run(d, 'cross', '--script', racer)).code, 0)
+    const st = stateOf(d); assert.equal(st.rounds.length, 1); assert.equal(st.cross[0].id, 'X1')
+    const marker = join(tmp(), 'spawned')
+    const r = await run(d, 'cross', '--script', stub(tmp(), `import { writeFileSync } from 'node:fs'; writeFileSync(${JSON.stringify(marker)}, 'x')`))
+    assert.equal(r.code, 2); assert.match(r.err, /round 1.*D1/); assert.equal(existsSync(marker), false)
+  })
   test('script lookup honours --script, then CROSS_REVIEW_SCRIPT, and the repo copy is found', () => {
     const f = join(tmp(), 's.mjs'); writeFileSync(f, '')
     assert.equal(findCrossScript({ script: f }, {}), f)
     assert.equal(findCrossScript({}, { CROSS_REVIEW_SCRIPT: f }), f)
     assert.match(findCrossScript({}, {}) ?? '', /cross-review\.mjs$/)
+  })
+})
+
+describe('fix size (D2)', () => {
+  const lines = (n, tag = 'l') => Array.from({ length: n }, (_, i) => `${tag}${i}`).join('\n') + '\n'
+  // reviewed = n lines brought by a --no-ff side branch + b.txt (1 line); round 1 holds F1 and F2 (FIX)
+  async function fixRepo(n = 0) {
+    const d = makeRepo()
+    if (n) { sh(d, 'checkout', '-qb', 'side'); commit(d, 'big.txt', lines(n)); sh(d, 'checkout', '-q', 'work'); sh(d, 'merge', '-q', '--no-ff', '-m', 'm', 'side') }
+    await started(d); await run(d, 'round', roundFile(d, [finding(), finding({ id: 'F2' })]))
+    return d
+  }
+  const fixed = (d, id) => stateOf(d).rounds[0].findings.find((f) => f.id === id)
+  test('30 lines per finding: 30 accepted, then 31 refused unless --subtractive-tried; two 25-line fixes in a row pass', async () => {
+    const d = await fixRepo()
+    commit(d, 'f.txt', lines(30)); assert.equal((await run(d, 'fix', 'F1')).code, 0)
+    commit(d, 'g.txt', lines(31))
+    const no = await run(d, 'fix', 'F2')
+    assert.equal(no.code, 2); for (const re of [/fix of 31 lines/, /subtractive-tried/, /CHIP/]) assert.match(no.err, re)
+    assert.equal(fixed(d, 'F2').fixed, false)
+    assert.equal((await run(d, 'fix', 'F2', '--subtractive-tried', 'removal breaks the API')).code, 0)
+    assert.equal(fixed(d, 'F2').fixLines, 31); assert.equal(fixed(d, 'F2').subtractiveTried, 'removal breaks the API')
+    const e = await fixRepo()
+    commit(e, 'f.txt', lines(25)); assert.equal((await run(e, 'fix', 'F1')).code, 0)
+    commit(e, 'g.txt', lines(25)); assert.equal((await run(e, 'fix', 'F2')).code, 0)
+    assert.equal(fixed(e, 'F2').fixLines, 25)
+  })
+  test('15% growth on >= 200 reviewed lines (a --no-ff branch counts) is refused; a shrinking round is not', async () => {
+    const d = await fixRepo(200)
+    commit(d, 'f.txt', lines(31))
+    const no = await run(d, 'fix', 'F1', 'F2')
+    assert.equal(no.code, 2); assert.match(no.err, /grows the PR by 31 lines, > 15% of the 201 reviewed/)
+    sh(d, 'reset', '-q', '--hard', 'HEAD~1')
+    commit(d, 'big.txt', lines(150) + lines(20, 'n'))
+    assert.equal((await run(d, 'fix', 'F1')).code, 0); assert.equal(fixed(d, 'F1').fixLines, 20)
+  })
+  test('a base merge and a pure rename are not counted; docs, lockfiles and generated code never are', async () => {
+    const d = await fixRepo(200)
+    sh(d, 'checkout', '-q', 'main'); commit(d, 'm.txt', lines(100)); sh(d, 'checkout', '-q', 'work'); sh(d, 'merge', '-q', '--no-edit', 'main')
+    sh(d, 'mv', 'big.txt', 'moved.txt'); commit(d, 'f.txt', lines(2))
+    assert.equal((await run(d, 'fix', 'F1')).code, 0); assert.equal(fixed(d, 'F1').fixLines, 2)
+    assert.deepEqual(['docs/a.html', 'x/README.md', 'web/bun.lock', 'src/generated/m.ts', 'src/a.ts'].map(COUNTED), [false, false, false, false, true])
   })
 })
 

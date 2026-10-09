@@ -8,8 +8,8 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const LINT = fileURLToPath(new URL('./preflight-lint.mjs', import.meta.url));
-const REGLES = `<p>Budget total : 400 / 800 lignes</p><p>Chips : autorisés</p><p>Fiche d'intention : .chantier/intention.md</p><p>Doublures de test : aucune</p>`;
-const REGLES_EN = `<p>Total budget: 400 / 800 lines</p><p>Chips: allowed</p><p>Intent sheet: .chantier/intent.md</p><p>Test doubles: none</p>`;
+const REGLES = `<p>Budget total : 400 / 800 lignes</p><p>Chips : autorisés</p><p>Tranches : une PR vers main</p><p>Fiche d'intention : .chantier/intention.md</p><p>Doublures de test : aucune</p>`;
+const REGLES_EN = `<p>Total budget: 400 / 800 lines</p><p>Chips: allowed</p><p>Slices: one PR to main</p><p>Intent sheet: .chantier/intent.md</p><p>Test doubles: none</p>`;
 
 function plan(regles = REGLES, extra = '', lots = '') {
   const sections = ['s-intention', 's-contexte', 's-approbation', 's-verif']
@@ -18,7 +18,7 @@ function plan(regles = REGLES, extra = '', lots = '') {
   const nice = `<section id="s-nice"><ul>${'<li>x</li>'.repeat(5)}</ul></section>`;
   return `<!doctype html><html><body><nav><a href="#lot-1">Lot 1</a></nav>${sections}${nice}
 <section id="s-lots">
-<div class="lot" id="lot-1"><p><strong>Agent</strong> sonnet</p><ol class="checks"><li data-check="1.1"><code>git diff --quiet</code></li></ol>
+<div class="lot" id="lot-1"><span class="lh">1 h (≈ 100 code + 100 tests)</span><p><strong>Agent</strong> sonnet</p><ol class="checks"><li data-check="1.1"><code>git diff --quiet</code></li></ol>
 <code class="commit-msg">chantier(x): lot 1 — fin</code><div class="done">ok</div>
 </div>${lots}</section>${regles}${extra}</body></html>`;
 }
@@ -183,5 +183,22 @@ test('fiche d\'intention existante : « Validée par : <nom> » exigé, avertiss
     }
   } finally {
     rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('D3. estimation de lot : deux nombres exigés, somme ≤ plafond ; D4. Tranches exigé', () => {
+  const est = (txt) => plan().replace('≈ 100 code + 100 tests', txt);
+  assert.equal(lint(est('≈ 500 code + 300 tests')).code, 0);
+  for (const [html, re] of [
+    [est('≈ 200 lignes'), /deux nombres.*\(D3\)/],
+    [est('≈ 500 code + 301 tests'), /^\s*- Somme des estimations des lots 801 > plafond 800 : découper avant le run \(D3\)/m],
+    [plan(REGLES.replace('<p>Tranches : une PR vers main</p>', '')), /Tranches absent : « Tranches : <PR, lots, base> » \(D4\)/],
+  ]) {
+    const r = lint(html);
+    assert.equal(r.code, 1, r.errs);
+    assert.match(r.errs, re);
+    const l = lint(html, '--legacy');
+    assert.equal(l.code, 0, l.errs);
+    assert.match(l.warns, re);
   }
 });

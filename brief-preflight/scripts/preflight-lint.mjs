@@ -13,7 +13,8 @@
  * ancres fichier:ligne ; structure (sections non vides, lots avec Agent + liste de checks
  * id + commande exacte (non vague, fichiers et scripts existants) + DONE, étiquettes de lot uniques, TOC) ; Nice-to-have ≥ 5 ; message de commit du
  * lot de clôture ; section flotte (plage + « Dépend de ») ; règles dures :
- * clauses sans fin, Budget total (« <cible> / <plafond> », plafond ≤ 1000), Chips, Fiche d'intention (et, si elle existe,
+ * clauses sans fin, Budget total (« <cible> / <plafond> », plafond ≤ 1000), estimation
+ * « ≈ N code + M tests » par lot et somme ≤ plafond (D3), Tranches (D4), Chips, Fiche d'intention (et, si elle existe,
  * « Validée par : <nom> » / « Approved by: <name> »), Doublures de test.
  *
  * Sortie : ERREUR / AVERTISSEMENT, code retour 1 si ≥ 1 erreur, 2 sur erreur d'usage.
@@ -22,7 +23,7 @@
 import { readFileSync, existsSync, statSync, readdirSync, realpathSync } from 'node:fs';
 import { join, isAbsolute, basename, dirname } from 'node:path';
 import { stripComments, textOf, readFlotte } from './flotte-shared.mjs';
-import { parseChecks, vagueReason, missingRefs, isNewMarked, checkBudget } from './lot-checks.mjs';
+import { parseChecks, vagueReason, missingRefs, isNewMarked, checkBudget, parseLotEstimate } from './lot-checks.mjs';
 
 /* Table unique des synonymes FR/EN. */
 const T = {
@@ -32,6 +33,7 @@ const T = {
   budget: /(?:budget total|total budget)\s*:\s*\D{0,60}?\d/i,
   budgetLabel: /(?:budget total|total budget)\s*:/i,
   touched: /(?:fichiers touch[ée]s|files touched)\s*<\/strong>\s*:?([\s\S]*?)<\/p>/i,
+  slices: /(?:tranches|slices)\s*:\s*\S/i,
   chips: /chips\s*:\s*(?:autoris[ée]s|allowed|interdits|forbidden)/i,
   intent: /(?:fiche d'intention|intent sheet)\s*:\s*(?:[^\s]*[/\\][^\s]*|[^\s]+\.[a-z0-9]{1,5}\b)/i,
   intentPath: /(?:fiche d'intention|intent sheet)\s*:\s*([^\s]*[/\\][^\s]*|[^\s]+\.[a-z0-9]{1,5}\b)/i,
@@ -198,12 +200,16 @@ if (lotIds.length === 0) errors.push('Aucun lot (id="lot-N") trouvé dans le pla
 const lotBlocks = htmlLive.split(/(?=<div class="lot" )/).slice(1);
 const labels = new Map();
 const checkIds = new Set();
+let estimateSum = 0;
 let touched = ''; // « Fichiers touchés » du lot courant et des précédents : ce que le plan crée
 lotBlocks.forEach((block, i) => {
   const n = i + 1;
   const b = block.split('</section>')[0];
   touched += ` ${b.match(T.touched)?.[1] ?? ''}`;
   if (!/<strong>Agent<\/strong>/.test(b)) errors.push(`Lot ${n} : champ « Agent » absent`);
+  const est = parseLotEstimate(b);
+  if (est) estimateSum += est.code + est.tests;
+  else soft.push(`Lot ${n} : estimation absente de l'en-tête (class="lh") : « ≈ N code + M tests », deux nombres (D3).` + legacyNote);
   const checks = parseChecks(b);
   if (!checks.present && /<pre class="cmd">/.test(b)) {
     soft.push(`Lot ${n} : commande en <pre class="cmd"> sans liste de checks. À AJOUTER : <ol class="list checks"><li data-check="${n}.1"><code class="check-cmd">&lt;commande exacte&gt;</code></li></ol>` + legacyNote);
@@ -287,10 +293,12 @@ for (const phrase of T.endless) {
 }
 if (!T.budget.test(visible)) soft.push('Budget total absent : « Budget total : <cible> / <plafond> » (Total budget), code + tests + scripts (A1).' + legacyNote);
 else {
-  const { error } = checkBudget(visible, T.budgetLabel);
+  const { error, plafond } = checkBudget(visible, T.budgetLabel);
   if (error) soft.push(error + legacyNote);
+  else if (estimateSum > plafond) soft.push(`Somme des estimations des lots ${estimateSum} > plafond ${plafond} : découper avant le run (D3).` + legacyNote);
 }
 if (!T.chips.test(visible)) soft.push('Chips absent : « Chips : autorisés|interdits » (Chips: allowed|forbidden) (A2).' + legacyNote);
+if (!T.slices.test(visible)) soft.push('Tranches absent : « Tranches : <PR, lots, base> » (D4) (Slices: …).' + legacyNote);
 if (!T.intent.test(visible)) soft.push("Fiche d'intention absente : « Fiche d'intention : <chemin> » (Intent sheet) (G)." + legacyNote);
 if (!T.doubles.test(visible)) soft.push('Doublures de test absent : « Doublures de test : aucune|règle standard » (Test doubles: none|standard rule).' + legacyNote);
 

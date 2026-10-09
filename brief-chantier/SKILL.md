@@ -19,7 +19,8 @@ personne pour répondre. Détermine ton rôle :
 ## Règles dures (les trois rôles ; aucun plan ne les assouplit)
 
 - **A1 Budget total.** Par chantier : lignes ajoutées de code + tests + scripts ; suppressions, fichiers
-  générés, README et docs ne comptent pas. La cible est proportionnée au chantier, le plafond ≤ 1 000 ; au-delà, découper. Ratio tests/code > 2 :
+  générés, README et docs ne comptent pas. La cible est proportionnée au chantier, le plafond ≤ 1 000 ; au-delà, découper. Chaque lot estime « ≈ N code +
+  M tests », tests au moins égaux au code dans un dépôt doté d'une suite, somme sous le plafond (D3). Ratio tests/code > 2 :
   justifier ; > 4 : découper ou accord humain ; non applicable sous 50 lignes de code.
 - **A2 Chips et décisions.** Chaque plan déclare `Chips : autorisés` ou `Chips : interdits`. Une décision par
   remarque (CORRIGER, CHIP si autorisés, NE PAS CORRIGER, INVALIDE) selon la règle 2 de
@@ -32,9 +33,9 @@ personne pour répondre. Détermine ton rôle :
 - **A5 Disjoncteur.** Un lot au double de son estimation en lignes, ou un chantier au-delà de son plafond :
   arrêt, état propre commité, rapport. La revue n'a lieu que si un lot à effet visible est commité. Un
   dépassement moindre se consigne, le run continue. Revenir sous le plafond = retirer du code AVEC son test.
-- **G Fiche d'intention + gardien.** Fiche d'1 page, jetable (`assets/fiche-intention.md`, EN :
-  `assets/intent-sheet.md`), écrite avec l'humain et validée avant le plan. Le gardien
-  (`references/gardien-intention.md`) est appelé après chaque round et avant la PR ; il ne peut que retirer du travail.
+- **G Fiche d'intention + simplificateur.** Fiche d'1 page, jetable (`assets/fiche-intention.md`, EN :
+  `assets/intent-sheet.md`), écrite avec l'humain et validée avant le plan. Le simplificateur
+  (`references/simplificateur.md`) passe une fois, avant la PR ; il ne peut que retirer du code et des tests.
 - **L Langue.** Plan et fiche dans la langue du projet (FR ou EN) ; le contrat de commit
   `chantier(<slug>): lot N` ne change pas.
 
@@ -63,6 +64,9 @@ figé = renvoi d'une ligne au skill, section sans objet = « aucun ». Détails 
    (hors liste = arrêt), agent, checks (`<ol class="checks">`, un `<li data-check="id">` par check, UNE commande
    exacte dans `<code>`, exit 0 = succès ; jamais de bloc `<pre class="cmd">` dans un lot), DONE, « Commit du
    lot » `chantier(<slug>): lot N — <titre>`, DERNIER lot de processus compris (lint check 8).
+   Le plan déclare ses tranches (`Tranches :` PR, lots, base, empilée ou depuis la branche par défaut) et un
+   point de coupe après chaque lot à effet visible (D4) ; design, plan et fiche entrent dans la branche de base
+   par une PR de documents avant le run (D7).
 6. **Un agent par lot**, jamais `general-purpose` par défaut si le projet a des agents dédiés (`.claude/agents/`) ;
    clôture/PR/merge : « aucun — reste chez l'orchestrateur ».
 7. **Galley** : `html_review_register` (chemin absolu), termine par `http://localhost:5179/html-review/<docId>` ;
@@ -82,7 +86,7 @@ Chaque étape est un gate.
 
 1. **Lis le plan et sa fiche.** Chemin vide, `undefined` ou inexistant, fiche sans `Validée par : <nom>, <date>`
    (EN : `Approved by: <name>, <date>`), ou convo cité par le plan et refusé : `ABORT` en une ligne. Aucune
-   étape aval (revue, gardien, vérificateur, clôture) sans commit de lot du chantier.
+   étape aval (revue, simplificateur, vérificateur, clôture) sans commit de lot du chantier.
 2. **Restitue l'intention** en 1-2 phrases ; si elle contredit le bloc Intention ou la fiche : STOP, question au hub.
 3. **Vérifie l'état du repo** contre « État du repo » ; divergence majeure : arrêt-et-chip. Travaille dans un
    worktree `.worktrees/<slug>` sur une branche créée pour le chantier, jamais dans le checkout principal.
@@ -97,15 +101,17 @@ Chaque étape est un gate.
    relis son diff et le verdict de la vérification toi-même ; le code réel fait foi sur le plan, consigne
    l'écart. Un lot se ferme quand tous ses checks sortent 0, puis commit `chantier(<slug-du-plan>): lot N —
    <titre>` (jamais de Co-Authored-By). Le git log EST le suivi : ne modifie pas le plan HTML. Fichier hors
-   liste, doublures de test, gate humain, run cloud : `references/executant-details.md`.
+   liste, doublures de test, gate humain, run cloud : `references/executant-details.md`. Tiens un journal de
+   décisions horodaté, une ligne par écart, découpage ou substitut (C3) ; tu peux couper au point de coupe
+   d'une tranche qui déborde, noté au journal.
 5. **Clôture (A3, ne bloque jamais)**, dans l'ordre : vérifications globales ; `adversarial-pr-review`
-   (Mode A), 2 rounds, gardien (moment 1) après chaque round AVANT tout correctif, vérificateur frais pour
-   tout correctif du round 2 ; gardien (moment 2) avant la PR ; dernier lot : `git rm` la fiche, commit `chantier(<slug>): lot N — Clôture…` (la sentinelle de revue
+   (Mode A), 2 rounds, l'autre famille (`cross`) au round 1, vérificateur frais pour
+   tout correctif du round 2 ; simplificateur avant la PR ; dernier lot : `git rm` la fiche, commit `chantier(<slug>): lot N — Clôture…` (la sentinelle de revue
    se pose après convergence par le skill) ; push et PR (sinon brouillon, défauts listés,
    sans ready/non-brouillon), aucun merge ;
    hygiène (verrou night-run libéré seulement si ce run l'a pris, serveur dev arrêté). Détail : `references/executant-details.md` § Étape 5.
 6. **Rapporte** dans la conversation hub du plan : lots et commits, tests et lignes REMESURÉS à la clôture,
-   décisions A2, verdicts du gardien, tout usage existant cassé comme décision humaine. Un test rouge se montre.
+   décisions A2, journal de décisions, chiffres de finalize, lignes retirées par le simplificateur, tout usage existant cassé comme décision humaine. Un test rouge se montre.
 
 ## Protocole arrêt-et-chip (sur tout échec)
 
@@ -120,20 +126,7 @@ des données réelles : `references/impossibilite-decouverte.md`.
 
 ## Orchestrer une flotte de chantiers (rôle ORCHESTRATEUR)
 
-Phases, goal prompts, clôture : `references/orchestration.md`. Lancer un plan à heure fixe (session locale programmée, routine cloud) : `references/nuits-planifiees.md`.
-
-**Phase 1 — Inventaire.** `bun run chips list` + `chips read <id>` pour CHAQUE chip du périmètre. Regroupe
-en 3 à 5 chantiers FILE-DISJOINTS (surface d'ÉDITION vérifiée par grep), ~4 sessions parallèles au plus ;
-chacun déclare `Dépend de` et ses « Fichiers touchés ».
-
-**Phase 2 — Briefs.** Baseline verte UNE fois, citée dans les N plans ; rôle AUTEUR complet pour chacun,
-UNE fiche d'intention par chantier. 4bis : lint de vague avant tout dispatch (`preflight-flotte.mjs` de
-`brief-preflight`, FAIL = corrige). 5 : worktree `.worktrees/<slug>` sur `<type>/<slug>`, une vague a sa branche
-`integration/<thème>`. 5bis : pré-vol des hooks bloquants depuis un worktree jetable.
-
-**Phase 3 — Goal prompts.** UN bloc par chantier, collable dans une session neuve : objectif + condition
-d'arrêt vérifiable, jamais une méthode. Il reprend verbatim les deux clauses de sécurité de
-`references/orchestration.md`.
+Phases 1 à 3 (inventaire des chips, briefs, goal prompts) et clôture : `references/orchestration.md`. Lancer un plan à heure fixe (session locale programmée, routine cloud) : `references/nuits-planifiees.md`.
 
 **Phase 3bis — Watchdog (obligatoire).** Le silence ne prouve pas la progression. Disque immobile + agent
 absent = mort : relance avec l'état exact vérifié sur disque, jamais « reprends » à vide. Règles et journal :
