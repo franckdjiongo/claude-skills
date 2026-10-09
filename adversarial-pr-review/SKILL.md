@@ -10,12 +10,12 @@ Attack your own diff before the PR is public, fix only what matters with the sma
 
 ## Hard rules
 
-1. **Round cap: 2 rounds, NOT overridable by any plan or prompt** ("until convergence" is overruled). A round is one full dimension fan-out plus its Verify step; a per-fix verifier is not a round. Round 1 reviews the whole diff. Round 2 reviews the delta plus direct interactions AND re-judges the round-1 remarks (CHIP and WONT_FIX, not HORS) whose area a fix touched; a remark on untouched lines is INVALID. Each round-2 fix gets a fresh verifier that states whether it changes an existing behaviour or violates a plan prohibition. Never a 3rd round: a P1 open after round 2 means not converged. The cap counts per PR across Mode A and B; the script enforces it.
+1. **Round cap: 2 rounds, NOT overridable by any plan or prompt** ("until convergence" is overruled). A round is one full dimension fan-out plus its Verify step; a per-fix verifier is not a round. Round 1 reviews the whole diff. Round 2 reviews the delta plus direct interactions AND re-judges the round-1 remarks (CHIP and WONT_FIX, not HORS) whose area a fix touched; a remark on untouched lines is INVALID. Each round-2 fix gets a fresh verifier that states whether it changes an existing behaviour or violates a plan prohibition. Never a 3rd round: a P1 open after round 2 means not converged. The cap counts per cycle across Mode A and B. After a FAIL, only an in-scope chip fixing its blocking finding (out of scope: own branch) opens a second, last cycle, `start --new-cycle <chip-id>`: whole diff, `cross` in round 1, same fix budget. A second FAIL: the PR stays draft, the user decides. The script enforces both.
 2. **Every finding gets one disposition:** FIX (a P1, a P2 that serves the chantier intent, or a non-pre-existing finding the end user sees whose fix fits in ~10 lines), CHIP (only a user-visible effect, and only if the plan allows chips; `spawn_task`), WONT_FIX (one-line reason) or INVALID (its facts do not hold). A pre-existing finding is never FIX unless P1. A remark contradicting a written decision of the plan or intent sheet is WONT_FIX unless P1. A fix counts code + tests: over 30 lines per finding, or a round growing a PR of 200+ lines by over 15 %, first try a version that removes code, else `fix --subtractive-tried "<why>"` or CHIP and a draft PR. A fix its verifier rejects is never retried: CHIP (a rejected P1 means not converged). A finding whose only fix is a test, with no observed defect, is WONT_FIX unless a sheet guarantee has no proof (D2, D6). The script rejects what breaks this.
 3. **Simplifier, once per PR (D5).** If an intent sheet exists (`.chantier/<slug>/intention.md`, or the plan's `Fiche d'intention :` line), after the last round and before the PR (once per slice PR), run the `simplificateur` agent, fresh context, per
    `~/.claude/skills/brief-chantier/references/simplificateur.md` (in a cloud clone:
    `.claude/skills/brief-chantier/references/simplificateur.md`), then `finalize --simplifier <sha>|none`. No sheet: say so, never block.
-4. **Closure never blocks an autonomous run.** After the cap, commit, push, `finalize`. PASS: open the PR with the open findings and their dispositions in its body. FAIL: no sentinel; open only a draft PR (`gh pr create --draft` or MCP with `draft: true`), listing open findings and dispositions in its body. No non-draft PR or `gh pr ready` until review converges for the exact HEAD. Never wait for a human, run past the cap or forge the sentinel.
+4. **Closure never blocks an autonomous run.** After the cap, commit, push, `finalize`. PASS: open the PR (body per Mode A step 4). FAIL: no sentinel; open only a draft PR (`gh pr create --draft` or MCP with `draft: true`), listing open findings and dispositions in its body. Never wait for a human, run past the cap or forge the sentinel.
 5. **Prefer real execution evidence to more mocked tests.**
 6. **Every verification claim names a check actually run that can prove it.** "Typecheck clean" needs an unfiltered run (a `| grep` pipe proves only the absence of the grepped text). Write the command and its observed output, or "not run".
 
@@ -25,7 +25,7 @@ Attack your own diff before the PR is public, fix only what matters with the sma
 
 | Command | Does |
 |---|---|
-| `start [--base <ref>]` | Prints HEAD, base, `newFiles` (the inventory), `newFilesSinceLastRound`, intent sheets, rounds left, the round-file shape. |
+| `start [--base <ref>] [--new-cycle <chip-id>]` | Prints HEAD, base, `newFiles` (the inventory), `newFilesSinceLastRound`, intent sheets, rounds left, the round-file shape. |
 | `round <file> [--triage] [--head <sha>]` | Records a round from a JSON file (its shape is printed by `start`). `--triage` records bot-comment dispositions once the cap is spent. `--head`: commit an external pass reviewed (HEAD or ancestor). |
 | `adopt <other-checkout>` | Moves this branch's state and sentinel from another worktree here (refuses other branch or non-empty state). |
 | `fix <id...> [--subtractive-tried "<why>"]` | Marks FIX findings fixed, after the fix commit and its fresh verifier; refuses a fix over the rule-2 bounds without `<why>`. |
@@ -40,7 +40,7 @@ Your report cites `verdict.json`, not your own words.
 1. `start`. Run the local quality gate; fix red before spending agents.
 2. **Round 1** on the whole diff: hunters and `cross` in parallel (D1; `cross` failed or CLI not logged in: no retry, say so); `round` once `cross` is done, its X findings dispositioned in it; commit the FIX items, `fix`, re-run the gate.
 3. **Round 2**, only if round 1 committed a fix: same steps on the delta.
-4. Simplifier, then `finalize --gate '<the gate>'` (it prints code, tests and ratio), push, open the PR. The body states coverage, gate result, those figures and open findings with dispositions.
+4. Simplifier, then `finalize --gate '<the gate>'`, push, open the PR. The body states coverage, gate result, its printed figures and open findings with dispositions.
 5. **Read the bot's first pass before any merge**: `gh pr view <n> --json comments,reviews` and the PR's review comments via `gh api`. Its findings go to Mode B.
 
 ## Mode B: bot review comments
@@ -106,10 +106,10 @@ The global hook `adversarial-pr-guard.mjs` blocks non-draft `gh pr create`, `gh 
 
 **After the last round the cap allows**, `finalize --delta-ok "<note>"` re-records without a new round only if `git diff <last-reviewed-sha>..HEAD` holds nothing but (a) fixes of confirmed findings, each with its own fresh verifier, (b) quality-gate repairs changing no reviewed behavior, (c) a conflict-free base merge (`git show --remerge-diff <merge>` prints no hunk), (d) the removal of the intent sheet, (e) the simplifier commit. A fresh verifier classifies every hunk; an unclassifiable one means not converged.
 
-**Codex in round 1 (D1).** `cross` reviews the whole diff against the PR base alongside the round-1 hunters; the script refuses it once a round is recorded. No external pass after a green PR: it opens a third round.
+**Codex in round 1 (D1).** `cross` reviews the whole diff alongside the round-1 hunters. No external pass after a green PR: it opens a third round.
 
 ## Scaling & cost
 
 Trivial (typo, comment, one line, config): no fan-out, read the diff, `finalize --trivial`. Small: 2-3 dimensions, single-vote verify. Medium: 4-5. Large/risky (auth, schema, public API, shared dispatch, migration): all dimensions, 3-vote verify, `cross` in every round 1.
 
-`finalize` computes **converged**: every FIX fixed, no open P1 or question, every cross finding dispositioned, a green gate, no HEAD movement after the last round without `--delta-ok`. A fix its verifier rejects is never retried (rule 2). Always report the residual risk: what was swept, what still surfaced, what was not re-verified.
+`finalize` computes **converged**: every FIX fixed, no open P1 or question, every cross finding dispositioned, a green gate, no HEAD movement after the last round without `--delta-ok`. Always report the residual risk: what was swept, what still surfaced, what was not re-verified.

@@ -3,11 +3,12 @@
 // dispositions); this script resolves the repo and HEAD itself, keeps the round state, can call the
 // cross-model reviewer, runs the gate, writes verdict.json and writes the sentinel ONLY on PASS for HEAD.
 // State lives under <git-dir>/adversarial-review/ (never committed). Zero dependencies, Node >= 20.
-// The round cap is per PR and survives reruns of start; a new PR from a reused branch starts by deleting that folder by hand.
+// The round cap is per cycle and survives reruns of start. After a FAIL, start --new-cycle <chip-id> archives the state
+// (state-<n>.json, verdict-<n>.json) and opens a second and last cycle; a new PR from a reused branch deletes that folder by hand.
 // start binds the state to the current branch; every other command refuses another branch (one worktree per PR).
 //
-//   start    [--repo p] [--base ref]                print state, inventory (newFiles), rounds left; rerun any time
-//   round    <findings.json> [--triage] [--head sha] record a round (cap 2 per PR, Mode A + B); --triage records bot-comment
+//   start    [--repo p] [--base ref] [--new-cycle chip-id]  print state, inventory (newFiles), rounds left; rerun any time
+//   round    <findings.json> [--triage] [--head sha] record a round (cap 2 per cycle, Mode A + B); --triage records bot-comment
 //                                                    dispositions once the cap is spent (no fan-out, not counted); --head records
 //                                                    the commit an external pass reviewed (HEAD or an ancestor), default HEAD
 //   adopt    <other-checkout>                        move the review state (+ sentinel) of the same branch from another worktree here
@@ -31,6 +32,7 @@ import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 
 export const ROUND_CAP = 2
+export const CYCLE_CAP = 2
 export const VERDICT_SCHEMA = 'adversarial.verdict/1'
 const SEVERITIES = ['P1', 'P2', 'P3']
 const ORIGINS = ['introduced', 'aggravated', 'pre-existing']
@@ -170,8 +172,17 @@ export function validateRound(value) {
 
 // ---------- commands ----------
 
+// Rule 1: after a FAIL, a chip fixing its blocking finding opens one more cycle; the old one is archived, never deleted.
+function newCycle(c, old, chip) {
+  if (readJson(join(c.dir, 'verdict.json'))?.verdict !== 'FAIL' || !old) throw new UsageError('--new-cycle follows a FAIL verdict of this review')
+  const n = old.cycle ?? 1
+  if (n >= CYCLE_CAP) throw new UsageError(`cycle cap reached: ${CYCLE_CAP} cycles per PR (rule 1): the PR stays a draft, the user decides`)
+  return { schema: old.schema, baseRef: old.baseRef, branch: old.branch, cycle: n + 1, chip, rounds: [], cross: [], crossRuns: [] }
+}
+
 function cmdStart(c, flags, out) {
-  const old = readJson(join(c.dir, 'state.json'))
+  let old = readJson(join(c.dir, 'state.json'))
+  if (flags['new-cycle']) old = newCycle(c, old && needState(c), flags['new-cycle'])
   const baseRef = flags.base ?? old?.baseRef ?? tryGit(c.repo, ['symbolic-ref', '--short', 'refs/remotes/origin/HEAD'])
   if (!baseRef) throw new UsageError('no base ref: pass --base <ref> (origin/HEAD is not set)')
   if (old?.rounds.length && baseRef !== old.baseRef) throw new UsageError(`the base ref is fixed once a round is recorded (${old.baseRef}); a wider base would certify an unreviewed diff`)
@@ -179,13 +190,14 @@ function cmdStart(c, flags, out) {
     throw new UsageError(`this worktree holds the review of branch ${old.branch} (${old.rounds.length} round(s), ${old.crossRuns?.length ?? 0} cross run(s)): review ${c.branch} from its own worktree (git worktree add, then "adopt"), or delete ${c.dir} once that PR is closed`)
   }
   const base = mergeBase(c, baseRef)
+  for (const f of flags['new-cycle'] ? ['verdict', 'state'] : []) renameSync(join(c.dir, `${f}.json`), join(c.dir, `${f}-${old.cycle - 1}.json`))
   const state = old ? { ...old, baseRef, branch: c.branch } : { schema: 'adversarial.state/1', baseRef, branch: c.branch, rounds: [], cross: [], crossRuns: [] }
   saveState(c, state)
   const last = state.rounds.at(-1)
   const info = {
     repo: c.repo, gitDir: c.gitDir, branch: c.branch, head: c.head, baseRef, base,
     dirty: git(c.repo, ['status', '--porcelain']).trim() !== '',
-    roundsUsed: used(state), roundsLeft: ROUND_CAP - used(state),
+    cycle: state.cycle ?? 1, roundsUsed: used(state), roundsLeft: ROUND_CAP - used(state),
     stat: git(c.repo, ['diff', '--stat=160', `${base}...${c.head}`]).trim(),
     newFiles: inventory(c, base),
     ...(last ? { newFilesSinceLastRound: inventory(c, last.head) } : {}),
@@ -201,7 +213,7 @@ function cmdStart(c, flags, out) {
 function cmdRound(c, pos, flags, out) {
   const state = needState(c)
   if (flags.triage && used(state) < ROUND_CAP) throw new UsageError('a round remains: record this as a round, --triage is for after the cap')
-  if (!flags.triage && used(state) >= ROUND_CAP) throw new UsageError(`round cap reached: ${ROUND_CAP} rounds already recorded for this PR (rule 1); bot-comment dispositions go in with --triage`)
+  if (!flags.triage && used(state) >= ROUND_CAP) throw new UsageError(`round cap reached: ${ROUND_CAP} rounds already recorded for this cycle (rule 1); bot-comment dispositions go in with --triage`)
   if (!pos[0]) throw new UsageError('round needs a findings file')
   const raw = readJson(resolve(pos[0]))
   if (!raw) throw new UsageError(`cannot read JSON from ${pos[0]}`)
@@ -383,7 +395,7 @@ export function finalize(c, flags, state) {
   }
 
   return {
-    schema: VERDICT_SCHEMA, head: c.head, base, baseRef: state.baseRef, repo: c.repo, branch: c.branch, tier,
+    schema: VERDICT_SCHEMA, head: c.head, base, baseRef: state.baseRef, repo: c.repo, branch: c.branch, tier, cycle: state.cycle ?? 1, chip: state.chip ?? null,
     rounds: rounds.map((r) => ({ round: r.round, triage: r.triage, head: r.head, findings: r.findings.length, openQuestions: r.openQuestions })),
     findings: entries, cross: state.cross, crossRuns: state.crossRuns, gate, simplifier, delta, metrics: m,
     residualRisk: rounds.map((r) => r.residualRisk).filter(Boolean).join(' | '),

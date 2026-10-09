@@ -472,6 +472,49 @@ describe('round --head and adopt', () => {
   })
 })
 
+describe('review cycles (rule 1)', () => {
+  const archived = (d, f) => JSON.parse(readFileSync(join(gitDirOf(d), 'adversarial-review', f), 'utf8'))
+  const failCycle = async (d) => {
+    await started(d); await run(d, 'round', roundFile(d, [finding()]))
+    assert.equal((await run(d, 'finalize', '--no-gate', 'x')).code, 1)
+    commit(d)
+  }
+  test('after a FAIL, --new-cycle archives state and verdict and opens 2 fresh rounds; finalize writes the cycle', async () => {
+    const d = makeRepo(); await failCycle(d)
+    const r = await run(d, 'start', '--new-cycle', 'chip-1')
+    assert.equal(r.code, 0, r.err)
+    const info = JSON.parse(r.out)
+    assert.equal(info.cycle, 2); assert.equal(info.roundsLeft, 2)
+    assert.equal(archived(d, 'state-1.json').rounds.length, 1)
+    assert.equal(archived(d, 'verdict-1.json').verdict, 'FAIL')
+    assert.equal(existsSync(join(gitDirOf(d), 'adversarial-review/verdict.json')), false)
+    assert.equal((await run(d, 'check')).code, 3)
+    assert.deepEqual({ cycle: stateOf(d).cycle, chip: stateOf(d).chip, rounds: stateOf(d).rounds }, { cycle: 2, chip: 'chip-1', rounds: [] })
+    await run(d, 'round', roundFile(d))
+    assert.equal((await run(d, 'finalize', '--no-gate', 'x')).code, 0)
+    assert.equal(verdictOf(d).cycle, 2); assert.equal(verdictOf(d).chip, 'chip-1')
+  })
+  test('a third cycle is refused and the second cycle state is kept', async () => {
+    const d = makeRepo(); await failCycle(d)
+    assert.equal((await run(d, 'start', '--new-cycle', 'chip-1')).code, 0)
+    await run(d, 'round', roundFile(d, [finding({ id: 'F9' })]))
+    assert.equal((await run(d, 'finalize', '--no-gate', 'x')).code, 1)
+    const r = await run(d, 'start', '--new-cycle', 'chip-2')
+    assert.equal(r.code, 2); assert.match(r.err, /cycle cap reached/)
+    assert.equal(stateOf(d).cycle, 2); assert.equal(stateOf(d).rounds.length, 1)
+    assert.equal(existsSync(join(gitDirOf(d), 'adversarial-review/state-2.json')), false)
+  })
+  test('--new-cycle needs a FAIL verdict', async () => {
+    const d = makeRepo()
+    assert.match((await run(d, 'start', '--new-cycle', 'c')).err, /follows a FAIL/)
+    await started(d)
+    assert.match((await run(d, 'start', '--new-cycle', 'c')).err, /follows a FAIL/)
+    assert.equal((await run(d, 'finalize', '--trivial', '--no-gate', 'x')).code, 0)
+    assert.match((await run(d, 'start', '--new-cycle', 'c')).err, /follows a FAIL/)
+    assert.equal((await started(d)).cycle, 1)
+  })
+})
+
 test('parseArgs', () => {
   const p = parseArgs(['finalize', '--gate', 'bun test', '--trivial', '--delta-ok=ok x', 'pos'])
   assert.deepEqual(p, { cmd: 'finalize', flags: { gate: 'bun test', trivial: true, 'delta-ok': 'ok x' }, pos: ['pos'] })
