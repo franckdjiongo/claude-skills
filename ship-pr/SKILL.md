@@ -30,7 +30,9 @@ For every target, `gh pr view <n> --json state,isDraft,mergeable,mergeStateStatu
 - `mergeable` is `CONFLICTING`, or `mergeStateStatus` shows a block (e.g. `BLOCKED`, `BEHIND` on a repo that requires being up to date).
 - Any entry in `statusCheckRollup` is failing, or still pending and the user hasn't said to wait — a pending check is not a green one.
 
-These are hard blockers the same way `commit-session-work` treats a red validation gate: real, not negotiable by this skill on its own. If a check is red because of a known flake, that's the user's call to force through (`gh pr merge --admin` or similar) — never yours by default, and only if they say so explicitly for that PR.
+These are hard blockers, not negotiable by this skill on its own. Forcing a red check through a known flake (`gh pr merge --admin`) is the user's explicit call for that PR, never yours.
+
+Right before each merge, run `node <ship-pr folder>/scripts/review-gate.mjs --repo <owner/name> --pr <n>`. Continue only on exit 0 with output starting `PASS` or `NOT-ENROLLED` (no reviewer calling file), and only while `gh pr view <n> --json baseRefName,headRefOid` still shows the printed `base` and `head`. Anything else blocks. Every review run and re-run of this PR on this head must be green, other PRs' runs count for nothing: only a new commit lifts a red one. A retargeted stacked PR needs a new commit (e.g. merge its base) for a new review.
 
 If the PR's branch has a worktree, run `node <adversarial-pr-review folder>/scripts/review-run.mjs check --repo <worktree> --head <headRefOid>`: exit 1 (FAIL) and 4 (a later finding voided the PASS) mean stop unless the user says to merge anyway. Exit 3 (no verdict, or one for another head) is not a pass: say so in the report and continue.
 
@@ -41,12 +43,12 @@ Confirm `baseRefName` is the repo's actual primary branch (see `PRIMARY_BRANCH` 
 For each PR that passed preflight, in order:
 
 ```
-gh pr merge <n> --merge --delete-branch
+gh pr merge <n> --merge --delete-branch --match-head-commit <head printed by review-gate>
 ```
 
-Default to `--merge` (an ordinary merge commit) unless the repo's own recent history shows a consistent squash or rebase convention — check `git log --oneline -20 --merges` on the primary branch: merge commits present → this repo uses `--merge`; none, but PRs clearly landed anyway → it's squashing or rebasing, match that with `--squash` or `--rebase`. When genuinely ambiguous, `--merge` is the safest default — it never rewrites what was reviewed.
+Default to `--merge` unless the repo's recent history shows a consistent squash or rebase convention — check `git log --oneline -20 --merges` on the primary branch: merge commits present → `--merge`; none, but PRs landed → match with `--squash` or `--rebase`. When ambiguous, `--merge`: it never rewrites what was reviewed.
 
-`--delete-branch` removes the remote branch as part of the same call; that's the normal, expected cleanup for a feature branch and doesn't need separate authorization.
+`--delete-branch` removes the remote branch in the same call; that cleanup needs no separate authorization.
 
 Record the merge commit SHA (`gh pr view <n> --json mergeCommit`) for the report and for attributing any regression.
 
@@ -89,7 +91,7 @@ For each PR: number, review verdict (PASS, FAIL, absent or stale), merge commit 
 
 ## Hard blockers — stop without weakening safety
 
-- A named PR is draft, has a merge conflict, or has a failing/pending required check the user hasn't explicitly said to force through.
+- A named PR is draft, has a merge conflict, has a failing/pending required check the user hasn't explicitly said to force through, or `review-gate.mjs` refuses it.
 - The remote account/SSH alias doesn't match repository policy for a push.
 - The primary branch or its checkout can't be resolved safely.
 - Source and target contain overlapping uncommitted changes that can't be disentangled by stashing.

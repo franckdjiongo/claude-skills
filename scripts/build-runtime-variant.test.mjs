@@ -536,7 +536,7 @@ describe('every skill of this repo that declares a Codex variant', () => {
     .map((e) => e.name)
 
   test('includes the skills ported so far', () => {
-    expect(declared).toEqual(expect.arrayContaining(['adversarial-pr-review', 'brief-chantier', 'brief-preflight']))
+    expect(declared).toEqual(expect.arrayContaining(['adversarial-pr-review', 'brief-chantier', 'brief-preflight', 'create-subagent']))
   })
 
   for (const name of declared) {
@@ -547,6 +547,22 @@ describe('every skill of this repo that declares a Codex variant', () => {
       expect(buildSkillMd(dir, 'claude')).toBe(source.split('\n').filter((l) => !/^<!-- \/?runtime-slot:/.test(l)).join('\n'))
     })
   }
+})
+
+describe('create-subagent (real skill)', () => {
+  test('every Codex agent TOML example parses with the keys codex-cli requires and no model name', () => {
+    const dir = join(REPO_ROOT, 'create-subagent')
+    const text = buildSkillMd(dir, 'codex') + '\n' + readFileSync(join(dir, 'references', 'codex-agents.md'), 'utf8')
+    const blocks = [...text.matchAll(/^```toml\n([\s\S]*?)^```$/gm)].map((m) => m[1])
+    expect(blocks.length).toBe(5)
+    for (const block of blocks) {
+      // Bun.TOML accepts invalid escapes such as \d that codex-cli's TOML parser rejects: forbid them outright.
+      expect(block).not.toContain('\\')
+      const agent = Bun.TOML.parse(block)
+      for (const key of ['name', 'description', 'developer_instructions']) expect(String(agent[key] ?? '').trim()).not.toBe('')
+      expect(agent.model).toBeUndefined()
+    }
+  })
 })
 
 describe('adversarial-pr-review (real skill)', () => {
