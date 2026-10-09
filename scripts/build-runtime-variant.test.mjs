@@ -556,6 +556,8 @@ describe('create-subagent (real skill)', () => {
     const blocks = [...text.matchAll(/^```toml\n([\s\S]*?)^```$/gm)].map((m) => m[1])
     expect(blocks.length).toBe(5)
     for (const block of blocks) {
+      // Bun.TOML accepts invalid escapes such as \d that codex-cli's TOML parser rejects: forbid them outright.
+      expect(block).not.toContain('\\')
       const agent = Bun.TOML.parse(block)
       for (const key of ['name', 'description', 'developer_instructions']) expect(String(agent[key] ?? '').trim()).not.toBe('')
       expect(agent.model).toBeUndefined()

@@ -16,11 +16,13 @@ unexpectedly.
 | `developer_instructions` | yes | Not blank. The agent's job description. |
 | `nickname_candidates` | no | List of display names: at least one, no blank or duplicate entry, ASCII letters, digits, spaces, hyphens and underscores only. |
 | `model` | no | Only as a projection of a routing file that registers the agent (see SKILL.md, "Model routing"). |
-| `model_reasoning_effort` | no | `low`, `medium` or `high` for a sub-agent. |
-| `sandbox_mode` | no | `read-only` or `workspace-write`. `danger-full-access` only with a stated reason. |
+| `model_reasoning_effort` | no | Copied exactly from the routing role when a routing file registers the agent; otherwise `low`, `medium` or `high`. |
+| `sandbox_mode` | no | `read-only`, `workspace-write` or `danger-full-access` (the last only with a stated reason). |
 
-The file is read as a Codex config layer, so other config keys are parsed too. Use them only when the
-user asks for one and you have checked it against the installed codex-cli.
+The file is read as a Codex config layer. An unknown key or an invalid value (for example a
+misspelled `sandbox_mode`) makes codex-cli skip the WHOLE file with the warning "Ignoring malformed
+agent role definition". Add another config key only when the user asks for it and you have checked it
+against the installed codex-cli.
 
 ## Pitfalls
 
@@ -32,9 +34,11 @@ user asks for one and you have checked it against the installed codex-cli.
   instead, which must not contain `'''`.
 - **Parse before declaring done:**
   `python3 -c "import tomllib,sys; d=tomllib.load(open(sys.argv[1],'rb')); print(sorted(d))" <path>`.
-- **Discovery.** Start a new Codex session after writing the file.
+- **Discovery.** Start a new Codex session after writing the file. A project agent loads only when Codex
+  trusts the project; a project agent silently shadows a user agent with the same name.
 - **Spawning.** The parent uses `spawn_agent` with `agent_type: "<name>"` and without a full-history
-  fork: a full-history fork inherits the parent's agent type.
+  fork (`fork_turns: "none"`, or no `fork_context` with the older multi-agent tools): a full-history
+  fork inherits the parent's agent type.
 
 ## Templates
 

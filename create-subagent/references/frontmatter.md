@@ -34,7 +34,7 @@ Use `haiku` when the work is genuinely simple and high-volume (fast retrieval, m
 ### `effort`
 `low`, `medium`, `high`, `xhigh`, `max` — depends on the model. Default: inherits from the session.
 
-Override only when the subagent's task is meaningfully harder or easier than the session default. Opus 4.7 recommends starting `high` for coding and agentic work.
+Override only when the subagent's task is meaningfully harder or easier than the session default. Start at `high` for coding and agentic work.
 
 ### `maxTurns`
 Hard cap on agentic turns before the subagent stops. Useful for bounded loops; not a substitute for good prompting.

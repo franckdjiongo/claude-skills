@@ -5,12 +5,13 @@
   ],
   "forbid": [
     "agent .md",
-    "~/.Codex",
     "Claude decides",
     "(agent)\"",
     "Claude Code session",
     "frontmatter `hooks`",
-    "`tools` frontmatter"
+    "`tools` frontmatter",
+    "The body becomes",
+    "Opus"
   ],
   "allow": {
     "claude-home": {
@@ -21,14 +22,14 @@
         "- `local` → `.claude/agent-memory-local/<name>/`",
         "ship it at user or project scope (`~/.claude/agents/` or `.claude/agents/`)"
       ],
-      "reason": "references/frontmatter.md is the Claude Code frontmatter reference, shipped in both builds but named only by the Claude SKILL.md; the Codex text points to references/codex-agents.md instead."
+      "reason": "references/frontmatter.md is the Claude Code frontmatter reference, shipped in both builds but named only by the Claude SKILL.md; the Codex text points to references/codex-agents.md instead; the Codex SKILL.md tells the agent to ignore it."
     },
     "agent-tool": {
       "match": [
         "`Agent` and `Agent(subagent-name)` only matter",
         "so listing `Agent` in a regular subagent's tools"
       ],
-      "reason": "references/frontmatter.md is the Claude Code frontmatter reference, shipped in both builds but named only by the Claude SKILL.md."
+      "reason": "references/frontmatter.md is the Claude Code frontmatter reference, shipped in both builds but named only by the Claude SKILL.md; the Codex SKILL.md tells the agent to ignore it."
     },
     "claude-model-alias": {
       "match": [
@@ -36,16 +37,17 @@
         "Use `haiku` when the work is genuinely simple",
         "Use `sonnet` or `opus` when reasoning quality"
       ],
-      "reason": "references/frontmatter.md documents the Claude Code model field, shipped in both builds but named only by the Claude SKILL.md."
+      "reason": "references/frontmatter.md documents the Claude Code model field, shipped in both builds but named only by the Claude SKILL.md; the Codex SKILL.md tells the agent to ignore it."
     }
   },
   "slotSources": {
     "intro": "8be337b2395d9b9d",
     "compare": "cbf30e80da54eb0d",
+    "triage-fit": "1346dbc0733ae2e7",
     "triage-team": "1f29438cd8aba417",
     "interview-fields": "5f6e5bc736b389ae",
     "scaffold": "62b4e048c9884f97",
-    "body-avoid": "57f4baf15ba9905d",
+    "body": "f3776bd5f590aff1",
     "smoke-test": "3eb3c67c2dc0a3e5",
     "validation": "36805d3c0da03f7b",
     "scope": "dca28f277ebe3f94"

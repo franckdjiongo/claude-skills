@@ -35,7 +35,9 @@ Before writing anything, decide what the user actually wants. Ask only the quest
 
 Use these signals:
 
+<!-- runtime-slot:triage-fit -->
 - **Subagent fits when:** the task is self-contained, produces verbose intermediate output, runs read-only research, needs different tool restrictions than the main conversation, or accumulates memory across sessions about a specific concern.
+<!-- /runtime-slot:triage-fit -->
 - **Skill fits better when:** the user wants procedures that should run *in* the current conversation, the work needs frequent back-and-forth with the parent, or the artifact's main purpose is to teach a workflow.
 <!-- runtime-slot:triage-team -->
 - **Agent team fits better when:** the user describes multiple workers running in parallel and *talking to each other*, or workers that span separate sessions. Subagents only work within a single session and cannot spawn other subagents.
@@ -142,6 +144,7 @@ Report format:
 For canonical templates (read-only researcher, code reviewer, isolated implementer with worktree, hook-validated worker, memory-backed specialist), see `references/templates.md`. For the full frontmatter field reference (defaults, allowed values, plugin constraints), see `references/frontmatter.md`.
 <!-- /runtime-slot:scaffold -->
 
+<!-- runtime-slot:body -->
 ### System-prompt body — what to write
 
 The body becomes the agent's system prompt. Treat it as a focused job description, not a procedures manual.
@@ -156,11 +159,10 @@ Include:
 
 Avoid:
 
-<!-- runtime-slot:body-avoid -->
 - Repeating Claude Code's general behavior — the agent already inherits the platform.
 - Long lists of tools available — `tools` frontmatter handles that.
 - Defensive scaffolding ("double-check before returning"). Opus 4.7 follows literal instructions and will waste tokens on checks that aren't load-bearing. Only include verification steps when they actually matter.
-<!-- /runtime-slot:body-avoid -->
+<!-- /runtime-slot:body -->
 
 ### Smoke test
 
