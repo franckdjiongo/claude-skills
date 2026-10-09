@@ -26,11 +26,16 @@ const SOURCE_DIRS = [
 const SOURCE_ROOT_FILES = ['App.tsx', 'index.tsx', 'main.tsx', 'main.ts', 'index.ts'];
 const SOURCE_EXT = /\.(ts|tsx|jsx|js|mjs|cjs|css|html)$/;
 
+// Agent-runtime config dirs (.claude, .codex, .agents, .agent) are vendored
+// governance: out of scope in every mode (full walk, staged, changed), so a
+// Codex copy of a hook is never flagged while its Claude original is skipped.
 const SKIP_DIRS = new Set([
   'node_modules', 'dist', 'build', 'coverage', 'public', '.git', '.claude',
-  '.agents', '.agent', '.husky', '.next', '.cache', '.turbo', '.vercel',
+  '.codex', '.agents', '.agent', '.husky', '.next', '.cache', '.turbo', '.vercel',
   '.output', '.svelte-kit', 'out', '.parcel-cache',
 ]);
+// Same semantics as walkRepo: any directory segment of the path in SKIP_DIRS.
+const inSkippedDir = (rel) => rel.split('/').slice(0, -1).some((seg) => SKIP_DIRS.has(seg));
 
 const TOKEN_FILES = new Set([
   'index.css', 'index.html', 'tokens.css',
@@ -146,6 +151,7 @@ export function stagedFiles() {
   const raw = git('diff --cached --name-only --diff-filter=ACMR');
   if (!raw) return [];
   return raw.split('\n').map((s) => s.trim()).filter(Boolean)
+    .filter((rel) => !inSkippedDir(rel))
     .map((rel) => join(projectDir(), rel))
     .filter((p) => SOURCE_EXT.test(p));
 }
@@ -182,6 +188,7 @@ export function changedFiles() {
   add(git('diff --name-only HEAD'));                 // staged + unstaged (tracked)
   add(git('ls-files --others --exclude-standard'));  // new untracked files
   return [...names]
+    .filter((rel) => !inSkippedDir(rel))
     .map((rel) => join(projectDir(), rel))
     .filter((p) => SOURCE_EXT.test(p));
 }

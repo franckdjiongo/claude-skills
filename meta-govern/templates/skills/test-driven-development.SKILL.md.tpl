@@ -72,7 +72,7 @@ The test MUST fail. If it passes:
 
 A passing test pre-implementation is a SIGNAL — investigate.
 
-For a regression test guarding an async race or an ordering bug, mental deletion is not enough — the failure is timing-dependent and a test can pass against the buggy code by accident (a late `setError(null)` erasing the evidence). Prove it empirically: `git stash` the fix, run the test — it MUST fail — then `git stash pop`. A race regression test that stays green with the fix stashed is testing nothing.
+For a regression test guarding an async race or an ordering bug, mental deletion is not enough — the failure is timing-dependent and a test can pass against the buggy code by accident (a late `setError(null)` erasing the evidence). Prove it empirically by reverting ONLY the fix, never the new test: `git diff HEAD -- <fix files> > .claude/tmp/race-proof.patch` (a new fix file: `git add -N` it first; a fix already committed: `git diff <base> HEAD -- <fix files>`), `git apply -R .claude/tmp/race-proof.patch`, run the test (it MUST fail), then `git apply .claude/tmp/race-proof.patch` and delete the patch. Not `git stash`/`pop`: `refs/stash` is shared by every worktree of the repository, so a pop can restore another session's entry, and a bare stash also reverts a tracked test file. A race regression test that stays green with the fix stashed is testing nothing.
 
 ### Stage 3: GREEN — Make it pass
 

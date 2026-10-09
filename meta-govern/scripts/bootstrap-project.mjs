@@ -21,7 +21,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { renderToFile, renderTemplateFile, detectRenderLeaks } from './lib/template-renderer.mjs';
-import { detectProject, writeMetaGovernState } from './lib/project-detection.mjs';
+import { detectProject, writeMetaGovernState, pmRunPrefix as pmRun } from './lib/project-detection.mjs';
 
 const PATH_PREFIX = "/opt/homebrew/bin:/usr/local/bin:/opt/homebrew/sbin:/usr/sbin:/usr/bin:/sbin:/bin";
 process.env.PATH = `${PATH_PREFIX}:${process.env.PATH || ""}`;
@@ -221,9 +221,10 @@ function buildDefaultPlan(projectDir) {
   // Default palier-1 plan: full BOOTSTRAP scaffold.
   // Caller provides a richer plan with stack-specific variables.
   // This default is what runs when invoked without --plan; produces a working baseline.
-  const projectName = path.basename(projectDir);
   // Détection légère pour les choix conditionnels (ex. la règle ui-components Svelte).
   const detection = detectProject(projectDir);
+  // Nom du dépôt principal même depuis un worktree lié (même source que MIGRATE).
+  const projectName = detection.projectName;
   const isSvelteKit = !!detection.stack.isSvelteKit;
   // Le harnais de test des hooks + les tests co-localisés (et l'extension du glob
   // vitest en post-install) ne sont posés que si le projet a déjà vitest — sur un
@@ -699,14 +700,6 @@ function findVitestConfig(projectDir) {
     if (fs.existsSync(p)) return p;
   }
   return null;
-}
-
-// Préfixe d'exécution de script npm selon le gestionnaire de paquets détecté.
-function pmRun(pm) {
-  if (pm === 'bun') return 'bun run';
-  if (pm === 'pnpm') return 'pnpm';
-  if (pm === 'yarn') return 'yarn';
-  return 'npm run';
 }
 
 // Applique les additionalSteps du plan que bootstrap-project.mjs sait exécuter
