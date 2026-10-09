@@ -68,6 +68,28 @@ describe('start', () => {
     assert.equal(wider.code, 2); assert.match(wider.err, /base ref is fixed/)
     assert.equal((await run(d, 'start')).code, 0)
   })
+  test('the state stays with its branch: another branch or a detached HEAD is refused, start re-binds only an empty state', async () => {
+    const d = makeRepo(); await started(d)
+    sh(d, 'checkout', '-qb', 'other'); await started(d)
+    assert.equal(stateOf(d).branch, 'other')
+    await run(d, 'round', roundFile(d))
+    sh(d, 'checkout', '-q', 'work')
+    for (const argv of [['round', roundFile(d)], ['fix', 'F1'], ['cross'], ['finalize', '--no-gate', 'x'], ['start']]) {
+      const r = await run(d, ...argv)
+      assert.equal(r.code, 2, argv[0]); assert.match(r.err, /branch other/, argv[0])
+    }
+    sh(d, 'checkout', '-q', '--detach', 'other')
+    assert.match((await run(d, 'round', roundFile(d))).err, /branch other/)
+    sh(d, 'checkout', '-q', 'other')
+    assert.equal((await run(d, 'round', roundFile(d))).code, 0)
+  })
+  test('a state written before branch binding is not checked', async () => {
+    const d = makeRepo(); await started(d)
+    const { branch, ...legacy } = stateOf(d)
+    writeFileSync(join(gitDirOf(d), 'adversarial-review/state.json'), JSON.stringify(legacy))
+    sh(d, 'checkout', '-qb', 'other')
+    assert.equal((await run(d, 'round', roundFile(d))).code, 0)
+  })
   test('not a repo, bad base, no state', async () => {
     assert.equal((await run(tmp(), 'start', '--base', 'main')).code, 2)
     const d = makeRepo()

@@ -4,6 +4,7 @@
 // cross-model reviewer, runs the gate, writes verdict.json and writes the sentinel ONLY on PASS for HEAD.
 // State lives under <git-dir>/adversarial-review/ (never committed). Zero dependencies, Node >= 20.
 // The round cap is per PR and survives reruns of start; a new PR from a reused branch starts by deleting that folder by hand.
+// start binds the state to the current branch; every other command refuses another branch (one worktree per PR).
 //
 //   start    [--repo p] [--base ref]                print state, inventory (newFiles), rounds left; rerun any time
 //   round    <findings.json> [--triage]              record a round (cap 2 per PR, Mode A + B); --triage records bot-comment
@@ -83,6 +84,9 @@ const voidPass = (c) => { if (sentinelHead(c) === c.head) rmSync(sentinelPath(c)
 function needState(c) {
   const s = readJson(join(c.dir, 'state.json'))
   if (!s) throw new UsageError(`no review state for ${c.repo} (branch ${c.branch}): run "review-run.mjs start" from this checkout first`)
+  // The state lives per worktree, not per branch: a review bound to one branch never absorbs another's rounds.
+  // A state written before the binding has no branch and is not checked.
+  if (s.branch && s.branch !== c.branch) throw new UsageError(`this review state belongs to branch ${s.branch}, not ${c.branch}: review ${c.branch} from its own worktree, or run "review-run.mjs start" here if ${s.branch} has nothing recorded`)
   return s
 }
 
@@ -169,8 +173,11 @@ function cmdStart(c, flags, out) {
   const baseRef = flags.base ?? old?.baseRef ?? tryGit(c.repo, ['symbolic-ref', '--short', 'refs/remotes/origin/HEAD'])
   if (!baseRef) throw new UsageError('no base ref: pass --base <ref> (origin/HEAD is not set)')
   if (old?.rounds.length && baseRef !== old.baseRef) throw new UsageError(`the base ref is fixed once a round is recorded (${old.baseRef}); a wider base would certify an unreviewed diff`)
+  if (old?.branch && old.branch !== c.branch && (old.rounds.length || old.crossRuns?.length)) {
+    throw new UsageError(`this worktree holds the review of branch ${old.branch} (${old.rounds.length} round(s), ${old.crossRuns?.length ?? 0} cross run(s)): review ${c.branch} from its own worktree (git worktree add), or delete ${c.dir} once that PR is closed`)
+  }
   const base = mergeBase(c, baseRef)
-  const state = old ? { ...old, baseRef } : { schema: 'adversarial.state/1', baseRef, rounds: [], cross: [], crossRuns: [] }
+  const state = old ? { ...old, baseRef, branch: c.branch } : { schema: 'adversarial.state/1', baseRef, branch: c.branch, rounds: [], cross: [], crossRuns: [] }
   saveState(c, state)
   const last = state.rounds.at(-1)
   const info = {
