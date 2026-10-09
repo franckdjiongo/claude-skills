@@ -22,8 +22,13 @@
       "count": 1
     },
     {
-      "from": "`docs/plans/`) ; session review honnête.",
-      "to": "`docs/plans/`), suppression du heartbeat de surveillance s'il existe encore (`references/watchdog-codex.md` § Fin de run) ; session review honnête et capture brain/frictions, puis suppression du fichier de surveillance.",
+      "from": "distantes) ; session review honnête.",
+      "to": "distantes), suppression du heartbeat de surveillance s'il existe encore (`references/watchdog-codex.md` § Fin de run) ; session review honnête et capture brain/frictions, puis suppression du fichier de surveillance.",
+      "count": 1
+    },
+    {
+      "from": "(`ship-pr` vers la branche par défaut)",
+      "to": "(vers la branche par défaut, contrôles de `references/orchestration.md`)",
       "count": 1
     }
   ],

@@ -63,13 +63,15 @@ Règles communes : `watchdog.md`. Mécanique Codex (heartbeat, fichier de survei
   fusion explicite. Spot-checke par lecture directe les invariants les plus porteurs.
 - **Intégration par PR, jamais par merge local poussé sur main/master.** Chaque chantier a sa PR vers sa base
   (`integration/<thème>`, ou la branche par défaut pour un chantier seul), dans l'ordre documenté ; une PR
-  empilée est retargetée avant son merge. PR vers `integration/<thème>` : PR nommée, checks verts, sentinelle
-  présente, `gh pr merge --merge` (`ship-pr` n'accepte que la branche par défaut comme base), puis typecheck dans
-  le worktree d'intégration après CHAQUE merge. PR vers main/master (finale, ou chantier seul) : docs/plans
-  commités avant elle, main/master mergé dans sa branche, gates COMPLETS sur sa tête (relancés si HEAD bouge) :
-  le « vert » des PRs n'est qu'auto-déclaré. Merge par le skill `ship-pr` (Claude Code ; sous Codex, mêmes
-  contrôles à la main : mergeable, checks verts, gate rejouée après merge), qui synchronise, redéploie et nettoie.
+  empilée est retargetée (`gh pr edit <n> --base <branche>`) une fois la PR dont elle dépend mergée.
+  PR vers `integration/<thème>` : PR nommée, checks verts, sentinelle présente, `gh pr merge --merge`
+  (`ship-pr` n'accepte que la branche par défaut comme base), puis `git fetch` et fast-forward du worktree
+  d'intégration, typecheck après CHAQUE merge. PR vers main/master (finale, ou chantier seul) : docs/plans
+  commités avant elle, main/master mergé dans sa branche (puis `finalize --delta-ok` du skill de revue : la
+  sentinelle suit le HEAD), gates COMPLETS sur sa tête (relancés si HEAD bouge) : le « vert » des PRs n'est
+  qu'auto-déclaré. Merge par le skill `ship-pr` (Claude Code ; sous Codex, mêmes contrôles à la main :
+  mergeable, checks verts, merge, sync de la branche par défaut, gate rejouée, redéploiement si défini et
+  vérifié, nettoyage).
 - **Redéploiement** selon le dépôt si le code serveur a bougé (étape de `ship-pr`, pas en double), puis une vérification qui prouve que le NOUVEAU
   code est servi (appelle une route ajoutée par le run).
-- **Nettoyage garanti** : worktrees retirés puis `prune`, branches locales ET distantes supprimées, plans HTML
-  commités dans `docs/plans/`. Puis session review honnête et capture brain/frictions.
+- **Nettoyage garanti** : worktrees retirés puis `prune`, branches locales ET distantes supprimées. Puis session review honnête et capture brain/frictions.
