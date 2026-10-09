@@ -1,14 +1,14 @@
 ---
 name: commit-session-work
 description: >-
-  Finish Git work at session end: commit, land on main, push, clean up. Default: this session. local: no push. all/tout/clean: whole tree. Triggers: "committe ce qu'on vient de faire", "fais juste un commit local", "ne pousse pas", "mets ça dans main", "commit everything", "rends la branche clean".
+  Finish Git work at session end: commit, land on main by PR, clean up. Default: this session. local: no push. all/tout/clean: whole tree. Triggers: "committe ce qu'on vient de faire", "fais juste un commit local", "ne pousse pas", "mets ça dans main", "commit everything", "rends la branche clean".
 ---
 
 # Commit Session Work
 
 Finish Git work safely, using the mode selected by the invocation. Preserve user data, repository policy, and remote history in every mode. Never force-push, rewrite history, discard changes, expose secrets, or bypass a required red gate.
 
-Invoking this skill authorizes only the actions selected by its mode. Scoped and Full-tree modes authorize ordinary commits, safe integration into the resolved target branch, a normal push, and cleanup of session-created worktrees or local temporary branches after proof that their useful content is retained. Local-commit mode authorizes only an in-place commit on the current branch. No mode authorizes force-push, remote-branch deletion, destructive cleanup of ambiguous content, or bypassing a protection rule enforced by the repository or runtime.
+Invoking this skill authorizes only the actions selected by its mode. Scoped and Full-tree modes authorize ordinary commits on a session work branch, a normal push of it, opening its pull request to the resolved target branch and merging it (which deletes that remote branch), and cleanup of session-created worktrees or local temporary branches after proof that their useful content is retained. Local-commit mode authorizes only an in-place commit on the current branch. No mode authorizes force-push, deleting any other remote branch, destructive cleanup of ambiguous content, or bypassing a protection rule enforced by the repository or runtime.
 
 <!-- runtime-slot:session-def -->
 "This session" means the current Claude Code conversation, including any subagents/threads it delegated to. Attribution is read from the conversation, not from timestamps, file names, or `git status` alone.
@@ -20,13 +20,13 @@ The mode comes from the first word of the skill argument, normalized to lowercas
 
 | Argument | Mode | Scope | Branch |
 |---|---|---|---|
-| *(none)* | Scoped | Only work attributable to this session and its delegated threads/subagents | Primary branch when the source is session-created; otherwise the current checkout |
+| *(none)* | Scoped | Only work attributable to this session and its delegated threads/subagents | PR to the primary branch when the source is the primary checkout or session-created; otherwise the current branch |
 | `local`, `commit`, `commit-only` | Local commit | Session-attributable work only | Current branch only; no integration or push |
-| `all`, `tout`, `clean` | Full tree | Every tracked and untracked non-ignored change (`clean` adds clean source/target/disposable-session postconditions) | Primary branch when source is session-created; otherwise current branch |
+| `all`, `tout`, `clean` | Full tree | Every tracked and untracked non-ignored change (`clean` adds clean source/target/disposable-session postconditions) Same as Scoped |
 
-`clean` is not a dry run: it commits and pushes the full tree. Local-commit mode is strict: do not fetch, resolve or switch to the primary branch, integrate, push, set/change an upstream, create or remove a branch/worktree, or clean the source checkout.
+`clean` is not a dry run: it commits the full tree and lands it by PR. Local-commit mode is strict: do not fetch, resolve or switch to the primary branch, integrate, push, set/change an upstream, create or remove a branch/worktree, or clean the source checkout.
 
-In Full-tree mode, do not ask which files to include. Decide `.gitignore` autonomously, commit everything else from the source checkout, and push the resolved target. If a hard safety or repository-policy blocker remains, stop and report it without asking a question.
+In Full-tree mode, do not ask which files to include. Decide `.gitignore` autonomously, commit everything else from the source checkout, and land it on the resolved target.
 
 Before any Git mutation, capture the source checkout path, `INITIAL_BRANCH=$(git branch --show-current)`, `INITIAL_HEAD=$(git rev-parse HEAD)`, `git rev-parse --git-common-dir`, and `git worktree list --porcelain`. A detached `HEAD` is supported in push-enabled modes, but is a hard blocker in Local-commit mode because there is no current branch to receive the commit.
 
@@ -57,13 +57,17 @@ From the repository root:
 
 **Local-commit mode.** Keep the current checkout and branch exactly as they are. Do not resolve a landing branch, transfer commits, fetch, push, create or remove worktrees or branches, change upstream configuration, or clean unrelated files. Build the Scoped ledger, validate, stage only attributable work, commit in place, prove the new commit belongs to `INITIAL_BRANCH`, and leave unrelated changes untouched. Skip the transfer workflow below.
 
-**Push-enabled modes.** If the source is already the primary checkout, use the normal staging and commit workflow there. If the source is a session-created worktree, detached session checkout, or secondary branch attributable to the current task, land its verified work on `PRIMARY_BRANCH` with the ten steps of `references/landing.md` (audit both sides, validate at source, materialize, select exact commits, prepare primary, integrate, validate after landing, push, prove retention, clean session artifacts). Read it before touching the primary branch.
+**Push-enabled modes.** Session work reaches `PRIMARY_BRANCH` only through a pull request, never by a local merge, cherry-pick or commit pushed onto it. Whatever the source (primary checkout, session-created worktree, detached session checkout, or secondary branch attributable to the current task), follow the ten steps of `references/landing.md`. Read it before committing.
+
+<!-- runtime-slot:pr-merge -->
+The merge step invokes the `ship-pr` skill naming that PR: it checks mergeability, green checks and the review gate, merges, syncs the primary checkout and reruns the gate there.
+<!-- /runtime-slot:pr-merge -->
 
 <!-- runtime-slot:session-branch -->
 Temporary session branches are named `claude/session-<id>`.
 <!-- /runtime-slot:session-branch -->
 
-For an ambiguous or user-owned secondary branch, do not delete or reinterpret it. Integrate into the primary branch only when the user explicitly asked to land that branch or the session ledger proves the exact attributable commits; otherwise commit/push according to the branch's existing intent and report that primary integration remains pending.
+For an ambiguous or user-owned secondary branch, do not delete or reinterpret it. Land it on the primary branch (by PR) only when the user explicitly asked to land that branch or the session ledger proves the exact attributable commits; otherwise commit/push according to the branch's existing intent and report that primary integration remains pending.
 
 Never use `git reset --hard`, `git checkout --`, an implicit stash, or another destructive shortcut to get a clean tree.
 
@@ -87,11 +91,11 @@ Derive a concise commit message from the staged outcome and follow repository co
 
 In Local-commit mode, stop after creating and verifying the local commit: `HEAD` is the new commit on `INITIAL_BRANCH` and the selected staged changes are retained. Do not run `git fetch`, `git pull`, `git push`, any remote mutation, or any upstream-setting command.
 
-In push-enabled modes, fetch the configured upstream before the final push check, then push normally: when landing session work push `PRIMARY_BRANCH` to its own upstream; when keeping work on a user-owned/current branch push `INITIAL_BRANCH` to its own upstream (none and `origin` valid: `git push -u origin "${INITIAL_BRANCH}"`). Never reuse another branch's upstream or push a detached `HEAD`. If the remote is ahead and the target has no divergent local commit, fast-forward the target from its upstream first. Do not rebase or rewrite history. Never force-push. On conflict or divergence, stop, preserve the state, and report the blocker without asking a question. Verify that `HEAD` equals the remote-tracking branch after pushing.
+In push-enabled modes, fetch first, then push normally: session work goes to its work branch and lands through the PR of `references/landing.md`, never by pushing `PRIMARY_BRANCH` yourself; work kept on a user-owned/current branch goes to that branch's own upstream (none and `origin` valid: `git push -u origin "${INITIAL_BRANCH}"`). Never reuse another branch's upstream or push a detached `HEAD`. If the remote branch is ahead with no divergent local commit, fast-forward first. Do not rebase or rewrite history. Never force-push. On conflict or divergence, stop, preserve the state, and report the blocker without asking a question. Verify that each pushed branch equals its remote-tracking branch.
 
 ## 9. Postcondition and final report
 
-Check the mode's postcondition and write the final report as in `references/postconditions.md`. Scoped and Local-commit modes may leave unrelated changes: list them, and claim a clean repository only when `git status --porcelain` proves it. Full-tree mode requires a clean status, an upstream, `HEAD` equal to it, and no leftover session worktree or temporary branch.
+Check the mode's postcondition and write the final report as in `references/postconditions.md`. Scoped and Local-commit modes may leave unrelated changes: list them, and claim a clean repository only when `git status --porcelain` proves it. Full-tree mode requires a merged PR, a clean status, an upstream, `HEAD` equal to it, and no leftover session worktree or temporary branch.
 
 ## Hard blockers
 
@@ -102,6 +106,6 @@ Stop without weakening safety when:
 - the attributable path scope is ambiguous;
 - a tracked secret or protected artifact would be committed;
 - Git reports corruption or an unresolved conflict;
-- in a push-enabled mode: the remote identity conflicts with repository policy (wrong account/SSH alias), the primary branch or its checkout cannot be resolved safely, the exact commit set for landing/cleanup is ambiguous, source and target contain overlapping uncommitted changes, or a non-fast-forward update cannot be integrated safely.
+- in a push-enabled mode: the remote identity conflicts with repository policy (wrong account/SSH alias), the primary branch or its checkout cannot be resolved safely, the exact commit set for landing/cleanup is ambiguous, source and target contain overlapping uncommitted changes, a non-fast-forward update cannot be integrated safely, or the PR cannot be opened or merged (no review PASS, red or pending checks, conflict, red gate after merge).
 
 Do not ask a question in Full-tree mode. Explain the blocker and the safest next action. Preserve all user data.
