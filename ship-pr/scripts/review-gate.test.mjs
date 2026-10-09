@@ -104,13 +104,23 @@ test('base commit not readable, or a non-404 folder error, refuses (exit 2), nev
   }
 })
 
-test('a red review on this head poisons it across retargets, other bases and other PRs', () => {
+test('a red review of THIS PR poisons its head across retargets, close/reopen and bases', () => {
   const ok = FX.success.runs[0]
   const red = { ...ok, id: 99, conclusion: 'failure', created_at: '2026-10-09T19:00:00Z' }
-  for (const other of [red, { ...red, pull_requests: [{ number: 7, base: { ref: 'evil' } }] }, { ...red, pull_requests: [] }, { ...red, pull_requests: [{ number: 8, base: { ref: 'main' } }] }]) {
-    const r = run({ runs: [other, { ...ok, created_at: '2026-10-09T20:10:00Z' }], retargets: ['2026-10-09T20:05:00Z'] })
+  for (const own of [red, { ...red, pull_requests: [{ number: 7, base: { ref: 'evil' } }] }]) {
+    const r = run({ runs: [own, { ...ok, created_at: '2026-10-09T20:10:00Z' }], retargets: ['2026-10-09T20:05:00Z'] })
     assert.equal(r.code, 1, r.out)
     assert.match(r.out, /concluded failure/)
+  }
+})
+
+test('a red run of another PR or an unlinked run on the same head neither poisons nor validates', () => {
+  const ok = FX.success.runs[0]
+  const red = { ...ok, id: 99, conclusion: 'failure' }
+  for (const other of [{ ...red, pull_requests: [] }, { ...red, pull_requests: [{ number: 8, base: { ref: 'main' } }] }]) {
+    assert.equal(run({ runs: [other, ok] }).code, 0)
+    assert.equal(run({ runs: [{ ...other, conclusion: 'success' }] }).code, 1)
+    assert.equal(run({ enrolled: null, runs: [other] }).code, 0, 'an unlinked run does not enroll')
   }
 })
 

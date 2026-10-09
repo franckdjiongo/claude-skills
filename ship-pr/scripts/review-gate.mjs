@@ -29,8 +29,10 @@ function realGh(args) {
 const lines = (s) => s.split('\n').filter(Boolean)
 
 // valid: runs of one calling file bound to this PR and base, made after the last retarget.
-// poison: conclusions of EVERY run and attempt of that file on this head, whatever PR or base it
-// ran for, so a retarget, a close/reopen or a re-run cannot reset an earlier red review.
+// poison: conclusions of every run and attempt of that file on this head linked to THIS PR,
+// whatever base it ran for, so a retarget, a close/reopen or a re-run cannot reset a red review.
+// Runs of another PR or unlinked runs (forks) neither poison nor validate: a third party cannot
+// block this PR, and the absence of a linked green run still refuses.
 // No retry until Ship: all must be success. A skipped run or attempt reviewed nothing.
 export function evaluate(file, valid, poison = [], unbound = 0) {
   const runs = valid.filter((r) => r.conclusion !== 'skipped')
@@ -51,13 +53,15 @@ export function check(repo, pr, gh = realGh) {
   let names = []
   try { names = lines(gh(['api', `repos/${repo}/contents/.github/workflows?ref=${baseRefOid}`, '--jq', '.[].name'])) }
   catch (e) { if (!(e instanceof GhError && /Not Found \(HTTP 404\)/.test(e.stderr))) throw e }
-  const all = lines(gh(['api', '--paginate', `repos/${repo}/actions/runs?event=pull_request_target&head_sha=${headRefOid}&per_page=100`, '--jq', RUN_FIELDS]))
+  const runsTotal = lines(gh(['api', '--paginate', `repos/${repo}/actions/runs?event=pull_request_target&head_sha=${headRefOid}&per_page=100`, '--jq', RUN_FIELDS]))
     .map((l) => JSON.parse(l)).filter((r) => r.event === 'pull_request_target' && r.head_sha === headRefOid)
+  const all = runsTotal.filter((r) => (r.pull_requests ?? []).some((p) => p.number === Number(pr))) // linked to this PR
+  const unlinked = (file) => runsTotal.filter((r) => r.path === file).length
   // Enrolled: any spelling of a known calling file (.yml/.yaml, any case) on the pinned base, or
-  // one that already ran for this head (a file removed from the base since then still counts).
+  // one that already ran for this PR's head (a file removed from the base since then still counts).
   const enrolled = [...new Set([...names.map((n) => `.github/workflows/${n}`), ...all.map((r) => r.path)])]
     .filter((f) => f.startsWith('.github/workflows/') && CALLING_NAME.test(f.slice(18)))
-  if (enrolled.length === 0) return { verdict: 'NOT-ENROLLED', head: headRefOid, base: baseRefName, lines: [`no calling workflow on ${baseRefName}@${baseRefOid.slice(0, 7)} and no review run for this head`] }
+  if (enrolled.length === 0) return { verdict: 'NOT-ENROLLED', head: headRefOid, base: baseRefName, lines: [`no calling workflow on ${baseRefName}@${baseRefOid.slice(0, 7)} and no review run linked to this PR head`] }
   // A run made before the PR was last retargeted reviewed another base: it cannot pass this one.
   let retargets = []
   try { retargets = lines(gh(['api', '--paginate', `repos/${repo}/issues/${pr}/events?per_page=100`, '--jq', '.[] | select(.event == "base_ref_changed") | .created_at'])) }
@@ -67,13 +71,13 @@ export function check(repo, pr, gh = realGh) {
   let ok = true
   for (const file of enrolled) {
     const mine = all.filter((r) => r.path === file)
-    const valid = mine.filter((r) => (r.pull_requests ?? []).some((p) => p.number === Number(pr) && p.base?.ref === baseRefName) && r.created_at > since)
+    const valid = mine.filter((r) => r.pull_requests.some((p) => p.number === Number(pr) && p.base?.ref === baseRefName) && r.created_at > since)
     const poison = mine.map((r) => r.conclusion)
     for (const r of mine) for (let n = 1; n < (r.run_attempt ?? 1); n++) {
       poison.push(JSON.parse(gh(['api', `repos/${repo}/actions/runs/${r.id}/attempts/${n}`, '--jq', '{conclusion}'])).conclusion)
     }
     if (mine.some((r) => r.status !== 'completed')) poison.push('in_progress')
-    const res = evaluate(file, valid, poison, mine.length - valid.length)
+    const res = evaluate(file, valid, poison, unlinked(file) - mine.length)
     ok &&= res.ok
     out.push(res.reason)
   }
