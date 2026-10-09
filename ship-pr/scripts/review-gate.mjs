@@ -51,7 +51,7 @@ export function check(repo, pr, gh = realGh) {
   // pull_request_target runs the workflow of the LIVE base tip, so read the folder there and at the
   // PR's base snapshot. Positive proof first: each commit is readable. Only then does an explicit
   // 404 "Not Found" on the folder mean "no calling file"; any other error refuses.
-  const tip = gh(['api', `repos/${repo}/branches/${baseRefName}`, '--jq', '.commit.sha']).trim()
+  const tip = gh(['api', `repos/${repo}/branches/${encodeURIComponent(baseRefName)}`, '--jq', '.commit.sha']).trim()
   if (!SHA.test(tip)) throw new Error(`unexpected base tip ${tip}`)
   const names = []
   for (const sha of new Set([baseRefOid, tip])) {

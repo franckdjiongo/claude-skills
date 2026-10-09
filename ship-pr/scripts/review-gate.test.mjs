@@ -16,7 +16,7 @@ const notFound = (args) => { throw new GhError(args, 1, 'gh: Not Found (HTTP 404
 // Fake gh: answers the exact calls review-gate.mjs makes, records them.
 // enrolled: file names in .github/workflows on the base (null = the folder does not exist).
 // atTip: file names at the live base tip (default: same as enrolled).
-function fakeGh({ enrolled = ['elmabi-review.yml', 'validate.yml'], atTip = enrolled, runs = [], attempts = {}, retargets = [], contentsError, baseError } = {}) {
+function fakeGh({ enrolled = ['elmabi-review.yml', 'validate.yml'], atTip = enrolled, runs = [], attempts = {}, retargets = [], contentsError, baseError, eventsError } = {}) {
   const calls = []
   const gh = (args) => {
     calls.push(args.join(' '))
@@ -32,6 +32,7 @@ function fakeGh({ enrolled = ['elmabi-review.yml', 'validate.yml'], atTip = enro
       const names = c[1] === TIP ? atTip : enrolled
       return names === null ? notFound(args) : names.join('\n') + '\n'
     }
+    if (a.startsWith('api --paginate repos/o/r/issues/7/events') && eventsError) throw eventsError
     if (a.startsWith('api --paginate repos/o/r/issues/7/events')) return retargets.join('\n') + '\n'
     if (a.startsWith('api --paginate repos/o/r/actions/runs?event=pull_request_target&head_sha=' + FX.head)) return runs.map((r) => JSON.stringify(r)).join('\n') + '\n'
     const t = a.match(/^api repos\/o\/r\/actions\/runs\/(\d+)\/attempts\/(\d+) /)
@@ -164,4 +165,11 @@ test('calling file only at the live base tip (added after the PR base snapshot):
   assert.equal(r.code, 1, r.out)
   assert.match(r.out, /review never ran/)
   assert.match(run({ enrolled: null, atTip: null }).out, /tip ccccccc, PR base bbbbbbb/)
+})
+
+test('an error on the PR events list refuses (exit 2); a lone cancelled run refuses', () => {
+  assert.equal(run({ ...FX.success, eventsError: new GhError(['api'], 1, 'gh: Gone (HTTP 410)') }).code, 2)
+  const r = run({ runs: [{ ...FX.success.runs[0], conclusion: 'cancelled' }] })
+  assert.equal(r.code, 1)
+  assert.match(r.out, /review never ran/)
 })
