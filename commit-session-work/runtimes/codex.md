@@ -18,5 +18,5 @@ Temporary session branches are named `codex/session-<id>`. Archive a completed C
 <!-- /slot:session-branch -->
 
 <!-- slot:pr-merge -->
-Codex has no `ship-pr` skill: the merge step runs the same checks by hand (mergeable, green checks, `gh pr merge --match-head-commit`, sync of the primary checkout, gate rerun there, redeploy if defined, cleanup), as `references/landing.md` step 8 lists.
+Codex has no `ship-pr` skill: after the preflight, the merge step runs its checks by hand (mergeable, green checks, review gate, `gh pr merge --match-head-commit`, fast-forward sync of the primary checkout, gate rerun there, no redeploy), as `references/landing.md` step 8 lists.
 <!-- /slot:pr-merge -->

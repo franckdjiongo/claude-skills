@@ -22,7 +22,7 @@ The mode comes from the first word of the skill argument, normalized to lowercas
 |---|---|---|---|
 | *(none)* | Scoped | Only work attributable to this session and its delegated threads/subagents | PR to the primary branch when the source is the primary checkout or session-created; otherwise the current branch |
 | `local`, `commit`, `commit-only` | Local commit | Session-attributable work only | Current branch only; no integration or push |
-| `all`, `tout`, `clean` | Full tree | Every tracked and untracked non-ignored change (`clean` adds clean source/target/disposable-session postconditions) Same as Scoped |
+| `all`, `tout`, `clean` | Full tree | Every tracked and untracked non-ignored change (`clean` adds clean source/target/disposable-session postconditions) | Same as Scoped |
 
 `clean` is not a dry run: it commits the full tree and lands it by PR. Local-commit mode is strict: do not fetch, resolve or switch to the primary branch, integrate, push, set/change an upstream, create or remove a branch/worktree, or clean the source checkout.
 
@@ -60,7 +60,7 @@ From the repository root:
 **Push-enabled modes.** Session work reaches `PRIMARY_BRANCH` only through a pull request, never by a local merge, cherry-pick or commit pushed onto it. Whatever the source (primary checkout, session-created worktree, detached session checkout, or secondary branch attributable to the current task), follow the ten steps of `references/landing.md`. Read it before committing.
 
 <!-- runtime-slot:pr-merge -->
-The merge step invokes the `ship-pr` skill naming that PR: it checks mergeability, green checks and the review gate, merges, syncs the primary checkout and reruns the gate there.
+The merge step invokes the `ship-pr` skill naming that PR, after the preflight of `references/landing.md` step 8; ship-pr's stash, `merge --no-ff`, push and redeploy fallbacks never run from this skill.
 <!-- /runtime-slot:pr-merge -->
 
 <!-- runtime-slot:session-branch -->
@@ -95,7 +95,7 @@ In push-enabled modes, fetch first, then push normally: session work goes to its
 
 ## 9. Postcondition and final report
 
-Check the mode's postcondition and write the final report as in `references/postconditions.md`. Scoped and Local-commit modes may leave unrelated changes: list them, and claim a clean repository only when `git status --porcelain` proves it. Full-tree mode requires a merged PR, a clean status, an upstream, `HEAD` equal to it, and no leftover session worktree or temporary branch.
+Check the mode's postcondition and write the final report as in `references/postconditions.md`. Scoped and Local-commit modes may leave unrelated changes: list them, and claim a clean repository only when `git status --porcelain` proves it. Full-tree mode requires a merged PR when work was landed, a clean status, an upstream, `HEAD` equal to it, and no leftover session worktree or temporary branch.
 
 ## Hard blockers
 
