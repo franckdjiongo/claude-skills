@@ -45,7 +45,7 @@ SOUS-AGENTS parallèles. Chaque goal prompt contient verbatim ces deux clauses :
 - **Interdiction absolue de fabriquer une sentinelle de revue.** Le fichier `.adversarial-review-passed` (ou
   tout autre témoin de gate) n'est posé QUE par le flow légitime du skill de revue, depuis le worktree avec
   un `cd` explicite, jamais à la main, jamais dans le `.git` partagé du repo principal. Un hook gate qui
-  bloque alors que la revue a eu lieu est un échec d'INFRA : arrêt-et-chip et remontée à l'orchestrateur.
+  bloque alors que la revue a convergé sur ce HEAD exact est un échec d'INFRA : arrêt-et-chip et remontée à l'orchestrateur.
 - **Heartbeat.** À chaque fin de lot, envoie un statut à l'orchestrateur par l'outil de message de ta
   session : un chantier silencieux est indistinguable d'un chantier mort.
 

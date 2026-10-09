@@ -1,7 +1,7 @@
 ---
 name: adversarial-pr-review
 description: >-
-  Adversarial multi-agent review of the diff BEFORE a pull request is opened (Mode A), and one bounded pass over bot review comments (Mode B). Use when about to create or open a PR ("ouvre la PR") or when a bot comments. A hook BLOCKS PR creation until a PASS is recorded for HEAD. Two rounds max.
+  Adversarial multi-agent review of the diff BEFORE a pull request is opened (Mode A), and one bounded pass over bot review comments (Mode B). Use when about to create or open a PR ("ouvre la PR") or when a bot comments. Non-draft PRs and ready require review PASS for exact HEAD. Two rounds max.
 ---
 
 # Adversarial PR Review
@@ -16,7 +16,7 @@ Attack your own diff before the PR is public, fix only what matters with the sma
    `~/.claude/skills/brief-chantier/references/gardien-intention.md` (in a cloud clone:
    `.claude/skills/brief-chantier/references/gardien-intention.md`), which gives what each verdict
    changes. Moment 1: after each round, before any fix, on new remarks only. Moment 2: before the PR. Pass it the sheet path, the ABSOLUTE repo path, the FULL `git diff <base>...HEAD` and the remarks. `finalize` refuses a PASS while a sheet exists without `--guardian aligned|drift`. No sheet: say so, never block.
-4. **Closure never blocks an autonomous run.** After the cap, commit, push, `finalize`. PASS: open the PR with the open findings and their dispositions in its body. FAIL: no sentinel, so no PR (the guard hook blocks it, even `--draft`): save the PR body, open findings included, to a file and put it in the final report, the human opens the PR. Never wait for a human, run past the cap or forge the sentinel.
+4. **Closure never blocks an autonomous run.** After the cap, commit, push, `finalize`. PASS: open the PR with the open findings and their dispositions in its body. FAIL: no sentinel; open only a draft PR (`gh pr create --draft` or MCP with `draft: true`), listing open findings and dispositions in its body. No non-draft PR or `gh pr ready` until review converges for the exact HEAD. Never wait for a human, run past the cap or forge the sentinel.
 5. **Prefer real execution evidence to more mocked tests.**
 6. **Every verification claim names a check actually run that can prove it.** "Typecheck clean" needs an unfiltered run (a `| grep` pipe proves only the absence of the grepped text). Write the command and its observed output, or "not run".
 
@@ -105,7 +105,7 @@ re-run. A dead fixer is continued with `SendMessage` using its agentId, context 
 
 ## Sentinel
 
-The global hook `adversarial-pr-guard.mjs` blocks `gh pr create`, `gh pr ready` and MCP pull-request creation tools unless the **current HEAD** (with `--head <branch>`: that branch's tip) is recorded as reviewed. It reads `<git-dir>/.adversarial-review-passed`. Only `finalize` writes it, only on PASS: never by hand, never to skip a review (a security incident). A later commit makes it stale. If the hook blocks despite a PASS, stop and report an infra failure.
+The global hook `adversarial-pr-guard.mjs` blocks non-draft `gh pr create`, `gh pr ready` and non-draft MCP pull-request creation tools unless the **current HEAD** (with `--head <branch>`: that branch's tip) is recorded as reviewed. It reads `<git-dir>/.adversarial-review-passed`. Only `finalize` writes it, only on PASS: never by hand, never to skip a review (a security incident). A later commit makes it stale. If the hook blocks despite a PASS, stop and report an infra failure.
 
 **After the last round the cap allows**, `finalize --delta-ok "<note>"` re-records without a new round only if `git diff <last-reviewed-sha>..HEAD` holds nothing but (a) fixes of confirmed findings, each with its own fresh verifier, (b) quality-gate repairs changing no reviewed behavior, (c) a conflict-free base merge (`git show --remerge-diff <merge>` prints no hunk), (d) the removal of the intent sheet. A fresh verifier classifies every hunk; an unclassifiable one means not converged.
 

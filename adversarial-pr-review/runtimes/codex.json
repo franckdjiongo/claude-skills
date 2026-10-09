@@ -1,5 +1,5 @@
 {
-  "description": "Multi-agent ADVERSARIAL review of the diff BEFORE a pull request is opened (Mode A), and one bounded pass over bot comments (Mode B). Use when about to create or open a PR (\"ouvre la PR\") or when a bot comments. The Codex hook blocks PR creation until a PASS is recorded for HEAD. Two rounds max.",
+  "description": "Multi-agent ADVERSARIAL review of the diff BEFORE a pull request is opened (Mode A), and one bounded pass over bot comments (Mode B). Use when about to create or open a PR (\"ouvre la PR\") or when a bot comments. Non-draft PRs and ready require review PASS for exact HEAD. Two rounds max.",
   "replace": [
     {
       "from": "allows chips; `spawn_task`)",
@@ -17,8 +17,8 @@
       "count": 1
     },
     {
-      "from": "The global hook `adversarial-pr-guard.mjs` blocks `gh pr create`, `gh pr ready` and MCP pull-request creation tools unless the **current HEAD** (with `--head <branch>`: that branch's tip) is recorded as reviewed.",
-      "to": "The hook `~/.codex/hooks/adversarial-pr-guard.mjs` blocks `gh pr create`, `gh pr ready` and MCP pull-request creation tools unless the **current HEAD** (with `--head <branch>`: that branch's tip) is recorded as reviewed. It needs codex-cli 0.160.0 or later: on 0.154.0, commands run through code mode (the `exec` tool) skipped PreToolUse hooks. Whatever the version, the review and the sentinel are your own discipline; never read a successful PR creation as proof the review ran.",
+      "from": "The global hook `adversarial-pr-guard.mjs` blocks non-draft `gh pr create`, `gh pr ready` and non-draft MCP pull-request creation tools unless the **current HEAD** (with `--head <branch>`: that branch's tip) is recorded as reviewed.",
+      "to": "The hook `~/.codex/hooks/adversarial-pr-guard.mjs` blocks non-draft `gh pr create`, `gh pr ready` and non-draft MCP pull-request creation tools unless the **current HEAD** (with `--head <branch>`: that branch's tip) is recorded as reviewed. It needs codex-cli 0.160.0 or later: on 0.154.0, commands run through code mode (the `exec` tool) skipped PreToolUse hooks. Whatever the version, the review and the sentinel are your own discipline; never read a successful PR creation as proof the review ran.",
       "count": 1
     }
   ],
