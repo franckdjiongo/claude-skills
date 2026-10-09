@@ -61,14 +61,15 @@ Règles communes : `watchdog.md`. Mécanique Codex (heartbeat, fichier de survei
   de revue présente (pas de merge sans elle), décisions A2, chiffres de finalize, lignes retirées par le simplificateur. Recoupe les fichiers de
   doublures de test déclarés par chaque rapport ; un fichier cité par deux chantiers impose un ordre de
   fusion explicite. Spot-checke par lecture directe les invariants les plus porteurs.
-- **Intégration par PR, jamais par merge local poussé.** Dans l'ordre documenté, chaque PR de chantier est
-  mergée avec `ship-pr` (en la nommant) vers sa base : `integration/<thème>`, ou la branche par défaut pour un
-  chantier seul. Puis `integration/<thème>` ouvre sa propre PR vers main/master, relue et mergée de la même
-  façon : la revue de PR ne voit pas un merge poussé. Typecheck après CHAQUE merge (checkpoint
-  de `ship-pr`). Avant la PR finale : main/master mergé dans `integration/<thème>`, puis gates COMPLETS sur cette
-  branche : le « vert » des PRs n'est qu'auto-déclaré. Jamais de `git merge` local suivi d'un `git push` sur
-  main/master.
-- **Redéploiement** selon le dépôt si le code serveur a bougé, puis une vérification qui prouve que le NOUVEAU
+- **Intégration par PR, jamais par merge local poussé sur main/master.** Chaque chantier a sa PR vers sa base
+  (`integration/<thème>`, ou la branche par défaut pour un chantier seul), dans l'ordre documenté ; une PR
+  empilée est retargetée avant son merge. PR vers `integration/<thème>` : PR nommée, checks verts, sentinelle
+  présente, `gh pr merge --merge` (`ship-pr` n'accepte que la branche par défaut comme base), puis typecheck dans
+  le worktree d'intégration après CHAQUE merge. PR vers main/master (finale, ou chantier seul) : docs/plans
+  commités avant elle, main/master mergé dans sa branche, gates COMPLETS sur sa tête (relancés si HEAD bouge) :
+  le « vert » des PRs n'est qu'auto-déclaré. Merge par le skill `ship-pr` (Claude Code ; sous Codex, mêmes
+  contrôles à la main : mergeable, checks verts, gate rejouée après merge), qui synchronise, redéploie et nettoie.
+- **Redéploiement** selon le dépôt si le code serveur a bougé (étape de `ship-pr`, pas en double), puis une vérification qui prouve que le NOUVEAU
   code est servi (appelle une route ajoutée par le run).
 - **Nettoyage garanti** : worktrees retirés puis `prune`, branches locales ET distantes supprimées, plans HTML
   commités dans `docs/plans/`. Puis session review honnête et capture brain/frictions.

@@ -138,7 +138,7 @@ compaction). Agent vivant : `ListAgents` ; relance : `SendMessage`.
 <!-- /runtime-slot:watchdog -->
 
 **Phase 4 — Clôture (nouvelle session, après les PRs).** Baseline verte avant le premier merge ; chaque
-intégration passe par une PR mergée avec `ship-pr`, dans l'ordre documenté, jamais par un merge local poussé
-sur la branche par défaut ; gates COMPLETS sur l'intégré AVANT la PR finale, redéploiement vérifié ;
+intégration passe par une PR (`ship-pr` vers la branche par défaut), dans l'ordre documenté, jamais par un
+merge local poussé sur elle ; gates COMPLETS sur l'intégré AVANT cette PR, redéploiement vérifié ;
 nettoyage garanti (worktrees, branches locales ET distantes, plans HTML commités dans
 `docs/plans/`) ; session review honnête.
