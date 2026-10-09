@@ -104,6 +104,13 @@ export function missingRefs(cmd, repoRoot, { touched = '', allowNew = false, scr
 /** Le check porte un marqueur « (nouveau) » hors de sa commande : ses fichiers seront créés. */
 export const isNewMarked = (raw) => NEW_MARK.test(raw.replace(/<code\b[\s\S]*?<\/code>/gi, ' '));
 
+/** Estimation « ≈ N code + M tests » de l'en-tête de lot (class="lh") : { code, tests } ou null. */
+export function parseLotEstimate(block) {
+  const lh = block.match(/<([a-z]+)\b[^>]*class="[^"]*\blh\b[^"]*"[^>]*>([\s\S]*?)<\/\1>/i)?.[2] ?? '';
+  const m = lh.replace(/<[^>]*>/g, ' ').match(/≈\s*(\d+)\s*code\s*\+\s*(\d+)\s*tests?\b/i);
+  return m ? { code: Number(m[1]), tests: Number(m[2]) } : null;
+}
+
 /** Valeur de « Budget total : <cible> / <plafond> » : { error } ou { cible, plafond }. Absent : error null. */
 export function checkBudget(visible, labelRe) {
   const g = new RegExp(labelRe.source, 'gi');
