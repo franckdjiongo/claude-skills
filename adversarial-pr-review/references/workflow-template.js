@@ -7,7 +7,7 @@ export const meta = {
 }
 
 const REPO = '<absolute repo path>'
-// Hard cap: 2 rounds, never a 3rd.
+// Hard cap: 2 rounds per cycle, never a 3rd in a cycle. A second cycle opens only after a FAIL (rule 1 of SKILL.md).
 // Round 1 reviews the whole diff. Round 2 reviews ONLY the delta since round 1, plus its direct interactions.
 const ROUND = 1
 const ROUND1_SHA = '' // round 2 only: the HEAD reviewed in round 1
