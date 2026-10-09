@@ -7,8 +7,10 @@
 // start binds the state to the current branch; every other command refuses another branch (one worktree per PR).
 //
 //   start    [--repo p] [--base ref]                print state, inventory (newFiles), rounds left; rerun any time
-//   round    <findings.json> [--triage]              record a round (cap 2 per PR, Mode A + B); --triage records bot-comment
-//                                                    dispositions once the cap is spent (no fan-out, not counted)
+//   round    <findings.json> [--triage] [--head sha] record a round (cap 2 per PR, Mode A + B); --triage records bot-comment
+//                                                    dispositions once the cap is spent (no fan-out, not counted); --head records
+//                                                    the commit an external pass reviewed (HEAD or an ancestor), default HEAD
+//   adopt    <other-checkout>                        move the review state (+ sentinel) of the same branch from another worktree here
 //   fix      <id...> [--subtractive-tried <why>]     mark FIX findings fixed (after the fix commit + fresh verifier); refused
 //                                                    without <why> over 30 added lines per finding, or when the round grows a
 //                                                    PR of >= 200 reviewed lines by > 15 % (D2: try removing code first, or CHIP)
@@ -83,10 +85,10 @@ const sentinelHead = (c) => existsSync(sentinelPath(c)) ? readFileSync(sentinelP
 const voidPass = (c) => { if (sentinelHead(c) === c.head) rmSync(sentinelPath(c)) }
 function needState(c) {
   const s = readJson(join(c.dir, 'state.json'))
-  if (!s) throw new UsageError(`no review state for ${c.repo} (branch ${c.branch}): run "review-run.mjs start" from this checkout first`)
+  if (!s) throw new UsageError(`no review state for ${c.repo} (branch ${c.branch}): run "review-run.mjs start" from this checkout first, or "adopt <other-checkout>" if the branch moved`)
   // The state lives per worktree, not per branch: a review bound to one branch never absorbs another's rounds.
   // A state written before the binding has no branch and is not checked.
-  if (s.branch && s.branch !== c.branch) throw new UsageError(`this review state belongs to branch ${s.branch}, not ${c.branch}: review ${c.branch} from its own worktree, or run "review-run.mjs start" here if ${s.branch} has nothing recorded`)
+  if (s.branch && s.branch !== c.branch) throw new UsageError(`this review state belongs to branch ${s.branch}, not ${c.branch}: review ${c.branch} from its own worktree, "adopt" its state from there, or run "review-run.mjs start" here if ${s.branch} has nothing recorded`)
   return s
 }
 
@@ -174,7 +176,7 @@ function cmdStart(c, flags, out) {
   if (!baseRef) throw new UsageError('no base ref: pass --base <ref> (origin/HEAD is not set)')
   if (old?.rounds.length && baseRef !== old.baseRef) throw new UsageError(`the base ref is fixed once a round is recorded (${old.baseRef}); a wider base would certify an unreviewed diff`)
   if (old?.branch && old.branch !== c.branch && (old.rounds.length || old.crossRuns?.length)) {
-    throw new UsageError(`this worktree holds the review of branch ${old.branch} (${old.rounds.length} round(s), ${old.crossRuns?.length ?? 0} cross run(s)): review ${c.branch} from its own worktree (git worktree add), or delete ${c.dir} once that PR is closed`)
+    throw new UsageError(`this worktree holds the review of branch ${old.branch} (${old.rounds.length} round(s), ${old.crossRuns?.length ?? 0} cross run(s)): review ${c.branch} from its own worktree (git worktree add, then "adopt"), or delete ${c.dir} once that PR is closed`)
   }
   const base = mergeBase(c, baseRef)
   const state = old ? { ...old, baseRef, branch: c.branch } : { schema: 'adversarial.state/1', baseRef, branch: c.branch, rounds: [], cross: [], crossRuns: [] }
@@ -203,15 +205,47 @@ function cmdRound(c, pos, flags, out) {
   if (!pos[0]) throw new UsageError('round needs a findings file')
   const raw = readJson(resolve(pos[0]))
   if (!raw) throw new UsageError(`cannot read JSON from ${pos[0]}`)
-  const round = { round: state.rounds.length + 1, triage: Boolean(flags.triage), head: c.head, at: new Date().toISOString(), ...validateRound(raw) }
+  let head = c.head // --head: the commit an external pass reviewed, never one HEAD does not contain
+  if (flags.head) {
+    head = tryGit(c.repo, ['rev-parse', '--verify', '-q', `${flags.head}^{commit}`])
+    if (!head) throw new UsageError(`--head ${flags.head} is not a commit`)
+    if (head !== c.head && !isAncestor(c, head, c.head)) throw new UsageError(`--head ${flags.head} is neither HEAD nor an ancestor of HEAD: it cannot have been reviewed on this branch`)
+    const mb = mergeBase(c, state.baseRef)
+    if (head === mb || isAncestor(c, head, mb)) throw new UsageError(`--head ${flags.head} is not in the reviewed range: it must come after the merge-base ${mb.slice(0, 8)}`)
+  }
+  const round = { round: state.rounds.length + 1, triage: Boolean(flags.triage), head, at: new Date().toISOString(), ...validateRound(raw) }
   state.rounds.push(round)
   saveState(c, state)
   voidPass(c)
   const l = latest(state)
   const fix = round.findings.filter((f) => f.disposition === 'FIX').map((f) => f.id)
   const crossOpen = state.cross.filter((x) => !l.has(x.id)).map((x) => x.id)
-  out(`round ${round.round}${round.triage ? ' (triage)' : `/${ROUND_CAP}`} recorded at ${c.head.slice(0, 8)}: ${round.findings.length} finding(s), FIX [${fix.join(', ')}]` +
+  out(`round ${round.round}${round.triage ? ' (triage)' : `/${ROUND_CAP}`} recorded at ${head.slice(0, 8)}: ${round.findings.length} finding(s), FIX [${fix.join(', ')}]` +
     `${crossOpen.length ? `, cross findings without disposition [${crossOpen.join(', ')}]` : ''}\n`)
+  return 0
+}
+
+function cmdAdopt(c, pos, out) {
+  if (!pos[0]) throw new UsageError('adopt needs the path of the other checkout')
+  const from = tryGit(resolve(pos[0]), ['rev-parse', '--absolute-git-dir'])
+  if (!from) throw new UsageError(`not a git checkout: ${pos[0]}`)
+  const common = (d) => tryGit(d, ['rev-parse', '--path-format=absolute', '--git-common-dir'])
+  if (common(resolve(pos[0])) !== common(c.repo)) throw new UsageError('that checkout belongs to another repository')
+  if (from === c.gitDir) throw new UsageError('source and destination are the same checkout')
+  if (c.branch === '(detached)') throw new UsageError('detached HEAD: a branch name is the only proof the state belongs here')
+  const src = join(from, 'adversarial-review'), s = readJson(join(src, 'state.json'))
+  if (!s) throw new UsageError(`no review state in ${pos[0]}`)
+  if (!s.branch) throw new UsageError('that state has no branch: it cannot be proven to belong to this branch')
+  if (s.branch !== c.branch) throw new UsageError(`that state belongs to branch ${s.branch}, not ${c.branch}`)
+  const mine = readJson(join(c.dir, 'state.json'))
+  if (mine?.rounds?.length || mine?.crossRuns?.length) throw new UsageError(`this worktree already holds a review (${mine.rounds.length} round(s), ${mine.crossRuns?.length ?? 0} cross run(s)): never overwritten`)
+  rmSync(c.dir, { recursive: true, force: true })
+  renameSync(src, c.dir)
+  const moved = ['adversarial-review']
+  const sf = join(from, '.adversarial-review-passed')
+  rmSync(sentinelPath(c), { force: true }) // a PASS of the emptied state must not outlive it
+  if (existsSync(sf)) { renameSync(sf, sentinelPath(c)); moved.push('.adversarial-review-passed') }
+  out(`adopted from ${from}: ${moved.join(', ')} (${s.rounds.length} round(s)) -> ${c.gitDir}\n`)
   return 0
 }
 
@@ -383,7 +417,7 @@ function cmdCheck(c, flags, out) {
   return v.verdict === 'PASS' ? 0 : 1
 }
 
-const USAGE = 'usage: review-run.mjs start|round|fix|cross|finalize|check  (see the header of this file)\n'
+const USAGE = 'usage: review-run.mjs start|round|adopt|fix|cross|finalize|check  (see the header of this file)\n'
 
 export async function main(argv, deps = {}) {
   const out = deps.stdout ?? ((s) => process.stdout.write(s))
@@ -391,10 +425,11 @@ export async function main(argv, deps = {}) {
   try {
     const { cmd, flags, pos } = parseArgs(argv)
     if (!cmd || cmd === '--help' || flags.help) { out(USAGE); return cmd ? 0 : 2 }
-    if (!['start', 'round', 'fix', 'cross', 'finalize', 'check'].includes(cmd)) throw new UsageError(`unknown command ${cmd}`)
+    if (!['start', 'round', 'adopt', 'fix', 'cross', 'finalize', 'check'].includes(cmd)) throw new UsageError(`unknown command ${cmd}`)
     const c = resolveCtx(flags, deps.cwd ?? process.cwd())
     if (cmd === 'start') return cmdStart(c, flags, out)
     if (cmd === 'round') return cmdRound(c, pos, flags, out)
+    if (cmd === 'adopt') return cmdAdopt(c, pos, out)
     if (cmd === 'fix') return cmdFix(c, pos, flags, out)
     if (cmd === 'cross') return cmdCross(c, flags, out, err)
     if (cmd === 'finalize') return cmdFinalize(c, flags, out)
