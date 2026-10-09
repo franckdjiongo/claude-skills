@@ -49,7 +49,7 @@ Rejouer la nuit P6-T98 contre les outils modifiés :
 
 ## Règles du chantier
 
-- Budget total : 580 / 800 lignes ajoutées (code + tests + scripts), relevé au préflight : l'estimation du relecteur l'emporte (D3).
+- Budget total : 600 / 800 lignes ajoutées (code + tests + scripts), relevé au préflight : l'estimation du relecteur l'emporte (D3).
 - Chips : autorisés.
 - Base : `main` de claude-skills APRÈS la fusion de `chore/c9-pr-brouillon` (mêmes fichiers).
 - Revue : 2 rounds au plus, Codex dans le round 1 (on applique D1 à ce chantier même).
