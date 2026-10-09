@@ -227,6 +227,8 @@ function cmdAdopt(c, pos, out) {
   if (!pos[0]) throw new UsageError('adopt needs the path of the other checkout')
   const from = tryGit(resolve(pos[0]), ['rev-parse', '--absolute-git-dir'])
   if (!from) throw new UsageError(`not a git checkout: ${pos[0]}`)
+  const common = (d) => tryGit(d, ['rev-parse', '--path-format=absolute', '--git-common-dir'])
+  if (common(resolve(pos[0])) !== common(c.repo)) throw new UsageError('that checkout belongs to another repository')
   if (from === c.gitDir) throw new UsageError('source and destination are the same checkout')
   const src = join(from, 'adversarial-review'), s = readJson(join(src, 'state.json'))
   if (!s) throw new UsageError(`no review state in ${pos[0]}`)
@@ -238,6 +240,7 @@ function cmdAdopt(c, pos, out) {
   renameSync(src, c.dir)
   const moved = ['adversarial-review']
   const sf = join(from, '.adversarial-review-passed')
+  rmSync(sentinelPath(c), { force: true }) // a PASS of the emptied state must not outlive it
   if (existsSync(sf)) { renameSync(sf, sentinelPath(c)); moved.push('.adversarial-review-passed') }
   out(`adopted from ${from}: ${moved.join(', ')} (${s.rounds.length} round(s)) -> ${c.gitDir}\n`)
   return 0

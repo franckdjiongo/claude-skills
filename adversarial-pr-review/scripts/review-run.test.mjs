@@ -452,6 +452,13 @@ describe('round --head and adopt', () => {
     assert.match((await run(wt, 'adopt', wt)).err, /same checkout/)
     assert.match((await run(d, 'adopt', tmp())).err, /not a git checkout/)
     assert.match((await run(d, 'adopt', wt)).err, /no review state/)
+    const other = makeRepo(); await started(other); assert.match((await run(d, 'adopt', other)).err, /another repository/)
+  })
+  test('adopt drops a stale sentinel of the emptied state when the source has none', async () => {
+    const d = makeRepo(); await started(d)
+    sh(d, 'checkout', '-q', 'main'); const wt = join(tmp(), 'wt'); sh(d, 'worktree', 'add', '-q', wt, 'work')
+    await started(wt); assert.equal((await run(wt, 'finalize', '--trivial', '--no-gate', 'x')).code, 0); assert.ok(sentinel(wt))
+    assert.equal((await run(wt, 'adopt', d)).code, 0); assert.equal(sentinel(wt), null)
   })
   test('adopt never overwrites a state that holds rounds', async () => {
     const d = makeRepo(); await started(d); await run(d, 'round', roundFile(d))
