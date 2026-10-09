@@ -173,16 +173,24 @@ export function validateRound(value) {
 // ---------- commands ----------
 
 // Rule 1: after a FAIL, a chip fixing its blocking finding opens one more cycle; the old one is archived, never deleted.
-function newCycle(c, old, chip) {
-  if (readJson(join(c.dir, 'verdict.json'))?.verdict !== 'FAIL' || !old) throw new UsageError('--new-cycle follows a FAIL verdict of this review')
-  const n = old.cycle ?? 1
+function newCycle(c, old, chip, base) {
+  const v = readJson(join(c.dir, 'verdict.json')), n = old?.cycle ?? 1
+  if (!String(chip).trim()) throw new UsageError('--new-cycle needs the chip id')
   if (n >= CYCLE_CAP) throw new UsageError(`cycle cap reached: ${CYCLE_CAP} cycles per PR (rule 1): the PR stays a draft, the user decides`)
-  return { schema: old.schema, baseRef: old.baseRef, branch: old.branch, cycle: n + 1, chip, rounds: [], cross: [], crossRuns: [] }
+  if (v?.verdict !== 'FAIL' || !old?.branch) throw new UsageError('--new-cycle follows a FAIL verdict of this review')
+  if (base && base !== old.baseRef) throw new UsageError(`the base ref is fixed across cycles (${old.baseRef})`)
+  if (v.head === c.head) throw new UsageError('HEAD is still the FAILed commit: commit the chip fix first')
+  // The blocking findings of the FAIL must be re-judged in the new cycle (finalize refuses until they are).
+  const carried = v.findings.filter((f) => (f.disposition === 'FIX' && !f.fixed) || (f.severity === 'P1' && ['CHIP', 'WONT_FIX'].includes(f.disposition))).map((f) => f.id)
+  if (!carried.length) throw new UsageError('no blocking finding in that FAIL: a gate-only FAIL is repaired and finalized again, not a new cycle')
+  for (const f of ['state', 'verdict']) if (existsSync(join(c.dir, `${f}-${n}.json`))) throw new UsageError(`${f}-${n}.json already exists: never overwritten`)
+  return { schema: old.schema, baseRef: old.baseRef, branch: old.branch, cycle: n + 1, chip, carried, rounds: [], cross: [], crossRuns: [] }
 }
 
 function cmdStart(c, flags, out) {
   let old = readJson(join(c.dir, 'state.json'))
-  if (flags['new-cycle']) old = newCycle(c, old && needState(c), flags['new-cycle'])
+  const cycling = 'new-cycle' in flags
+  if (cycling) old = newCycle(c, old && needState(c), flags['new-cycle'], flags.base)
   const baseRef = flags.base ?? old?.baseRef ?? tryGit(c.repo, ['symbolic-ref', '--short', 'refs/remotes/origin/HEAD'])
   if (!baseRef) throw new UsageError('no base ref: pass --base <ref> (origin/HEAD is not set)')
   if (old?.rounds.length && baseRef !== old.baseRef) throw new UsageError(`the base ref is fixed once a round is recorded (${old.baseRef}); a wider base would certify an unreviewed diff`)
@@ -190,9 +198,11 @@ function cmdStart(c, flags, out) {
     throw new UsageError(`this worktree holds the review of branch ${old.branch} (${old.rounds.length} round(s), ${old.crossRuns?.length ?? 0} cross run(s)): review ${c.branch} from its own worktree (git worktree add, then "adopt"), or delete ${c.dir} once that PR is closed`)
   }
   const base = mergeBase(c, baseRef)
-  for (const f of flags['new-cycle'] ? ['verdict', 'state'] : []) renameSync(join(c.dir, `${f}.json`), join(c.dir, `${f}-${old.cycle - 1}.json`))
+  // Copies first, the new state next, the live verdict last: a crash never loses a cycle or resets the count.
+  if (cycling) for (const f of ['state', 'verdict']) writeAtomic(join(c.dir, `${f}-${old.cycle - 1}.json`), readFileSync(join(c.dir, `${f}.json`)))
   const state = old ? { ...old, baseRef, branch: c.branch } : { schema: 'adversarial.state/1', baseRef, branch: c.branch, rounds: [], cross: [], crossRuns: [] }
   saveState(c, state)
+  if (cycling) rmSync(join(c.dir, 'verdict.json'))
   const last = state.rounds.at(-1)
   const info = {
     repo: c.repo, gitDir: c.gitDir, branch: c.branch, head: c.head, baseRef, base,
@@ -250,7 +260,7 @@ function cmdAdopt(c, pos, out) {
   if (!s.branch) throw new UsageError('that state has no branch: it cannot be proven to belong to this branch')
   if (s.branch !== c.branch) throw new UsageError(`that state belongs to branch ${s.branch}, not ${c.branch}`)
   const mine = readJson(join(c.dir, 'state.json'))
-  if (mine?.rounds?.length || mine?.crossRuns?.length) throw new UsageError(`this worktree already holds a review (${mine.rounds.length} round(s), ${mine.crossRuns?.length ?? 0} cross run(s)): never overwritten`)
+  if (mine?.rounds?.length || mine?.crossRuns?.length || mine?.cycle > 1) throw new UsageError(`this worktree already holds a review (${mine.rounds.length} round(s), ${mine.crossRuns?.length ?? 0} cross run(s)): never overwritten`)
   rmSync(c.dir, { recursive: true, force: true })
   renameSync(src, c.dir)
   const moved = ['adversarial-review']
@@ -350,7 +360,9 @@ export function finalize(c, flags, state) {
   const full = rounds.filter((r) => !r.triage)
   const tier = full.length ? 'full' : 'trivial'
 
-  if (!full.length && !flags.trivial) reasons.push('no round recorded (use --trivial only for a typo, comment or one-line change)')
+  if (!full.length && (!flags.trivial || state.cycle > 1)) reasons.push('no round recorded (use --trivial only for a typo, comment or one-line change, never in cycle 2)')
+  const owed = (state.carried ?? []).filter((id) => !l.has(id))
+  if (owed.length) reasons.push(`blocking findings of the FAILed cycle not re-judged in a round: ${owed.join(', ')}`)
   const unfixed = entries.filter((f) => f.disposition === 'FIX' && !f.fixed).map((f) => f.id)
   if (unfixed.length) reasons.push(`FIX not fixed and verified: ${unfixed.join(', ')}`)
   const p1 = entries.filter((f) => f.severity === 'P1' && (f.disposition === 'CHIP' || f.disposition === 'WONT_FIX')).map((f) => f.id)
@@ -420,6 +432,7 @@ function cmdFinalize(c, flags, out) {
 function cmdCheck(c, flags, out) {
   const v = readJson(join(c.dir, 'verdict.json'))
   const want = flags.head ?? c.head
+  if (!v && readJson(join(c.dir, 'state.json'))?.cycle > 1) { out('FAIL: a new cycle is under way after a FAIL, no verdict yet (not a pass)\n'); return 1 }
   if (!v || v.schema !== VERDICT_SCHEMA) { out(`no verdict for ${want.slice(0, 8)} (absent, not a pass)\n`); return 3 }
   if (v.head !== want) { out(`stale verdict: reviewed ${v.head.slice(0, 8)}, asked ${want.slice(0, 8)} (not a pass)\n`); return 3 }
   if (v.verdict === 'PASS' && (v.stateDigest !== digest(readJson(join(c.dir, 'state.json'))) || sentinelHead(c) !== v.head)) {
