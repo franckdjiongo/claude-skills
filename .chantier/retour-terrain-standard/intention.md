@@ -44,12 +44,12 @@ Après :
 
 Rejouer la nuit P6-T98 contre les outils modifiés :
 1. `preflight-lint.mjs` sur le plan du chantier 1 de la nuit : FAIL (un seul nombre par lot) ; sur sa copie avec deux nombres par lot : PASS.
-2. `review-run.mjs` sur un clone jetable de Temps Chantier à `d4bb2dce` : le premier correctif X6 (91 lignes de code + 273 de tests, PR +44 %) est refusé en FIX sans version qui retire ; un `cross` après le dernier round est refusé ; `finalize` affiche code, tests, ratio et croissance.
+2. `review-run.mjs` sur un clone jetable de Temps Chantier (round enregistré à `f1224566`, premier correctif X6 `246ab745`) : ce correctif (91 lignes de code + 273 de tests, PR +44 %) est refusé en FIX sans version qui retire ; un `cross` après le dernier round est refusé ; `finalize` affiche code, tests, ratio et croissance.
 3. Les variantes Codex se construisent, les tests des trois skills passent, le nombre de mots des SKILL.md n'augmente pas.
 
 ## Règles du chantier
 
-- Budget total : 450 / 700 lignes ajoutées (code + tests + scripts).
+- Budget total : 580 / 800 lignes ajoutées (code + tests + scripts), relevé au préflight : l'estimation du relecteur l'emporte (D3).
 - Chips : autorisés.
 - Base : `main` de claude-skills APRÈS la fusion de `chore/c9-pr-brouillon` (mêmes fichiers).
 - Revue : 2 rounds au plus, Codex dans le round 1 (on applique D1 à ce chantier même).
