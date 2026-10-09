@@ -320,7 +320,7 @@ export function finalize(c, flags, state) {
   if (m.code >= 50 && m.ratio > 2) warnings.push(`A1: tests/code ${m.ratio} > 2: justify in the PR body (D6)`)
 
   // D5: a sheet in the tree, or one the closeout deleted, requires a simplifier pass that really removed code.
-  const deleted = git(c.repo, ['diff', '--diff-filter=D', '--no-renames', '--name-only', `${base}...HEAD`, '--', '.chantier/*/intention.md']).split('\n').filter(Boolean)
+  const deleted = [...new Set(git(c.repo, ['log', '--diff-filter=D', '--no-renames', '--name-only', '--format=', `${base}..HEAD`, '--', '.chantier/*/intention.md']).split('\n').filter(Boolean))]
   const found = [...sheets(c, flags), ...deleted]
   let simplifier = found.length ? flags.simplifier : 'n/a'
   if (simplifier === undefined) reasons.push(`intent sheet (${found.join(', ')}): run the simplifier, then pass --simplifier <sha>|none (D5)`)

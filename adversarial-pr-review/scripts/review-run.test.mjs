@@ -259,6 +259,12 @@ describe('metrics and simplifier (D5, D6)', () => {
     }
     assert.equal((await fin('--simplifier', ok.slice(0, 10))).code, 0); assert.equal(verdictOf(d).simplifier, ok)
   })
+  test('a sheet added and deleted on the branch also needs --simplifier', async () => {
+    const d = makeRepo(); mkdirSync(join(d, '.chantier/x'), { recursive: true }); commit(d, '.chantier/x/intention.md', 'sheet')
+    await started(d); await run(d, 'round', roundFile(d)); sh(d, 'rm', '-q', '.chantier/x/intention.md'); sh(d, 'commit', '-qm', 'rm sheet')
+    const r = await run(d, 'finalize', '--gate', 'true', '--delta-ok', 'sheet removal')
+    assert.equal(r.code, 1); assert.match(r.out, /intent sheet \(\.chantier\/x\/intention\.md\).*\(D5\)/)
+  })
 })
 
 describe('triage and the reviewed commit', () => {

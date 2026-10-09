@@ -18,7 +18,7 @@ Complète `SKILL.md` § Exécuter un plan. Rien ici n'assouplit les règles dure
 
 1. Vérifications globales du plan. UI : navigateur clair + sombre, serveur dev du repo CIBLE lancé en Bash,
    jamais par l'outil de prévisualisation intégré du harnais.
-2. Revue : `adversarial-pr-review` (Mode A), 2 rounds, Codex (`cross`) au round 1 en parallèle des
+2. Revue : `adversarial-pr-review` (Mode A), 2 rounds, l'autre famille (`cross`) au round 1 en parallèle des
    chasseurs (absent ou en échec : pas de nouvelle tentative, le rapport le dit). Round 2
    seulement si le round 1 a commité un correctif. Un seul correcteur par round, qui n'écrit que dans ce dépôt
    et seulement les remarques CORRIGER (« correctif minimal couvrant toute la famille du défaut, aucune

@@ -105,7 +105,7 @@ Chaque étape est un gate.
    décisions horodaté, une ligne par écart, découpage ou substitut (C3) ; tu peux couper au point de coupe
    d'une tranche qui déborde, noté au journal.
 5. **Clôture (A3, ne bloque jamais)**, dans l'ordre : vérifications globales ; `adversarial-pr-review`
-   (Mode A), 2 rounds, Codex (`cross`) au round 1, vérificateur frais pour
+   (Mode A), 2 rounds, l'autre famille (`cross`) au round 1, vérificateur frais pour
    tout correctif du round 2 ; simplificateur avant la PR ; dernier lot : `git rm` la fiche, commit `chantier(<slug>): lot N — Clôture…` (la sentinelle de revue
    se pose après convergence par le skill) ; push et PR (sinon brouillon, défauts listés,
    sans ready/non-brouillon), aucun merge ;
