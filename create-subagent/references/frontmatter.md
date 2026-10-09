@@ -27,7 +27,7 @@ Denylist. Subtractive. Use this when "everything except X and Y" is easier to ex
 ## Model and reasoning
 
 ### `model`
-`sonnet`, `opus`, `haiku`, a full model ID like `claude-opus-4-7`, or `inherit`. Default: `inherit`.
+`sonnet`, `opus`, `haiku`, a full model ID, or `inherit`. Default: `inherit`.
 
 Use `haiku` when the work is genuinely simple and high-volume (fast retrieval, mechanical formatting). Use `sonnet` or `opus` when reasoning quality is the bottleneck. Inherit otherwise — most subagents should match the session model.
 

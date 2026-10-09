@@ -6,12 +6,15 @@ allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 
 # create-subagent
 
+<!-- runtime-slot:intro -->
 Scaffold a single, well-formed Claude Code subagent file with sensible defaults. The skill walks through three phases: **triage** (is a subagent really the right primitive?), **interview** (collect what's needed to choose defaults), and **scaffold** (write the file plus a smoke test).
 
 The goal is one focused file at `.claude/agents/<name>.md` (project) or `~/.claude/agents/<name>.md` (user-global), not a sprawling configuration. Subagents are most useful when small and pointed.
+<!-- /runtime-slot:intro -->
 
 ## Why this skill exists, separately from skill-creator
 
+<!-- runtime-slot:compare -->
 Skills and subagents are sometimes confused because both are markdown files with YAML frontmatter. They aren't the same thing:
 
 | | Skill | Subagent |
@@ -24,6 +27,7 @@ Skills and subagents are sometimes confused because both are markdown files with
 | Authoring tool | `skill-creator` | this skill |
 
 If the user describes "a way to teach Claude how to do X every time", that's a skill. If they describe "a worker that goes off, does X, and reports back", that's a subagent. If they describe "several agents collaborating across sessions", that's agent teams (out of scope here).
+<!-- /runtime-slot:compare -->
 
 ## Phase 1 — Triage
 
@@ -33,11 +37,13 @@ Use these signals:
 
 - **Subagent fits when:** the task is self-contained, produces verbose intermediate output, runs read-only research, needs different tool restrictions than the main conversation, or accumulates memory across sessions about a specific concern.
 - **Skill fits better when:** the user wants procedures that should run *in* the current conversation, the work needs frequent back-and-forth with the parent, or the artifact's main purpose is to teach a workflow.
+<!-- runtime-slot:triage-team -->
 - **Agent team fits better when:** the user describes multiple workers running in parallel and *talking to each other*, or workers that span separate sessions. Subagents only work within a single session and cannot spawn other subagents.
 
 If subagent is wrong, say so plainly and redirect:
 - *"This sounds more like a skill — the work needs to happen in your current conversation. Want me to invoke `skill-creator` instead?"*
 - *"This sounds like agent teams — multiple workers coordinating. Read `/agents` and the agent teams docs; this skill only handles single-session subagents."*
+<!-- /runtime-slot:triage-team -->
 
 Only proceed once subagent is the right call.
 
@@ -47,6 +53,7 @@ Collect just enough to choose defaults. Pull what you can from conversation cont
 
 Required:
 
+<!-- runtime-slot:interview-fields -->
 1. **Name** — lowercase-hyphenated, e.g. `migrator`, `plugin-reviewer`, `formula-auditor`. If the user proposes spaces, capitals, or underscores, normalize and confirm.
 2. **One-paragraph purpose** — what triggers this subagent and what it returns. This becomes the `description` field, which is the *only* signal Claude uses to decide when to delegate. Keyword-dense and explicit beats elegant.
 3. **Scope** — project (`.claude/agents/`), user (`~/.claude/agents/`), or part of a plugin. Default to project unless the user clearly wants it across all their projects.
@@ -60,9 +67,11 @@ Helpful but not always required (use sensible defaults if the user doesn't care)
 8. **Does it need MCP tools the parent doesn't have?** — drives `mcpServers`.
 9. **Does any tool call need conditional validation?** — drives frontmatter `hooks`.
 10. **Is latency or cost critical?** — drives `model: haiku` vs `sonnet` vs `inherit`.
+<!-- /runtime-slot:interview-fields -->
 
 ## Phase 3 — Scaffold
 
+<!-- runtime-slot:scaffold -->
 Produce one file at the chosen path with frontmatter, system prompt, and an invocation example. Keep the body short and focused — the subagent receives *only* its system prompt plus environment basics, not Claude Code's full system prompt, so every line earns its place.
 
 ### Default choices and why
@@ -131,6 +140,7 @@ Report format:
 ```
 
 For canonical templates (read-only researcher, code reviewer, isolated implementer with worktree, hook-validated worker, memory-backed specialist), see `references/templates.md`. For the full frontmatter field reference (defaults, allowed values, plugin constraints), see `references/frontmatter.md`.
+<!-- /runtime-slot:scaffold -->
 
 ### System-prompt body — what to write
 
@@ -146,12 +156,15 @@ Include:
 
 Avoid:
 
+<!-- runtime-slot:body-avoid -->
 - Repeating Claude Code's general behavior — the agent already inherits the platform.
 - Long lists of tools available — `tools` frontmatter handles that.
 - Defensive scaffolding ("double-check before returning"). Opus 4.7 follows literal instructions and will waste tokens on checks that aren't load-bearing. Only include verification steps when they actually matter.
+<!-- /runtime-slot:body-avoid -->
 
 ### Smoke test
 
+<!-- runtime-slot:smoke-test -->
 After writing the file, hand the user a concrete invocation that exercises the agent. Three patterns:
 
 1. **Natural language** — Claude decides whether to delegate.
@@ -170,9 +183,11 @@ After writing the file, hand the user a concrete invocation that exercises the a
 Pick the smoke test that proves the agent's *typical* invocation works — not its hardest possible task. The point is to confirm the file loads, the description triggers, and the workflow runs end-to-end.
 
 Reminder for the user: subagents authored by editing files directly require restarting the session before they load. Subagents created via `/agents` apply immediately.
+<!-- /runtime-slot:smoke-test -->
 
 ### Validation checklist before declaring done
 
+<!-- runtime-slot:validation -->
 Before telling the user the agent is ready, run through:
 
 - [ ] File exists at the expected path (`.claude/agents/<name>.md` or `~/.claude/agents/<name>.md`).
@@ -183,7 +198,10 @@ Before telling the user the agent is ready, run through:
 - [ ] System prompt body is under ~80 lines unless complexity truly demands more.
 - [ ] Smoke test command was provided to the user.
 - [ ] If the user just wrote the file by hand: remind them to restart the Claude Code session.
+<!-- /runtime-slot:validation -->
 
 ## A note on global vs project scope
 
+<!-- runtime-slot:scope -->
 The user's word for "globally" usually means `~/.claude/agents/<name>.md`. That's the right call when the agent's value is the same across every codebase the user opens (e.g., a personal `mac-debug` agent, a `git-historian`, a generic `pdf-extractor`). If the agent's knowledge is codebase-specific (it understands *this* repo's plugin conventions, *this* team's style guide, *this* product's data model), put it in the project at `.claude/agents/` and check it into version control. Global agents shadow project agents when names collide, so don't reuse names across scopes.
+<!-- /runtime-slot:scope -->
