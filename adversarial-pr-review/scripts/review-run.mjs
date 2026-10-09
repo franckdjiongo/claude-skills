@@ -181,7 +181,7 @@ function newCycle(c, old, chip, base) {
   if (base && base !== old.baseRef) throw new UsageError(`the base ref is fixed across cycles (${old.baseRef})`)
   if (v.head === c.head) throw new UsageError('HEAD is still the FAILed commit: commit the chip fix first')
   // The blocking findings of the FAIL must be re-judged in the new cycle (finalize refuses until they are).
-  const carried = v.findings.filter((f) => (f.disposition === 'FIX' && !f.fixed) || (f.severity === 'P1' && ['CHIP', 'WONT_FIX'].includes(f.disposition))).map((f) => f.id)
+  const carried = v.findings.filter((f) => (f.disposition === 'FIX' && !f.fixed) || (f.severity === 'P1' && ['CHIP', 'WONT_FIX'].includes(f.disposition))).map((f) => ({ id: f.id, summary: f.summary }))
   if (!carried.length) throw new UsageError('no blocking finding in that FAIL: a gate-only FAIL is repaired and finalized again, not a new cycle')
   for (const f of ['state', 'verdict']) if (existsSync(join(c.dir, `${f}-${n}.json`))) throw new UsageError(`${f}-${n}.json already exists: never overwritten`)
   return { schema: old.schema, baseRef: old.baseRef, branch: old.branch, cycle: n + 1, chip, carried, rounds: [], cross: [], crossRuns: [] }
@@ -361,8 +361,8 @@ export function finalize(c, flags, state) {
   const tier = full.length ? 'full' : 'trivial'
 
   if (!full.length && (!flags.trivial || state.cycle > 1)) reasons.push('no round recorded (use --trivial only for a typo, comment or one-line change, never in cycle 2)')
-  const owed = (state.carried ?? []).filter((id) => !l.has(id))
-  if (owed.length) reasons.push(`blocking findings of the FAILed cycle not re-judged in a round: ${owed.join(', ')}`)
+  const owed = (state.carried ?? []).filter((f) => l.get(f.id)?.summary !== f.summary).map((f) => f.id)
+  if (owed.length) reasons.push(`blocking findings of the FAILed cycle not re-judged in a round (same id and summary): ${owed.join(', ')}`)
   const unfixed = entries.filter((f) => f.disposition === 'FIX' && !f.fixed).map((f) => f.id)
   if (unfixed.length) reasons.push(`FIX not fixed and verified: ${unfixed.join(', ')}`)
   const p1 = entries.filter((f) => f.severity === 'P1' && (f.disposition === 'CHIP' || f.disposition === 'WONT_FIX')).map((f) => f.id)
