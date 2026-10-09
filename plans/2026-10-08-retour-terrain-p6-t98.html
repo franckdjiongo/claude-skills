@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retour terrain P6-T98</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #eeece7;
+    --surface: #f7f5f0;
+    --surface-deep: #e4e1da;
+    --ink: #1e2730;
+    --muted: #535c66;
+    --line: #d2cec4;
+    --accent: #a8400e;
+    --accent-soft: #f3e1d4;
+    --ok: #2c6542;
+    --warn: #7f5300;
+    --risk: #9b2d1d;
+    --display: "Barlow Condensed", "Avenir Next Condensed", "DIN Condensed", "Arial Narrow", sans-serif;
+    --body: "Source Serif 4", Georgia, serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    --s1: 4px; --s2: 8px; --s3: 16px; --s4: 24px; --s5: 32px; --s6: 48px; --s7: 64px;
+    --radius: 8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper: #171b20; --surface: #1f252c; --surface-deep: #262d35;
+      --ink: #e9e6df; --muted: #a9b1ba; --line: #343c45;
+      --accent: #f0904f; --accent-soft: #3a2a20;
+      --ok: #7cc49a; --warn: #e0b054; --risk: #f08a7a;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font: 400 clamp(16px, 0.4vw + 15px, 18px)/1.6 var(--body); }
+  .layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--s6); max-width: 1240px; margin: 0 auto; padding: var(--s6) var(--s3) var(--s7); }
+  nav.toc { position: sticky; top: var(--s4); align-self: start; font: 500 13px/1.4 var(--mono); }
+  nav.toc .toc-title { font: 700 16px/1 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: var(--s3); }
+  nav.toc a { display: flex; justify-content: space-between; gap: var(--s2); padding: var(--s2) 0; border-bottom: 1px solid var(--line); color: var(--ink); text-decoration: none; }
+  nav.toc a:hover, nav.toc a:focus-visible { color: var(--accent); outline: none; }
+  .st { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+  .st.ok { color: var(--ok); } .st.dec { color: var(--accent); } .st.lim { color: var(--muted); }
+  main { min-width: 0; }
+  header.mast { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s5); align-items: end; padding-bottom: var(--s6); border-bottom: 2px solid var(--ink); }
+  .big { font: 700 clamp(112px, 16vw, 216px)/.8 var(--display); color: var(--accent); letter-spacing: -.02em; }
+  .kicker { font: 600 14px/1.3 var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: var(--s3); }
+  h1 { font: 700 clamp(36px, 4.2vw, 56px)/1.02 var(--display); letter-spacing: -.01em; margin-bottom: var(--s3); }
+  .lede { color: var(--muted); max-width: 64ch; }
+  section { padding-block: clamp(48px, 7.5vw, 104px) 0; }
+  h2 { font: 700 clamp(28px, 3vw, 40px)/1.05 var(--display); display: flex; gap: var(--s3); align-items: baseline; border-bottom: 1px solid var(--line); padding-bottom: var(--s2); margin-bottom: var(--s4); }
+  h2 .n { font-family: var(--mono); font-size: 16px; color: var(--accent); }
+  h3 { font: 600 22px/1.2 var(--display); letter-spacing: .01em; margin: var(--s5) 0 var(--s2); }
+  p, li { max-width: 72ch; }
+  p { margin-bottom: var(--s3); }
+  ul, ol { padding-left: var(--s4); margin-bottom: var(--s3); }
+  li { margin-bottom: var(--s2); }
+  strong { font-weight: 600; }
+  code, .mono { font-family: var(--mono); font-size: .86em; }
+  code { background: var(--surface-deep); padding: 1px var(--s1); border-radius: 4px; }
+  .verdict { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--radius); padding: var(--s4); margin: var(--s4) 0; }
+  .verdict p:last-child { margin-bottom: 0; }
+  .scroller { overflow-x: auto; margin: var(--s3) 0 var(--s4); border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; padding: var(--s2) 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font: 600 12px/1.3 var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); background: var(--surface-deep); }
+  td.num { font-family: var(--mono); font-size: 14px; white-space: nowrap; text-align: right; }
+  tr:last-child td { border-bottom: none; }
+  .hot { color: var(--risk); font-weight: 600; }
+  .good { color: var(--ok); font-weight: 600; }
+  .tag { display: inline-block; font: 600 11px/1.6 var(--mono); text-transform: uppercase; letter-spacing: .05em; padding: 0 var(--s2); border-radius: 4px; border: 1px solid currentColor; white-space: nowrap; }
+  .tag.ok { color: var(--ok); } .tag.part { color: var(--warn); } .tag.no { color: var(--risk); }
+  .item { border-top: 1px solid var(--line); padding: var(--s4) 0 var(--s2); }
+  .item:first-of-type { border-top: none; }
+  .item h3 { margin-top: 0; display: flex; gap: 12px; align-items: baseline; }
+  .code-id { font: 600 15px/1 var(--mono); color: var(--accent); min-width: 2.6em; }
+  .ev { font-size: 15px; color: var(--muted); }
+  .opts { list-style: none; padding-left: 0; }
+  .opts li { padding: var(--s2) 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+  .opts li.rec { border-color: var(--accent); background: var(--accent-soft); }
+  .opts b { font-family: var(--mono); font-size: 14px; margin-right: var(--s2); }
+  footer { margin-top: var(--s7); padding-top: var(--s4); border-top: 2px solid var(--ink); color: var(--muted); font-size: 15px; }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: minmax(0, 1fr); gap: var(--s4); }
+    nav.toc { position: static; }
+    header.mast { grid-template-columns: minmax(0, 1fr); gap: var(--s3); }
+  }
+  @media print {
+    :root { --paper: #fbfaf7; --surface: #fbfaf7; }
+    nav.toc { display: none; }
+    .layout { grid-template-columns: minmax(0, 1fr); }
+    section { break-inside: avoid-page; padding-block: 32px 0; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc" aria-label="Sommaire">
+  <div class="toc-title">Sommaire</div>
+  <a href="#s00"><span>00 · Verdict</span><span class="st ok">mesuré</span></a>
+  <a href="#s01"><span>01 · Sources</span><span class="st ok">lu</span></a>
+  <a href="#s02"><span>02 · Chiffres</span><span class="st ok">mesuré</span></a>
+  <a href="#s03"><span>03 · Ce qui tient</span><span class="st ok">W1-W6</span></a>
+  <a href="#s04"><span>04 · Ce qui fuit</span><span class="st dec">F1-F7</span></a>
+  <a href="#s05"><span>05 · Recherche</span><span class="st ok">R1-R10</span></a>
+  <a href="#s06"><span>06 · Décisions</span><span class="st dec">D1-D7</span></a>
+  <a href="#s07"><span>07 · Petits correctifs</span><span class="st dec">C1-C3</span></a>
+  <a href="#s08"><span>08 · Limites</span><span class="st lim">H1-H5</span></a>
+  <a href="#s09"><span>09 · Suite</span><span class="st dec">à faire</span></a>
+</nav>
+
+<main>
+<header class="mast">
+  <div class="big" aria-label="facteur deux">×2</div>
+  <div>
+    <div class="kicker">claude-skills · retour terrain · nuit du 8 octobre 2026</div>
+    <h1>Le nouveau système a tenu sa première vraie nuit. Il fuit à trois endroits.</h1>
+    <p class="lede">Premier test sur un vrai projet (Temps Chantier, P6-T98, projets en colonnes) de brief-preflight, brief-chantier, adversarial-pr-review et de la seconde revue Codex. Chaque lot a coûté environ deux fois son estimation, et un tiers des lignes de la nuit vient de la revue.</p>
+  </div>
+</header>
+
+<section id="s00">
+  <h2><span class="n">00</span>Verdict</h2>
+  <div class="verdict">
+    <p><strong>Le système finit, prouve et rapporte honnêtement.</strong> Deux chantiers sur trois livrés avant minuit avec 4 PR, des preuves Local Play réelles, 10 décisions de l'exécutant consignées, une seule question posée pendant la nuit, et une PR non convergée déclarée comme telle au lieu d'être forcée.</p>
+    <p><strong>Il fuit à trois endroits.</strong> (1) Les estimations : chaque lot a coûté 1,3 à 2,4 fois son estimation, donc trois découpages en cours de route et une pile de 6 PR. (2) La revue Codex placée après la PR verte fonctionne comme un troisième round : elle a apporté 60 % des lignes de revue, dont 789 lignes sur la PR 42 sans la faire converger. (3) Aucune étape ne retire du code : la revue n'a fait qu'ajouter, surtout des tests.</p>
+    <p>Les sept décisions de la section 06 remplacent du texte des skills plutôt que d'en ajouter. Ma recommandation : D1, D2 et D3 d'abord.</p>
+  </div>
+</section>
+
+<section id="s01">
+  <h2><span class="n">01</span>Sources</h2>
+  <ul>
+    <li><strong>Le run réel.</strong> Branches poussées des 5 tranches (mesure <code>git diff --numstat</code> par tranche et par commit), état de revue <code>state.json</code> et <code>verdict.json</code> de chaque worktree de revue, journal de décisions de l'exécutant (D-A à D-J), rapports du hub (chantiers 1 et 2).</li>
+    <li><strong>La recherche ChatGPT</strong> du 6 octobre, « Réduire le code bloat et le test bloat dans un pipeline d'agents de code autonomes », collée dans la session Temps Chantier de la vague socle. Elle s'appuie sur DORA 2026, METR 2025, les pratiques Anthropic, Google Small CLs et GitHub ReviewBench.</li>
+    <li><strong>Les bancs du 6 octobre</strong> (claude-skills/plans) : banc du système de chantiers (9 projets fictifs) et banc final v0 contre v4. Le banc final recommandait déjà de tester sur un vrai chantier : c'est ce rapport.</li>
+    <li><strong>Le Second Brain</strong> de la semaine : décision du 6 octobre (A1-A5 et G), préférence du 8 octobre (Codex sur chaque PR verte), leçon de la PR 26 (dans un module à état concurrent, chaque série de correctifs de revue a introduit une régression).</li>
+  </ul>
+</section>
+
+<section id="s02">
+  <h2><span class="n">02</span>Les chiffres de la nuit</h2>
+  <h3>Par tranche livrée</h3>
+  <p class="ev">Net = lignes ajoutées moins retirées, code + CSS + tests (règle choisie au hub : le code déplacé ne compte pas). Code et Tests = lignes ajoutées. Docs exclues. « Lignes de revue » = lignes ajoutées par les commits de correctifs de revue, comparées aux lignes ajoutées par les commits de lots.</p>
+  <div class="scroller"><table>
+    <thead><tr><th>Tranche</th><th>PR</th><th>Net</th><th>Code</th><th>Tests</th><th>Tests / code</th><th>Lignes de revue</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>1a · vue Par employé</td><td class="num">#41</td><td class="num hot">1 198</td><td class="num">819</td><td class="num">570</td><td class="num">0,7</td><td class="num">376 (25 %)</td><td>PASS</td></tr>
+      <tr><td>1b · déplacer une ligne</td><td class="num">#42</td><td class="num hot">1 303</td><td class="num">356</td><td class="num">1 085</td><td class="num hot">3,0</td><td class="num hot">898 (55 %)</td><td class="hot">FAIL, chip bloquant</td></tr>
+      <tr><td>2a · projet mémorisé</td><td class="num">#44</td><td class="num">783</td><td class="num">320</td><td class="num">491</td><td class="num">1,5</td><td class="num">101 (12 %)</td><td>PASS</td></tr>
+      <tr><td>2b · ajout rapide</td><td class="num">#46</td><td class="num">553</td><td class="num">161</td><td class="num">518</td><td class="num hot">3,2</td><td class="num">218 (32 %)</td><td>PASS</td></tr>
+      <tr><td>3a · projets sans code</td><td class="num">à venir</td><td class="num">409</td><td class="num">208</td><td class="num">236</td><td class="num">1,1</td><td class="num">pas encore revue</td><td>en cours</td></tr>
+    </tbody>
+  </table></div>
+  <p>Budgets des plans : 850, 700 et 350 lignes. Mesuré : 2 501 pour le chantier 1, 1 336 pour le chantier 2, 409 pour le chantier 3 après 2 lots sur 4. Sur toute la nuit, les tests font 61 % des lignes, et la revue a ajouté 1 593 lignes contre 3 013 pour les lots (35 %).</p>
+
+  <h3>Estimation contre réalité, lot par lot</h3>
+  <div class="scroller"><table>
+    <thead><tr><th>Lot</th><th>Estimé</th><th>Réel</th><th>Facteur</th></tr></thead>
+    <tbody>
+      <tr><td>C1 lot 2 · sélecteur et vue</td><td class="num">250</td><td class="num">601</td><td class="num hot">×2,4</td></tr>
+      <tr><td>C1 lot 3 · colonne Projet</td><td class="num">270</td><td class="num">500</td><td class="num">×1,9</td></tr>
+      <tr><td>C1 lot 4 · écrire le changement de projet</td><td class="num">200</td><td class="num">455</td><td class="num hot">×2,3</td></tr>
+      <tr><td>C1 lot 5 · sans rechargement</td><td class="num">130</td><td class="num">270</td><td class="num">×2,1</td></tr>
+      <tr><td>C2 lot 1 · projet mémorisé</td><td class="num">170</td><td class="num">323</td><td class="num">×1,9</td></tr>
+      <tr><td>C2 lot 2 · + Temps homme et fenêtre</td><td class="num">230</td><td class="num">403</td><td class="num">×1,8</td></tr>
+      <tr><td>C2 lot 3 · ajout rapide et chargement</td><td class="num">160</td><td class="num">283</td><td class="num">×1,8</td></tr>
+      <tr><td>C2 lot 4 · test d'acceptation</td><td class="num">140</td><td class="num">178</td><td class="num">×1,3</td></tr>
+      <tr><td>C3 lot 1 · élément désactivé</td><td class="num">120</td><td class="num">237</td><td class="num">×2,0</td></tr>
+      <tr><td>C3 lot 2 · projets sans code</td><td class="num">90</td><td class="num">207</td><td class="num hot">×2,3</td></tr>
+    </tbody>
+  </table></div>
+  <p>Médiane : environ ×2. Ces estimations sont les miennes (rôle AUTEUR). Au préflight, la lentille Règles avait estimé le chantier 1 entre 1 100 et 1 300 lignes. J'ai gardé 850. Le réel est 2 501.</p>
+
+  <h3>Les remarques de revue</h3>
+  <div class="scroller"><table>
+    <thead><tr><th>Source</th><th>Remarques</th><th>P1</th><th>P2</th><th>Corrigées</th><th>Écartées</th><th>Chip</th><th>Invalides</th></tr></thead>
+    <tbody>
+      <tr><td>Revue interne Claude, 2 rounds × 4 PR</td><td class="num">31</td><td class="num">0</td><td class="num">9</td><td class="num">15</td><td class="num">14</td><td class="num">2</td><td class="num">0</td></tr>
+      <tr><td>Codex, après la PR verte</td><td class="num">10</td><td class="num hot">1</td><td class="num">3</td><td class="num">5</td><td class="num">2</td><td class="num">2</td><td class="num">1</td></tr>
+    </tbody>
+  </table></div>
+  <p>Codex a trouvé sur 3 des 4 PR un défaut que deux rounds internes avaient laissé passer, dont le seul P1 de la nuit (un code de gestion écrit sur la mauvaise ligne pendant un déplacement de projet).</p>
+</section>
+
+<section id="s03">
+  <h2><span class="n">03</span>Ce qui tient</h2>
+  <ol>
+    <li><strong>W1 · Le run va au bout, dans les temps.</strong> Chantier 1 de 19 h 35 à 23 h 13, chantier 2 de 22 h 25 à 23 h 37, chantier 3 démarré à 23 h 30. Le plan annonçait « le 2 probablement, le 3 s'il reste du temps ».</li>
+    <li><strong>W2 · La preuve réelle (A4) est faite.</strong> Deux planches de captures dans Galley, données remises en état, un substitut documenté quand la journée Validée n'existait pas (D-B). C'est l'inverse du script de déploiement de la vague socle, testé par 1 750 lignes de tests sans jamais tourner.</li>
+    <li><strong>W3 · La clôture ne ment pas.</strong> La PR 42 est restée FAIL, sans sentinelle, avec un chip qui nomme la cause. La cause C2 du banc final (« la clôture déclare sans vérifier ») ne s'est pas reproduite.</li>
+    <li><strong>W4 · « Ne pas corriger » est devenu normal (A2).</strong> 16 remarques écartées, 4 en chip et 1 invalide sur 41. C'est la mesure la plus recommandée par la recherche.</li>
+    <li><strong>W5 · L'exécutant tranche seul et l'écrit.</strong> Dix décisions horodatées (découpages, substituts, base des branches) et une seule question renvoyée à toi (D-B, à 20 h 25). La cause C3 du banc final ne s'est pas reproduite non plus.</li>
+    <li><strong>W6 · La revue croisée par une autre famille de modèles paie.</strong> 1 P1 et 3 P2 réels trouvés après deux rounds internes, une seule remarque invalide sur 10.</li>
+  </ol>
+</section>
+
+<section id="s04">
+  <h2><span class="n">04</span>Ce qui fuit</h2>
+
+  <div class="item">
+    <h3><span class="code-id">F1</span>Le budget est faux avant même la première ligne</h3>
+    <p>Chaque lot a coûté environ deux fois son estimation, parce que l'estimation ne comptait pas vraiment les tests. Le disjoncteur A5 (« lot au double de son estimation ») tombe donc sur un lot normal. La lentille du préflight voyait juste, mais l'auteur pouvait l'écarter.</p>
+    <p class="ev">Preuve : tableau 02, facteurs ×1,3 à ×2,4. Préflight 1 100 à 1 300 contre 850 retenu, 2 501 réel.</p>
+  </div>
+
+  <div class="item">
+    <h3><span class="code-id">F2</span>Le découpage se fait en pleine nuit, et il empile les PR</h3>
+    <p>La règle A1 dit « au-delà, découper » mais seulement à l'écriture du plan. En exécution, l'exécutant a improvisé trois découpages (D-E, D-H, D-J). Il l'a bien fait, mais chaque tranche ajoute une revue complète, un worktree de revue et une PR. Résultat : une pile de 6 PR, et le défaut ouvert sur la PR 42 bloque les 4 tranches au-dessus.</p>
+    <p class="ev">Preuve : journal de l'exécutant, pile 1a ← 1b ← 2a ← 2b ← 3a ← 3b, 4 worktrees de revue encore ouverts.</p>
+  </div>
+
+  <div class="item">
+    <h3><span class="code-id">F3</span>La revue Codex après la PR verte est un troisième round déguisé</h3>
+    <p>Le skill dit « 2 rounds, jamais de 3e » et « une passe externe est une entrée d'un round, pas un round ». Ta consigne du 8 octobre place Codex après la PR verte, donc après le plafond. Le script l'a enregistrée comme « round 3 de tri ». Les correctifs qui suivent n'ont qu'une limite : un second essai si le vérificateur refuse le premier.</p>
+    <p class="ev">Preuve : <code>state.json</code> des 4 PR. Codex a produit 952 lignes de correctifs, 60 % des lignes de revue. Sur la PR 42 : 364 puis 425 lignes, refusées toutes les deux.</p>
+  </div>
+
+  <div class="item">
+    <h3><span class="code-id">F4</span>Un correctif de revue grossit sans limite, surtout en tests</h3>
+    <p>La règle « un correctif de plus de ~30 lignes dit pourquoi aucun plus petit ne marche » ne compte que le code. Le premier correctif du P1 faisait 91 lignes de code et 273 de tests, le second 33 et 392. Les deux ajoutaient du suivi d'état. Le correctif recommandé ensuite par le chip fait l'inverse : il retire une optimisation et envoie toujours le projet. Personne n'a cherché d'abord la version qui retire du code.</p>
+    <p class="ev">Preuve : commits de correctifs X6 sur la branche de la PR 42, chip du 9 octobre. Même classe de module que la leçon de la PR 26 (sauvegarde et synchronisation concurrentes).</p>
+  </div>
+
+  <div class="item">
+    <h3><span class="code-id">F5</span>La revue demande des tests sans défaut observé</h3>
+    <p>Le round 1 de la PR 46 a « corrigé » deux P2 en ajoutant 218 lignes de tests et zéro ligne de code. Celui de la PR 44 a ajouté 39 lignes de tests seulement. Les ratios tests/code des PR 42 et 46 dépassent 2 sans justification écrite, alors que A1 l'exige.</p>
+    <p class="ev">Preuve : commits « correctifs de revue, round 1 » des tranches 2a et 2b, rapports du hub muets sur le ratio.</p>
+  </div>
+
+  <div class="item">
+    <h3><span class="code-id">F6</span>Le gardien d'intention ne coûte rien de visible, et n'apporte rien de visible</h3>
+    <p>Quatre verdicts ALIGNÉ sur quatre PR. Il a écarté des remarques mineures, que la règle A2 écartait déjà. Il n'a retiré aucune ligne de code. C'est la même conclusion que les deux bancs du 6 octobre, dont la décision D2 sur le gardien n'a pas été tranchée.</p>
+  </div>
+
+  <div class="item">
+    <h3><span class="code-id">F7</span>Les plans et le design gonflent la première PR de code</h3>
+    <p>La PR 41 porte 2 053 lignes de docs (design, prototype, les trois plans, les fiches). La règle (a) du dépôt compte les docs : la PR a dû prendre l'étiquette <code>derogation-taille</code> pour du texte déjà relu au préflight.</p>
+  </div>
+</section>
+
+<section id="s05">
+  <h2><span class="n">05</span>La recherche ChatGPT, mesure par mesure</h2>
+  <div class="scroller"><table>
+    <thead><tr><th>#</th><th>Recommandation</th><th>Statut</th><th>Ce que la nuit montre</th></tr></thead>
+    <tbody>
+      <tr><td class="num">R1</td><td>Budget total code + tests, cible ~500, plafond 800 à 1 000</td><td><span class="tag ok">adopté</span></td><td>Tenu seulement grâce aux découpages en cours de route (F2).</td></tr>
+      <tr><td class="num">R2</td><td>Contrat de lot avec budget de tests séparé et liste des comportements à prouver</td><td><span class="tag part">partiel</span></td><td>Fiche et DONE présents, pas de budget de tests. Les tests font 61 % des lignes (F1, F5).</td></tr>
+      <tr><td class="num">R3</td><td>Un round général, puis un round sur le delta, puis arrêt</td><td><span class="tag part">contourné</span></td><td>Codex après la PR verte ajoute un troisième round (F3).</td></tr>
+      <tr><td class="num">R4</td><td>Un agent qui supprime, avant la PR</td><td><span class="tag no">absent</span></td><td>Aucune étape n'a retiré de code. Le gardien retire des remarques, jamais du code (F6).</td></tr>
+      <tr><td class="num">R5</td><td>Correctif minimal : au-delà de 20 à 30 lignes, justifier. Un round qui grossit la PR de plus de 15 à 20 % force un replan</td><td><span class="tag part">partiel</span></td><td>La limite de 30 lignes ignore les tests. La PR 42 a grossi de 124 % en revue (F4).</td></tr>
+      <tr><td class="num">R6</td><td>Disjoncteur à 70-80 % du budget : finir proprement et proposer la suite</td><td><span class="tag part">partiel</span></td><td>A5 coupe au double. L'exécutant a appliqué R6 de lui-même, sans règle écrite (F2).</td></tr>
+      <tr><td class="num">R7</td><td>« Ne pas corriger » et « invalide » sont des issues normales</td><td><span class="tag ok">adopté</span></td><td>21 remarques sur 41 non corrigées (W4).</td></tr>
+      <tr><td class="num">R8</td><td>La PR montre ses chiffres : production, tests, ratio, registre de revue</td><td><span class="tag no">absent</span></td><td>Le ratio n'apparaît dans aucun rapport (F5).</td></tr>
+      <tr><td class="num">R9</td><td>Revue proportionnée au risque</td><td><span class="tag part">partiel</span></td><td>Même pile de revue pour la PR 46 (tests) et la PR 42 (état concurrent).</td></tr>
+      <tr><td class="num">R10</td><td>Mutation testing ciblé</td><td><span class="tag no">absent</span></td><td>Pas recommandé maintenant : il ajoute un outil pour un problème que D2 et D6 traitent.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Ce que la recherche ne prévoyait pas : appliquer un plafond de taille en pleine exécution crée des PR empilées, et la revue croisée Codex a été plus utile que ce qu'elle laissait attendre (GitHub mesurait surtout plus de commentaires).</p>
+</section>
+
+<section id="s06">
+  <h2><span class="n">06</span>Décisions à prendre</h2>
+  <p class="ev">Chaque décision remplace une phrase des skills. Aucune n'ajoute d'étape, sauf D5 qui en remplace une. L'option recommandée est encadrée.</p>
+
+  <div class="item">
+    <h3><span class="code-id">D1</span>Où placer la revue Codex</h3>
+    <ul class="opts">
+      <li class="rec"><b>O1</b>Codex tourne dans le round 1, en même temps que les relecteurs Claude. Ses remarques sont triées et corrigées dans ce round, et le round 2 vérifie tous les correctifs. Plus de passe Codex après la PR verte.</li>
+      <li><b>O2</b>Codex reste après la PR verte, mais chaque remarque n'a droit qu'à un correctif. Refusé par le vérificateur : chip, sans second essai.</li>
+      <li><b>O3</b>Rien ne change.</li>
+    </ul>
+    <p class="ev">Pourquoi O1 : la valeur de Codex est réelle (W6), c'est son moment qui coûte (F3). En round 1, ses correctifs passent par le round 2 au lieu d'un troisième round sans fin.</p>
+  </div>
+
+  <div class="item">
+    <h3><span class="code-id">D2</span>Limiter la taille d'un correctif de revue</h3>
+    <ul class="opts">
+      <li class="rec"><b>O1</b>Un correctif se mesure code et tests ensemble. Au-delà de 30 lignes, ou si le round fait grossir la PR de plus de 15 %, le correcteur essaie d'abord la version qui retire du code. S'il n'y arrive pas, la remarque devient un chip et la PR part en brouillon. Un correctif refusé par son vérificateur ne se retente pas. Le script de revue calcule la croissance.</li>
+      <li><b>O2</b>Compter seulement les tests dans la limite des 30 lignes.</li>
+      <li><b>O3</b>Rien ne change.</li>
+    </ul>
+    <p class="ev">Pourquoi O1 : sur la PR 42, cette règle aurait arrêté le premier correctif (364 lignes, +44 % de PR) et orienté vers la solution du chip, qui retire du code (F4).</p>
+  </div>
+
+  <div class="item">
+    <h3><span class="code-id">D3</span>Estimer le budget pour de vrai</h3>
+    <ul class="opts">
+      <li class="rec"><b>O1</b>Chaque lot donne deux nombres : lignes de code et lignes de tests. Dans un dépôt qui a déjà une suite de tests, les tests valent au moins le code. Quand la lentille Règles du préflight estime plus haut que l'auteur, son estimation l'emporte : le plan se découpe avant la nuit, et l'auteur ne peut pas classer cette remarque « ne pas corriger ».</li>
+      <li><b>O2</b>Un script calcule le facteur réel du dépôt à partir des lots passés et corrige les estimations. Plus précis, mais un outil de plus.</li>
+      <li><b>O3</b>Rien ne change.</li>
+    </ul>
+    <p class="ev">Pourquoi O1 : la lentille avait raison et la règle lui donne le dernier mot. O2 pourra suivre si l'écart persiste sur deux chantiers (F1).</p>
+  </div>
+
+  <div class="item">
+    <h3><span class="code-id">D4</span>Écrire la règle du découpage en cours de route</h3>
+    <ul class="opts">
+      <li class="rec"><b>O1</b>Le plan marque un point de coupe après chaque lot à effet visible. À 75 % du plafond, si les lots restants ne tiennent pas, l'exécutant ferme la tranche au dernier point de coupe (revue, PR) et repart avec un plafond neuf. La tranche suivante part de la pointe de la précédente. Une pile compte 3 PR au plus, au-delà les chantiers partent de master.</li>
+      <li><b>O2</b>Interdire le découpage en exécution : au plafond, arrêt strict (A5).</li>
+    </ul>
+    <p class="ev">Pourquoi O1 : l'exécutant l'a fait trois fois cette nuit et tu as eu ta démo. La règle évite qu'il l'invente à chaque fois et borne la hauteur de la pile (F2).</p>
+  </div>
+
+  <div class="item">
+    <h3><span class="code-id">D5</span>Le sort du gardien d'intention</h3>
+    <ul class="opts">
+      <li class="rec"><b>O1</b>Le gardien devient un simplificateur, appelé une seule fois avant la PR. Il lit la fiche et le diff, retire le code et les tests qu'aucune garantie de la fiche n'exige, la validation doit rester verte et le diff doit diminuer. Il ne tourne plus après chaque round. À essayer sur le prochain chantier moyen, avec la mesure des lignes retirées.</li>
+      <li><b>O2</b>Décision D2 du banc final : contrôle final en lecture seule, sans rien retirer.</li>
+      <li><b>O3</b>Le retirer complètement.</li>
+    </ul>
+    <p class="ev">Pourquoi O1 : c'est la mesure R4 de la recherche, et la seule étape du système qui pourrait faire baisser le diff. Elle remplace le gardien au lieu de s'y ajouter (F6). Risque : un simplificateur peut casser un comportement. La validation verte et la preuve de la fiche le bornent.</p>
+  </div>
+
+  <div class="item">
+    <h3><span class="code-id">D6</span>Les remarques qui ne demandent qu'un test</h3>
+    <ul class="opts">
+      <li class="rec"><b>O1</b>Une remarque dont le seul correctif est un nouveau test, sans défaut observé, est écartée, sauf si une garantie de la fiche n'a encore aucune preuve. Le rapport de clôture et la PR affichent code, tests et ratio, calculés par le script.</li>
+      <li><b>O2</b>Rien ne change.</li>
+    </ul>
+    <p class="ev">Pourquoi O1 : 257 lignes de tests ajoutées en revue sans une ligne de code (F5), et le ratio exigé par A1 n'est jamais écrit.</p>
+  </div>
+
+  <div class="item">
+    <h3><span class="code-id">D7</span>Le design et les plans hors des PR de code</h3>
+    <ul class="opts">
+      <li class="rec"><b>O1</b>Avant la nuit, le design, les plans et les fiches fusionnent dans master par une PR de docs. La première PR de code garde seulement le delta de spec du lot 1 et le code.</li>
+      <li><b>O2</b>Rien ne change, l'étiquette de dérogation reste la règle pour la première PR.</li>
+    </ul>
+    <p class="ev">Pourquoi O1 : la PR 41 devient lisible, et les plans sont relus une fois, au préflight (F7).</p>
+  </div>
+</section>
+
+<section id="s07">
+  <h2><span class="n">07</span>Petits correctifs sans décision</h2>
+  <ol>
+    <li><strong>C1 · L'état de revue suit le worktree, pas la branche.</strong> Un round de la tranche 1a a été enregistré dans l'état de la 1b (D-F), et l'exécutant a dû ouvrir 4 worktrees de revue. Le script de revue doit refuser un round dont la branche diffère de son état.</li>
+    <li><strong>C2 · Chaque preuve en direct nomme sa donnée.</strong> La preuve D10 du chantier 3 n'a pas pu être rejouée : aucun projet sans code n'existe dans les données de test. Le préflight vérifie que la donnée existe avant la nuit.</li>
+    <li><strong>C3 · Le journal de décisions de l'exécutant</strong> (D-A à D-J, horodaté) n'est écrit dans aucune règle. Une ligne dans le rôle EXÉCUTANT suffit.</li>
+  </ol>
+</section>
+
+<section id="s08">
+  <h2><span class="n">08</span>Limites de ce rapport</h2>
+  <ul>
+    <li><strong>H1</strong> Une seule nuit, 4 PR revues. Les ratios sont des signaux, pas des lois.</li>
+    <li><strong>H2</strong> Le chantier 3 n'est pas fini, aucune PR n'est fusionnée, ta QA humaine n'a pas eu lieu. Le vrai coût de la pile se verra à la fusion.</li>
+    <li><strong>H3</strong> Codex contre Claude mélange trois variables : la famille du modèle, le modèle (GPT-6.1 Sol contre Sonnet) et l'effort (high contre medium). On ne sait pas laquelle a trouvé le P1.</li>
+    <li><strong>H4</strong> Les estimations fausses sont les miennes. Un autre auteur aurait peut-être estimé mieux, D3 vise le mécanisme, pas la personne.</li>
+    <li><strong>H5</strong> Le chantier « PR brouillon avant convergence » est en cours ce soir dans claude-skills et Temps Chantier. Il touche les mêmes fichiers que D1, D2 et D4.</li>
+  </ul>
+</section>
+
+<section id="s09">
+  <h2><span class="n">09</span>Suite</h2>
+  <ol>
+    <li>Tu tranches D1 à D7 (hub ou commentaires Galley).</li>
+    <li>Le chantier « PR brouillon » fusionne d'abord dans claude-skills.</li>
+    <li>Un chantier unique dans claude-skills applique les décisions retenues, en remplaçant du texte (budget de mots des skills inchangé), avec la variante Codex et la navette cloud de Temps Chantier.</li>
+    <li>Le prochain chantier moyen de Temps Chantier sert de mesure : facteur estimation contre réel, lignes de revue, lignes retirées par le simplificateur.</li>
+    <li>C1 à C3 partent en chips.</li>
+  </ol>
+  <footer>Mesures prises le 8 octobre 2026 vers 23 h 55 sur les branches poussées. Fichier : claude-skills/plans/2026-10-08-retour-terrain-p6-t98.html.</footer>
+</section>
+</main>
+</div>
+</body>
+</html>

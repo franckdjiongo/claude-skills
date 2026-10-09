@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chantier · Retour terrain au standard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f5f0e6; --surface: #fdfaf2; --surface-deep: #efe8d8;
+    --ink: #211b13; --ink-soft: #5f5546; --ink-faint: #8d8171;
+    --copper: #a35a2c; --copper-deep: #8a4a22; --copper-tint: #f0e0d0;
+    --line: #ddd2bd; --line-strong: #c9bca2;
+    --ok: #4a6741; --warn: #92400e; --danger: #8c2f2f;
+    --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+    --font-body: 'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    --sp-1: 8px; --sp-2: 16px; --sp-3: 24px; --sp-4: 32px; --sp-5: 48px; --sp-6: 64px; --sp-7: 96px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #171310; --surface: #201a15; --surface-deep: #14100c;
+      --ink: #ece3d3; --ink-soft: #b3a793; --ink-faint: #857a68;
+      --copper: #d18d58; --copper-deep: #e0a06b; --copper-tint: #33241a;
+      --line: #3a3128; --line-strong: #4d4234;
+      --ok: #8fae85; --warn: #d8a05c; --danger: #d47f7f;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  .page { max-width: 940px; margin: 0 auto; padding: var(--sp-6) var(--sp-3) var(--sp-7); }
+  .eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--copper); }
+  h1 { font-family: var(--font-display); font-weight: 900; font-size: clamp(32px, 5vw, 48px); line-height: 1.08; letter-spacing: -0.015em; margin: var(--sp-2) 0; }
+  .lede { font-size: 18px; color: var(--ink-soft); max-width: 64ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-3); font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-faint); }
+  .meta-row span { border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; background: var(--surface); }
+  section { margin-top: var(--sp-6); }
+  .sec-head { display: flex; align-items: baseline; gap: var(--sp-2); border-bottom: 2px solid var(--ink); padding-bottom: var(--sp-1); margin-bottom: var(--sp-3); }
+  .sec-num { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--copper); letter-spacing: 0.06em; }
+  h2 { font-family: var(--font-display); font-weight: 700; font-size: 26px; letter-spacing: -0.01em; }
+  h3 { font-family: var(--font-display); font-weight: 600; font-size: 19px; margin: var(--sp-4) 0 var(--sp-2); }
+  p { max-width: 74ch; margin-bottom: var(--sp-2); }
+  strong { font-weight: 600; }
+  .muted { color: var(--ink-soft); }
+  code { font-family: var(--font-mono); font-size: 0.9em; background: var(--surface-deep); padding: 1px 6px; border-radius: 4px; }
+  ul.list, ol.list { margin: 0 0 var(--sp-2) 0; padding-left: 24px; max-width: 74ch; }
+  ul.list li, ol.list li { margin-bottom: 8px; }
+  ul.list li::marker, ol.list li::marker { color: var(--copper); }
+  .intent { border-left: 3px solid var(--copper); background: var(--surface-deep); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 0 0 var(--sp-2); }
+  .intent .ik { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--copper-deep); display: block; margin-bottom: 4px; }
+  .intent p { margin: 0; max-width: none; }
+  pre.cmd { background: var(--ink); color: var(--paper); border-radius: 10px; padding: var(--sp-2) var(--sp-3); font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; margin: var(--sp-2) 0; }
+  @media (prefers-color-scheme: dark) { pre.cmd { background: var(--surface-deep); color: var(--ink); border: 1px solid var(--line-strong); } }
+  /* Lots */
+  .lot { border: 1px solid var(--line-strong); border-radius: 14px; background: var(--surface); margin: var(--sp-3) 0; overflow: hidden; }
+  .lot-head { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; padding: var(--sp-2) var(--sp-3); background: var(--surface-deep); border-bottom: 1px solid var(--line-strong); }
+  .lot-head .ln { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.08em; color: var(--copper-deep); }
+  .lot-head .lt { font-family: var(--font-display); font-weight: 700; font-size: 18px; flex: 1 1 auto; }
+  .lot-head .lh { font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint); white-space: nowrap; }
+  .lot-body { padding: var(--sp-2) var(--sp-3) var(--sp-3); }
+  .lot-body p { max-width: none; }
+  ol.checks code.check-cmd { white-space: pre-wrap; word-break: break-word; }
+  .done { border: 1px dashed var(--line-strong); border-radius: 8px; padding: 10px 14px; font-size: 14px; margin: var(--sp-2) 0 0; background: var(--paper); }
+  .done .dk { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ok); display: block; margin-bottom: 4px; }
+  footer { margin-top: var(--sp-7); border-top: 2px solid var(--ink); padding-top: var(--sp-3); font-size: 13.5px; color: var(--ink-soft); }
+  /* TOC fixe (checkbox hack — aucune dépendance JS) */
+  .ws-toc-toggle { position: fixed; opacity: 0; pointer-events: none; }
+  .ws-toc-btn { position: fixed; right: 20px; bottom: 20px; z-index: 60; width: 52px; height: 52px; border-radius: 50%; background: var(--ink); color: var(--paper); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,0.25); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em; user-select: none; }
+  .ws-toc { display: none; position: fixed; right: 20px; bottom: 84px; z-index: 59; width: min(340px, calc(100vw - 40px)); max-height: 70vh; overflow-y: auto; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 14px; padding: 14px; box-shadow: 0 12px 40px rgba(0,0,0,0.28); }
+  .ws-toc-toggle:checked ~ .ws-toc { display: block; }
+  .ws-toc a { display: block; text-decoration: none; color: var(--ink); font-size: 13.5px; padding: 6px 8px; border-radius: 6px; }
+  .ws-toc a:hover { background: var(--surface-deep); }
+  .ws-toc a.sec { font-family: var(--font-display); font-weight: 700; margin-top: 6px; }
+  .ws-toc a.sub { padding-left: 20px; color: var(--ink-soft); font-size: 12.5px; }
+  .ws-toc .toc-t { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--copper); margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header id="top">
+  <div class="eyebrow">Brief-chantier · claude-skills · standard v1</div>
+  <h1>Retour terrain P6-T98 appliqué au standard de chantier</h1>
+  <p class="lede">Le préflight, la revue adversariale et le rôle EXÉCUTANT appliquent les sept décisions du 9 octobre : estimations en deux nombres, découpage pensé dans le plan, Codex au round 1, correctifs bornés, simplificateur à la place du gardien, chiffres de clôture, plans hors des PR de code.</p>
+  <div class="meta-row">
+    <span>Écrit le 2026-10-09</span>
+    <span>Auteur : session Claude Code (rôle AUTEUR)</span>
+    <span>Exécutant : opus, effort medium</span>
+    <span>6 lots · ≤ 2 h chacun</span>
+  </div>
+</header>
+
+<section id="s-intention">
+  <div class="sec-head"><span class="sec-num">00</span><h2>Intention</h2></div>
+  <div class="intent"><span class="ik">Intention</span>
+    <p>La première vraie nuit du nouveau système (Temps Chantier, 8 octobre) a tenu, mais elle a fui à trois endroits : des lots à deux fois leur estimation, une revue Codex placée après la PR verte qui ouvrait un troisième round de fait, et aucune étape qui retire du code. Ce chantier ne crée aucune étape nouvelle : il remplace des phrases des trois skills et durcit deux scripts pour que ces fuites deviennent des refus mesurables. La preuve rejoue la nuit réelle : le plan du chantier 1 est refusé tant qu'il n'a qu'une estimation par lot, et le premier correctif X6 de la PR 42 (364 lignes) est refusé sans version qui retire du code.</p>
+  </div>
+  <p class="muted">Exécutant : restitue l'intention en 1-2 phrases et arrête-toi si elle contredit la fiche.</p>
+</section>
+
+<section id="s-contexte">
+  <div class="sec-head"><span class="sec-num">01</span><h2>Contexte autonome</h2></div>
+  <h3>Leçons du brain</h3>
+  <ul class="list">
+    <li><strong>Banc final du 6 octobre, L5 et L6</strong> : le plus gros gain vient d'enlever, et chaque contrôle ajouté a créé sa propre boucle. Application : ce chantier remplace (le gardien devient le simplificateur, Codex entre dans le round 1), il n'ajoute aucune étape.</li>
+    <li><strong>Leçon de la PR 26 (Temps Chantier)</strong> : dans un module à état concurrent, chaque série de correctifs de revue a introduit une régression. Application : le refus d'un gros correctif sans version soustractive (lot 2) vise exactement ce cas, rejoué sur X6.</li>
+    <li><strong>Leçon adversarial-pr-review du 7 octobre</strong> : l'état de revue est rangé par git-dir du worktree. Application : la clôture (lot 6) tourne dans le worktree du run et nulle part ailleurs ; le correctif « état par branche » reste le chip C1.</li>
+    <li><strong>Leçon brief-preflight du 14 septembre</strong> : un chemin de check absent n'est exempté que par le marqueur « (nouveau) » près de sa première occurrence. Application : les checks de ce plan visent des fichiers existants ou des clones sous <code>/tmp</code>, hors du dépôt.</li>
+    <li><strong>Décision du 9 octobre (Second Brain)</strong> : Codex relit pendant le round 1 et non plus après la PR verte. Elle remplace la préférence du 8 octobre.</li>
+  </ul>
+  <h3>Le repo</h3>
+  <ul class="list">
+    <li><strong>Chemin</strong> : <code>/Users/elmabi/Desktop/my-projets/claude-skills</code> (remote <code>git@github-perso:franckdjiongo/claude-skills.git</code>, identité de commit perso automatique)</li>
+    <li><strong>Stack</strong> : scripts Node ESM sans dépendance (Node ≥ 20), tests <code>bun test</code> et <code>node --test</code> · <strong>Gestionnaire</strong> : aucun paquet à installer</li>
+    <li><strong>Conventions dures</strong> : une source par skill ; la variante Codex se construit avec <code>scripts/build-runtime-variant.mjs</code>, jamais à la main ; ne jamais éditer le texte situé entre <code>&lt;!-- runtime-slot:… --&gt;</code> et sa fermeture (sinon un re-tamponnage humain <code>--stamp</code> devient nécessaire : arrêt et question au hub) ; un SKILL.md fait au plus 150 lignes et 1 800 mots (règle R1 de <code>docs/skill-design-rules.md</code>) ; corriger en retirant du texte avant d'en ajouter (R8) ; ne jamais éditer une copie installée (<code>~/.claude/skills</code>, <code>~/.agents/skills</code>, <code>~/.claude/agents</code>, <code>~/.codex/agents</code>).</li>
+  </ul>
+  <h3>Agents du projet</h3>
+  <p class="muted">Agents dédiés (<code>.claude/agents/</code> / <code>.codex/agents/</code>) plutôt que l'agent générique.</p>
+  <ul class="list">
+    <li>Aucun agent dédié dans claude-skills : les lots de scripts vont à <code>general-purpose</code> ; les textes et la clôture restent chez l'orchestrateur.</li>
+  </ul>
+  <h3>Vérification du projet</h3>
+  <pre class="cmd">cd /Users/elmabi/Desktop/my-projets/claude-skills/.worktrees/retour-terrain-standard
+bun test scripts adversarial-pr-review/scripts
+node --test brief-preflight/scripts/preflight-lint.test.mjs brief-preflight/scripts/lot-checks.test.mjs brief-preflight/scripts/preflight-flotte.test.mjs
+node scripts/lint-skills.mjs   # erreurs pré-existantes dans d'autres projets : seules comptent les lignes (repo/brief-chantier|adversarial-pr-review|brief-preflight)</pre>
+  <h3>À lire avant le lot 1</h3>
+  <ul class="list">
+    <li><code>/Users/elmabi/Desktop/my-projets/claude-skills/.worktrees/retour-terrain-standard/.chantier/retour-terrain-standard/intention.md</code> (la fiche validée)</li>
+    <li><code>/Users/elmabi/Desktop/my-projets/claude-skills/.worktrees/retour-terrain-standard/plans/2026-10-08-retour-terrain-p6-t98.html</code> (rapport : chiffres de la nuit, F1-F7, D1-D7)</li>
+    <li><code>/Users/elmabi/Desktop/my-projets/claude-skills/.worktrees/retour-terrain-standard/adversarial-pr-review/scripts/review-run.mjs</code> et son test</li>
+    <li><code>/Users/elmabi/Desktop/my-projets/claude-skills/.worktrees/retour-terrain-standard/brief-preflight/scripts/preflight-lint.mjs</code> et <code>lot-checks.mjs</code></li>
+    <li>Les trois <code>SKILL.md</code> (<code>brief-chantier</code>, <code>adversarial-pr-review</code>, <code>brief-preflight</code>) et <code>brief-chantier/references/</code></li>
+  </ul>
+  <h3>État du repo (2026-10-09)</h3>
+  <ul class="list">
+    <li><strong>Branche de base</strong> : <code>main</code>, à jour d'<code>origin/main</code>, APRÈS deux fusions : la PR du chantier « PR brouillon » (commit <code>43e0cfe</code>, branche <code>chore/c9-pr-brouillon</code>) et la PR de documents <code>docs/retour-terrain-standard</code> (ce plan, la fiche et le rapport). Working tree propre.</li>
+    <li><strong>Worktree du run</strong>, créé depuis le checkout principal après le gate : <code>git worktree add .worktrees/retour-terrain-standard -b chore/retour-terrain-standard main</code> ; le checkout principal ne bouge pas.</li>
+    <li><strong>Baseline mesurée le 9 octobre sur <code>c625b7a</code></strong> : <code>bun test scripts adversarial-pr-review/scripts</code> 325 pass, 0 fail ; tests du préflight 49 pass ; <code>lint-skills</code> sort 1 sur 75 erreurs pré-existantes dans d'autres projets, aucune ligne <code>(repo/brief-chantier)</code>, <code>(repo/adversarial-pr-review)</code> ni <code>(repo/brief-preflight)</code>. Le plan du chantier 1 de la nuit passe le lint actuel (VERDICT: PASS) et le correctif X6 de 364 lignes est accepté par <code>fix</code> (code de sortie 0).</li>
+    <li><strong>Tailles des SKILL.md</strong> (plafond R1 : 150 lignes et 1 800 mots par fichier) : sur <code>c625b7a</code> 1 794 / 1 795 / 1 173 mots (brief-chantier, adversarial-pr-review, brief-preflight) ; après la fusion de c9 1 798 / 1 799 / 1 173 mots, et brief-chantier fait exactement 150 lignes. Marge : 2 mots et 0 ligne pour brief-chantier, 1 mot pour adversarial-pr-review. Les lots 4 et 5 font donc d'abord de la place (sections déplacées vers <code>references/</code>, hors plafond R1) avant d'ajouter. La référence des checks est <code>main</code> au démarrage.</li>
+  </ul>
+  <h3>Hypothèses</h3>
+  <ul class="list">
+    <li>La CLI <code>codex</code> est installée et connectée (vérifié le 9 octobre : codex-cli 0.161.0, <code>codex login status</code> « Logged in using ChatGPT »). Sans connexion, ou si <code>cross</code> échoue : pas de nouvelle tentative, le rapport le dit, le run continue.</li>
+    <li>Le dépôt Temps Chantier local contient les commits de la nuit <code>af5ede52</code>, <code>727555fa</code>, <code>f1224566</code> et <code>246ab745</code>, joignables depuis une branche locale (un <code>git clone</code> local ne copie que les branches locales). Il n'est jamais modifié : la preuve travaille sur deux clones jetables sous <code>/tmp</code>. La fiche validée citait <code>d4bb2dce</code> : c'est le SECOND essai X6 ; le premier correctif, <code>246ab745</code> (364 lignes), fait foi et la fiche a été corrigée au préflight. Ce n'est pas une contradiction à remonter.</li>
+  </ul>
+  <p><strong>Gate d'état</strong>, depuis le checkout principal de claude-skills, avant de créer le worktree. Chaque commande sort 0, sinon protocole d'échec sans rien modifier :</p>
+  <ol class="list">
+    <li>Contenu du chantier « PR brouillon » présent sur main (indépendant du mode de fusion) : <code>git show main:adversarial-pr-review/SKILL.md | grep -q 'open only a draft PR'</code></li>
+    <li>PR de documents fusionnée : <code>git cat-file -e main:plans/2026-10-09-retour-terrain-standard-plan.html</code></li>
+    <li>Commits de rejeu joignables : <code>git -C /Users/elmabi/Desktop/my-projets/temps-chantier-code-app for-each-ref --contains 246ab745 refs/heads | grep -q refs/heads</code></li>
+    <li>Variantes Codex saines au départ, pour les trois skills : <code>node scripts/build-runtime-variant.mjs --skill brief-chantier --runtime codex --check</code> (puis <code>adversarial-pr-review</code>, <code>brief-preflight</code>)</li>
+    <li><code>codex login status</code> : informatif seulement (voir Hypothèses).</li>
+  </ol>
+</section>
+
+<section id="s-approbation">
+  <div class="sec-head"><span class="sec-num">02</span><h2>Approbation, rapport, règles</h2></div>
+  <ul class="list">
+    <li><strong>Approbation</strong> : décisions D1 à D7 tranchées par Franck dans le hub (<code>claude-skills/2026-10-09-retour-terrain-p6-t98</code>), fiche validée (<code>claude-skills/2026-10-09-fiche-retour-terrain-standard</code>), approbation du plan dans la conversation créée à la livraison de ce plan.</li>
+    <li><strong>Livraison et rapport</strong> : PR de <code>chore/retour-terrain-standard</code> vers <code>main</code> ; rapport final dans une nouvelle conversation du hub du projet <code>claude-skills</code>. Aucun merge par l'exécutant.</li>
+    <li><strong>Interdits</strong> : aucune copie installée modifiée pendant le run ; aucun texte édité dans un bloc <code>runtime-slot</code> ; aucune étape, aucun flag ni aucun outil au-delà des sept décisions et de C2/C3 ; le hook <code>adversarial-pr-guard</code> et la sentinelle ne changent pas ; le dépôt Temps Chantier n'est jamais modifié (clones jetables seulement) ; aucun <code>cross</code> lancé avant que le lot 2 l'ait borné (appel facturé).</li>
+  </ul>
+  <ul class="list">
+    <li>Budget total : 600 / 800 lignes ajoutées (code + tests + scripts)</li>
+    <li>Chips : autorisés</li>
+    <li>Tranches : 1 PR (lots 1-6) vers main, sans point de coupe : des scripts sans leurs textes (lots 1-3 sans 4-5) livreraient des skills qui prescrivent un drapeau refusé ; un dépassement relève de A5 (arrêt propre et rapport)</li>
+    <li>Fiche d'intention : .chantier/retour-terrain-standard/intention.md</li>
+    <li>Doublures de test : règle standard</li>
+    <li>Revue : 2 rounds au plus, round 2 sur le delta, Codex (<code>cross</code>) dans le round 1 : ce chantier s'applique D1</li>
+  </ul>
+</section>
+
+<section id="s-cloud">
+  <div class="sec-head"><span class="sec-num">02c</span><h2>Exécution dans le cloud</h2></div>
+  <p>Décision de Franck du 9 octobre (hub, <code>claude-skills/2026-10-09-plan-retour-terrain-standard</code>) : ce chantier tourne dans une routine cloud. Cette section adapte l'exécution sans changer les lots ; elle prime sur toute mention de la machine locale ailleurs dans le plan.</p>
+  <ul class="list">
+    <li><strong>Sources de la session</strong> : <code>/home/user/claude-skills</code> (dépôt de travail) et <code>/home/user/temps-chantier-code-app</code> (lecture seule, pour le rejeu). Ignore la branche suffixée que l'environnement crée.</li>
+    <li><strong>Chemins</strong> : partout où ce plan écrit <code>/Users/elmabi/Desktop/my-projets/&lt;dépôt&gt;</code>, lis <code>/home/user/&lt;dépôt&gt;</code>. Au démarrage, crée ces liens, avec <code>sudo</code> si nécessaire : <code>mkdir -p /Users/elmabi/Desktop/my-projets /Users/elmabi/.claude &amp;&amp; ln -sfn /home/user/claude-skills /Users/elmabi/Desktop/my-projets/claude-skills &amp;&amp; ln -sfn /home/user/temps-chantier-code-app /Users/elmabi/Desktop/my-projets/temps-chantier-code-app &amp;&amp; ln -sfn /home/user/claude-skills /Users/elmabi/.claude/skills</code>. Le dernier lien sert au plan de la nuit relu aux lots 1 et 5 : il cite des fichiers de <code>~/.claude/skills</code>, qui sont ceux du dépôt claude-skills. Le lint contrôle aussi les chemins écrits DANS les plans, donc ces liens sont la voie normale. S'ils sont refusés même avec <code>sudo</code> : applique la correspondance à la main sur chaque commande et, pour les checks de lint 1.2, 1.3, 1.4 et 5.5, lance le lint sur une copie réécrite du plan visé : <code>sed -e 's#/Users/elmabi/.claude/skills#/home/user/claude-skills#g' -e 's#/Users/elmabi/.claude#/home/user/.claude#g' -e 's#/Users/elmabi/Desktop/my-projets#/home/user#g' &lt;plan&gt; &gt; /tmp/&lt;nom&gt;-cloud.html</code>, avec le même dépôt cible ; dis-le au rapport.</li>
+    <li><strong>Démarrage, avant le gate</strong> : <code>node --version</code> (≥ 20) ; <code>bun --version || npm install -g bun</code> puis <code>bun --version</code> (échec = rapport et arrêt) ; <code>git -C /home/user/claude-skills fetch origin '+refs/heads/*:refs/remotes/origin/*'</code> puis <code>git -C /home/user/claude-skills checkout -B main origin/main</code> ; <code>git -C /home/user/temps-chantier-code-app fetch origin '+refs/heads/*:refs/remotes/origin/*'</code> puis <code>git -C /home/user/temps-chantier-code-app branch -f p6t98-replay 246ab745</code> (un <code>git clone</code> local ne copie que les branches locales). Un échec de démarrage = rapport et arrêt, jamais de bricolage.</li>
+    <li><strong>Branche</strong> : <code>chore/retour-terrain-standard</code>, créée comme le dit la section 01 ; <code>git branch --show-current</code> dans le worktree doit l'afficher exactement. <code>git push -u origin chore/retour-terrain-standard</code> après CHAQUE lot : ce qui n'est pas poussé meurt avec la session.</li>
+    <li><strong>Codex</strong> : absent du cloud. Le <code>cross</code> du round 1 est sauté et le rapport le dit ; n'installe pas Codex.</li>
+    <li><strong>Revue</strong> : sous-agents parallèles (outil Agent), jamais l'outil Workflow, qui redemande une confirmation humaine à chaque lancement. Le hook de sentinelle n'existe pas dans ce clone : la revue reste obligatoire et porte sur le dernier push.</li>
+    <li><strong>Lint des skills</strong> : avant les checks 4.5 et 5.4, <code>node scripts/lint-skills.mjs | head -1</code> doit contenir « lint-skills: » (preuve qu'il a tourné ; sans cela ces deux checks passeraient à tort). Sinon remplace-les par <code>for f in brief-chantier adversarial-pr-review brief-preflight; do test $(wc -l &lt; $f/SKILL.md) -le 150 &amp;&amp; test $(wc -w &lt; $f/SKILL.md) -le 1800 || exit 1; done</code> et dis-le au rapport.</li>
+    <li><strong>PR</strong> : <code>ToolSearch</code> avec <code>select:mcp__github__create_pull_request</code> (outil différé, à charger avant de conclure à son absence), base <code>main</code>, head <code>chore/retour-terrain-standard</code> ; sinon <code>gh pr create</code> si la CLI existe ; sinon la branche poussée est le livrable.</li>
+    <li><strong>Rapport</strong> : le hub et Galley sont hors d'atteinte. Le rapport complet va dans le corps de la PR ; sans canal de PR, dans le dernier message de la session, sans aucun commit (un fichier commité après <code>finalize</code> déplacerait HEAD et périmerait la sentinelle). Il donne la sortie du démarrage, les rounds de revue, le SHA de la sentinelle et le HEAD poussé (ils coïncident). Une session locale le reporte au hub le matin.</li>
+  </ul>
+</section>
+
+<section id="s-lots">
+  <div class="sec-head"><span class="sec-num">03</span><h2>Les lots</h2></div>
+  <p>Un commit par lot, message <code>chantier(retour-terrain-standard): lot N — &lt;titre&gt;</code> (étiquette <code>lot N</code> y compris pour la clôture), sans Co-Authored-By. Un lot se ferme par ses checks. Ce HTML ne se modifie pas : le git log est le suivi. Sauf mention contraire, les commandes partent de <code>/Users/elmabi/Desktop/my-projets/claude-skills/.worktrees/retour-terrain-standard</code>. Les lots 1 à 3 recopient la sortie de leurs checks de rejeu dans le corps de leur commit : c'est la preuve de la fiche, reprise au rapport de clôture.</p>
+
+  <div class="lot" id="lot-1">
+    <div class="lot-head"><span class="ln">LOT 1</span><span class="lt">Lint du préflight : deux nombres par lot et ligne Tranches</span><span class="lh">1,5 h (≈ 45 code + 100 tests)</span></div>
+    <div class="lot-body">
+      <p><strong>Objectif</strong> : le lint refuse un lot dont l'en-tête n'a pas « ≈ N code + M tests », un plan dont la somme des estimations dépasse le plafond, et un plan sans ligne <code>Tranches :</code> (D3, D4).</p>
+      <p><strong>Agent</strong> : general-purpose</p>
+      <p><strong>Fichiers touchés</strong> : <code>brief-preflight/scripts/lot-checks.mjs</code>, <code>brief-preflight/scripts/preflight-lint.mjs</code>, <code>brief-preflight/scripts/preflight-lint.test.mjs</code>, <code>brief-preflight/scripts/lot-checks.test.mjs</code>, <code>brief-preflight/scripts/__fixtures__/plan-ok.html</code>, <code>brief-chantier/assets/template.html</code></p>
+      <p><strong>Commit du lot</strong> : <code class="commit-msg">chantier(retour-terrain-standard): lot 1 — Lint du préflight : deux nombres par lot et ligne Tranches</code></p>
+      <ol class="list">
+        <li>Prépare le clone de rejeu du plan : <code>rm -rf /tmp/p6t98-plan &amp;&amp; git clone --quiet /Users/elmabi/Desktop/my-projets/temps-chantier-code-app /tmp/p6t98-plan &amp;&amp; git -C /tmp/p6t98-plan checkout --quiet af5ede52</code>.</li>
+        <li>Construis les deux copies du plan du chantier 1 de la nuit : copie A avec des tests égaux au code (le défaut de D3), copie B à total inchangé, toutes deux avec une mention Tranches : <code>node -e 'const fs=require("fs");const d=process.argv[1];const t=fs.readFileSync(d+"/2026-10-08-pc-colonne-projet-plan.html","utf8").replace("Chips : autorisés","Chips : autorisés · Tranches : 1 PR (lots 1-6) vers master");function tr(f){return t.replace(/(class="lh".[^\x3c(]*)\(([^)]*)\)/g,function(m,h,inner){const k=inner.match(/≈\s*(\d+)\s*lignes/);return h+"("+f(k?Number(k[1]):0)+")"})}fs.writeFileSync(d+"/copie-a.html",tr(function(n){return "≈ "+n+" code + "+n+" tests"}));fs.writeFileSync(d+"/copie-b.html",tr(function(n){return "≈ "+Math.ceil(n/2)+" code + "+Math.floor(n/2)+" tests"}))' /tmp/p6t98-plan/docs/superpowers/plans/21-projets-en-colonnes</code>. Vérifié à l'écriture du plan : la copie A porte « ≈ 250 code + 250 tests » au lot 2, la copie B passe le lint actuel (VERDICT: PASS).</li>
+        <li><code>lot-checks.mjs</code> : exporte <code>parseLotEstimate(block)</code> qui lit le texte de <code>class="lh"</code> et rend <code>{ code, tests }</code> pour <code>/≈\s*(\d+)\s*code\s*\+\s*(\d+)\s*tests?\b/i</code>, sinon <code>null</code>. Même forme en anglais.</li>
+        <li><code>preflight-lint.mjs</code>, dans la boucle des lots : estimation absente = erreur douce (rétrogradée par <code>--legacy</code>) dont le message contient « deux nombres » et « (D3) » ; cumule code + tests. Après la boucle, si le budget est lisible et que la somme dépasse le plafond : erreur douce dont le message commence par « Somme des estimations des lots » et dit « découper avant le run (D3) ».</li>
+        <li><code>preflight-lint.mjs</code> : ligne <code>Tranches :</code> (EN <code>Slices:</code>) obligatoire, erreur douce « Tranches absent : « Tranches : &lt;PR, lots, base&gt; » (D4) », placée à côté du contrôle de <code>Chips</code>. Mets à jour la liste des contrôles dans le commentaire d'en-tête.</li>
+        <li><code>template.html</code> : l'en-tête de lot donne deux champs à remplir, un pour les lignes de code et un pour les lignes de tests, sous la forme « ≈ N code + M tests », à la place du champ unique de lignes ; une ligne <code>Tranches :</code> à remplir suit la ligne <code>Chips</code> (une PR vers la base, ou les lots de chaque PR avec sa base, empilée ou depuis la branche par défaut, et les points de coupe). Mêmes accolades doubles que les autres champs du gabarit.</li>
+        <li>Tests existants : le helper <code>plan()</code> de <code>preflight-lint.test.mjs</code> (22 usages) et <code>__fixtures__/plan-ok.html</code> (lu par <code>lot-checks.test.mjs</code>) reçoivent un en-tête « ≈ N code + M tests » et une ligne Tranches, rien d'autre ; revérifie les chaînes remplacées par <code>swap()</code>. Nouveaux tests : un nombre seul refusé, deux nombres acceptés, somme au-dessus du plafond refusée, Tranches absent refusé, <code>--legacy</code> en avertissement.</li>
+      </ol>
+      <ol class="list checks">
+        <li data-check="1.1"><strong>1.1</strong> <code class="check-cmd">node --test brief-preflight/scripts/preflight-lint.test.mjs brief-preflight/scripts/lot-checks.test.mjs brief-preflight/scripts/preflight-flotte.test.mjs</code></li>
+        <li data-check="1.2"><strong>1.2</strong> <code class="check-cmd">node brief-preflight/scripts/preflight-lint.mjs /tmp/p6t98-plan/docs/superpowers/plans/21-projets-en-colonnes/2026-10-08-pc-colonne-projet-plan.html /tmp/p6t98-plan | grep -q 'deux nombres'</code></li>
+        <li data-check="1.3"><strong>1.3</strong> <code class="check-cmd">node brief-preflight/scripts/preflight-lint.mjs /tmp/p6t98-plan/docs/superpowers/plans/21-projets-en-colonnes/copie-a.html /tmp/p6t98-plan | grep -q 'Somme des estimations'</code></li>
+        <li data-check="1.4"><strong>1.4</strong> <code class="check-cmd">node brief-preflight/scripts/preflight-lint.mjs /tmp/p6t98-plan/docs/superpowers/plans/21-projets-en-colonnes/copie-b.html /tmp/p6t98-plan</code></li>
+      </ol>
+      <div class="done"><span class="dk">DONE quand</span>le plan réel du chantier 1 de la nuit est refusé pour son estimation en un nombre, sa copie réaliste est refusée pour sa somme (1 700 lignes pour un plafond de 1 000), et sa copie à total inchangé passe.</div>
+    </div>
+  </div>
+
+  <div class="lot" id="lot-2">
+    <div class="lot-head"><span class="ln">LOT 2</span><span class="lt">Revue : Codex au round 1 et correctif borné</span><span class="lh">2 h (≈ 65 code + 135 tests)</span></div>
+    <div class="lot-body">
+      <p><strong>Objectif</strong> : <code>cross</code> est refusé dès qu'un round est enregistré et ne perd plus un round écrit pendant son exécution (D1) ; <code>fix</code> refuse sans <code>--subtractive-tried "&lt;raison&gt;"</code> un correctif de plus de 30 lignes par remarque, ou un round qui fait grossir une PR d'au moins 200 lignes de plus de 15 % (D2).</p>
+      <p><strong>Agent</strong> : general-purpose</p>
+      <p><strong>Fichiers touchés</strong> : <code>adversarial-pr-review/scripts/review-run.mjs</code>, <code>adversarial-pr-review/scripts/review-run.test.mjs</code></p>
+      <p><strong>Commit du lot</strong> : <code class="commit-msg">chantier(retour-terrain-standard): lot 2 — Revue : Codex au round 1 et correctif borné</code></p>
+      <ol class="list">
+        <li><code>COUNTED</code> (chemin compté : ni <code>docs/</code>, ni <code>.md</code>, ni <code>package-lock.json</code>, <code>bun.lock</code>, <code>bun.lockb</code>, <code>yarn.lock</code>, <code>pnpm-lock.yaml</code>, ni <code>src/generated/</code>) et <code>lineDelta(c, range)</code> qui rend <code>{ added, removed }</code> sommés sur les chemins comptés à partir de <code>git log --no-merges --numstat -z --format= &lt;range&gt; --not &lt;baseRef&gt;</code>. Sans <code>--first-parent</code> : les commits d'une branche fusionnée par <code>--no-ff</code> comptent. <code>--not &lt;baseRef&gt;</code> : les commits arrivés par une fusion de la base ne comptent pas. Détection des renommages laissée active et lecture des enregistrements séparés par NUL : un renommage compte ses seules lignes modifiées et se classe sous son nouveau chemin ; un chemin non ASCII n'est pas mis entre guillemets. Binaires ignorés.</li>
+        <li><code>cmdCross</code> : juste après <code>needState</code> et avant toute recherche du script, si <code>used(state) &gt;= 1</code>, <code>UsageError</code> dont le message contient « round 1 » et « D1 ». Après <code>spawnSync</code>, relis l'état (<code>needState</code>) et ajoute les remarques X à cet état frais : un <code>round</code> enregistré pendant l'appel n'est plus écrasé.</li>
+        <li><code>cmdFix</code> : lignes du correctif = <code>added</code> de <code>lineDelta</code> depuis le dernier <code>fixedAt</code> des remarques de ce round qui est ancêtre de HEAD, sinon depuis le head du round, jusqu'à HEAD ; refus au-delà de 30 × nombre d'ids. Croissance du round = <code>added − removed</code> de <code>&lt;head du round&gt;..HEAD</code> (un round qui rétrécit la PR n'est jamais refusé à ce titre) ; taille revue = <code>added</code> de <code>&lt;merge-base&gt;..&lt;head du round&gt;</code> ; refus si la taille revue vaut au moins 200 et la croissance dépasse 15 % de cette taille. Un refus est une <code>UsageError</code> qui donne les nombres et contient « subtractive-tried » et « CHIP » ; avec <code>--subtractive-tried</code> non vide, le correctif est accepté et la remarque garde <code>fixLines</code> et la raison. Pour un P1, CHIP mène à un FAIL de <code>finalize</code>, donc à une PR en brouillon : c'est voulu (D2).</li>
+        <li>Mets à jour l'en-tête du fichier (lignes <code>cross</code> et <code>fix</code>). Les tests existants (PR d'une ligne, correctifs d'une ligne) restent verts sans modification : la règle des 15 % ne s'applique pas sous 200 lignes revues. Ne change pas les seuils pour faire passer un test.</li>
+        <li>Nouveaux tests (dépôt git temporaire, comme les tests existants) : <code>cross</code> après un round sort 2 sans lancer de processus ; un script de revue croisée de substitution (<code>--script</code>) qui ajoute un round à <code>state.json</code> pendant son exécution ne fait pas disparaître ce round ; correctif de 30 lignes accepté et de 31 refusé ; refus levé par <code>--subtractive-tried</code> ; fusion de la base suivie d'un petit correctif acceptée ; branche fusionnée par <code>--no-ff</code> comptée dans la taille revue ; fichier renommé sans modification non compté ; deux correctifs successifs de 25 lignes acceptés ; croissance nette de plus de 15 % sur une PR de 200 lignes refusée ; round qui rétrécit la PR accepté.</li>
+        <li>Rejeu, à faire SEULEMENT après les étapes 2 et 3 (avant elles, <code>cross</code> lancerait un vrai appel Codex facturé), dans cet ordre exact : (a) <code>rm -rf /tmp/p6t98-replay /tmp/p6t98-round-x6.json &amp;&amp; git clone --quiet /Users/elmabi/Desktop/my-projets/temps-chantier-code-app /tmp/p6t98-replay &amp;&amp; git -C /tmp/p6t98-replay checkout --quiet f1224566</code> ; (b) <code>node adversarial-pr-review/scripts/review-run.mjs start --repo /tmp/p6t98-replay --base 727555fa</code> ; (c) écris <code>/tmp/p6t98-round-x6.json</code> = <code>{"findings":[{"id":"X6","severity":"P1","origin":"introduced","summary":"code de gestion écrit sur la mauvaise ligne pendant un déplacement de projet","disposition":"FIX","reason":""}],"openQuestions":[],"residualRisk":""}</code> puis <code>node adversarial-pr-review/scripts/review-run.mjs round /tmp/p6t98-round-x6.json --repo /tmp/p6t98-replay</code> ; (d) check 2.2 ; (e) <code>git -C /tmp/p6t98-replay checkout --quiet 246ab745</code> (premier correctif X6 de la nuit : 364 lignes, 44 % des 827 lignes revues) ; (f) checks 2.3 puis 2.4.</li>
+      </ol>
+      <ol class="list checks">
+        <li data-check="2.1"><strong>2.1</strong> <code class="check-cmd">bun test adversarial-pr-review/scripts</code></li>
+        <li data-check="2.2"><strong>2.2</strong> <code class="check-cmd">node adversarial-pr-review/scripts/review-run.mjs cross --repo /tmp/p6t98-replay 2&gt;&amp;1 | grep -q 'D1'</code></li>
+        <li data-check="2.3"><strong>2.3</strong> <code class="check-cmd">node adversarial-pr-review/scripts/review-run.mjs fix X6 --repo /tmp/p6t98-replay 2&gt;&amp;1 | grep -q 'subtractive-tried'</code></li>
+        <li data-check="2.4"><strong>2.4</strong> <code class="check-cmd">node adversarial-pr-review/scripts/review-run.mjs fix X6 --repo /tmp/p6t98-replay --subtractive-tried "rejeu du correctif X6 de la nuit P6-T98"</code></li>
+      </ol>
+      <div class="done"><span class="dk">DONE quand</span>sur le vrai historique de la PR 42, une revue croisée après le round 1 est refusée et le correctif X6 de 364 lignes est refusé tant qu'aucune raison soustractive n'est donnée.</div>
+    </div>
+  </div>
+
+  <div class="lot" id="lot-3">
+    <div class="lot-head"><span class="ln">LOT 3</span><span class="lt">Clôture mesurée et simplificateur dans finalize</span><span class="lh">2 h (≈ 60 code + 110 tests)</span></div>
+    <div class="lot-body">
+      <p><strong>Objectif</strong> : <code>finalize</code> affiche toujours code, tests, ratio et lignes ajoutées par la revue, avertit au-delà d'un ratio de 2, et remplace <code>--guardian</code> par <code>--simplifier &lt;sha&gt;|none</code> avec un contrôle qui ne se satisfait pas d'un commit vide (D5, D6).</p>
+      <p><strong>Agent</strong> : general-purpose</p>
+      <p><strong>Fichiers touchés</strong> : <code>adversarial-pr-review/scripts/review-run.mjs</code>, <code>adversarial-pr-review/scripts/review-run.test.mjs</code></p>
+      <p><strong>Commit du lot</strong> : <code class="commit-msg">chantier(retour-terrain-standard): lot 3 — Clôture mesurée et simplificateur dans finalize</code></p>
+      <ol class="list">
+        <li>Chemin de test : <code>/(^|\/)(__tests__|tests?)\/|\.(test|spec)\.[cm]?[jt]sx?$/</code>. <code>metrics</code> = <code>{ code, tests, ratio, reviewAdded, reviewShare }</code> : code et tests = <code>added</code> de <code>lineDelta</code> (lot 2) sur <code>&lt;merge-base&gt;..HEAD</code>, classés par le chemin de test ; ratio = tests / code à une décimale, <code>null</code> si code = 0 ; <code>reviewAdded</code> = <code>added</code> de <code>lineDelta</code> sur <code>&lt;head du premier round complet&gt;..HEAD</code>, 0 sans round ; <code>reviewShare</code> = <code>reviewAdded</code> / (code + tests).</li>
+        <li><code>verdict.json</code> reçoit <code>metrics</code>. La sortie de <code>finalize</code> imprime À CHAQUE appel, PASS comme FAIL, avant les raisons, une ligne contenant « tests/code ». Avertissement quand code ≥ 50 et ratio &gt; 2 : « A1: tests/code &lt;r&gt; &gt; 2: justify in the PR body (D6) ».</li>
+        <li>Simplificateur exigé quand une fiche existe dans l'arbre OU que <code>git diff --diff-filter=D --no-renames --name-only &lt;base&gt;...HEAD -- '.chantier/*/intention.md'</code> en liste une (la clôture supprime la fiche avant <code>finalize</code> ; D7 met la fiche sur la base, donc la suppression se voit). Alors <code>--simplifier</code> est requis. <code>none</code> : avertissement « simplifier removed nothing ». Un sha : commit ancêtre de HEAD et postérieur au head du dernier round COMPLET (<code>lastFull</code>, qui ignore les rounds de tri ; à défaut le merge-base), dont <code>lineDelta(sha^..sha)</code> donne <code>removed</code> strictement positif et au moins égal à <code>added</code> ; sinon raison de FAIL contenant « (D5) ». Un commit vide ou la seule suppression de la fiche (fichier <code>.md</code>, non compté) échoue donc. <code>--guardian</code> sort 2 avec un message contenant « retired ». Le champ <code>guardian</code> du verdict devient <code>simplifier</code>.</li>
+        <li>Tests : ligne de métriques présente sur un FAIL ; avertissement de ratio ; fiche supprimée qui exige <code>--simplifier</code> ; commit vide, suppression de fiche et commit qui ajoute plus qu'il ne retire refusés ; vrai commit simplificateur accepté ; <code>none</code> accepté avec avertissement ; <code>--guardian</code> refusé. Adapte l'assertion existante sur <code>guardian</code>.</li>
+      </ol>
+      <ol class="list checks">
+        <li data-check="3.1"><strong>3.1</strong> <code class="check-cmd">bun test adversarial-pr-review/scripts</code></li>
+        <li data-check="3.2"><strong>3.2</strong> <code class="check-cmd">node adversarial-pr-review/scripts/review-run.mjs finalize --no-gate "rejeu P6-T98" --repo /tmp/p6t98-replay 2&gt;&amp;1 | grep -q 'tests/code'</code></li>
+        <li data-check="3.3"><strong>3.3</strong> <code class="check-cmd">node adversarial-pr-review/scripts/review-run.mjs finalize --no-gate "rejeu P6-T98" --guardian aligned --repo /tmp/p6t98-replay 2&gt;&amp;1 | grep -q 'retired'</code></li>
+      </ol>
+      <div class="done"><span class="dk">DONE quand</span>sur le rejeu de la PR 42 (état laissé par le lot 2), <code>finalize</code> affiche code, tests, ratio et lignes de revue malgré son FAIL, et refuse l'ancien drapeau du gardien.</div>
+    </div>
+  </div>
+
+  <div class="lot" id="lot-4">
+    <div class="lot-head"><span class="ln">LOT 4</span><span class="lt">Revue adversariale et simplificateur dans les textes</span><span class="lh">2 h (≈ 10 code + 0 tests)</span></div>
+    <div class="lot-body">
+      <p><strong>Objectif</strong> : <code>adversarial-pr-review</code> dit D1, D2, D5 et D6, le gardien devient le simplificateur partout, et le nombre total de mots des trois SKILL.md ne monte pas.</p>
+      <p><strong>Agent</strong> : aucun — reste chez l'orchestrateur (arbitrage du nombre de mots, texte de règles)</p>
+      <p><strong>Fichiers touchés</strong> : <code>adversarial-pr-review/SKILL.md</code>, <code>adversarial-pr-review/references/mode-b.md</code> (nouveau), <code>adversarial-pr-review/runtimes/codex.json</code>, <code>brief-chantier/references/gardien-intention.md</code> renommé <code>brief-chantier/references/simplificateur.md</code>, <code>brief-chantier/agents/gardien-intention.md</code> et <code>.toml</code> renommés <code>brief-chantier/agents/simplificateur.md</code> et <code>.toml</code>, <code>brief-chantier/SKILL.md</code> (lignes du gardien seulement), <code>brief-chantier/references/executant-details.md</code>, <code>brief-chantier/references/orchestration.md</code>, <code>brief-chantier/references/commits-et-cloud.md</code>, <code>brief-chantier/assets/fiche-intention.md</code>, <code>brief-chantier/assets/intent-sheet.md</code>, <code>brief-chantier/runtimes/codex.json</code></p>
+      <p><strong>Commit du lot</strong> : <code class="commit-msg">chantier(retour-terrain-standard): lot 4 — Revue adversariale et simplificateur dans les textes</code></p>
+      <ol class="list">
+        <li><strong>Faire de la place d'abord</strong> (adversarial-pr-review est à 1 799 mots pour 1 800) : déplace la section « Mode B » vers <code>adversarial-pr-review/references/mode-b.md</code> et laisse une ligne de renvoi. Elle est hors de tout bloc <code>runtime-slot</code>.</li><li><strong>Règle de déplacement</strong> (lots 4 et 5) : avant de déplacer ou de réécrire un passage d'un SKILL.md, liste les chaînes <code>from</code> des entrées <code>replace</code> de son <code>runtimes/codex.json</code> (<code>node -e 'console.log(require("./SKILL/runtimes/codex.json").replace.map(function(r){return r.from}).join("\n---\n"))'</code> en remplaçant <code>SKILL</code>). Un passage qui contient une de ces chaînes ne bouge pas, ou bien l'entrée est mise à jour et son texte Codex (<code>to</code>) est reporté là où le passage va ; ne supprime jamais une entrée pour faire passer un build. Exemples connus : la parenthèse « allows chips; `spawn_task`) » de la règle 2 de adversarial-pr-review, la fin de la phase 4 de brief-chantier « `docs/plans/`) ; session review honnête. ». Repli si un plafond de mots est dépassé : déplace vers <code>references/</code> un autre passage du même SKILL.md, hors bloc <code>runtime-slot</code> et hors chaîne <code>from</code> (par exemple la section Sentinel ou Scaling &amp; cost de adversarial-pr-review), jamais en tronquant une règle.</li>
+        <li><strong>adversarial-pr-review/SKILL.md</strong>. Règle 2 : un correctif se mesure code + tests ; au-delà de 30 lignes, ou d'un round qui fait grossir de plus de 15 % une PR d'au moins 200 lignes, essayer d'abord une version qui retire du code, sinon <code>--subtractive-tried</code> ou CHIP et PR en brouillon ; un correctif refusé par son vérificateur ne se retente pas (CHIP ; un P1 refusé = non convergé) ; une remarque dont le seul correctif est un test, sans défaut observé, est WONT_FIX sauf garantie de la fiche sans preuve (D2, D6). Règle 3 réécrite, plus courte : le simplificateur passe une seule fois, après le dernier round et avant la PR (une fois par PR de tranche), puis <code>finalize --simplifier &lt;sha&gt;|none</code> (D5). Mode A : au round 1, <code>cross</code> tourne en parallèle des chasseurs et <code>round</code> ne s'enregistre qu'une fois <code>cross</code> terminé ; ses remarques X reçoivent leur disposition dans ce round ; <code>cross</code> en échec ou CLI non connectée : pas de nouvelle tentative, dit au rapport (D1). L'étape 4 dit « simplificateur, puis finalize », dont la sortie chiffre code, tests et ratio. Retire « guardian » de l'étape 2 du Mode A (« disposition, guardian, round »), de l'étape 1 du Mode B (déplacée dans <code>references/mode-b.md</code> : le Mode B n'a pas de simplificateur) et de l'étape 5 du moteur. Remplace la phrase « An external pass … is an input to a round, not a round » par la règle D1, « one cross run » de Scaling par « cross in every round 1 », et « A verifier that rejects a fix buys one more fix » par la règle sans second essai. Ajoute (e) « the simplifier commit » aux classes de <code>--delta-ok</code>. Le tableau du script décrit <code>cross</code> (round 1 seulement), <code>fix --subtractive-tried</code> et <code>finalize --simplifier</code>.</li>
+        <li><strong>Simplificateur</strong> : <code>git mv</code> de la référence et des deux agents. <code>simplificateur.md</code> réécrit : entrées (fiche, chemin absolu du dépôt, diff complet base...HEAD) ; un seul passage par PR ; retire le code et les tests qu'aucune garantie de la fiche n'exige ; n'ajoute jamais de comportement ni de test ; porte de validation verte ; diff net négatif ; ne commite pas (l'orchestrateur relit et commite <code>chantier(&lt;slug&gt;): lot N — simplificateur</code>) ; sortie : lignes retirées, ou « rien à retirer ». Les agents restent des enveloppes minces qui pointent cette référence, avec les outils lecture, édition et Bash. N'écris ni « gardien » ni « guardian » dans ces fichiers.</li>
+        <li><strong>brief-chantier</strong>, lignes du gardien seulement, chacune réécrite au plus aussi longue : règle G (« Fiche d'intention + simplificateur », une fois avant la PR), l'étape 1 du rôle EXÉCUTANT (« étape aval (revue, gardien, vérificateur, clôture) »), l'étape 5 (Codex au round 1, simplificateur avant la PR), l'étape 6 (le rapport donne les chiffres de <code>finalize</code> et les lignes retirées par le simplificateur au lieu des verdicts du gardien) ; même chose dans <code>executant-details.md</code> § Étape 5, <code>orchestration.md</code>, <code>commits-et-cloud.md</code> et la ligne « le gardien juge » des deux gabarits de fiche.</li>
+        <li><strong>runtimes/codex.json</strong> des deux skills : mets à jour les entrées <code>replace</code>, <code>allow</code> et leurs raisons qui citent <code>gardien-intention</code> ; jamais <code>slotSources</code>. Lance le build <code>--check</code> après chaque SKILL.md modifié ; au premier build qui exige <code>--stamp</code>, arrête-toi : c'est une étape humaine.</li>
+      </ol>
+      <ol class="list checks">
+        <li data-check="4.1"><strong>4.1</strong> <code class="check-cmd">test $(cat brief-chantier/SKILL.md adversarial-pr-review/SKILL.md brief-preflight/SKILL.md | wc -w) -le $(git show main:brief-chantier/SKILL.md main:adversarial-pr-review/SKILL.md main:brief-preflight/SKILL.md | wc -w)</code></li>
+        <li data-check="4.2"><strong>4.2</strong> <code class="check-cmd">rm -rf /tmp/rts-codex-apr &amp;&amp; node scripts/build-runtime-variant.mjs --skill adversarial-pr-review --runtime codex --out /tmp/rts-codex-apr</code></li>
+        <li data-check="4.3"><strong>4.3</strong> <code class="check-cmd">rm -rf /tmp/rts-codex-bc &amp;&amp; node scripts/build-runtime-variant.mjs --skill brief-chantier --runtime codex --out /tmp/rts-codex-bc</code></li>
+        <li data-check="4.4"><strong>4.4</strong> <code class="check-cmd">! grep -rn -i -E 'gardien|guardian' adversarial-pr-review brief-chantier brief-preflight --exclude-dir=scripts</code></li>
+        <li data-check="4.5"><strong>4.5</strong> <code class="check-cmd">! node scripts/lint-skills.mjs 2&gt;&amp;1 | grep -E '\(repo/(brief-chantier|adversarial-pr-review|brief-preflight)\)'</code></li>
+        <li data-check="4.6"><strong>4.6</strong> <code class="check-cmd">bun test scripts adversarial-pr-review/scripts</code></li>
+      </ol>
+      <div class="done"><span class="dk">DONE quand</span>les deux variantes Codex se construisent, plus aucun « gardien » ni « guardian » ne reste dans les trois skills (hors scripts), aucune ligne de lint ne vise les trois skills, et leurs SKILL.md n'ont pas plus de mots qu'au démarrage.</div>
+    </div>
+  </div>
+
+  <div class="lot" id="lot-5">
+    <div class="lot-head"><span class="ln">LOT 5</span><span class="lt">Brief-chantier et préflight : estimation, tranches, documents, journal</span><span class="lh">2 h (≈ 5 code + 0 tests)</span></div>
+    <div class="lot-body">
+      <p><strong>Objectif</strong> : <code>brief-chantier</code> et <code>brief-preflight</code> disent D3, D4, D7, C2 et C3, et ce plan passe le nouveau lint.</p>
+      <p><strong>Agent</strong> : aucun — reste chez l'orchestrateur</p>
+      <p><strong>Fichiers touchés</strong> : <code>brief-chantier/SKILL.md</code>, <code>brief-chantier/references/orchestration.md</code>, <code>brief-chantier/references/auteur-details.md</code>, <code>brief-chantier/references/executant-details.md</code>, <code>brief-preflight/SKILL.md</code>, <code>brief-chantier/runtimes/codex.json</code> et <code>brief-preflight/runtimes/codex.json</code> (seulement si une entrée <code>replace</code> ne trouve plus son texte)</p>
+      <p><strong>Commit du lot</strong> : <code class="commit-msg">chantier(retour-terrain-standard): lot 5 — Brief-chantier et préflight : estimation, tranches, documents, journal</code></p>
+      <ol class="list">
+        <li><strong>Faire de la place d'abord</strong> (brief-chantier est à 150 lignes) : dans la section « Orchestrer une flotte », déplace le texte des phases 1, 2 et 3 vers <code>references/orchestration.md</code> (seulement ce qui n'y est pas déjà) et garde le titre, la ligne de renvoi, la phase 3bis avec son bloc <code>runtime-slot:watchdog</code> intact et la phase 4, dont la fin est une chaîne <code>from</code> de <code>runtimes/codex.json</code>. Applique la règle de déplacement du lot 4. Le total des mots se tient par les retraits de brief-chantier et adversarial-pr-review : le check 4.1 a donné la marge à la fin du lot 4 ; si 5.1 échoue, déplace vers <code>references/</code> un passage de <code>brief-preflight/SKILL.md</code> hors bloc <code>runtime-slot</code> et hors chaîne <code>from</code>.</li>
+        <li><strong>brief-chantier/SKILL.md</strong>. A1 : chaque lot estime « ≈ N code + M tests », tests au moins égaux au code dans un dépôt doté d'une suite (D3). AUTEUR : le plan déclare ses tranches (PR, lots, base, empilée ou depuis la branche par défaut) et ses points de coupe après les lots à effet visible (D4) ; design, plan et fiche entrent dans la branche de base par une PR de documents avant le run (D7). EXÉCUTANT : journal de décisions horodaté, une ligne par écart, découpage ou substitut, cité au rapport (C3) ; il peut couper au point de coupe d'une tranche qui déborde et le note au journal.</li>
+        <li><strong>auteur-details.md</strong> § Étape 3 (ligne <code>Tranches :</code> lue par le lint) et § Étape 5 (deux nombres, la somme des lots sous le plafond, tranches et points de coupe ; un lot de clôture porte une réserve de revue, jamais « ≈ 0 »). <strong>executant-details.md</strong> § Étape 4 (journal de décisions, coupe au point de coupe).</li>
+        <li><strong>brief-preflight/SKILL.md</strong>. Lentille 4 : son estimation de budget l'emporte sur celle de l'auteur ; au-dessus du plafond, CORRIGER = découper, jamais NE PAS CORRIGER (D3). Lentille 1 : chaque preuve en direct nomme la donnée qui existe aujourd'hui (C2). Étape 0 : le lint vérifie aussi les deux nombres par lot, leur somme et la ligne Tranches.</li>
+        <li>Lance le build <code>--check</code> après chaque SKILL.md modifié ; au premier besoin de <code>--stamp</code>, arrête-toi.</li>
+      </ol>
+      <ol class="list checks">
+        <li data-check="5.1"><strong>5.1</strong> <code class="check-cmd">test $(cat brief-chantier/SKILL.md adversarial-pr-review/SKILL.md brief-preflight/SKILL.md | wc -w) -le $(git show main:brief-chantier/SKILL.md main:adversarial-pr-review/SKILL.md main:brief-preflight/SKILL.md | wc -w)</code></li>
+        <li data-check="5.2"><strong>5.2</strong> <code class="check-cmd">rm -rf /tmp/rts-codex-bc &amp;&amp; node scripts/build-runtime-variant.mjs --skill brief-chantier --runtime codex --out /tmp/rts-codex-bc</code></li>
+        <li data-check="5.3"><strong>5.3</strong> <code class="check-cmd">rm -rf /tmp/rts-codex-bp &amp;&amp; node scripts/build-runtime-variant.mjs --skill brief-preflight --runtime codex --out /tmp/rts-codex-bp</code></li>
+        <li data-check="5.4"><strong>5.4</strong> <code class="check-cmd">! node scripts/lint-skills.mjs 2&gt;&amp;1 | grep -E '\(repo/(brief-chantier|adversarial-pr-review|brief-preflight)\)'</code></li>
+        <li data-check="5.5"><strong>5.5</strong> <code class="check-cmd">node brief-preflight/scripts/preflight-lint.mjs /Users/elmabi/Desktop/my-projets/claude-skills/.worktrees/retour-terrain-standard/plans/2026-10-09-retour-terrain-standard-plan.html /Users/elmabi/Desktop/my-projets/claude-skills/.worktrees/retour-terrain-standard</code></li>
+      </ol>
+      <div class="done"><span class="dk">DONE quand</span>les deux variantes Codex se construisent, le lint des skills ne vise aucun des trois, les SKILL.md n'ont pas plus de mots qu'au démarrage, et ce plan passe le lint qu'il a lui-même durci.</div>
+    </div>
+  </div>
+
+  <div class="lot" id="lot-6">
+    <div class="lot-head"><span class="ln">LOT 6</span><span class="lt">Clôture : revue, simplificateur et PR</span><span class="lh">1,5 h (≈ 30 code + 40 tests)</span></div>
+    <div class="lot-body">
+      <p><strong>Objectif</strong> : le chantier passe par ses propres règles (Codex au round 1, simplificateur, chiffres de <code>finalize</code>) et ouvre sa PR vers <code>main</code>. L'estimation est la réserve des correctifs de revue : ils comptent au budget du chantier.</p>
+      <p><strong>Agent</strong> : aucun — reste chez l'orchestrateur (le simplificateur et les relecteurs sont des sous-agents qu'il lance)</p>
+      <p><strong>Fichiers touchés</strong> : <code>.chantier/retour-terrain-standard/intention.md</code> (supprimée), et ce que la revue ou le simplificateur corrige parmi les fichiers des lots 1 à 5</p>
+      <p><strong>Commit du lot</strong> : <code class="commit-msg">chantier(retour-terrain-standard): lot 6 — Clôture : revue, simplificateur et PR</code></p>
+      <ol class="list">
+        <li>Lance les commandes de « Vérification du projet ». La revue utilise les versions du WORKTREE (les copies installées sont encore les anciennes) : <code>node adversarial-pr-review/scripts/review-run.mjs start --base origin/main</code>, puis le round 1 selon <code>adversarial-pr-review/SKILL.md</code> du worktree : chasseurs et <code>review-run.mjs cross</code> en parallèle, <code>round</code> enregistré après la fin de <code>cross</code>. Round 2 seulement si le round 1 a commité un correctif.</li>
+        <li>Simplificateur : un sous-agent <code>general-purpose</code> reçoit <code>brief-chantier/references/simplificateur.md</code> du worktree, la fiche, le chemin absolu du dépôt et le diff complet. Relis son diff ; s'il retire des lignes comptées et que la porte reste verte, commite <code>chantier(retour-terrain-standard): lot 6 — simplificateur</code>, sinon note « rien à retirer ».</li>
+        <li><code>git rm -r .chantier/retour-terrain-standard</code>, commit du lot (message ci-dessus).</li>
+        <li><code>node adversarial-pr-review/scripts/review-run.mjs finalize --gate 'bun test scripts adversarial-pr-review/scripts' --simplifier &lt;sha du commit simplificateur, ou none&gt;</code>, avec <code>--delta-ok</code> si HEAD a bougé depuis le dernier round (classes de la règle du skill).</li>
+        <li>Push de <code>chore/retour-terrain-standard</code>, PR vers <code>main</code> avec dans son corps : les sept décisions, les sorties de rejeu des commits des lots 1 à 3, les chiffres de <code>finalize</code>, les remarques et leurs dispositions. Sans convergence : PR en brouillon, défauts listés. Aucun merge.</li>
+        <li>Rapport dans une nouvelle conversation du hub du projet <code>claude-skills</code> : lots et commits, lignes et ratio remesurés par <code>finalize</code>, lignes retirées par le simplificateur, décisions A2, journal de décisions, ce que la session de fusion doit faire (section 04).</li>
+      </ol>
+      <ol class="list checks">
+        <li data-check="6.1"><strong>6.1</strong> <code class="check-cmd">node adversarial-pr-review/scripts/review-run.mjs check</code></li>
+        <li data-check="6.2"><strong>6.2</strong> <code class="check-cmd">bun test scripts adversarial-pr-review/scripts</code></li>
+        <li data-check="6.3"><strong>6.3</strong> <code class="check-cmd">node --test brief-preflight/scripts/preflight-lint.test.mjs brief-preflight/scripts/lot-checks.test.mjs brief-preflight/scripts/preflight-flotte.test.mjs</code></li>
+        <li data-check="6.4"><strong>6.4</strong> <code class="check-cmd">test ! -e .chantier/retour-terrain-standard/intention.md</code></li>
+      </ol>
+      <div class="done"><span class="dk">DONE quand</span>la PR vers <code>main</code> est ouverte sur un HEAD dont la revue est PASS, et le rapport est dans le hub. Check 6.1 rouge = revue non convergée : PR en brouillon avec ses défauts listés, et le rapport le dit (A3 ne bloque jamais).</div>
+    </div>
+  </div>
+</section>
+
+<section id="s-verif">
+  <div class="sec-head"><span class="sec-num">04</span><h2>Fin de run et échec</h2></div>
+  <pre class="cmd">cd /Users/elmabi/Desktop/my-projets/claude-skills/.worktrees/retour-terrain-standard
+bun test scripts adversarial-pr-review/scripts
+node --test brief-preflight/scripts/preflight-lint.test.mjs brief-preflight/scripts/lot-checks.test.mjs brief-preflight/scripts/preflight-flotte.test.mjs
+node adversarial-pr-review/scripts/review-run.mjs check</pre>
+  <ul class="list">
+    <li>Sans UI.</li>
+    <li><strong>Échec</strong> : protocole arrêt-et-chip du skill brief-chantier.</li>
+    <li><strong>Hygiène</strong> : supprime <code>/tmp/p6t98-plan</code>, <code>/tmp/p6t98-replay</code>, <code>/tmp/p6t98-round-x6.json</code> et <code>/tmp/rts-codex-*</code> ; aucun serveur lancé. Rapport : lots et commits, verdict exact de chaque commande.</li>
+    <li><strong>Après la fusion, par la session de fusion avec l'accord de Franck</strong> (hors du run) : depuis le checkout principal propre sur <code>main</code>, <code>node scripts/install-skills.mjs --dry-run</code> puis <code>node scripts/install-skills.mjs</code> ; copie de <code>brief-chantier/agents/simplificateur.md</code> vers <code>~/.claude/agents/</code> et de <code>simplificateur.toml</code> vers <code>~/.codex/agents/</code>, puis retrait de <code>~/.claude/agents/gardien-intention.md</code> et <code>~/.codex/agents/gardien-intention.toml</code> ; republication de la navette cloud de Temps Chantier (<code>node .claude/scripts/push-generated-snapshot.mjs</code> depuis son checkout principal) ; le chip C1 (état de revue par branche) peut alors démarrer.</li>
+  </ul>
+</section>
+
+<section id="s-nice">
+  <div class="sec-head"><span class="sec-num">05</span><h2>Nice-to-have — pour arbitrage, PAS pour ce run</h2></div>
+  <p class="muted">≥ 5 idées adjacentes NON incluses. L'exécutant n'en implémente aucune.</p>
+  <ul class="list">
+    <li>Calibration automatique des estimations à partir des lots passés d'un dépôt (option 2 de D3) : utile si l'écart persiste sur deux chantiers ; un script de plus.</li>
+    <li>Corps de PR généré par <code>finalize</code> (chiffres, remarques, dispositions) pour que l'exécutant ne le recopie plus à la main ; une commande de plus.</li>
+    <li>Lint de vague qui refuse une pile de plus de trois PR empilées : écarté par D4 (le découpage se pense dans le plan), à revoir si les piles remontent.</li>
+    <li>Mutation testing ciblé sur le code modifié à risque (recommandation R10 de la recherche) : signal utile, mais un outil de plus.</li>
+    <li>Tableau de bord des revues dans la workstation : part des remarques utiles, lignes ajoutées par la revue, lignes retirées par le simplificateur, chantier par chantier.</li>
+    <li>Simplificateur aussi en Mode B, après les correctifs de remarques de bots.</li>
+  </ul>
+</section>
+
+<footer>
+  Plan au standard brief-chantier (v1) · claude-skills · 2026-10-09 · une information manquante pour démarrer est un défaut du plan.
+</footer>
+
+</div>
+
+<!-- TOC fixe -->
+<input type="checkbox" id="ws-toc-toggle" class="ws-toc-toggle">
+<nav class="ws-toc" aria-label="Table des matières">
+  <div class="toc-t">Sommaire</div>
+  <a class="sec" href="#top">Retour terrain au standard</a>
+  <a class="sec" href="#s-intention">00 — Intention</a>
+  <a class="sec" href="#s-contexte">01 — Contexte</a>
+  <a class="sec" href="#s-approbation">02 — Approbation et règles</a>
+  <a class="sec" href="#s-cloud">02c — Cloud</a>
+  <a class="sec" href="#s-lots">03 — Les lots</a>
+  <a class="sub" href="#lot-1">Lot 1 — Lint : deux nombres</a>
+  <a class="sub" href="#lot-2">Lot 2 — Codex au round 1, correctif borné</a>
+  <a class="sub" href="#lot-3">Lot 3 — Clôture mesurée, simplificateur</a>
+  <a class="sub" href="#lot-4">Lot 4 — Revue et simplificateur (textes)</a>
+  <a class="sub" href="#lot-5">Lot 5 — Brief-chantier et préflight (textes)</a>
+  <a class="sub" href="#lot-6">Lot 6 — Clôture et PR</a>
+  <a class="sec" href="#s-verif">04 — Fin de run et échec</a>
+  <a class="sec" href="#s-nice">05 — Nice-to-have</a>
+</nav>
+<label for="ws-toc-toggle" class="ws-toc-btn" title="Table des matières">TOC</label>
+
+</body>
+</html>
