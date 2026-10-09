@@ -29,8 +29,8 @@ EXÉCUTANT par session, règles A1 à A5, G et L inchangées pour chaque chantie
   `brief-preflight`). Il échoue sur un plan sans section flotte, une collision de plages, des noms de vague
   divergents, une plage sous `--depuis`, ou un fichier touché par deux chantiers sans `Dépend de`.
 - **Branches.** Chaque chantier : worktree `.worktrees/<slug>` (gitignoré), branche `<type>/<slug>`. Une vague
-  a sa branche `integration/<thème>` dans son propre worktree : les chantiers en partent, fusionnent dedans, et
-  elle seule fusionne dans main/master. Chaque plan documente aussi la dérogation au verrou night-run (reaper
+  a sa branche `integration/<thème>` dans son propre worktree : les chantiers en partent, leurs PRs la ciblent, et
+  sa PR seule cible main/master. Chaque plan documente aussi la dérogation au verrou night-run (reaper
   au démarrage) et l'ordre de merge.
 - **Pré-vol des hooks bloquants.** Smoke-teste UNE fois chaque hook qui garde les chantiers (garde de PR,
   garde de commit) depuis un worktree jetable : il doit résoudre HEAD, git-dir et cwd du WORKTREE. Hook
@@ -61,10 +61,17 @@ Règles communes : `watchdog.md`. Mécanique Codex (heartbeat, fichier de survei
   de revue présente (pas de merge sans elle), décisions A2, chiffres de finalize, lignes retirées par le simplificateur. Recoupe les fichiers de
   doublures de test déclarés par chaque rapport ; un fichier cité par deux chantiers impose un ordre de
   fusion explicite. Spot-checke par lecture directe les invariants les plus porteurs.
-- **Merge local** `--no-ff` dans l'ordre documenté (chantiers dans `integration/<thème>`, puis elle dans
-  main/master), typecheck après CHAQUE merge, puis gates COMPLETS sur l'intégré AVANT de pousser : le « vert »
-  des PRs n'est qu'auto-déclaré.
-- **Redéploiement** selon le dépôt si le code serveur a bougé, puis une vérification qui prouve que le NOUVEAU
+- **Intégration par PR, jamais par merge local poussé sur main/master.** Chaque chantier a sa PR vers sa base
+  (`integration/<thème>`, ou la branche par défaut pour un chantier seul), dans l'ordre documenté ; une PR
+  empilée est retargetée (`gh pr edit <n> --base <branche>`) une fois la PR dont elle dépend mergée.
+  PR vers `integration/<thème>` : PR nommée, checks verts, sentinelle présente, `gh pr merge --merge`
+  (`ship-pr` n'accepte que la branche par défaut comme base), puis `git fetch` et fast-forward du worktree
+  d'intégration, typecheck après CHAQUE merge. PR vers main/master (finale, ou chantier seul) : docs/plans
+  commités avant le dernier round de revue, main/master mergé dans sa branche (puis `finalize --delta-ok` du skill de revue : la
+  sentinelle suit le HEAD), gates COMPLETS sur sa tête (relancés si HEAD bouge) : le « vert » des PRs n'est
+  qu'auto-déclaré. Merge par le skill `ship-pr` (Claude Code ; sous Codex, mêmes contrôles à la main :
+  mergeable, checks verts, merge, sync de la branche par défaut, gate rejouée, redéploiement si défini et
+  vérifié, nettoyage).
+- **Redéploiement** selon le dépôt si le code serveur a bougé (étape de `ship-pr`, pas en double), puis une vérification qui prouve que le NOUVEAU
   code est servi (appelle une route ajoutée par le run).
-- **Nettoyage garanti** : worktrees retirés puis `prune`, branches locales ET distantes supprimées, plans HTML
-  commités dans `docs/plans/`. Puis session review honnête et capture brain/frictions.
+- **Nettoyage garanti** : worktrees retirés puis `prune`, branches locales ET distantes supprimées. Puis session review honnête et capture brain/frictions.
