@@ -210,6 +210,8 @@ function cmdRound(c, pos, flags, out) {
     head = tryGit(c.repo, ['rev-parse', '--verify', '-q', `${flags.head}^{commit}`])
     if (!head) throw new UsageError(`--head ${flags.head} is not a commit`)
     if (head !== c.head && !isAncestor(c, head, c.head)) throw new UsageError(`--head ${flags.head} is neither HEAD nor an ancestor of HEAD: it cannot have been reviewed on this branch`)
+    const mb = mergeBase(c, state.baseRef)
+    if (head === mb || isAncestor(c, head, mb)) throw new UsageError(`--head ${flags.head} is not in the reviewed range: it must come after the merge-base ${mb.slice(0, 8)}`)
   }
   const round = { round: state.rounds.length + 1, triage: Boolean(flags.triage), head, at: new Date().toISOString(), ...validateRound(raw) }
   state.rounds.push(round)
@@ -233,6 +235,7 @@ function cmdAdopt(c, pos, out) {
   const src = join(from, 'adversarial-review'), s = readJson(join(src, 'state.json'))
   if (!s) throw new UsageError(`no review state in ${pos[0]}`)
   if (!s.branch) throw new UsageError('that state has no branch: it cannot be proven to belong to this branch')
+  if (c.branch === '(detached)') throw new UsageError('detached HEAD: a branch name is the only proof the state belongs here')
   if (s.branch !== c.branch) throw new UsageError(`that state belongs to branch ${s.branch}, not ${c.branch}`)
   const mine = readJson(join(c.dir, 'state.json'))
   if (mine?.rounds?.length || mine?.crossRuns?.length) throw new UsageError(`this worktree already holds a review (${mine.rounds.length} round(s), ${mine.crossRuns?.length ?? 0} cross run(s)): never overwritten`)

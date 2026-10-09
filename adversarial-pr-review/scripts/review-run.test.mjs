@@ -422,6 +422,7 @@ describe('round --head and adopt', () => {
     const bad = await run(d, 'round', roundFile(d), '--head', side)
     assert.equal(bad.code, 2); assert.match(bad.err, /neither HEAD nor an ancestor/)
     assert.match((await run(d, 'round', roundFile(d), '--head', 'nope')).err, /not a commit/)
+    assert.match((await run(d, 'round', roundFile(d), '--head', 'main')).err, /not in the reviewed range/)
     assert.equal(stateOf(d).rounds.length, 1)
   })
   test('--head works with --triage; the default stays HEAD', async () => {
@@ -450,6 +451,7 @@ describe('round --head and adopt', () => {
     const { branch, ...legacy } = stateOf(d); writeFileSync(join(gitDirOf(d), 'adversarial-review/state.json'), JSON.stringify(legacy))
     assert.match((await run(wt, 'adopt', d)).err, /no branch/)
     assert.match((await run(wt, 'adopt', wt)).err, /same checkout/)
+    sh(wt, 'checkout', '-q', '--detach'); assert.match((await run(wt, 'adopt', d)).err, /detached HEAD/)
     assert.match((await run(d, 'adopt', tmp())).err, /not a git checkout/)
     assert.match((await run(d, 'adopt', wt)).err, /no review state/)
     const other = makeRepo(); await started(other); assert.match((await run(d, 'adopt', other)).err, /another repository/)
