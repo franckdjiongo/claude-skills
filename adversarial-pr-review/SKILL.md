@@ -26,7 +26,8 @@ Attack your own diff before the PR is public, fix only what matters with the sma
 | Command | Does |
 |---|---|
 | `start [--base <ref>]` | Prints HEAD, base, `newFiles` (the inventory), `newFilesSinceLastRound`, intent sheets, rounds left, the round-file shape. |
-| `round <file> [--triage]` | Records a round from a JSON file (its shape is printed by `start`). `--triage` records bot-comment dispositions once the cap is spent. |
+| `round <file> [--triage] [--head <sha>]` | Records a round from a JSON file (its shape is printed by `start`). `--triage` records bot-comment dispositions once the cap is spent. `--head`: commit an external pass reviewed (HEAD or ancestor). |
+| `adopt <other-checkout>` | Moves this branch's state and sentinel from another worktree here (refuses other branch or non-empty state). |
 | `fix <id...> [--subtractive-tried "<why>"]` | Marks FIX findings fixed, after the fix commit and its fresh verifier; refuses a fix over the rule-2 bounds without `<why>`. |
 | `cross [--author claude\|codex]` | Billed read-only review by the other model family, round 1 only (`--author` is your own runtime). Findings get ids `X<n>`, each needing a disposition. |
 | `finalize --gate <cmd>` | Runs the gate, prints code, tests and tests/code, writes `verdict.json`, and the sentinel only on PASS for HEAD. Also `--simplifier <sha>\|none`, `--delta-ok "<note>"`, `--trivial`, `--no-gate "<reason>"` (recorded as skipped, never as a gate pass). Exit 0 only on PASS. |
