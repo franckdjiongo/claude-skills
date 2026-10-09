@@ -213,14 +213,51 @@ describe('finalize', () => {
     const rewritten = await run(d, 'finalize', '--gate', 'true')
     assert.equal(rewritten.code, 1); assert.match(rewritten.out, /history rewritten/); assert.equal(sentinel(d), null)
   })
-  test('an intent sheet makes the guardian verdict mandatory', async () => {
+  test('an intent sheet makes --simplifier mandatory; none passes with a warning; --guardian is retired', async () => {
     const d = makeRepo()
     mkdirSync(join(d, '.chantier/x'), { recursive: true }); commit(d, '.chantier/x/intention.md', 'sheet')
     await started(d); await run(d, 'round', roundFile(d))
     const no = await run(d, 'finalize', '--gate', 'true')
-    assert.equal(no.code, 1); assert.match(no.out, /guardian/)
-    assert.equal((await run(d, 'finalize', '--gate', 'true', '--guardian', 'aligned')).code, 0)
-    assert.equal(verdictOf(d).guardian, 'aligned')
+    assert.equal(no.code, 1); assert.match(no.out, /--simplifier.*\(D5\)/)
+    const none = await run(d, 'finalize', '--gate', 'true', '--simplifier', 'none')
+    assert.equal(none.code, 0); assert.match(none.out, /warn: simplifier removed nothing/); assert.equal(verdictOf(d).simplifier, 'none')
+    const g = await run(d, 'finalize', '--gate', 'true', '--guardian', 'aligned')
+    assert.equal(g.code, 2); assert.match(g.err, /retired/)
+  })
+})
+
+describe('metrics and simplifier (D5, D6)', () => {
+  const lines = (n, tag = 'l') => Array.from({ length: n }, (_, i) => `${tag}${i}`).join('\n') + '\n'
+  test('every verdict prints code, tests, ratio and review growth; a ratio over 2 on >= 50 code lines warns', async () => {
+    const d = makeRepo() // b.txt: 1 code line
+    mkdirSync(join(d, 'tests')); commit(d, 'tests/t.js', lines(3))
+    await started(d); await run(d, 'round', roundFile(d, [finding()]))
+    commit(d, 'x.test.ts', lines(2))
+    const r = await run(d, 'finalize', '--gate', 'true')
+    assert.equal(r.code, 1); assert.match(r.out, /lines: code 1, tests 5, tests\/code 5, review added 2 \(33%\)\n {2}FAIL/)
+    assert.deepEqual(verdictOf(d).metrics, { code: 1, tests: 5, ratio: 5, reviewAdded: 2, reviewShare: 2 / 6 })
+    assert.doesNotMatch(r.out, /A1:/) // under 50 code lines
+    const e = makeRepo(); commit(e, 'c.js', lines(50)); commit(e, 'c.spec.js', lines(108)) // 51 code lines with b.txt
+    await started(e); await run(e, 'round', roundFile(e))
+    const w = await run(e, 'finalize', '--gate', 'true')
+    assert.equal(w.code, 0); assert.match(w.out, /tests\/code 2\.1, review added 0 \(0%\)/); assert.match(w.out, /warn: A1: tests\/code 2\.1 > 2: justify in the PR body \(D6\)/)
+  })
+  test('a deleted sheet still needs a simplifier commit that removes more than it adds', async () => {
+    const d = makeRepo() // the sheet lands on the base, the closeout deletes it on the branch
+    sh(d, 'checkout', '-q', 'main'); mkdirSync(join(d, '.chantier/x'), { recursive: true }); commit(d, '.chantier/x/intention.md', 'sheet')
+    sh(d, 'checkout', '-q', 'work'); sh(d, 'merge', '-q', '--no-edit', 'main')
+    const before = commit(d, 'big.js', lines(10))
+    await started(d); await run(d, 'round', roundFile(d))
+    sh(d, 'commit', '-q', '--allow-empty', '-m', 'empty'); const empty = sh(d, 'rev-parse', 'HEAD')
+    sh(d, 'rm', '-q', '.chantier/x/intention.md'); sh(d, 'commit', '-qm', 'rm sheet'); const rmSheet = sh(d, 'rev-parse', 'HEAD')
+    const grows = commit(d, 'big.js', lines(8) + lines(3, 'n'))
+    const ok = commit(d, 'big.js', lines(6))
+    const fin = (...a) => run(d, 'finalize', '--gate', 'true', '--delta-ok', 'verified', ...a)
+    assert.match((await fin()).out, /--simplifier/)
+    for (const sha of [empty, rmSheet, grows, before, 'nope']) {
+      const r = await fin('--simplifier', sha); assert.equal(r.code, 1); assert.match(r.out, /FAIL: --simplifier .*\(D5\)/)
+    }
+    assert.equal((await fin('--simplifier', ok.slice(0, 10))).code, 0); assert.equal(verdictOf(d).simplifier, ok)
   })
 })
 
