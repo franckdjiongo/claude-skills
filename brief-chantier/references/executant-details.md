@@ -24,7 +24,8 @@ Complète `SKILL.md` § Exécuter un plan. Rien ici n'assouplit les règles dure
    et seulement les remarques CORRIGER (« correctif minimal couvrant toute la famille du défaut, aucune
    validation hors du chemin modifié »). Un vérificateur frais est obligatoire pour chaque correctif du
    round 2. Un second cycle (le dernier) ne s'ouvre qu'après un FAIL, par un chip dans le périmètre qui
-   corrige le finding bloquant (`start --new-cycle <chip-id>`, règle 1 d'`adversarial-pr-review`) ; un second FAIL
+   corrige le finding bloquant (`start --new-cycle <chip-id>`, règle 1 d'`adversarial-pr-review`), sinon sur sa propre
+   branche ; un second FAIL
    laisse la PR en brouillon.
 3. Avant la PR : simplificateur (`simplificateur.md`), un seul passage : fiche, chemin absolu du dépôt, diff
    complet base...HEAD ; tu relis et commites `chantier(<slug>): lot N — simplificateur`, puis `finalize
