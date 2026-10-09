@@ -32,7 +32,7 @@ For every target, `gh pr view <n> --json state,isDraft,mergeable,mergeStateStatu
 
 These are hard blockers, not negotiable by this skill on its own. If a check is red because of a known flake, that's the user's call to force through (`gh pr merge --admin` or similar) — never yours by default, and only if they say so explicitly for that PR.
 
-Run `node <ship-pr folder>/scripts/review-gate.mjs --repo <owner/name> --pr <n>`. Exit 0 (`PASS`, or `NOT-ENROLLED`: no reviewer calling file on the base branch) continues, and after `PASS` merge with `--match-head-commit <headRefOid>`. Exit 1 or 2 is a hard blocker: the elmabi review is missing, running or failed on this head.
+Right before each merge, run `node <ship-pr folder>/scripts/review-gate.mjs --repo <owner/name> --pr <n>`. Continue only on exit 0 with output starting `PASS` or `NOT-ENROLLED` (base has no reviewer calling file). Anything else blocks. Every elmabi review run and re-run on this head must be green: only a new commit lifts a red one.
 
 If the PR's branch has a worktree, run `node <adversarial-pr-review folder>/scripts/review-run.mjs check --repo <worktree> --head <headRefOid>`: exit 1 (FAIL) and 4 (a later finding voided the PASS) mean stop unless the user says to merge anyway. Exit 3 (no verdict, or one for another head) is not a pass: say so in the report and continue.
 
@@ -43,7 +43,7 @@ Confirm `baseRefName` is the repo's actual primary branch (see `PRIMARY_BRANCH` 
 For each PR that passed preflight, in order:
 
 ```
-gh pr merge <n> --merge --delete-branch
+gh pr merge <n> --merge --delete-branch --match-head-commit <head printed by review-gate>
 ```
 
 Default to `--merge` (an ordinary merge commit) unless the repo's own recent history shows a consistent squash or rebase convention — check `git log --oneline -20 --merges` on the primary branch: merge commits present → this repo uses `--merge`; none, but PRs clearly landed anyway → it's squashing or rebasing, match that with `--squash` or `--rebase`. When genuinely ambiguous, `--merge` is the safest default — it never rewrites what was reviewed.

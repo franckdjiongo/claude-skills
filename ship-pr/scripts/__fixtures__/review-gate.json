@@ -1,5 +1,5 @@
 {
- "_note": "Workflow run objects shaped like GET /repos/{o}/{r}/actions/runs (fields checked on franckdjiongo/temps-chantier-code-app, 2026-10-09). attempts maps 'runId/n' to GET .../runs/{id}/attempts/{n}.",
+ "_note": "Workflow runs as review-gate.mjs projects GET /repos/{o}/{r}/actions/runs (shape checked on real pull_request_target runs, 2026-10-09: head_sha = PR head, pull_requests[{number, base.ref}] populated for open same-repo PRs). attempts maps 'runId/n' to GET .../runs/{id}/attempts/{n}. retargets = created_at of base_ref_changed issue events. The PR under test is #7 on base main.",
  "head": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
  "absent": {
   "runs": []
@@ -11,24 +11,36 @@
     "path": ".github/workflows/elmabi-review.yml",
     "event": "pull_request",
     "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
-    "head_branch": "fix/x",
     "status": "completed",
     "conclusion": "success",
     "run_attempt": 1,
     "created_at": "2026-10-09T20:28:27Z",
-    "pull_requests": []
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "main"
+      }
+     }
+    ]
    },
    {
     "id": 2,
     "path": ".github/workflows/validate.yml",
     "event": "pull_request_target",
     "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
-    "head_branch": "fix/x",
     "status": "completed",
     "conclusion": "success",
     "run_attempt": 1,
     "created_at": "2026-10-09T20:28:27Z",
-    "pull_requests": []
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "main"
+      }
+     }
+    ]
    }
   ]
  },
@@ -39,12 +51,18 @@
     "path": ".github/workflows/elmabi-review.yml",
     "event": "pull_request_target",
     "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
-    "head_branch": "fix/x",
     "status": "in_progress",
     "conclusion": null,
     "run_attempt": 1,
     "created_at": "2026-10-09T20:28:27Z",
-    "pull_requests": []
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "main"
+      }
+     }
+    ]
    }
   ]
  },
@@ -55,12 +73,18 @@
     "path": ".github/workflows/elmabi-review.yml",
     "event": "pull_request_target",
     "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
-    "head_branch": "fix/x",
     "status": "completed",
     "conclusion": "success",
     "run_attempt": 1,
     "created_at": "2026-10-09T20:28:27Z",
-    "pull_requests": []
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "main"
+      }
+     }
+    ]
    }
   ]
  },
@@ -71,12 +95,18 @@
     "path": ".github/workflows/elmabi-review.yml",
     "event": "pull_request_target",
     "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
-    "head_branch": "fix/x",
     "status": "completed",
     "conclusion": "failure",
     "run_attempt": 1,
     "created_at": "2026-10-09T20:28:27Z",
-    "pull_requests": []
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "main"
+      }
+     }
+    ]
    }
   ]
  },
@@ -87,20 +117,50 @@
     "path": ".github/workflows/elmabi-review.yml",
     "event": "pull_request_target",
     "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
-    "head_branch": "fix/x",
     "status": "completed",
     "conclusion": "success",
     "run_attempt": 2,
     "created_at": "2026-10-09T20:28:27Z",
-    "pull_requests": []
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "main"
+      }
+     }
+    ]
    }
   ],
   "attempts": {
    "40/1": {
-    "id": 40,
-    "run_attempt": 1,
-    "status": "completed",
     "conclusion": "failure"
+   }
+  }
+ },
+ "timed-out-then-success-rerun": {
+  "runs": [
+   {
+    "id": 41,
+    "path": ".github/workflows/elmabi-review.yml",
+    "event": "pull_request_target",
+    "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
+    "status": "completed",
+    "conclusion": "success",
+    "run_attempt": 2,
+    "created_at": "2026-10-09T20:28:27Z",
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "main"
+      }
+     }
+    ]
+   }
+  ],
+  "attempts": {
+   "41/1": {
+    "conclusion": "timed_out"
    }
   }
  },
@@ -111,52 +171,76 @@
     "path": ".github/workflows/elmabi-review.yml",
     "event": "pull_request_target",
     "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
-    "head_branch": "fix/x",
     "status": "completed",
     "conclusion": "failure",
     "run_attempt": 1,
     "created_at": "2026-10-09T20:00:00Z",
-    "pull_requests": []
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "main"
+      }
+     }
+    ]
    },
    {
     "id": 51,
     "path": ".github/workflows/elmabi-review.yml",
     "event": "pull_request_target",
     "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
-    "head_branch": "fix/x",
     "status": "completed",
     "conclusion": "success",
     "run_attempt": 1,
     "created_at": "2026-10-09T21:00:00Z",
-    "pull_requests": []
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "main"
+      }
+     }
+    ]
    }
   ]
  },
- "cancelled-latest": {
+ "cancelled-then-success": {
   "runs": [
    {
     "id": 60,
     "path": ".github/workflows/elmabi-review.yml",
     "event": "pull_request_target",
     "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
-    "head_branch": "fix/x",
     "status": "completed",
-    "conclusion": "success",
+    "conclusion": "cancelled",
     "run_attempt": 1,
     "created_at": "2026-10-09T20:00:00Z",
-    "pull_requests": []
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "main"
+      }
+     }
+    ]
    },
    {
     "id": 61,
     "path": ".github/workflows/elmabi-review.yml",
     "event": "pull_request_target",
     "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
-    "head_branch": "fix/x",
     "status": "completed",
-    "conclusion": "cancelled",
+    "conclusion": "success",
     "run_attempt": 1,
     "created_at": "2026-10-09T21:00:00Z",
-    "pull_requests": []
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "main"
+      }
+     }
+    ]
    }
   ]
  },
@@ -167,21 +251,204 @@
     "path": ".github/workflows/elmabi-review.yml",
     "event": "pull_request_target",
     "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
-    "head_branch": "fix/x",
     "status": "completed",
     "conclusion": "success",
     "run_attempt": 1,
     "created_at": "2026-10-09T20:28:27Z",
-    "pull_requests": []
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "main"
+      }
+     }
+    ]
    },
    {
     "id": 71,
     "path": ".github/workflows/elmabi-review.yml",
     "event": "pull_request_target",
     "head_sha": "0000000000000000000000000000000000000000",
-    "head_branch": "fix/x",
     "status": "completed",
     "conclusion": "failure",
+    "run_attempt": 1,
+    "created_at": "2026-10-09T20:28:27Z",
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "main"
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "success-from-other-pr": {
+  "runs": [
+   {
+    "id": 80,
+    "path": ".github/workflows/elmabi-review.yml",
+    "event": "pull_request_target",
+    "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
+    "status": "completed",
+    "conclusion": "success",
+    "run_attempt": 1,
+    "created_at": "2026-10-09T20:28:27Z",
+    "pull_requests": [
+     {
+      "number": 99,
+      "base": {
+       "ref": "evil"
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "success-from-other-base": {
+  "runs": [
+   {
+    "id": 81,
+    "path": ".github/workflows/elmabi-review.yml",
+    "event": "pull_request_target",
+    "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
+    "status": "completed",
+    "conclusion": "success",
+    "run_attempt": 1,
+    "created_at": "2026-10-09T20:28:27Z",
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "evil"
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "success-before-retarget": {
+  "runs": [
+   {
+    "id": 82,
+    "path": ".github/workflows/elmabi-review.yml",
+    "event": "pull_request_target",
+    "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
+    "status": "completed",
+    "conclusion": "success",
+    "run_attempt": 1,
+    "created_at": "2026-10-09T20:00:00Z",
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "main"
+      }
+     }
+    ]
+   }
+  ],
+  "retargets": [
+   "2026-10-09T20:05:00Z"
+  ]
+ },
+ "success-after-retarget": {
+  "runs": [
+   {
+    "id": 83,
+    "path": ".github/workflows/elmabi-review.yml",
+    "event": "pull_request_target",
+    "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
+    "status": "completed",
+    "conclusion": "success",
+    "run_attempt": 1,
+    "created_at": "2026-10-09T20:10:00Z",
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "main"
+      }
+     }
+    ]
+   }
+  ],
+  "retargets": [
+   "2026-10-09T20:05:00Z"
+  ]
+ },
+ "skipped-and-success": {
+  "runs": [
+   {
+    "id": 90,
+    "path": ".github/workflows/elmabi-review.yml",
+    "event": "pull_request_target",
+    "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
+    "status": "completed",
+    "conclusion": "skipped",
+    "run_attempt": 1,
+    "created_at": "2026-10-09T20:00:00Z",
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "main"
+      }
+     }
+    ]
+   },
+   {
+    "id": 91,
+    "path": ".github/workflows/elmabi-review.yml",
+    "event": "pull_request_target",
+    "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
+    "status": "completed",
+    "conclusion": "success",
+    "run_attempt": 1,
+    "created_at": "2026-10-09T20:28:27Z",
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "main"
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "only-skipped": {
+  "runs": [
+   {
+    "id": 92,
+    "path": ".github/workflows/elmabi-review.yml",
+    "event": "pull_request_target",
+    "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
+    "status": "completed",
+    "conclusion": "skipped",
+    "run_attempt": 1,
+    "created_at": "2026-10-09T20:28:27Z",
+    "pull_requests": [
+     {
+      "number": 7,
+      "base": {
+       "ref": "main"
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "fork-unlinked": {
+  "runs": [
+   {
+    "id": 93,
+    "path": ".github/workflows/elmabi-review.yml",
+    "event": "pull_request_target",
+    "head_sha": "74a37c5d0d1ac4be61c822865207047a5243e5b4",
+    "status": "completed",
+    "conclusion": "success",
     "run_attempt": 1,
     "created_at": "2026-10-09T20:28:27Z",
     "pull_requests": []
