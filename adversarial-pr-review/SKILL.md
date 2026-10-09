@@ -1,7 +1,7 @@
 ---
 name: adversarial-pr-review
 description: >-
-  Adversarial multi-agent review of the diff BEFORE a pull request is opened (Mode A), and one bounded pass over bot review comments (Mode B). Use when about to create or open a PR ("ouvre la PR") or when a bot comments. Non-draft PRs and ready require review PASS for exact HEAD. Two rounds max.
+  Adversarial multi-agent review of the diff BEFORE a pull request is opened (Mode A), and one bounded pass over bot review comments (Mode B). Use when about to create or open a PR ("ouvre la PR") or when a bot comments. Non-draft PRs and ready require review PASS for exact HEAD. Two rounds per cycle.
 ---
 
 # Adversarial PR Review
