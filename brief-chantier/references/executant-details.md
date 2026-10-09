@@ -18,12 +18,14 @@ Complète `SKILL.md` § Exécuter un plan. Rien ici n'assouplit les règles dure
 
 1. Vérifications globales du plan. UI : navigateur clair + sombre, serveur dev du repo CIBLE lancé en Bash,
    jamais par l'outil de prévisualisation intégré du harnais.
-2. Revue : `adversarial-pr-review` (Mode A), 2 rounds, l'autre famille (`cross`) au round 1 en parallèle des
+2. Revue : `adversarial-pr-review` (Mode A), 2 rounds par cycle, l'autre famille (`cross`) au round 1 en parallèle des
    chasseurs (absent ou en échec : pas de nouvelle tentative, le rapport le dit). Round 2
    seulement si le round 1 a commité un correctif. Un seul correcteur par round, qui n'écrit que dans ce dépôt
    et seulement les remarques CORRIGER (« correctif minimal couvrant toute la famille du défaut, aucune
    validation hors du chemin modifié »). Un vérificateur frais est obligatoire pour chaque correctif du
-   round 2.
+   round 2. Un second cycle (le dernier) ne s'ouvre qu'après un FAIL, par un chip dans le périmètre qui
+   corrige le finding bloquant (`start --new-cycle <chip-id>`, règle 1 d'`adversarial-pr-review`) ; un second FAIL
+   laisse la PR en brouillon.
 3. Avant la PR : simplificateur (`simplificateur.md`), un seul passage : fiche, chemin absolu du dépôt, diff
    complet base...HEAD ; tu relis et commites `chantier(<slug>): lot N — simplificateur`, puis `finalize
    --simplifier <sha>|none`. Sans fiche : simplificateur sauté, le rapport le dit.
