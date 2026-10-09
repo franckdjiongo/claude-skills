@@ -72,6 +72,6 @@ Refuse d'armer si une vérification bloquante échoue et ne se répare pas sur l
 1. Session locale de vérification indépendante, sans rien modifier : relancer la commande de vérification,
    comparer les claims des rapports aux faits.
 2. Faire les validations humaines en attente (`git log --grep GATE-HELD`).
-3. Merger la branche de travail dans une branche intermédiaire, jamais directement sur master avant la QA live.
+3. Intégrer la branche de travail par une PR (`ship-pr`) vers une branche intermédiaire, jamais directement vers master avant la QA live.
 4. `RemoteTrigger list` : chaque one-shot doit montrer `ended_reason: run_once_fired` et `enabled: false`.
    Aucun trigger actif non désiré ne reste.
