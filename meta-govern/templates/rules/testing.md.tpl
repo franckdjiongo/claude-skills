@@ -35,7 +35,7 @@ The same string twice means `getByText('Add')` matches multiple nodes and tests 
 
 ## TDD discipline (light)
 
-RED → GREEN → REFACTOR. Minimum bar: new component = render + interaction; new hook = happy + error path; pure utility = one test per branch; bug fix = failing test first. Visual / render correctness is NOT covered by jsdom — a UI change is not done on unit-green alone (see the ui-implementer visual-QA gate). A regression test for an async race is proven by stashing the fix and confirming it goes red (`git stash` → test fails → `git stash pop`) — a timing-dependent test can pass against the bug by accident.
+RED → GREEN → REFACTOR. Minimum bar: new component = render + interaction; new hook = happy + error path; pure utility = one test per branch; bug fix = failing test first. Visual / render correctness is NOT covered by jsdom — a UI change is not done on unit-green alone (see the ui-implementer visual-QA gate). A regression test for an async race is proven by reverting only the fix and confirming the test goes red (`git diff HEAD -- <fix files> > .claude/tmp/race-proof.patch`, after `git add -N` on a new fix file, or `git diff <base> HEAD -- <fix files>` once the fix is committed → `git apply -R` it → test fails → `git apply` it back): a timing-dependent test can pass against the bug by accident. Never a bare `git stash`/`pop`: the stash stack is shared by every worktree of the repo.
 
 ## Setup file — global mocks once
 

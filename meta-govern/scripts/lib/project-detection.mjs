@@ -4,7 +4,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 
 const PATH_PREFIX = "/opt/homebrew/bin:/usr/local/bin:/opt/homebrew/sbin:/usr/sbin:/usr/bin:/sbin:/bin";
 process.env.PATH = `${PATH_PREFIX}:${process.env.PATH || ""}`;
@@ -17,7 +17,7 @@ process.env.PATH = `${PATH_PREFIX}:${process.env.PATH || ""}`;
 export function detectProject(projectDir) {
   const result = {
     projectDir,
-    projectName: path.basename(projectDir),
+    projectName: resolveProjectName(projectDir),
     isGitRepo: isGitRepo(projectDir),
     packageJson: readPackageJson(projectDir),
     stack: {},
@@ -57,6 +57,32 @@ export function detectProject(projectDir) {
                                      result.metaGovernState !== null;
 
   return result;
+}
+
+// Racine d'un worktree lié : le dossier porte le slug du worktree, pas le projet.
+// Sous-dossier, sous-module, dépôt nu, hors git : nom du dossier (inchangé).
+function resolveProjectName(projectDir) {
+  const fallback = path.basename(projectDir);
+  try {
+    if (!fs.statSync(path.join(projectDir, '.git')).isFile()) return fallback;
+    const [gitDir, commonDir] = execFileSync('git', ['rev-parse', '--git-dir', '--git-common-dir'], {
+      cwd: projectDir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 5000,
+    }).trim().split('\n').map((p) => fs.realpathSync(path.resolve(projectDir, p)));
+    if (gitDir === commonDir || path.basename(commonDir) !== '.git') return fallback;
+    return path.basename(path.dirname(commonDir));
+  } catch {
+    return fallback;
+  }
+}
+
+// Préfixe d'exécution d'un script package.json selon le gestionnaire détecté.
+// Seule table du canon : bootstrap, promotion de palier et registre model-routing
+// la lisent (trois copies avaient divergé, leçon 2026-10-09).
+export function pmRunPrefix(pm) {
+  if (pm === 'bun') return 'bun run';
+  if (pm === 'pnpm') return 'pnpm';
+  if (pm === 'yarn') return 'yarn';
+  return 'npm run';
 }
 
 function isGitRepo(projectDir) {
@@ -125,7 +151,8 @@ function detectStack(projectDir, pkg) {
   if (allDeps.typescript) stack.languages.push('typescript');
   if (allDeps.python) stack.languages.push('python');
 
-  if (fs.existsSync(path.join(projectDir, 'bun.lock')) || fs.existsSync(path.join(projectDir, 'bunfig.toml'))) {
+  if (fs.existsSync(path.join(projectDir, 'bun.lock')) || fs.existsSync(path.join(projectDir, 'bun.lockb')) ||
+      fs.existsSync(path.join(projectDir, 'bunfig.toml'))) {
     stack.packageManager = 'bun';
     stack.runtime = 'bun';
   } else if (fs.existsSync(path.join(projectDir, 'pnpm-lock.yaml'))) {
@@ -589,36 +616,76 @@ function countLoc(dir) {
 // l'ordre (`for p = currentPalier+1 to targetPalier`), donc un rang N n'est
 // significatif que si tous les rangs 2..N-1 le sont aussi — on remonte tant
 // que le rang courant a son artefact, on s'arrête au premier trou.
+// Artefact marqueur de chaque palier 2..6 : seule table, lue par detectPalier
+// (escalier) et par palierArtifactGaps (écart palier déclaré / disque).
+// Palier 2: settings.json.tpl ne rend plan-closeout-guard.mjs que sous
+// IF_PALIER_GTE_2 (jamais au BOOTSTRAP) ; spec-tracer / qa-plan sont les skills
+// recommandées par le step palier 2 de migrate. Palier 3: les deux hooks
+// "higher-palier" du canon — subagent-plan-edit-guard (historique) et
+// agent-dispatch-preflight (templaté depuis v1.11.0). Palier 4: une CI serveur
+// OU un gate de déploiement local (compensation documentée, leçon 7). Palier 5:
+// le garde de parité runtime. Palier 6: l'automation de backlog.
+const PALIER_MARKERS = {
+  2: {
+    expected: 'hook plan-closeout-guard.mjs ou skill spec-tracer / qa-plan',
+    template: 'templates/hooks/plan-closeout-guard.mjs.tpl',
+    present: (_i, a) => a.coreHooks.includes('plan-closeout-guard.mjs') ||
+      a.extraSkills.includes('spec-tracer') || a.extraSkills.includes('qa-plan'),
+  },
+  3: {
+    expected: 'hook agent-dispatch-preflight.mjs ou subagent-plan-edit-guard.mjs',
+    template: 'templates/hooks/agent-dispatch-preflight.mjs.tpl',
+    present: (_i, a) => a.coreHooks.includes('subagent-plan-edit-guard.mjs') ||
+      a.coreHooks.includes('agent-dispatch-preflight.mjs'),
+  },
+  4: {
+    expected: 'CI serveur ou .claude/scripts/predeploy-check.mjs',
+    template: 'templates/scripts/predeploy-check.mjs.tpl',
+    present: (i) => i.ci !== 'absent' || Boolean(i.localDeployGate),
+  },
+  5: {
+    expected: '.claude/scripts/check-runtime-parity.mjs',
+    template: 'templates/scripts/check-runtime-parity.mjs.tpl',
+    present: (_i, a) => a.coreScripts.includes('check-runtime-parity.mjs'),
+  },
+  6: {
+    expected: '.claude/scripts/next-deferred-id.mjs',
+    template: null,
+    present: (_i, a) => a.coreScripts.includes('next-deferred-id.mjs'),
+  },
+};
+
 function detectPalier(indicators, artifacts) {
   if (!artifacts.hasClaudeDir || !artifacts.hasClaudeMd) return 0;
   if (artifacts.coreSkills.length < 3) return 0;
-
-  // Palier 2: settings.json.tpl ne rend plan-closeout-guard.mjs que sous
-  // IF_PALIER_GTE_2 (jamais au BOOTSTRAP — hardcodé à false) ; spec-tracer /
-  // qa-plan sont les skills recommandées par le step palier 2 de migrate.
-  const hasPalier2 = artifacts.coreHooks.includes('plan-closeout-guard.mjs') ||
-    artifacts.extraSkills.includes('spec-tracer') ||
-    artifacts.extraSkills.includes('qa-plan');
-  // Palier 3: les deux hooks "higher-palier" du canon (CANONICAL_HOOKS
-  // d'audit-project.mjs) — subagent-plan-edit-guard (historique) et
-  // agent-dispatch-preflight (templaté depuis v1.11.0, voie actuelle).
-  const hasPalier3 = artifacts.coreHooks.includes('subagent-plan-edit-guard.mjs') ||
-    artifacts.coreHooks.includes('agent-dispatch-preflight.mjs');
-  // Palier 4: une CI serveur OU un gate de déploiement local (compensation
-  // documentée de l'option CI, leçon 7) — déjà fondé sur des artefacts réels
-  // (.github/workflows, .gitlab-ci.yml, .claude/scripts/predeploy-check.mjs).
-  const hasPalier4 = indicators.ci !== 'absent' || indicators.localDeployGate;
-  // Palier 5: le garde de parité runtime rendu par migrate (check-runtime-parity.mjs).
-  const hasPalier5 = artifacts.coreScripts.includes('check-runtime-parity.mjs');
-  // Palier 6: l'automation de backlog (next-deferred-id.mjs).
-  const hasPalier6 = artifacts.coreScripts.includes('next-deferred-id.mjs');
-
-  if (!hasPalier2) return 1;
-  if (!hasPalier3) return 2;
-  if (!hasPalier4) return 3;
-  if (!hasPalier5) return 4;
-  if (!hasPalier6) return 5;
+  for (let p = 2; p <= 6; p++) {
+    if (!PALIER_MARKERS[p].present(indicators, artifacts)) return p - 1;
+  }
   return 6;
+}
+
+// Paliers 2..déclaré dont l'artefact marqueur manque sur disque. Ignore la
+// condition « ≥ 3 skills coeur » de detectPalier : un projet lean-by-design
+// garde ses skills au scope user sans que ce soit un écart de palier.
+export function palierArtifactGaps(detection) {
+  const gaps = [];
+  const top = Math.min(detection.palier ?? 0, 6);
+  // Palier 4 : ciPolicy 'local-compensation' est la décision CI consignée par la
+  // promotion (leçon 7), même quand le gate n'est pas predeploy-check.mjs.
+  const state = detection.metaGovernState || {};
+  const declaredCompensation = state.ciPolicy === 'local-compensation';
+  // Paliers 2-3 : un inventaire déclaré lean-by-design garde ses skills et
+  // garde-fous hors du canon par choix consigné, pas par oubli.
+  const leanByDesign = state.inventoryPolicy === 'lean-by-design';
+  for (let p = 2; p <= top; p++) {
+    if (p === 4 && declaredCompensation) continue;
+    if ((p === 2 || p === 3) && leanByDesign) continue;
+    const m = PALIER_MARKERS[p];
+    if (!m.present(detection.indicators, detection.artifacts)) {
+      gaps.push({ palier: p, expected: m.expected, template: m.template });
+    }
+  }
+  return gaps;
 }
 
 function readMetaGovernState(projectDir) {

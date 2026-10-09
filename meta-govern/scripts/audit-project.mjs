@@ -70,8 +70,10 @@ const findings = [];
 
 // === Inventory checks ===
 
+// Tout chemin de constat est résolu contre le projet : un chemin relatif passé
+// tel quel était ensuite résolu contre le cwd par l'affichage texte.
 function add(severity, area, message, file = null) {
-  findings.push({ severity, area, message, file });
+  findings.push({ severity, area, message, file: file ? path.resolve(projectDir, file) : null });
 }
 
 if (!detection.artifacts.hasClaudeDir) {

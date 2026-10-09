@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 /**
- * bash-write-guard — Hook PreToolUse sur `Bash`.
+ * bash-write-guard — Hook PreToolUse sur l'outil shell des deux runtimes
+ * (`Bash` côté Claude Code, `exec_command` côté Codex, commande en chaîne ou en
+ * argv, `workdir` respecté) : un port Codex est une copie verbatim sous
+ * .codex/hooks/ (son hook-utils fournit projectDir/tmpDir).
  *
  * Angle mort couvert (leçon 1) : block-docs-markdown ne voit que
  * Write|Edit|MultiEdit. Une écriture par le shell (`cat > docs/x.md`,
@@ -8,8 +11,10 @@
  * Bash, détecte ses cibles d'écriture via la lib PURE ./lib/bash-write-detect,
  * puis applique la même doctrine HTML-first que block-docs-markdown, plus deux
  * garde-fous : chemins protégés du projet et `git add` massif refusés,
- * écritures sous src/** OBSERVÉES (shadow-log) — promues en refus seulement
- * quand BASH_WRITE_GUARD_ENFORCE=1.
+ * écritures sous les racines observées OBSERVÉES (shadow-log) — promues en
+ * refus seulement quand BASH_WRITE_GUARD_ENFORCE=1. Racines observées :
+ * `.claude/risk-tiers.json` → bashWriteGuard.watchedRoots (préfixes de dossier,
+ * clé absente ou illisible = ["src"], [] = aucune).
  *
  * FAIL-OPEN STRUCTUREL (doctrine calquée sur agent-dispatch-preflight) : toute
  * lecture stdin, tout parse, toute op fs est en try/catch ; chaque branche sort
@@ -34,16 +39,22 @@ process.env.PATH = `${PATH_PREFIX}:${process.env.PATH || ''}`;
 const DOCS_ROOT = '{{DOCS_ROOT}}';
 
 // Répertoires-bacs à sable : une écriture y est toujours légitime.
-const ALLOW_PREFIXES = ['scratchpad/', '.claude/tmp/', 'coverage/', 'node_modules/'];
+const ALLOW_PREFIXES = ['scratchpad/', '.claude/tmp/', '.codex/tmp/', 'coverage/', 'node_modules/'];
 
 // Chemins protégés du projet : config du harnais et invariants racine que le
 // shell n'a pas à réécrire (les modifier passe par l'outil dédié, pas Bash).
 const PROTECTED_PATHS = new Set([
   'CLAUDE.md',
+  'AGENTS.md',
   '.claude/settings.json',
   '.claude/settings.local.json',
+  '.codex/hooks.json',
   '.gitignore',
 ]);
+
+// Outils shell des deux runtimes ; tout autre outil sort en exit 0.
+// functions.exec (Codex) reçoit du JavaScript, pas une commande : hors périmètre.
+const SHELL_TOOL_NAMES = new Set(['Bash', 'exec_command']);
 
 function readJsonStdin() {
   try {
@@ -91,9 +102,12 @@ function canonical(p) {
 // Normalise une cible telle qu'écrite (relative OU absolue) en chemin relatif
 // à la racine projet. Les chemins relatifs sont ancrés sur CLAUDE_PROJECT_DIR
 // (racine stable du harnais), pas sur le cwd du hook.
-function relForTarget(rawPath) {
+function relForTarget(rawPath, workdir) {
   const root = projectDir();
-  const abs = path.isAbsolute(rawPath) ? rawPath : path.join(root, rawPath);
+  // Codex exec_command porte son propre répertoire de travail : une cible
+  // relative s'y ancre, puis on la ramène à la racine projet.
+  const base = typeof workdir === 'string' && workdir ? path.resolve(root, workdir) : root;
+  const abs = path.isAbsolute(rawPath) ? rawPath : path.join(base, rawPath);
   return path.relative(canonical(root), canonical(abs)).replace(/\\/g, '/');
 }
 
@@ -104,7 +118,25 @@ function isDocsMarkdown(rel) {
 }
 
 const underAllowPrefix = (rel) => ALLOW_PREFIXES.some((p) => rel === p.slice(0, -1) || rel.startsWith(p));
-const underSrc = (rel) => rel === 'src' || rel.startsWith('src/');
+// Racines dont les écritures shell sont observées (shadow) puis refusées sous
+// enforce. Propres au projet : lues dans .claude/risk-tiers.json, fail-soft.
+const DEFAULT_WATCHED_ROOTS = ['src'];
+function readWatchedRoots() {
+  try {
+    const cfg = JSON.parse(fs.readFileSync(path.join(projectDir(), '.claude', 'risk-tiers.json'), 'utf8'));
+    const roots = cfg?.bashWriteGuard?.watchedRoots;
+    if (!Array.isArray(roots)) return DEFAULT_WATCHED_ROOTS;
+    return roots
+      .filter((r) => typeof r === 'string')
+      .map((r) => r.trim().replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/(\*\*)?$/, ''))
+      .filter((r) => r && !path.isAbsolute(r) && !r.split('/').includes('..'));
+  } catch {
+    return DEFAULT_WATCHED_ROOTS;
+  }
+}
+let watchedRoots; // lecture paresseuse : zéro I/O sur une commande sans cible
+const underWatchedRoot = (rel) =>
+  (watchedRoots ??= readWatchedRoots()).find((r) => rel === r || rel.startsWith(`${r}/`));
 
 function appendShadowLog(entry) {
   try {
@@ -117,9 +149,22 @@ function appendShadowLog(entry) {
 
 const payload = readJsonStdin();
 const toolName = payload?.tool_name ?? '';
-const command = payload?.tool_input?.command ?? '';
+const input = payload?.tool_input ?? {};
+// Codex passe la commande en chaîne ou en argv. `[sh|bash|zsh, -c|-lc, script]`
+// → on analyse le script seul ; tout autre argv est re-quoté argument par
+// argument pour garder les espaces et redirections littérales à leur place.
+const SH_RE = /(^|\/)(ba|z)?sh$/;
+const shQuote = (a) => (/^[\w@%+=:,./-]+$/.test(a) ? a : `'${a.replace(/'/g, `'\\''`)}'`);
+function asCommand(v) {
+  if (typeof v === 'string') return v;
+  if (!Array.isArray(v) || v.length === 0 || !v.every((x) => typeof x === 'string')) return '';
+  if (v.length === 3 && SH_RE.test(v[0]) && (v[1] === '-c' || v[1] === '-lc')) return v[2];
+  return v.map(shQuote).join(' ');
+}
+const command = asCommand(input.command) || asCommand(input.cmd);
+const workdir = input.workdir ?? input.cwd;
 
-if (toolName !== 'Bash' || typeof command !== 'string' || !command.trim()) allow();
+if (!SHELL_TOOL_NAMES.has(toolName) || !command.trim()) allow();
 
 let targets = [];
 try {
@@ -142,7 +187,7 @@ for (const { path: rawPath, vector } of targets) {
   }
   let rel;
   try {
-    rel = relForTarget(rawPath);
+    rel = relForTarget(rawPath, workdir);
   } catch {
     continue; // cible non résoluble → on n'en fait rien (fail-open).
   }
@@ -155,9 +200,10 @@ for (const { path: rawPath, vector } of targets) {
     denials.push(`  ${rel} (${vector}) — chemin protégé du projet`);
     continue;
   }
-  if (underSrc(rel)) {
+  const root = underWatchedRoot(rel);
+  if (root) {
     if (enforce) {
-      denials.push(`  ${rel} (${vector}) — écriture src/** refusée (BASH_WRITE_GUARD_ENFORCE=1)`);
+      denials.push(`  ${rel} (${vector}) — écriture ${root}/** refusée (BASH_WRITE_GUARD_ENFORCE=1)`);
     } else {
       shadows.push({ ts: new Date().toISOString(), command, target: rel, vector, mode: 'shadow' });
     }
@@ -168,10 +214,10 @@ for (const { path: rawPath, vector } of targets) {
 
 if (denials.length > 0) {
   deny(
-    `bash-write-guard : écriture Bash refusée.\n` +
+    `bash-write-guard : écriture shell refusée.\n` +
       denials.join('\n') +
       `\n\nPour un doc : node .claude/scripts/docs-html/scaffold.mjs <type> <chemin.html> "<Titre>".\n` +
-      `Pour du code source : passe par l'outil Write/Edit (traçé par le workflow), pas par le shell.`
+      `Pour du code source : passe par l'outil d'édition du runtime (Write/Edit, apply_patch), pas par le shell.`
   );
 }
 

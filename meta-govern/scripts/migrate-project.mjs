@@ -23,7 +23,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
-import { detectProject, writeMetaGovernState } from './lib/project-detection.mjs';
+import { detectProject, writeMetaGovernState, pmRunPrefix, palierArtifactGaps } from './lib/project-detection.mjs';
 import { renderToFile } from './lib/template-renderer.mjs';
 
 const PATH_PREFIX = "/opt/homebrew/bin:/usr/local/bin:/opt/homebrew/sbin:/usr/sbin:/usr/bin:/sbin:/bin";
@@ -185,7 +185,7 @@ for (const step of plan) {
       process.stderr.write(`  ✗ ${step.title}: ${result.error}\n`);
     }
   } else if (step.action === 'merge-model-routing-npm-scripts') {
-    const result = mergeModelRoutingNpmScripts(projectDir);
+    const result = mergeModelRoutingNpmScripts(projectDir, detection.stack.packageManager);
     if (result.ok) {
       report.applied++;
       process.stderr.write(
@@ -302,6 +302,17 @@ function buildMigrationPlan(detection, targetStr, currentVersion, latestVersion)
       title: `Version migration ${currentVersion} → ${targetVer}`,
       message: `Read ~/.claude/skills/meta-govern/version.json changelog for breaking changes between versions. Apply diffs from changelog.breakingChanges.`,
     });
+    // Un palier déclaré ≥ N rend --target=palier-N no-op : sans ce contrôle, un
+    // projet qui déclare le palier 5 sans artefacts 2..4 sur disque n'est jamais
+    // signalé (constat second-brain, 2026-09-14).
+    const gaps = palierArtifactGaps(detection);
+    if (gaps.length > 0) {
+      plan.push({
+        action: 'manual',
+        title: `Palier déclaré ${detection.palier} : artefact marqueur absent (palier ${gaps.map((g) => g.palier).join(', ')})`,
+        message: `.claude/.meta-govern.json déclare le palier ${detection.palier}, mais le disque ne porte pas l'artefact marqueur de : ${gaps.map((g) => `palier ${g.palier} (${g.expected}${g.template ? `, template ${g.template}` : ''})`).join(' ; ')}. --target=palier-N est un no-op tant que le palier déclaré est ≥ N. Pour chaque écart : installer l'artefact depuis son template (et le câbler dans .claude/settings.json pour un hook), ou ramener « palier » au dernier rang prouvé, ou consigner le choix dans .claude/.meta-govern.json (paliers 2-3 : inventoryPolicy 'lean-by-design' ; palier 4 : ciPolicy 'local-compensation').`,
+      });
+    }
     return plan;
   }
 
@@ -314,14 +325,12 @@ function buildPalierPromotionPlan(detection, currentPalier, targetPalier) {
   // son .test.mjs frère — uniquement quand le projet embarque vitest (les tests du
   // canon sont écrits en vitest).
   const hasVitest = detection.stack.testFramework === 'vitest';
-  const pm = detection.stack.packageManager || 'npm';
-  const pmRunPrefix = pm === 'bun' ? 'bun run' : pm === 'pnpm' ? 'pnpm' : pm === 'yarn' ? 'yarn' : 'npm run';
   const variables = {
     PROJECT_NAME: detection.projectName,
     PROJECT_SLUG: detection.projectName,
     PACKAGE_MANAGER: detection.stack.packageManager,
     // predeploy-check.mjs (palier 4) lance cette commande comme moitié « compensation locale ».
-    VALIDATE_COMMAND: `${pmRunPrefix} validate`,
+    VALIDATE_COMMAND: `${pmRunPrefix(detection.stack.packageManager)} validate`,
     META_GOVERN_VERSION: '1.0.0',
   };
   const flags = {
@@ -616,7 +625,7 @@ function deriveAgentsFromDisk(projectDir) {
   return { agents, customRoles };
 }
 
-function mergeModelRoutingNpmScripts(projectDir) {
+function mergeModelRoutingNpmScripts(projectDir, packageManager) {
   const pkgPath = path.join(projectDir, 'package.json');
   if (!fs.existsSync(pkgPath)) {
     return { ok: true, ajoutes: [], conserves: [], raison: 'package.json absent' };
@@ -643,7 +652,7 @@ function mergeModelRoutingNpmScripts(projectDir) {
     for (const key of ['validate', 'validate:fast']) {
       const current = pkg.scripts[key];
       if (typeof current === 'string' && !current.includes('claude:model-routing:check')) {
-        const run = pkg.scripts[key].match(/^yarn /) ? 'yarn' : pkg.scripts[key].match(/^pnpm /) ? 'pnpm' : 'npm run';
+        const run = pmRunPrefix(packageManager);
         pkg.scripts[key] = `${run} claude:model-routing:check && ${current}`;
         if (!ajoutes.includes(key)) ajoutes.push(`${key} (préfixé)`);
       }

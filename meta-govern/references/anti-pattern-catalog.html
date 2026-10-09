@@ -290,7 +290,7 @@
 <tr>
 <td>Guard contournable (angle mort Bash)</td>
 <td>A PreToolUse guard scoped to <code>Edit</code>/<code>Write</code> protects a path, but the same write reaches the target through a <code>Bash</code> redirect / <code>tee</code> / <code>sed -i</code> / <code>heredoc</code> — the guard never sees it, so the invariant holds for one vector only</td>
-<td>Pair the Edit-scoped guard with a Bash companion (<code>bash-write-guard.mjs</code>) that parses the command via <code>detectWriteTargets</code>; deny the protected vectors, shadow-log <code>src/**</code> until <code>BASH_WRITE_GUARD_ENFORCE=1</code> promotes them (area <code>bash-write-guard</code>, v1.15.0)</td>
+<td>Pair the Edit-scoped guard with a Bash companion (<code>bash-write-guard.mjs</code>) that parses the command via <code>detectWriteTargets</code>; deny the protected vectors, shadow-log writes under the watched source roots (<code>bashWriteGuard.watchedRoots</code> in <code>.claude/risk-tiers.json</code>, default <code>src</code>) until <code>BASH_WRITE_GUARD_ENFORCE=1</code> promotes them (area <code>bash-write-guard</code>, v1.15.0)</td>
 </tr>
 <tr>
 <td>Suite verte vacuous — les tests tournent, pas qu'ils attrapent</td>
