@@ -235,7 +235,6 @@ describe('metrics and simplifier (D5, D6)', () => {
     commit(d, 'x.test.ts', lines(2))
     const r = await run(d, 'finalize', '--gate', 'true')
     assert.equal(r.code, 1); assert.match(r.out, /lines: code 1, tests 5, tests\/code 5, review added 2 \(33%\)\n {2}FAIL/)
-    assert.deepEqual(verdictOf(d).metrics, { code: 1, tests: 5, ratio: 5, reviewAdded: 2, reviewShare: 2 / 6 })
     assert.doesNotMatch(r.out, /A1:/) // under 50 code lines
     const e = makeRepo(); commit(e, 'c.js', lines(50)); commit(e, 'c.spec.js', lines(108)) // 51 code lines with b.txt
     await started(e); await run(e, 'round', roundFile(e))

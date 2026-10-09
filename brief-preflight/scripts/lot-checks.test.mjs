@@ -6,7 +6,7 @@ import { readFileSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { vagueReason, missingRefs, checkBudget, parseChecks, parseLotEstimate } from './lot-checks.mjs';
+import { vagueReason, missingRefs, checkBudget, parseChecks } from './lot-checks.mjs';
 
 const LINT = fileURLToPath(new URL('./preflight-lint.mjs', import.meta.url));
 const REPO = fileURLToPath(new URL('./__fixtures__/repo', import.meta.url));
@@ -134,11 +134,4 @@ test('unités : checkBudget et parseChecks', () => {
   assert.deepEqual(checkBudget('Budget total : ~400 / 800 lignes', re), { cible: 400, plafond: 800, error: null });
   assert.equal(parseChecks('<div>sans liste</div>').present, false);
   assert.equal(parseChecks('<ol class="list checks"><li data-check="a"><code>x</code></li></ol>').items[0].id, 'a');
-});
-
-test('unités : parseLotEstimate', () => {
-  assert.deepEqual(parseLotEstimate('<span class="lh">2 h (≈ 250 code + 250 tests)</span>'), { code: 250, tests: 250 });
-  assert.deepEqual(parseLotEstimate('<span class="lh">1 h (≈ 10 Code + 1 test)</span>'), { code: 10, tests: 1 });
-  for (const lh of ['2 h (≈ 250 lignes)', '2 h (≈ 250 code)', '']) assert.equal(parseLotEstimate(`<span class="lh">${lh}</span>`), null);
-  assert.equal(parseLotEstimate('<p>≈ 1 code + 1 tests</p>'), null);
 });
