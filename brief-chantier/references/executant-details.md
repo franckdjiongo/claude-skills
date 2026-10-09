@@ -7,6 +7,8 @@ Complète `SKILL.md` § Exécuter un plan. Rien ici n'assouplit les règles dure
 - Un lot se ferme quand tous ses checks (`<li data-check>` de sa liste `checks`) sortent 0, puis commit `chantier(<slug-du-plan>): lot N —
   <titre>` (jamais de Co-Authored-By) ; compte les lignes ajoutées. Le git log EST le suivi : ne modifie pas le
   plan HTML.
+- Journal de décisions (C3) : une ligne horodatée par écart, découpage ou substitut, cité au rapport. Une
+  tranche qui déborde peut se couper à son point de coupe (PR de la tranche, reste en tranche suivante) : au journal.
 - Fichier hors liste, ou vérification rouge à cause de doublures de test : « règle standard » de
   `auteur-details.md` si le plan la déclare ; sinon arrêt et question au hub.
 - Lot sous gate humain : run local, laisse-le staged ; run cloud éphémère, préfixe `[GATE-HELD]`

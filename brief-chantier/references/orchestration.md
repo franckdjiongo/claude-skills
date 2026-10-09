@@ -3,8 +3,10 @@
 Complète `SKILL.md` § Orchestrer une flotte. Rôle AUTEUR par plan (une fiche par chantier), exécution
 EXÉCUTANT par session, règles A1 à A5, G et L inchangées pour chaque chantier.
 
-## Phase 1 — Regroupement
+## Phase 1 — Inventaire et regroupement
 
+- `bun run chips list` + `chips read <id>` pour CHAQUE chip du périmètre ; regroupe en 3 à 5 chantiers
+  FILE-DISJOINTS, ~4 sessions parallèles au plus.
 - Surface d'ÉDITION = fichiers modifiés, vérifiés par grep, pas devinés : lire une API n'est pas un
   chevauchement, l'éditer en est un. Chaque plan liste ses « Fichiers touchés » et déclare `Dépend de`
   (`<slug>` ou `aucun`) ; deux chantiers qui éditent le même fichier sont fusionnés en un seul ou ordonnés.
@@ -15,7 +17,7 @@ EXÉCUTANT par session, règles A1 à A5, G et L inchangées pour chaque chantie
 
 ## Phase 2 — Briefs
 
-- Une fiche d'intention par chantier. L'orchestrateur possède les fichiers partagés (README, index,
+- Baseline verte UNE fois, citée dans les N plans ; rôle AUTEUR complet pour chacun. Une fiche d'intention par chantier. L'orchestrateur possède les fichiers partagés (README, index,
   registres) : les chantiers n'y touchent pas, il les met à jour à la clôture.
 - Les préflights des N plans peuvent tourner en parallèle (un fan-out par plan).
 - **Plages d'identifiants.** Un compteur global alloué par script (identifiants de backlog, migrations, IDs de
