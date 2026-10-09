@@ -191,7 +191,7 @@ Codex sub-agent models are never written in a skill: they are resolved at use ti
 `adversarial-pr-review/scripts/resolve-codex-models.mjs`). Deliberately outside the generator: `brain-capture`,
 `meta-govern` has a hand-written Codex-only rewrite kept elsewhere (no
 `runtimes/codex.json`, so the build exits 3 for it and the installer skips it, also by name in the skip file).
-Tests: `bun test scripts adversarial-pr-review/scripts` (installer: `scripts/install-skills.test.mjs`).
+Tests: `bun test scripts adversarial-pr-review/scripts ship-pr/scripts` (installer: `scripts/install-skills.test.mjs`).
 
 ## Multi-Repository Skills Registry
 
