@@ -16,13 +16,15 @@ Complète `SKILL.md` § Exécuter un plan. Rien ici n'assouplit les règles dure
 
 1. Vérifications globales du plan. UI : navigateur clair + sombre, serveur dev du repo CIBLE lancé en Bash,
    jamais par l'outil de prévisualisation intégré du harnais.
-2. Revue : `adversarial-pr-review` (Mode A), 2 rounds. Après chaque round, appelle le gardien (moment 1)
-   AVANT tout correctif : fiche, chemin absolu du dépôt, diff complet base...HEAD, remarques nouvelles. Round 2
+2. Revue : `adversarial-pr-review` (Mode A), 2 rounds, Codex (`cross`) au round 1 en parallèle des
+   chasseurs (absent ou en échec : pas de nouvelle tentative, le rapport le dit). Round 2
    seulement si le round 1 a commité un correctif. Un seul correcteur par round, qui n'écrit que dans ce dépôt
    et seulement les remarques CORRIGER (« correctif minimal couvrant toute la famille du défaut, aucune
    validation hors du chemin modifié »). Un vérificateur frais est obligatoire pour chaque correctif du
-   round 2. Sans fiche : gardien sauté, le rapport le dit.
-3. Avant la PR : gardien moment 2 (mêmes entrées).
+   round 2.
+3. Avant la PR : simplificateur (`simplificateur.md`), un seul passage : fiche, chemin absolu du dépôt, diff
+   complet base...HEAD ; tu relis et commites `chantier(<slug>): lot N — simplificateur`, puis `finalize
+   --simplifier <sha>|none`. Sans fiche : simplificateur sauté, le rapport le dit.
 4. Dernier lot : `git rm` la fiche, commit `chantier(<slug>): lot N — Clôture…`. La sentinelle de revue se
    pose uniquement après convergence sur ce HEAD final par le flow légitime du skill de revue, jamais à la main, même sans remote.
 5. Push. Revue convergée : PR vers la branche prévue, remarques ouvertes listées. Sinon : PR brouillon,

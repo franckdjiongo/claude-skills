@@ -56,7 +56,7 @@ Règles communes : `watchdog.md`. Mécanique Codex (heartbeat, fichier de survei
 ## Phase 4 — Clôture
 
 - **Revue avant merge.** Baseline verte avant le premier merge. Lis les rapports hub et chaque PR : sentinelle
-  de revue présente (pas de merge sans elle), décisions A2, verdicts du gardien. Recoupe les fichiers de
+  de revue présente (pas de merge sans elle), décisions A2, chiffres de finalize, lignes retirées par le simplificateur. Recoupe les fichiers de
   doublures de test déclarés par chaque rapport ; un fichier cité par deux chantiers impose un ordre de
   fusion explicite. Spot-checke par lecture directe les invariants les plus porteurs.
 - **Merge local** `--no-ff` dans l'ordre documenté (chantiers dans `integration/<thème>`, puis elle dans

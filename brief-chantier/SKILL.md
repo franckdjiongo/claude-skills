@@ -32,9 +32,9 @@ personne pour répondre. Détermine ton rôle :
 - **A5 Disjoncteur.** Un lot au double de son estimation en lignes, ou un chantier au-delà de son plafond :
   arrêt, état propre commité, rapport. La revue n'a lieu que si un lot à effet visible est commité. Un
   dépassement moindre se consigne, le run continue. Revenir sous le plafond = retirer du code AVEC son test.
-- **G Fiche d'intention + gardien.** Fiche d'1 page, jetable (`assets/fiche-intention.md`, EN :
-  `assets/intent-sheet.md`), écrite avec l'humain et validée avant le plan. Le gardien
-  (`references/gardien-intention.md`) est appelé après chaque round et avant la PR ; il ne peut que retirer du travail.
+- **G Fiche d'intention + simplificateur.** Fiche d'1 page, jetable (`assets/fiche-intention.md`, EN :
+  `assets/intent-sheet.md`), écrite avec l'humain et validée avant le plan. Le simplificateur
+  (`references/simplificateur.md`) passe une fois, avant la PR ; il ne peut que retirer du code et des tests.
 - **L Langue.** Plan et fiche dans la langue du projet (FR ou EN) ; le contrat de commit
   `chantier(<slug>): lot N` ne change pas.
 
@@ -82,7 +82,7 @@ Chaque étape est un gate.
 
 1. **Lis le plan et sa fiche.** Chemin vide, `undefined` ou inexistant, fiche sans `Validée par : <nom>, <date>`
    (EN : `Approved by: <name>, <date>`), ou convo cité par le plan et refusé : `ABORT` en une ligne. Aucune
-   étape aval (revue, gardien, vérificateur, clôture) sans commit de lot du chantier.
+   étape aval (revue, simplificateur, vérificateur, clôture) sans commit de lot du chantier.
 2. **Restitue l'intention** en 1-2 phrases ; si elle contredit le bloc Intention ou la fiche : STOP, question au hub.
 3. **Vérifie l'état du repo** contre « État du repo » ; divergence majeure : arrêt-et-chip. Travaille dans un
    worktree `.worktrees/<slug>` sur une branche créée pour le chantier, jamais dans le checkout principal.
@@ -99,13 +99,13 @@ Chaque étape est un gate.
    <titre>` (jamais de Co-Authored-By). Le git log EST le suivi : ne modifie pas le plan HTML. Fichier hors
    liste, doublures de test, gate humain, run cloud : `references/executant-details.md`.
 5. **Clôture (A3, ne bloque jamais)**, dans l'ordre : vérifications globales ; `adversarial-pr-review`
-   (Mode A), 2 rounds, gardien (moment 1) après chaque round AVANT tout correctif, vérificateur frais pour
-   tout correctif du round 2 ; gardien (moment 2) avant la PR ; dernier lot : `git rm` la fiche, commit `chantier(<slug>): lot N — Clôture…` (la sentinelle de revue
+   (Mode A), 2 rounds, Codex (`cross`) au round 1, vérificateur frais pour
+   tout correctif du round 2 ; simplificateur avant la PR ; dernier lot : `git rm` la fiche, commit `chantier(<slug>): lot N — Clôture…` (la sentinelle de revue
    se pose après convergence par le skill) ; push et PR (sinon brouillon, défauts listés,
    sans ready/non-brouillon), aucun merge ;
    hygiène (verrou night-run libéré seulement si ce run l'a pris, serveur dev arrêté). Détail : `references/executant-details.md` § Étape 5.
 6. **Rapporte** dans la conversation hub du plan : lots et commits, tests et lignes REMESURÉS à la clôture,
-   décisions A2, verdicts du gardien, tout usage existant cassé comme décision humaine. Un test rouge se montre.
+   décisions A2, chiffres de finalize, lignes retirées par le simplificateur, tout usage existant cassé comme décision humaine. Un test rouge se montre.
 
 ## Protocole arrêt-et-chip (sur tout échec)
 

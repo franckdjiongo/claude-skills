@@ -17,7 +17,7 @@ After: <the same day once delivered, observable. Technical chantier with no visi
 ## What this chantier is NOT
 
 - <A tempting neighbour that is excluded: refactor, new feature, hardening.>
-- <One line per nice-to-have and forbidden item of the plan: the guardian judges fixes against it.>
+- <One line per nice-to-have and forbidden item of the plan: the simplifier removes what it does not require.>
 
 ## What proves delivery
 
