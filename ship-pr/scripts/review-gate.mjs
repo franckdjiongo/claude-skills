@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Review gate for ship-pr: refuses a pull request whose elmabi review never ran, is still
 // running, or did not succeed on its head commit, in repos that enroll the reviewer.
+// Calling files: .github/workflows/elmabi-review.yml (enrolled repos), pr-reviewer.yml (elmabi-suite).
 // Usage: node review-gate.mjs --repo <owner/name> --pr <number>
 // Exit 0 = PASS or NOT-ENROLLED, 1 = REFUSE, 2 = error (treat as REFUSE).
 // It trusts no check run or commit status named elmabi/review (anyone with write access can
@@ -12,9 +13,8 @@ import { execFileSync } from 'node:child_process'
 import { realpathSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
-export const CALLING_FILES = ['.github/workflows/elmabi-review.yml', '.github/workflows/pr-reviewer.yml']
-
 const SHA = /^[0-9a-f]{40}$/
+const CALLING_NAME = /^(elmabi-review|pr-reviewer)\.ya?ml$/i
 const RUN_FIELDS = '.workflow_runs[] | {id, path, event, head_sha, status, conclusion, run_attempt, created_at, pull_requests: [.pull_requests[] | {number, base: {ref: .base.ref}}]}'
 
 export class GhError extends Error {
@@ -28,52 +28,56 @@ function realGh(args) {
 
 const lines = (s) => s.split('\n').filter(Boolean)
 
-// runs: the runs of one calling file bound to this PR, base and head (current attempt of each).
-// earlier: conclusions of the earlier attempts of those runs.
-// No retry until Ship: every run and every attempt on this head must have succeeded.
-// A skipped run or attempt reviewed nothing and is ignored.
-export function evaluate(file, allRuns, allEarlier = [], unbound = 0) {
-  const runs = allRuns.filter((r) => r.conclusion !== 'skipped')
-  const earlier = allEarlier.filter((c) => c !== 'skipped')
+// valid: runs of one calling file bound to this PR and base, made after the last retarget.
+// poison: conclusions of EVERY run and attempt of that file on this head, whatever PR or base it
+// ran for, so a retarget, a close/reopen or a re-run cannot reset an earlier red review.
+// No retry until Ship: all must be success. A skipped run or attempt reviewed nothing.
+export function evaluate(file, valid, poison = [], unbound = 0) {
+  const runs = valid.filter((r) => r.conclusion !== 'skipped')
   if (runs.length === 0) return { ok: false, reason: `${file}: no pull_request_target run for this PR head on this base (review never ran)${unbound ? `; ${unbound} run(s) for this head are not linked to this PR and base (fork PRs are not supported)` : ''}` }
   const pending = runs.find((r) => r.status !== 'completed')
   if (pending) return { ok: false, reason: `${file}: review run ${pending.id} for this head is still ${pending.status}` }
-  const bad = [...runs.map((r) => r.conclusion), ...earlier].filter((c) => c !== 'success')
+  const bad = poison.filter((c) => c !== 'success' && c !== 'skipped')
   if (bad.length) return { ok: false, reason: `${file}: a review run or attempt on this head concluded ${bad.join(', ')}; only a new commit gets a new review` }
-  return { ok: true, reason: `${file}: ${runs.length} run(s), every attempt concluded success` }
+  return { ok: true, reason: `${file}: ${runs.length} run(s), every attempt on this head concluded success` }
 }
 
 export function check(repo, pr, gh = realGh) {
   const { baseRefName, baseRefOid, headRefOid } = JSON.parse(gh(['pr', 'view', String(pr), '-R', repo, '--json', 'baseRefName,baseRefOid,headRefOid']))
   if (!SHA.test(baseRefOid ?? '') || !SHA.test(headRefOid ?? '')) throw new Error(`unexpected SHA (base ${baseRefOid}, head ${headRefOid})`)
-  // Read at the pinned base commit: a 404 then means "file absent", never "unknown ref".
-  const enrolled = []
-  for (const file of CALLING_FILES) {
-    try { gh(['api', `repos/${repo}/contents/${file}?ref=${baseRefOid}`, '--jq', '.path']); enrolled.push(file) }
-    catch (e) { if (!(e instanceof GhError && /HTTP 404/.test(e.stderr))) throw e }
-  }
-  if (enrolled.length === 0) return { verdict: 'NOT-ENROLLED', head: headRefOid, lines: [`no calling workflow on ${baseRefName}@${baseRefOid.slice(0, 7)}`] }
-  // A run made before the PR was last retargeted reviewed another base: ignore it.
+  // Positive proof first: the pinned base commit is readable. Only then does an explicit 404
+  // "Not Found" on the workflows folder mean "no calling file"; any other error refuses.
+  if (gh(['api', `repos/${repo}/git/commits/${baseRefOid}`, '--jq', '.sha']).trim() !== baseRefOid) throw new Error(`base commit ${baseRefOid} not readable`)
+  let names = []
+  try { names = lines(gh(['api', `repos/${repo}/contents/.github/workflows?ref=${baseRefOid}`, '--jq', '.[].name'])) }
+  catch (e) { if (!(e instanceof GhError && /Not Found \(HTTP 404\)/.test(e.stderr))) throw e }
+  const all = lines(gh(['api', '--paginate', `repos/${repo}/actions/runs?event=pull_request_target&head_sha=${headRefOid}&per_page=100`, '--jq', RUN_FIELDS]))
+    .map((l) => JSON.parse(l)).filter((r) => r.event === 'pull_request_target' && r.head_sha === headRefOid)
+  // Enrolled: any spelling of a known calling file (.yml/.yaml, any case) on the pinned base, or
+  // one that already ran for this head (a file removed from the base since then still counts).
+  const enrolled = [...new Set([...names.map((n) => `.github/workflows/${n}`), ...all.map((r) => r.path)])]
+    .filter((f) => f.startsWith('.github/workflows/') && CALLING_NAME.test(f.slice(18)))
+  if (enrolled.length === 0) return { verdict: 'NOT-ENROLLED', head: headRefOid, base: baseRefName, lines: [`no calling workflow on ${baseRefName}@${baseRefOid.slice(0, 7)} and no review run for this head`] }
+  // A run made before the PR was last retargeted reviewed another base: it cannot pass this one.
   let retargets = []
   try { retargets = lines(gh(['api', '--paginate', `repos/${repo}/issues/${pr}/events?per_page=100`, '--jq', '.[] | select(.event == "base_ref_changed") | .created_at'])) }
   catch (e) { if (!(e instanceof GhError && /HTTP 410/.test(e.stderr))) throw e } // 410: Issues disabled on the repo
   const since = retargets.sort().at(-1) ?? ''
-  const all = lines(gh(['api', '--paginate', `repos/${repo}/actions/runs?event=pull_request_target&head_sha=${headRefOid}&per_page=100`, '--jq', RUN_FIELDS]))
-    .map((l) => JSON.parse(l))
   const out = []
   let ok = true
   for (const file of enrolled) {
-    const mine = all.filter((r) => r.event === 'pull_request_target' && r.path === file && r.head_sha === headRefOid)
-    const runs = mine.filter((r) => (r.pull_requests ?? []).some((p) => p.number === Number(pr) && p.base?.ref === baseRefName) && r.created_at > since)
-    const earlier = []
-    for (const r of runs) for (let n = 1; n < (r.run_attempt ?? 1); n++) {
-      earlier.push(JSON.parse(gh(['api', `repos/${repo}/actions/runs/${r.id}/attempts/${n}`, '--jq', '{conclusion}'])).conclusion)
+    const mine = all.filter((r) => r.path === file)
+    const valid = mine.filter((r) => (r.pull_requests ?? []).some((p) => p.number === Number(pr) && p.base?.ref === baseRefName) && r.created_at > since)
+    const poison = mine.map((r) => r.conclusion)
+    for (const r of mine) for (let n = 1; n < (r.run_attempt ?? 1); n++) {
+      poison.push(JSON.parse(gh(['api', `repos/${repo}/actions/runs/${r.id}/attempts/${n}`, '--jq', '{conclusion}'])).conclusion)
     }
-    const res = evaluate(file, runs, earlier, mine.length - runs.length)
+    if (mine.some((r) => r.status !== 'completed')) poison.push('in_progress')
+    const res = evaluate(file, valid, poison, mine.length - valid.length)
     ok &&= res.ok
     out.push(res.reason)
   }
-  return { verdict: ok ? 'PASS' : 'REFUSE', head: headRefOid, lines: out }
+  return { verdict: ok ? 'PASS' : 'REFUSE', head: headRefOid, base: baseRefName, lines: out }
 }
 
 export function main(argv, { gh = realGh, out = console.log } = {}) {
@@ -82,7 +86,7 @@ export function main(argv, { gh = realGh, out = console.log } = {}) {
   if (!repo || !/^[\w.-]+\/[\w.-]+$/.test(repo) || !/^\d+$/.test(pr ?? '')) { out('usage: review-gate.mjs --repo <owner/name> --pr <number>'); return 2 }
   try {
     const r = check(repo, pr, gh)
-    out(`${r.verdict} head=${r.head}`)
+    out(`${r.verdict} head=${r.head} base=${r.base}`)
     for (const l of r.lines) out(`  ${l}`)
     return r.verdict === 'REFUSE' ? 1 : 0
   } catch (e) { out(`ERROR ${e.message}`); return 2 }
