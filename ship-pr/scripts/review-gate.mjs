@@ -32,14 +32,15 @@ const lines = (s) => s.split('\n').filter(Boolean)
 // poison: conclusions of every run and attempt of that file on this head linked to THIS PR,
 // whatever base it ran for, so a retarget, a close/reopen or a re-run cannot reset a red review.
 // Runs of another PR or unlinked runs (forks) neither poison nor validate: a third party cannot
-// block this PR, and the absence of a linked green run still refuses.
-// No retry until Ship: all must be success. A skipped run or attempt reviewed nothing.
-export function evaluate(file, valid, poison = [], unbound = 0) {
-  const runs = valid.filter((r) => r.conclusion !== 'skipped')
-  if (runs.length === 0) return { ok: false, reason: `${file}: no pull_request_target run for this PR head on this base (review never ran)${unbound ? `; ${unbound} run(s) for this head are not linked to this PR and base (fork PRs are not supported)` : ''}` }
+// block this PR, and the absence of a linked green run still refuses. A skipped or cancelled run
+// reviewed nothing: it is ignored; every other non-success conclusion sticks to the head.
+const IGNORED = new Set(['skipped', 'cancelled'])
+export function evaluate(file, valid, poison = [], unbound = 0, stale = 0) {
+  const runs = valid.filter((r) => !IGNORED.has(r.conclusion))
+  if (runs.length === 0) return { ok: false, reason: `${file}: no pull_request_target run for this PR head on this base (review never ran)${stale ? `; ${stale} run(s) predate the last retarget: push a new commit for a new review` : ''}${unbound ? `; ${unbound} run(s) for this head are not linked to this PR (fork PRs are not supported)` : ''}` }
   const pending = runs.find((r) => r.status !== 'completed')
   if (pending) return { ok: false, reason: `${file}: review run ${pending.id} for this head is still ${pending.status}` }
-  const bad = poison.filter((c) => c !== 'success' && c !== 'skipped')
+  const bad = poison.filter((c) => c !== 'success' && !IGNORED.has(c))
   if (bad.length) return { ok: false, reason: `${file}: a review run or attempt on this head concluded ${bad.join(', ')}; only a new commit gets a new review` }
   return { ok: true, reason: `${file}: ${runs.length} run(s), every attempt on this head concluded success` }
 }
@@ -47,12 +48,17 @@ export function evaluate(file, valid, poison = [], unbound = 0) {
 export function check(repo, pr, gh = realGh) {
   const { baseRefName, baseRefOid, headRefOid } = JSON.parse(gh(['pr', 'view', String(pr), '-R', repo, '--json', 'baseRefName,baseRefOid,headRefOid']))
   if (!SHA.test(baseRefOid ?? '') || !SHA.test(headRefOid ?? '')) throw new Error(`unexpected SHA (base ${baseRefOid}, head ${headRefOid})`)
-  // Positive proof first: the pinned base commit is readable. Only then does an explicit 404
-  // "Not Found" on the workflows folder mean "no calling file"; any other error refuses.
-  if (gh(['api', `repos/${repo}/git/commits/${baseRefOid}`, '--jq', '.sha']).trim() !== baseRefOid) throw new Error(`base commit ${baseRefOid} not readable`)
-  let names = []
-  try { names = lines(gh(['api', `repos/${repo}/contents/.github/workflows?ref=${baseRefOid}`, '--jq', '.[].name'])) }
-  catch (e) { if (!(e instanceof GhError && /Not Found \(HTTP 404\)/.test(e.stderr))) throw e }
+  // pull_request_target runs the workflow of the LIVE base tip, so read the folder there and at the
+  // PR's base snapshot. Positive proof first: each commit is readable. Only then does an explicit
+  // 404 "Not Found" on the folder mean "no calling file"; any other error refuses.
+  const tip = gh(['api', `repos/${repo}/branches/${baseRefName}`, '--jq', '.commit.sha']).trim()
+  if (!SHA.test(tip)) throw new Error(`unexpected base tip ${tip}`)
+  const names = []
+  for (const sha of new Set([baseRefOid, tip])) {
+    if (gh(['api', `repos/${repo}/git/commits/${sha}`, '--jq', '.sha']).trim() !== sha) throw new Error(`base commit ${sha} not readable`)
+    try { names.push(...lines(gh(['api', `repos/${repo}/contents/.github/workflows?ref=${sha}`, '--jq', '.[].name']))) }
+    catch (e) { if (!(e instanceof GhError && /Not Found \(HTTP 404\)/.test(e.stderr))) throw e }
+  }
   const runsTotal = lines(gh(['api', '--paginate', `repos/${repo}/actions/runs?event=pull_request_target&head_sha=${headRefOid}&per_page=100`, '--jq', RUN_FIELDS]))
     .map((l) => JSON.parse(l)).filter((r) => r.event === 'pull_request_target' && r.head_sha === headRefOid)
   const all = runsTotal.filter((r) => (r.pull_requests ?? []).some((p) => p.number === Number(pr))) // linked to this PR
@@ -61,11 +67,9 @@ export function check(repo, pr, gh = realGh) {
   // one that already ran for this PR's head (a file removed from the base since then still counts).
   const enrolled = [...new Set([...names.map((n) => `.github/workflows/${n}`), ...all.map((r) => r.path)])]
     .filter((f) => f.startsWith('.github/workflows/') && CALLING_NAME.test(f.slice(18)))
-  if (enrolled.length === 0) return { verdict: 'NOT-ENROLLED', head: headRefOid, base: baseRefName, lines: [`no calling workflow on ${baseRefName}@${baseRefOid.slice(0, 7)} and no review run linked to this PR head`] }
+  if (enrolled.length === 0) return { verdict: 'NOT-ENROLLED', head: headRefOid, base: baseRefName, lines: [`no calling workflow on ${baseRefName} (tip ${tip.slice(0, 7)}, PR base ${baseRefOid.slice(0, 7)}) and no review run linked to this PR head`] }
   // A run made before the PR was last retargeted reviewed another base: it cannot pass this one.
-  let retargets = []
-  try { retargets = lines(gh(['api', '--paginate', `repos/${repo}/issues/${pr}/events?per_page=100`, '--jq', '.[] | select(.event == "base_ref_changed") | .created_at'])) }
-  catch (e) { if (!(e instanceof GhError && /HTTP 410/.test(e.stderr))) throw e } // 410: Issues disabled on the repo
+  const retargets = lines(gh(['api', '--paginate', `repos/${repo}/issues/${pr}/events?per_page=100`, '--jq', '.[] | select(.event == "base_ref_changed") | .created_at']))
   const since = retargets.sort().at(-1) ?? ''
   const out = []
   let ok = true
@@ -77,7 +81,8 @@ export function check(repo, pr, gh = realGh) {
       poison.push(JSON.parse(gh(['api', `repos/${repo}/actions/runs/${r.id}/attempts/${n}`, '--jq', '{conclusion}'])).conclusion)
     }
     if (mine.some((r) => r.status !== 'completed')) poison.push('in_progress')
-    const res = evaluate(file, valid, poison, unlinked(file) - mine.length)
+    const stale = mine.filter((r) => r.created_at <= since).length
+    const res = evaluate(file, valid, poison, unlinked(file) - mine.length, stale)
     ok &&= res.ok
     out.push(res.reason)
   }

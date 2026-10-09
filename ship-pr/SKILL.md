@@ -30,9 +30,9 @@ For every target, `gh pr view <n> --json state,isDraft,mergeable,mergeStateStatu
 - `mergeable` is `CONFLICTING`, or `mergeStateStatus` shows a block (e.g. `BLOCKED`, `BEHIND` on a repo that requires being up to date).
 - Any entry in `statusCheckRollup` is failing, or still pending and the user hasn't said to wait — a pending check is not a green one.
 
-These are hard blockers, not negotiable by this skill on its own. If a check is red because of a known flake, that's the user's call to force through (`gh pr merge --admin` or similar) — never yours by default, and only if they say so explicitly for that PR.
+These are hard blockers, not negotiable by this skill on its own. Forcing a red check through a known flake (`gh pr merge --admin`) is the user's explicit call for that PR, never yours.
 
-Right before each merge, run `node <ship-pr folder>/scripts/review-gate.mjs --repo <owner/name> --pr <n>`. Continue only on exit 0 with output starting `PASS` or `NOT-ENROLLED` (no reviewer calling file), and only while `gh pr view <n> --json baseRefName,headRefOid` still shows the printed `base` and `head`. Anything else blocks. Every review run and re-run of this PR on this head must be green, other PRs' runs count for nothing: only a new commit lifts a red one.
+Right before each merge, run `node <ship-pr folder>/scripts/review-gate.mjs --repo <owner/name> --pr <n>`. Continue only on exit 0 with output starting `PASS` or `NOT-ENROLLED` (no reviewer calling file), and only while `gh pr view <n> --json baseRefName,headRefOid` still shows the printed `base` and `head`. Anything else blocks. Every review run and re-run of this PR on this head must be green, other PRs' runs count for nothing: only a new commit lifts a red one. A retargeted stacked PR needs a new commit (e.g. merge its base) for a new review.
 
 If the PR's branch has a worktree, run `node <adversarial-pr-review folder>/scripts/review-run.mjs check --repo <worktree> --head <headRefOid>`: exit 1 (FAIL) and 4 (a later finding voided the PASS) mean stop unless the user says to merge anyway. Exit 3 (no verdict, or one for another head) is not a pass: say so in the report and continue.
 

@@ -10,24 +10,28 @@ import { main, GhError } from './review-gate.mjs'
 
 const FX = JSON.parse(readFileSync(new URL('./__fixtures__/review-gate.json', import.meta.url), 'utf8'))
 const BASE = 'b'.repeat(40)
+const TIP = 'c'.repeat(40)
 const notFound = (args) => { throw new GhError(args, 1, 'gh: Not Found (HTTP 404)') }
 
 // Fake gh: answers the exact calls review-gate.mjs makes, records them.
 // enrolled: file names in .github/workflows on the base (null = the folder does not exist).
-function fakeGh({ enrolled = ['elmabi-review.yml', 'validate.yml'], runs = [], attempts = {}, retargets = [], contentsError, baseError, eventsGone } = {}) {
+// atTip: file names at the live base tip (default: same as enrolled).
+function fakeGh({ enrolled = ['elmabi-review.yml', 'validate.yml'], atTip = enrolled, runs = [], attempts = {}, retargets = [], contentsError, baseError } = {}) {
   const calls = []
   const gh = (args) => {
     calls.push(args.join(' '))
     const a = args.join(' ')
     if (args[0] === 'pr') return JSON.stringify({ baseRefName: 'main', baseRefOid: BASE, headRefOid: FX.head })
-    if (a.startsWith(`api repos/o/r/git/commits/${BASE}`)) { if (baseError) throw baseError; return BASE + '\n' }
+    if (a.startsWith('api repos/o/r/branches/main ')) return TIP + '\n'
+    const g = a.match(/^api repos\/o\/r\/git\/commits\/(\w+) /)
+    if (g) { if (baseError) throw baseError; return g[1] + '\n' }
     const c = a.match(/^api repos\/o\/r\/contents\/\.github\/workflows\?ref=(\w+)/)
     if (c) {
-      assert.equal(c[1], BASE, 'the folder must be read at the pinned base SHA')
+      assert.ok([BASE, TIP].includes(c[1]), 'the folder must be read at a pinned SHA')
       if (contentsError) throw contentsError
-      return enrolled === null ? notFound(args) : enrolled.join('\n') + '\n'
+      const names = c[1] === TIP ? atTip : enrolled
+      return names === null ? notFound(args) : names.join('\n') + '\n'
     }
-    if (a.startsWith('api --paginate repos/o/r/issues/7/events') && eventsGone) throw new GhError(args, 1, 'gh: Issues are disabled for this repo (HTTP 410)')
     if (a.startsWith('api --paginate repos/o/r/issues/7/events')) return retargets.join('\n') + '\n'
     if (a.startsWith('api --paginate repos/o/r/actions/runs?event=pull_request_target&head_sha=' + FX.head)) return runs.map((r) => JSON.stringify(r)).join('\n') + '\n'
     const t = a.match(/^api repos\/o\/r\/actions\/runs\/(\d+)\/attempts\/(\d+) /)
@@ -55,15 +59,15 @@ for (const [name, code, re] of [
   ['failure-then-success-rerun', 1, /concluded failure/],
   ['timed-out-then-success-rerun', 1, /concluded timed_out/],
   ['failure-then-success-new-run', 1, /concluded failure/],
-  ['cancelled-then-success', 1, /concluded cancelled/],
+  ['cancelled-then-success', 0, /^PASS/],
   ['success-ignores-other-sha', 0, /^PASS/],
   ['success-from-other-pr', 1, /review never ran/],
   ['success-from-other-base', 1, /review never ran/],
-  ['success-before-retarget', 1, /review never ran/],
+  ['success-before-retarget', 1, /predate the last retarget: push a new commit/],
   ['success-after-retarget', 0, /^PASS/],
   ['skipped-and-success', 0, /^PASS/],
   ['only-skipped', 1, /review never ran/],
-  ['fork-unlinked', 1, /not linked to this PR and base/],
+  ['fork-unlinked', 1, /not linked to this PR \(fork/],
 ]) {
   test(`enrolled, fixture ${name}: exit ${code}`, () => {
     const r = run(FX[name])
@@ -143,6 +147,7 @@ test('run through a symlinked path, the CLI still runs and prints a verdict line
     writeFileSync(join(d, 'gh'), `#!/bin/sh
 case "$1 $2" in
   "pr view") echo '{"baseRefName":"main","baseRefOid":"${BASE}","headRefOid":"${FX.head}"}';;
+  "api repos/o/r/branches/main") echo ${BASE};;
   "api repos/o/r/git/commits/${BASE}") echo ${BASE};;
   "api --paginate") ;;
   *) echo 'gh: Not Found (HTTP 404)' >&2; exit 1;;
@@ -154,6 +159,9 @@ esac
   } finally { rmSync(d, { recursive: true, force: true }) }
 })
 
-test('Issues disabled (410 on the events list) counts as no retarget', () => {
-  assert.equal(run({ ...FX.success, eventsGone: true }).code, 0)
+test('calling file only at the live base tip (added after the PR base snapshot): enrolled, refuses without a run', () => {
+  const r = run({ enrolled: null, atTip: ['elmabi-review.yml'] })
+  assert.equal(r.code, 1, r.out)
+  assert.match(r.out, /review never ran/)
+  assert.match(run({ enrolled: null, atTip: null }).out, /tip ccccccc, PR base bbbbbbb/)
 })
