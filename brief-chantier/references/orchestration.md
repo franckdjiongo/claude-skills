@@ -67,7 +67,7 @@ Règles communes : `watchdog.md`. Mécanique Codex (heartbeat, fichier de survei
   PR vers `integration/<thème>` : PR nommée, checks verts, sentinelle présente, `gh pr merge --merge`
   (`ship-pr` n'accepte que la branche par défaut comme base), puis `git fetch` et fast-forward du worktree
   d'intégration, typecheck après CHAQUE merge. PR vers main/master (finale, ou chantier seul) : docs/plans
-  commités avant elle, main/master mergé dans sa branche (puis `finalize --delta-ok` du skill de revue : la
+  commités avant le dernier round de revue, main/master mergé dans sa branche (puis `finalize --delta-ok` du skill de revue : la
   sentinelle suit le HEAD), gates COMPLETS sur sa tête (relancés si HEAD bouge) : le « vert » des PRs n'est
   qu'auto-déclaré. Merge par le skill `ship-pr` (Claude Code ; sous Codex, mêmes contrôles à la main :
   mergeable, checks verts, merge, sync de la branche par défaut, gate rejouée, redéploiement si défini et
