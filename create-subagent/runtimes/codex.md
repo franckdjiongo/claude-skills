@@ -59,7 +59,7 @@ Read `references/codex-agents.md` before writing: it holds the keys the installe
 |---|---|---|
 | `name`, `description`, `developer_instructions` | required | codex-cli refuses an agent file whose `name` is empty or whose `description` or `developer_instructions` is blank. |
 | `model` | omit (inherits the session) | Written only through a routing file, never from memory (see below). |
-| `model_reasoning_effort` | omit (inherits) | When the routing file registers the agent, copy the role's effort exactly (its check enforces it). Otherwise omit it, or set `low`, `medium` or `high` when the job is clearly lighter or heavier than the session. Never above `high` for a sub-agent. |
+| `model_reasoning_effort` | omit (inherits) | When the routing file registers the agent, copy the role's effort exactly (its check enforces it). Otherwise omit it, or set `low`, `medium` or `high` when the job is clearly lighter or heavier than the session: without a routing role, never above `high` for a sub-agent. |
 | `sandbox_mode` | `read-only` for reviewers, auditors and researchers; omit for implementers (valid values: `read-only`, `workspace-write`, `danger-full-access`) | Codex has no per-agent tool allowlist: the read-only sandbox is the fail-safe equivalent. Never `danger-full-access` without a stated reason and a warning to the user. |
 | `nickname_candidates` | omit | Cosmetic display names. Add only if the user asks. |
 
