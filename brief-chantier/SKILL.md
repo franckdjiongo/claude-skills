@@ -25,7 +25,7 @@ personne pour répondre. Détermine ton rôle :
   remarque (CORRIGER, CHIP si autorisés, NE PAS CORRIGER, INVALIDE) selon la règle 2 de
   `adversarial-pr-review` ; jamais « tout corriger, y compris les mineurs ».
 - **A3 Revue à la clôture seulement, 2 rounds au plus**, aucune relecture par lot, non contournable par un
-  plan. Round 2 = delta. Après, le chantier TERMINE (étape Clôture).
+  plan. Round 2 = delta. Puis clôture : sans convergence, brouillon avec défauts listés, sans sentinelle ni ready/non-brouillon.
 - **A4 Un comportement se teste une fois**, au niveau le plus proche de l'utilisateur ou du consommateur,
   après exécution réelle de la preuve de la fiche (dry-run, sandbox, app en local). Un socle sans effet
   visible se prouve avec un consommateur jetable, de bout en bout.
@@ -101,7 +101,8 @@ Chaque étape est un gate.
 5. **Clôture (A3, ne bloque jamais)**, dans l'ordre : vérifications globales ; `adversarial-pr-review`
    (Mode A), 2 rounds, gardien (moment 1) après chaque round AVANT tout correctif, vérificateur frais pour
    tout correctif du round 2 ; gardien (moment 2) avant la PR ; dernier lot : `git rm` la fiche, commit `chantier(<slug>): lot N — Clôture…` (la sentinelle de revue
-   se pose par le flow légitime du skill de revue, jamais à la main) ; push et PR, aucun merge par l'exécutant ;
+   se pose après convergence par le skill) ; push et PR (sinon brouillon, défauts listés,
+   sans ready/non-brouillon), aucun merge ;
    hygiène (verrou night-run libéré seulement si ce run l'a pris, serveur dev arrêté). Détail : `references/executant-details.md` § Étape 5.
 6. **Rapporte** dans la conversation hub du plan : lots et commits, tests et lignes REMESURÉS à la clôture,
    décisions A2, verdicts du gardien, tout usage existant cassé comme décision humaine. Un test rouge se montre.

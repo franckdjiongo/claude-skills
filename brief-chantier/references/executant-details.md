@@ -24,7 +24,8 @@ Complète `SKILL.md` § Exécuter un plan. Rien ici n'assouplit les règles dure
    round 2. Sans fiche : gardien sauté, le rapport le dit.
 3. Avant la PR : gardien moment 2 (mêmes entrées).
 4. Dernier lot : `git rm` la fiche, commit `chantier(<slug>): lot N — Clôture…`. La sentinelle de revue se
-   pose sur ce HEAD final par le flow légitime du skill de revue, jamais à la main, même sans remote.
-5. Push. Revue convergée : PR vers la branche prévue, remarques ouvertes listées. Sinon, ou sans remote : la
-   branche locale est le livrable, corps de PR dans le rapport. Aucun merge par l'exécutant.
+   pose uniquement après convergence sur ce HEAD final par le flow légitime du skill de revue, jamais à la main, même sans remote.
+5. Push. Revue convergée : PR vers la branche prévue, remarques ouvertes listées. Sinon : PR brouillon,
+   défauts ouverts et dispositions listés, sans sentinelle ni ready/PR non-brouillon. Sans remote : branche
+   locale livrable, corps de PR dans le rapport. Aucun merge par l'exécutant.
 6. Hygiène : libère le verrou night-run seulement si ce run l'a pris ; arrête tout serveur dev lancé.
