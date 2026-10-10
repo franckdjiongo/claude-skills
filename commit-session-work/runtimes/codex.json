@@ -1,5 +1,5 @@
 {
-  "description": "Finish Git work at session end: commit, land on main, push, clean up. Default: this session. local: no push. all/tout/clean: whole tree. Triggers: \"committe ce qu'on vient de faire\", \"fais juste un commit local\", \"ne pousse pas\", \"mets ça dans main\", \"commit everything\", \"rends la branche clean\".",
+  "description": "Finish Git work at session end: commit, land on main by PR, clean up. Default: this session. local: no push. all/tout/clean: whole tree. Triggers: \"committe ce qu'on vient de faire\", \"fais juste un commit local\", \"ne pousse pas\", \"mets ça dans main\", \"commit everything\", \"rends la branche clean\".",
   "forbid": [
     "Claude Code",
     "CLAUDE.md",
@@ -11,6 +11,7 @@
     "session-def": "dd315264113423b4",
     "policy-files": "939d6183a2b5ef36",
     "account-alias": "4d6e9e5afa00789a",
+    "pr-merge": "6dc3adc2d5aeec8d",
     "session-branch": "3fbc702999542a6b"
   }
 }

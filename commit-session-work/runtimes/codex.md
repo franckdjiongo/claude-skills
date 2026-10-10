@@ -16,3 +16,7 @@ scripts/build-runtime-variant.mjs (racine de claude-skills) ; format décrit dan
 <!-- slot:session-branch -->
 Temporary session branches are named `codex/session-<id>`. Archive a completed Codex task only when the user explicitly requested task/thread cleanup.
 <!-- /slot:session-branch -->
+
+<!-- slot:pr-merge -->
+Codex has no `ship-pr` skill: after the preflight, the merge step runs its checks by hand (mergeable, green checks, review gate, `gh pr merge --match-head-commit`, fast-forward sync of the primary checkout, gate rerun there, no redeploy), as `references/landing.md` step 8 lists.
+<!-- /slot:pr-merge -->
