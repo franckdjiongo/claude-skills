@@ -25,6 +25,8 @@ import { fileURLToPath } from 'node:url'
 export const MAX_LINES = 150
 export const MAX_WORDS = 1800
 export const MAX_DESC = 300
+// A dated model release.
+const MODEL_PIN_RE = /\b(?:Claude[\s-]+)?(?:Opus|Sonnet|Haiku|Fable|Mythos)\s*\d+(?:\.\d+)?\b|\bclaude-(?:opus|sonnet|haiku|fable|mythos)-\d[\w.-]*/gi
 
 const TEXT_EXT = new Set(['.md', '.mdx', '.txt', '.json', '.yaml', '.yml', '.toml', '.mjs', '.js', '.cjs', '.ts', '.sh', '.py', '.html', '.htm', '.cs'])
 const SKIP_DIRS = new Set(['node_modules', '.git', '.worktrees', 'dist', '.system', 'synced', '__pycache__', '.DS_Store'])
@@ -375,6 +377,11 @@ export function lintSkillDir(dir, label, allow, projectRoot = null) {
     if (existsSync(resolve(realDir, ref)) || existsSync(resolve(dir, ref))) continue
     if (projectRoot && existsSync(resolve(projectRoot, ref))) continue
     f('REF-MISSING', 'error', `references ${ref}, which does not exist`)
+  }
+  for (const file of [skillMd, ...walkFiles(join(dir, 'references')).filter((r) => TEXT_EXT.has(r.slice(r.lastIndexOf('.')).toLowerCase()))]) {
+    const pins = new Set()
+    for (const line of (readText(file) ?? '').split('\n')) for (const m of line.matchAll(MODEL_PIN_RE)) pins.add(m[0])
+    if (pins.size) f('MODEL-PIN', 'warning', `${relative(dir, file)} names a dated model release (${[...pins].join(', ')}): name the alias (opus, sonnet, haiku)`)
   }
   return findings
 }

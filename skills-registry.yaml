@@ -246,12 +246,6 @@ categories:
         description: Generate an honest, evidence-grounded retrospective of the current Claude Code session
         tags: [retrospective, review, meta, quality, session]
 
-      - name: meta-govern
-        repository: claude-skills
-        path: meta-govern/SKILL.md
-        description: Master governance skill — bootstrap, audit, migrate, and evolve Claude Code project workflows
-        tags: [governance, bootstrap, audit, migration, workflow]
-
       - name: setup-insights
         repository: claude-skills
         path: setup-insights/SKILL.md
@@ -1897,7 +1891,6 @@ skill_index:
   session-review: { repo: claude-skills, category: claude-code }
   add-dataverse: { repo: claude-skills, category: power-platform }
   pp-solution-sync: { repo: claude-skills, category: power-platform }
-  meta-govern: { repo: claude-skills, category: claude-code }
   setup-insights: { repo: claude-skills, category: claude-code }
   loop-autonomy: { repo: claude-skills, category: claude-code }
   handoff: { repo: claude-skills, category: claude-code }

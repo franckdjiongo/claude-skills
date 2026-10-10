@@ -155,11 +155,6 @@ describe('what it leaves alone', () => {
     expect(readFileSync(join(roots.codex, 'plain', 'SKILL.md'), 'utf8')).toBe('hand written')
   })
 
-  test('the shipped skip list keeps meta-govern off Codex', () => {
-    const skip = readSkip(new URL('..', import.meta.url).pathname)
-    expect(Object.keys(skip)).toContain('codex:meta-govern')
-  })
-
   test('a skip entry without a reason is an error', () => {
     const repo = tmp()
     put(join(repo, 'scripts', 'install-skills.skip.json'), JSON.stringify({ 'codex:x': ' ' }))

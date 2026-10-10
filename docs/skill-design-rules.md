@@ -14,7 +14,7 @@ Check the machine-checkable rules with `node scripts/lint-skills.mjs` (exit 0 cl
 | R6 | One source per skill. Mirrors are generated or linked and checked in CI. Never find-and-replace runtime names. | `lint-skills` (CODEX-PATH, SCRIPT-DIFF, RUNTIME-ONE-SIDE) |
 | R7 | A description has at most 300 characters. The skill catalogue was truncated once, on 2026-08-14. | `lint-skills` (R7-DESC) |
 | R8 | Fix by removing text before adding text. A failing test beats a longer prompt. | review |
-| R9 | Each skill names its owner repo, its runtimes and a last-review date (frontmatter keys `owner`, `runtimes`, `last-review`, top level or under `metadata`). Zero use for 90 days on both runtimes triggers a switch-off review. No dated model names. | `lint-skills` (R9-OWNER, warning only) |
+| R9 | Each skill names its owner repo, its runtimes and a last-review date (frontmatter keys `owner`, `runtimes`, `last-review`, top level or under `metadata`). Zero use for 90 days on both runtimes triggers a switch-off review. No dated model names. | `lint-skills` (R9-OWNER and MODEL-PIN, warnings only) |
 | R10 | An agent that preloads a skill fails loudly if that skill is missing. | review |
 | R11 | The parity and lint script checks the items listed below. | `lint-skills` |
 | R12 | Catalogs are generated, not hand-edited. The sync script appends new skills to `CLAUDE.md` and `AGENTS.md` and also removes the lines of skills that no longer exist. Generate the catalog block from each skill's R9 fields, so one switch-off is one edit. | `scripts/sync-local-skills.py` (removal), `lint-skills` (CAT-MISSING, CAT-DISABLED) |
@@ -34,6 +34,7 @@ Tests: `node --test scripts/lint-skills.test.mjs` and `python3 scripts/sync-loca
 | R7-DESC | error | The frontmatter description is over 300 characters. |
 | REF-MISSING | error | SKILL.md references a file (`references/...`, `scripts/...`, a relative link) that does not exist. |
 | R9-OWNER | warning | A frontmatter owner, runtimes or last-review field is missing. |
+| MODEL-PIN | warning | SKILL.md or a text file under `references/` names a dated model release (an alias followed by a version number, or a `claude-<alias>-<digits>` identifier). Name the alias (opus, sonnet, haiku) instead. |
 | DORMANT | info | A skill is dormant: switched off in `skillOverrides` and either disabled in `~/.codex/config.toml` (`[[skills.config]]`, `enabled = false`) or without a Codex user-scope copy. It is reported once and skipped for R1, R7, REF-MISSING and CODEX-PATH. A skill that is off on Claude but still loads on Codex is not dormant. Info lines never change the exit code. |
 
 Intentional exceptions live in `scripts/lint-skills.allowlist.json`, each with a written reason. An entry without a reason is itself an error.

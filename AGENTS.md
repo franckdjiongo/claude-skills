@@ -62,7 +62,6 @@ The `description` field is critical - it determines when Claude Code should invo
 - `prompt-engineer` - Claude prompting best practices
 - `docs-workflow-generator` - Generate PRD, task breakdown, roadmap, and documentation workflow
 - `ralph-prompt-generator` - Generate auto-compact-resilient Ralph Wiggum loop prompts
-- `meta-govern` - Master governance skill: bootstrap, audit, migrate, and evolve Claude Code project workflows
 - `setup-insights` - Bootstrap the Insight Coaching System (coaching hooks, logging, quality gates) in a project
 - `loop-autonomy` - Run an autonomous work loop over a backlog using subscription-included mechanisms
 - `handoff` - Compact the current conversation into a handoff document for another agent to pick up
@@ -188,9 +187,7 @@ A source with `disable-model-invocation: true` (Claude only) gets `agents/openai
 `policy.allow_implicit_invocation: false` in its Codex build, Codex's documented equivalent.
 Codex sub-agent models are never written in a skill: they are resolved at use time from
 `.codex/model-routing.json` / `~/.codex/model-routing.json` (see
-`adversarial-pr-review/scripts/resolve-codex-models.mjs`). Deliberately outside the generator: `brain-capture`,
-`meta-govern` has a hand-written Codex-only rewrite kept elsewhere (no
-`runtimes/codex.json`, so the build exits 3 for it and the installer skips it, also by name in the skip file).
+`adversarial-pr-review/scripts/resolve-codex-models.mjs`).
 Tests: `bun test scripts adversarial-pr-review/scripts ship-pr/scripts` (installer: `scripts/install-skills.test.mjs`).
 
 ## Multi-Repository Skills Registry
