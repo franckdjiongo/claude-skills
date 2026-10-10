@@ -274,7 +274,7 @@ describe('referenced files and owner fields', () => {
     assert.equal(pins.length, 2)
     assert.ok(pins.every((f) => f.severity === 'warning') && pins.some((f) => /Opus 4\.7/.test(f.message)) && pins.some((f) => /references\/r\.md/.test(f.message)))
     const allowed = `${FM('alpha')}Use Opus 4.7 here. <!-- model-routing:allow -->\n`
-    const ok = runLint(world({ files: { 'home/.claude/skills/alpha/SKILL.md': allowed, 'home/.agents/skills/alpha/SKILL.md': allowed } }).cfg)
+    const ok = runLint(world({ files: { 'home/.claude/skills/alpha/SKILL.md': allowed, 'home/.agents/skills/alpha/SKILL.md': allowed, 'home/.claude/skills/alpha/references/r.pdf': 'claude-sonnet-4-5 in a binary' } }).cfg)
     assert.ok(!ok.findings.some((f) => f.rule === 'MODEL-PIN'))
   })
 

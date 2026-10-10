@@ -378,7 +378,7 @@ export function lintSkillDir(dir, label, allow, projectRoot = null) {
     if (projectRoot && existsSync(resolve(projectRoot, ref))) continue
     f('REF-MISSING', 'error', `references ${ref}, which does not exist`)
   }
-  for (const file of [skillMd, ...walkFiles(join(dir, 'references'))]) {
+  for (const file of [skillMd, ...walkFiles(join(dir, 'references')).filter((r) => TEXT_EXT.has(r.slice(r.lastIndexOf('.')).toLowerCase()))]) {
     const pins = new Set()
     for (const line of (readText(file) ?? '').split('\n')) if (!line.includes('model-routing:allow')) for (const m of line.matchAll(MODEL_PIN_RE)) pins.add(m[0])
     if (pins.size) f('MODEL-PIN', 'warning', `${relative(dir, file)} names a dated model release (${[...pins].join(', ')}): name the alias (opus, sonnet, haiku)`)
