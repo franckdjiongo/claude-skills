@@ -58,9 +58,9 @@ Record the merge commit SHA (`gh pr view <n> --json mergeCommit`) for the report
 
 Resolve `PRIMARY_BRANCH` the same way `commit-session-work` does: an explicit repo-policy target if one exists, else `refs/remotes/origin/HEAD`, else local `main` then `master`. Resolve the checkout that owns it via `git worktree list --porcelain`; if none does, work in a scoped `mktemp -d` integration worktree instead of inventing a checkout.
 
-Before pulling, list dirty paths with `git status --porcelain -uall`, then `git fetch`. A dirty path that is in `git diff --name-only <PRIMARY_BRANCH> origin/<PRIMARY_BRANCH>` overlaps the incoming files, unless its staged entry already holds the incoming version (what `commit-session-work` stages): otherwise stop and report it, never stash it. Other dirty paths stay untouched. Then `git merge --ff-only origin/<PRIMARY_BRANCH>`.
+Before pulling, list dirty paths with `git status --porcelain -uall`, then `git fetch`. A dirty path *overlaps* when it is in `git diff --name-only --no-renames <PRIMARY_BRANCH> origin/<PRIMARY_BRANCH>` and its index entry is not already the incoming version (`git rev-parse :<path>` differs from `git rev-parse origin/<PRIMARY_BRANCH>:<path>`; `commit-session-work` stages that version). On an overlap, stop and report it with the advice to commit those edits first, never stash it. Other dirty paths stay untouched. Then `git merge --ff-only origin/<PRIMARY_BRANCH>`.
 
-If the fast-forward is refused because local primary holds commits origin lacks, run `git cherry origin/<PRIMARY_BRANCH> <PRIMARY_BRANCH>`. Only when every line is `-` (each local commit is patch-equivalent to merged work), `git rev-list --merges origin/<PRIMARY_BRANCH>..<PRIMARY_BRANCH>` is empty and no dirty path overlaps, run `git reset --keep origin/<PRIMARY_BRANCH>`. Otherwise stop and report. Never `merge --no-ff`, rebase, force, or push the primary branch: it was never reviewed.
+If the fast-forward is refused because local primary holds commits origin lacks, run `git cherry origin/<PRIMARY_BRANCH> <PRIMARY_BRANCH>`. Only when every line is `-` (each local commit is patch-equivalent to merged work), `git rev-list --merges origin/<PRIMARY_BRANCH>..<PRIMARY_BRANCH>` is empty and no dirty path overlaps, run `git reset --keep origin/<PRIMARY_BRANCH>`. Otherwise, or if it refuses, stop and report. Never `merge --no-ff`, rebase, force, or push the primary branch: it was never reviewed.
 
 ## 5. Validate the integrated result
 
@@ -85,15 +85,15 @@ If the repo's docs or rules name a health endpoint or a way to prove new code is
 
 ## 9. Report
 
-For each PR: number, review verdict (PASS, FAIL, absent or stale), merge commit SHA, merge strategy used, and whether it was skipped (already merged/closed) or blocked (with the exact reason — failing check, conflict, draft, wrong base). Then: whether the primary checkout was fast-forwarded or realigned, the validation gate's verdict, whether redeploy ran and its outcome, the health-check result (or the honest "no repo-defined way to check" note), and what was cleaned up. If anything stopped the sequence early (a red gate, a blocked PR, an account mismatch), say so first and plainly — a partial run that landed PR #1 but stopped before #2 is a normal, safe outcome to report, not a failure to hide.
+For each PR: number, review verdict (PASS, FAIL, absent or stale), merge commit SHA, merge strategy used, and whether it was skipped (already merged/closed) or blocked (with the exact reason — failing check, conflict, draft, wrong base). Then: whether the primary checkout was fast-forwarded or realigned, the validation gate's verdict, whether redeploy ran and its outcome, the health-check result (or the honest "no repo-defined way to check" note), and what was cleaned up. If anything stopped the sequence early (a red gate, a blocked PR, an overlapping dirty path), say so first and plainly — a partial run that landed PR #1 but stopped before #2 is a normal, safe outcome to report, not a failure to hide.
 
 ## Hard blockers — stop without weakening safety
 
 - A named PR is draft, has a merge conflict, has a failing/pending required check the user hasn't explicitly said to force through, or `review-gate.mjs` refuses it.
 - `gh` cannot reach the repository with write permission (404, `Repository not found`). Never `gh auth switch`.
 - The primary branch or its checkout can't be resolved safely.
-- A dirty path of the primary checkout overlaps the incoming files.
-- The fast-forward is refused and local primary holds a `+` commit in `git cherry`, a merge commit, or an overlapping dirty path.
+- An overlapping dirty path (step 4).
+- The fast-forward is refused and local primary holds a `+` commit in `git cherry`, a merge commit, an overlapping dirty path, or `git reset --keep` refuses.
 - The post-merge validation gate is red.
 - Git reports corruption or an unresolved conflict during sync.
 
