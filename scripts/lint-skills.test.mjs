@@ -267,6 +267,17 @@ describe('referenced files and owner fields', () => {
     assert.equal(errors(res).length, 0)
   })
 
+  test('MODEL-PIN warns on a dated model release, the model-routing:allow marker exempts the line', () => {
+    const pinned = `${FM('alpha')}Use Opus 4.7 here.\n`
+    const res = runLint(world({ files: { 'home/.claude/skills/alpha/SKILL.md': pinned, 'home/.agents/skills/alpha/SKILL.md': FM('alpha'), 'home/.agents/skills/alpha/references/r.md': 'Ask claude-sonnet-4-6.' } }).cfg)
+    const pins = res.findings.filter((f) => f.rule === 'MODEL-PIN')
+    assert.equal(pins.length, 2)
+    assert.ok(pins.every((f) => f.severity === 'warning') && pins.some((f) => /Opus 4\.7/.test(f.message)) && pins.some((f) => /references\/r\.md/.test(f.message)))
+    const allowed = `${FM('alpha')}Use Opus 4.7 here. <!-- model-routing:allow -->\n`
+    const ok = runLint(world({ files: { 'home/.claude/skills/alpha/SKILL.md': allowed, 'home/.agents/skills/alpha/SKILL.md': allowed } }).cfg)
+    assert.ok(!ok.findings.some((f) => f.rule === 'MODEL-PIN'))
+  })
+
   test('owner fields nested under metadata count', () => {
     const md = '---\nname: alpha\ndescription: short\nmetadata:\n  owner: x\n  runtimes: both\n  last-review: 2026-10-07\n---\nbody\n'
     const res = runLint(world({ files: { 'home/.claude/skills/alpha/SKILL.md': md, 'home/.agents/skills/alpha/SKILL.md': md } }).cfg)
