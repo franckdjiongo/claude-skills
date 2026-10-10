@@ -34,7 +34,7 @@ Tests: `node --test scripts/lint-skills.test.mjs` and `python3 scripts/sync-loca
 | R7-DESC | error | The frontmatter description is over 300 characters. |
 | REF-MISSING | error | SKILL.md references a file (`references/...`, `scripts/...`, a relative link) that does not exist. |
 | R9-OWNER | warning | A frontmatter owner, runtimes or last-review field is missing. |
-| MODEL-PIN | warning | SKILL.md or a text file under `references/` names a dated model release (Opus 4.7, claude-sonnet-4-6…). Name the alias (opus, sonnet, haiku) instead. A line carrying `model-routing:allow` is exempt. |
+| MODEL-PIN | warning | SKILL.md or a text file under `references/` names a dated model release (an alias followed by a version number, or a `claude-<alias>-<digits>` identifier). Name the alias (opus, sonnet, haiku) instead. A line carrying `model-routing:allow` is exempt. |
 | DORMANT | info | A skill is dormant: switched off in `skillOverrides` and either disabled in `~/.codex/config.toml` (`[[skills.config]]`, `enabled = false`) or without a Codex user-scope copy. It is reported once and skipped for R1, R7, REF-MISSING and CODEX-PATH. A skill that is off on Claude but still loads on Codex is not dormant. Info lines never change the exit code. |
 
 Intentional exceptions live in `scripts/lint-skills.allowlist.json`, each with a written reason. An entry without a reason is itself an error.
