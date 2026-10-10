@@ -60,7 +60,7 @@ From the repository root:
 **Push-enabled modes.** Session work reaches `PRIMARY_BRANCH` only through a pull request, never by a local merge, cherry-pick or commit pushed onto it. Whatever the source (primary checkout, session-created worktree, detached session checkout, or secondary branch attributable to the current task), follow the ten steps of `references/landing.md`. Read it before committing.
 
 <!-- runtime-slot:pr-merge -->
-The merge step invokes the `ship-pr` skill naming that PR, after the preflight of `references/landing.md` step 8; ship-pr's stash, `merge --no-ff`, push and redeploy fallbacks never run from this skill.
+The merge step invokes `ship-pr` naming that PR, after `references/landing.md` step 8's preflight. Its sync fast-forwards or realigns with `reset --keep`, never merges, stashes or pushes; skip its redeploy; if it stops, report the landing pending.
 <!-- /runtime-slot:pr-merge -->
 
 <!-- runtime-slot:session-branch -->

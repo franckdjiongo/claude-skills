@@ -9,9 +9,9 @@ description: >-
 
 # Ship PR
 
-Land one or more already-open pull requests: merge, sync, validate, redeploy, verify, clean up. `adversarial-pr-review` (or `brief-chantier`'s closing lot) gets a PR open and reviewed; this skill gets it merged and live. Distinct from `commit-session-work`, which commits and pushes but never merges a PR.
+Land one or more already-open pull requests: merge, sync, validate, redeploy, verify, clean up. `adversarial-pr-review` (or `brief-chantier`'s closing lot) gets a PR open and reviewed; this skill gets it merged and live. `commit-session-work` opens its own PR and merges it through this skill.
 
-Invoking this skill authorizes merging the PR(s) the user names, syncing and pushing the resolved primary branch, running the repo's own redeploy script when relevant, and deleting the branches/worktrees/locks that merge made obsolete. It does **not** authorize merging a PR the user didn't name, bypassing a failing or pending required check, force-pushing, rewriting history, or touching branch-protection settings.
+Invoking this skill authorizes merging the PR(s) the user names, fast-forwarding the resolved primary branch, running the repo's own redeploy script when relevant, and deleting the branches/worktrees/locks that merge made obsolete. It does **not** authorize merging a PR the user didn't name, bypassing a failing or pending required check, force-pushing, rewriting history, or touching branch-protection settings.
 
 ## 1. Resolve the target PR(s) — never guess, never scan
 
@@ -58,11 +58,9 @@ Record the merge commit SHA (`gh pr view <n> --json mergeCommit`) for the report
 
 Resolve `PRIMARY_BRANCH` the same way `commit-session-work` does: an explicit repo-policy target if one exists, else `refs/remotes/origin/HEAD`, else local `main` then `master`. Resolve the checkout that owns it via `git worktree list --porcelain`; if none does, work in a scoped `mktemp -d` integration worktree instead of inventing a checkout.
 
-Before pulling, check for uncommitted changes in that checkout. If there are any and they are **not** part of what you're landing, `git stash push -m "<why>" -- <paths>` them first — never let an unrelated dirty file block or get silently swept up by the sync. `git fetch` then `git pull --ff-only`. If that fails because local has commits origin doesn't (a pre-existing local commit that predates this invocation, or a prior stash-restore artifact), don't rebase and don't force anything — `git merge --no-ff origin/<PRIMARY_BRANCH>` to reconcile without rewriting either side's history, exactly as you would for any other diverged branch. Pop the stash back afterward if you pushed one, and confirm it reapplied cleanly.
+Before pulling, list dirty paths with `git status --porcelain -uall`, then `git fetch`. A dirty path *overlaps* when it is in `git diff --name-only --no-renames <PRIMARY_BRANCH> origin/<PRIMARY_BRANCH>` and its index entry is not already the incoming version (`git rev-parse :<path>` differs from `git rev-parse origin/<PRIMARY_BRANCH>:<path>`; a path absent from both the index and `origin/<PRIMARY_BRANCH>` counts as incoming; `commit-session-work` stages that version). On an overlap, stop and report it with the advice to commit those edits or move them to a work branch first, never stash it. Other dirty paths stay untouched. Then `git merge --ff-only origin/<PRIMARY_BRANCH>`.
 
-Push the synced primary branch to its own upstream if it now has commits origin doesn't (from the merge, or from that pre-existing local work) — never push a detached HEAD, never reuse another branch's upstream.
-
-**Account check before any push.** Confirm the remote is an SSH alias URL (`git@github-<alias>:…`), never `https://github.com/…`, and that `git config user.email` in this checkout matches the account the alias implies. On this machine that's `git@github-perso:…` → `franckdjiongo` / `djiongoelly@yahoo.fr`, `git@github-automintech:…` → `automintech@gmail.com`, `git@github-cobacam:…` → `ca.cobacam@gmail.com`. A mismatch is a hard blocker — stop and report it rather than pushing under the wrong identity.
+If the fast-forward is refused because local primary holds commits origin lacks, run `git cherry origin/<PRIMARY_BRANCH> <PRIMARY_BRANCH>`. Only when every line is `-` (each local commit is patch-equivalent to merged work), `git rev-list --merges origin/<PRIMARY_BRANCH>..<PRIMARY_BRANCH>` is empty and no dirty path overlaps, run `git reset --keep origin/<PRIMARY_BRANCH>`. Otherwise, or if it refuses, stop and report. Never `merge --no-ff`, rebase, force, or push the primary branch: it was never reviewed.
 
 ## 5. Validate the integrated result
 
@@ -87,15 +85,15 @@ If the repo's docs or rules name a health endpoint or a way to prove new code is
 
 ## 9. Report
 
-For each PR: number, review verdict (PASS, FAIL, absent or stale), merge commit SHA, merge strategy used, and whether it was skipped (already merged/closed) or blocked (with the exact reason — failing check, conflict, draft, wrong base). Then: whether the primary branch was pushed and to where, the validation gate's verdict, whether redeploy ran and its outcome, the health-check result (or the honest "no repo-defined way to check" note), and what was cleaned up. If anything stopped the sequence early (a red gate, a blocked PR, an account mismatch), say so first and plainly — a partial run that landed PR #1 but stopped before #2 is a normal, safe outcome to report, not a failure to hide.
+For each PR: number, review verdict (PASS, FAIL, absent or stale), merge commit SHA, merge strategy used, and whether it was skipped (already merged/closed) or blocked (with the exact reason — failing check, conflict, draft, wrong base). Then: whether the primary checkout was fast-forwarded or realigned, the validation gate's verdict, whether redeploy ran and its outcome, the health-check result (or the honest "no repo-defined way to check" note), and what was cleaned up. If anything stopped the sequence early (a red gate, a blocked PR, an overlapping dirty path), say so first and plainly — a partial run that landed PR #1 but stopped before #2 is a normal, safe outcome to report, not a failure to hide.
 
 ## Hard blockers — stop without weakening safety
 
 - A named PR is draft, has a merge conflict, has a failing/pending required check the user hasn't explicitly said to force through, or `review-gate.mjs` refuses it.
-- The remote account/SSH alias doesn't match repository policy for a push.
+- `gh` cannot reach the repository with write permission (404, `Repository not found`). Never `gh auth switch`.
 - The primary branch or its checkout can't be resolved safely.
-- Source and target contain overlapping uncommitted changes that can't be disentangled by stashing.
-- A non-fast-forward update can't be integrated without rebasing or force-pushing.
+- An overlapping dirty path (step 4).
+- The fast-forward is refused and local primary holds a `+` commit in `git cherry`, a merge commit, an overlapping dirty path, or `git reset --keep` refuses.
 - The post-merge validation gate is red.
 - Git reports corruption or an unresolved conflict during sync.
 
