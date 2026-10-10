@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Convex cost and payload checks for one Convex repository. Ported from meta-govern 1.20.0.
+// Convex cost and payload checks for one Convex repository.
 //   convex-cron-unjustified      a cron in convex/crons.ts without a `cost-justified` comment on its line or just above
 //   convex-test-real-deployment  a test that reaches a real deployment (ConvexHttpClient, or a real deployment URL with fetch) without convex-test
 //   convex-mutation-cast         `as never|any|unknown` inside the arguments of a useMutation or useAction call
